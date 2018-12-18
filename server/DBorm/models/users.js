@@ -25,12 +25,4 @@ module.exports = (sequelize, type) => {
             type: type.STRING
         }
     });
-    /*return sequelize.define('user', {
-        id: {
-            type: type.INTEGER,
-            primaryKey: true,
-            autoIncrement: true
-        },
-        name: type.STRING
-    })*/
 };
