@@ -7,7 +7,7 @@ import Welcome from './screens/mainPage/Welcome';
 
 class App extends Component {
     constructor(props) {
-        super(props)
+        super(props);
         // the initial application state
         this.state = {
             user: null
@@ -62,7 +62,7 @@ class App extends Component {
                 <header className="App-header">
                     <img src={logo} className="App-logo" alt="logo"/>
                     <p>
-                        Edit <code>src/App.js</code> and save to reload.
+                        Edit <code>src/App.jsle.js</code> and save to reload.
                     </p>
                     <a
                         className="App-link"

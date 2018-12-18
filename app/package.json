@@ -12,7 +12,8 @@
     "fresh-start" : "npm run fresh-install && npm run rc-start",
     "tron": "node_modules/.bin/reactotron",
     "android-device": "react-native run-android",
-    "ios-device": "react-native run-ios"
+    "ios-device": "react-native run-ios",
+    "eject": "react-native eject"
   },
   "dependencies": {
     "axios": "^0.18.0",
