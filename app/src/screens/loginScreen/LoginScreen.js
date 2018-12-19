@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, ScrollView, Text, TextInput, View} from 'react-native';
 import axios from 'axios';
 
-export default class Login extends Component {
+export default class LoginScreen extends Component {
     onSubmitPress = () => {
         console.log("in onSubmitPress");
         return axios.get("http://192.168.0.104:3000/users")

@@ -10,7 +10,7 @@ class LoginForm extends Component {
         let username = this.refs.username.value;
         let password = this.refs.password.value;
 
-        axios.get("http://localhost:3000/users")
+        axios.get("http://localhost:4000/users")
             .then(response => {
                 console.log("after get response");
                 console.log(response);

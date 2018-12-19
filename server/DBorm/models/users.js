@@ -1,27 +1,48 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('Users', {
-        UserName: {
-            type: type.STRING
+        userId:{
+            type: type.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false,
+            required: true
         },
-        FirstName: {
-            type: type.STRING
+        username: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
         },
-        LastName: {
-            type: type.STRING
+        firstName: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
         },
-        Password: {
-            type: type.STRING
+        lastName: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
         },
-        Email: {
-            type: type.STRING
+        password: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
         },
-        Mailbox: {
-            type: type.STRING
+        email: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
         },
-        Cellphone: {
-            type: type.STRING
+        mailbox: {
+            type: type.INTEGER,
+            allowNull: false,
+            required: true
         },
-        Phone: {
+        cellphone: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
+        },
+        phone: {
             type: type.STRING
         }
     });

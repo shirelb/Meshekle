@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import logo from './images/logo.svg';
 import './App.css';
 
-import LoginForm from './screens/loginPage/LoginPage';
-import Welcome from './screens/mainPage/Welcome';
+import LoginForm from './pages/loginPage/LoginPage';
+import MainPage from './pages/mainPage/MainPage';
 
 class App extends Component {
     constructor(props) {
@@ -42,7 +42,7 @@ class App extends Component {
                 <h1>My cool App</h1>
                 {
                     (this.state.user) ?
-                        <Welcome
+                        <MainPage
                             user={this.state.user}
                             onSignOut={this.signOut.bind(this)}
                         />

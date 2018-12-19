@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import LoginForm from "../loginPage/LoginPage";
 
-const Welcome = ({user, onSignOut})=> {
+const MainPage = ({user, onSignOut})=> {
     // This is a dumb "stateless" component
     return (
         <div>
@@ -11,4 +11,4 @@ const Welcome = ({user, onSignOut})=> {
     )
 };
 
-export default Welcome;
+export default MainPage;
