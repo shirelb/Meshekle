@@ -1,35 +1,33 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('Users', {
-        userId:{
-            type: type.STRING,
+    return sequelize.define('ChoreTypes', {
+        choreTypeId:{
+            type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
-        fullname: {
+        choreName: {
             type: type.STRING,
             required: true
         },
-        password: {
+        days: {
             type: type.STRING,
             required: true
         },
-        email: {
-            type: type.STRING,
-            required: true
-        },
-        mailbox: {
+        frequency: {
             type: type.INTEGER,
             required: true
         },
-        cellphone: {
+        startTime: {
             type: type.STRING,
             required: true
         },
-        phone: {
-            type: type.STRING
+        endTime: {
+            type: type.STRING,
+            required: true
         },
-        bornDate: {
-            type: type.DATE,
+        color: {
+            type: type.STRING,
             required: true
         },
     });
