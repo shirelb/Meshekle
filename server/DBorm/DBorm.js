@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const UsersModel = require('./models/users');
+const ServiceProvidersModel = require('./models/serviceProviders');
 
 const sequelize = new Sequelize('database', 'username', 'password', {
     host: 'localhost',
@@ -29,12 +30,14 @@ sequelize
 
 
 const Users = UsersModel(sequelize, Sequelize);
+const ServiceProviders = ServiceProvidersModel(sequelize, Sequelize);
 
-sequelize.sync({ force: true })
+sequelize.sync({ force: false })
     .then(() => {
         console.log(`Database & tables created!`)
     });
 
 module.exports = {
-    Users
+    Users,
+    ServiceProviders
 };
