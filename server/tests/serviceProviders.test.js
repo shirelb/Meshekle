@@ -47,6 +47,35 @@ describe('service providers route', function () {
         });
     });
 
+    describe('/GET serviceProviders by name ', () => {
+        it('it should GET all the service providers with given name', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/name/Amit')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                //    if(res.body.length > 0)
+                  //      res.body.forEach(item => item.should.have.name('Amit'));
+                    done();
+                });
+        });
+    });
+
+
+    describe('/GET serviceProviders by role ', () => {
+        it('it should GET all the service providers with given role', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/role/Dentist')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    if(res.body.length > 0)
+                        res.body.forEach(item => item.should.have.role('Dentist'));
+                    done();
+                });
+        });
+    });
+
    /* describe('/POST users', () => {
         it('it should not POST a user without username field', (done) => {
             let userTest = {
