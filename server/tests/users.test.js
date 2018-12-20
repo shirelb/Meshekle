@@ -16,24 +16,6 @@ describe('users route', function () {
         return Users.sync() // also tried with {force: true}
     });
 
-    beforeEach((done) => {
-        /*Book.remove({}, (err) => {
-            done();
-        });*/
-        done();
-    });
-
-    /*after(() => {
-        return Users.sync() // also tried with {force: true}
-    });
-
-    afterEach((done) => {
-        /!*Book.remove({}, (err) => {
-            done();
-        });*!/
-        done();
-    });*/
-
     describe('/GET users', () => {
         it('it should GET all the users', (done) => {
             chai.request(server)
@@ -49,26 +31,95 @@ describe('users route', function () {
 
     describe('/GET users by name', () => {
         let userTest = {
-            firstName: "Dafna",
-            lastName: "Or",
-            password: "dafnaor11",
-            email: "dafnaor@gmail.com",
-            mailbox: 1222,
-            cellphone: "0545249499",
-            phone: "089873645"
+            userId: 436547125,
+            fullname: "test test",
+            password: "tset22",
+            email: "test@gmail.com",
+            mailbox: 444,
+            mobile: "1234567896",
+            phone: "012365948",
+            bornDate: "1992-05-20"
         };
+
+        before((done) => {
+            Users.create({
+                userId: userTest.userId,
+                fullname: userTest.fullname,
+                password: userTest.password,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+                cellphone: userTest.cellphone,
+                phone: userTest.phone,
+                bornDate: new Date(userTest.bornDate),
+            });
+            done();
+        });
 
         it('it should GET all the user with name dafna', (done) => {
             chai.request(server)
-                .post('/api/users/add')
-                .send(userTest)
-                .get('/api/users/name/dafna')
+                .get('/api/users/name/test')
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
+                    res.body.length.should.be.eql(1);
                     done();
                 });
+        });
+
+        after((done) => {
+            Users.destroy({
+                where: {
+                    userId: userTest.userId
+                }
+            });
+            done();
+        });
+    });
+
+    describe('/GET users by userId', () => {
+        let userTest = {
+            userId: 436547125,
+            fullname: "test test",
+            password: "tset22",
+            email: "test@gmail.com",
+            mailbox: 444,
+            mobile: "1234567896",
+            phone: "012365948",
+            bornDate: "1992-05-20"
+        };
+
+        before((done) => {
+            Users.create({
+                userId: userTest.userId,
+                fullname: userTest.fullname,
+                password: userTest.password,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+                cellphone: userTest.cellphone,
+                phone: userTest.phone,
+                bornDate: new Date(userTest.bornDate),
+            });
+            done();
+        });
+
+        it('it should GET all the user with userId 436547125', (done) => {
+            chai.request(server)
+                .get('/api/users/userId/436547125')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+
+        after((done) => {
+            Users.destroy({
+                where: {
+                    userId: userTest.userId
+                }
+            });
+            done();
         });
     });
 
@@ -128,39 +179,5 @@ describe('users route', function () {
                 });
         });
     });
-
-    /*it('should send back a JSON object with goodCall set to true', function () {
-        request(app)
-          .post('/v1/auth/signin')
-          .set('Content-Type', 'application/json')
-          .send({ email: 'email', password: 'password' })
-          .expect('Content-Type', /json/)
-          .expect(200, done);
-    });*!/
-
-    it('Should respond in English as default', function () {
-        let newReq = req;
-        newReq.body.name = 'Jody';
-
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hello, Jody');
-    });
-
-    it('Should return greeting for english, spanish, or german', function() {
-        let newReq = req;
-        newReq.body.name = 'Jody';
-
-        newReq.body.language = 'en';
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hello, Jody');
-
-        newReq.body.language = 'es';
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hola, Jody');
-
-        newReq.body.language = 'de';
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hallo, Jody');
-    });*/
 
 });

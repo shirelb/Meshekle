@@ -36,6 +36,24 @@ router.get('/name/:name', function (req, res, next) {
         })
 });
 
+/* GET users by name listing. */
+router.get('/userId/:userId', function (req, res, next) {
+    Users.findAll({
+        where: {
+            userId: req.params.userId,
+        }
+    })
+        .then(users => {
+            console.log(users);
+            res.status(200).send(users);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+
 /* POST user . */
 router.post('/add', function (req, res, next) {
     Users.create({
