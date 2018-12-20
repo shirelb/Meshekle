@@ -27,5 +27,10 @@ module.exports = (sequelize, type) => {
             allowNull: false,
             required: true
         },
+        appointmentWayType: {
+            type: type.STRING,
+            allowNull: false,
+            required: true
+        },
     });
 };
