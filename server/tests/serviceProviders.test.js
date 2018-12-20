@@ -5,6 +5,8 @@ let should = chai.should();
 
 const db = require('../DBorm/DBorm');
 const ServiceProviders = db.ServiceProviders;
+const Users = db.Users;
+
 
 let server = require('../app');
 
@@ -20,19 +22,37 @@ describe('service providers route', function () {
         /*Book.remove({}, (err) => {
             done();
         });*/
+        Users.create({
+            username: 'Amitmazuz',
+            firstName: 'Amit',
+            lastName: "Mazuz",
+            password: '123456789',
+            email: 'amitmazuz122@gmail.com',
+            mailbox: 'X',
+            cellphone: '000000000',
+            phone: '111111111'
+        });
+        ServiceProviders.create({
+            role: 'dentist',
+            userId: '1',
+            operationTime:'Sunday,Monday',
+            phoneNumber: '0535311303'
+        });
         done();
     });
 
     /*after(() => {
         return Users.sync() // also tried with {force: true}
     });
-
+*/
     afterEach((done) => {
-        /!*Book.remove({}, (err) => {
-            done();
-        });*!/
+        Users.destroy({
+            where:{
+                userId:1
+            }
+        });
         done();
-    });*/
+    });
 
     describe('/GET serviceProviders', () => {
         it('it should GET all the service providers', (done) => {
@@ -41,7 +61,7 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
+                    res.body.length.should.be.eql(1);
                     done();
                 });
         });
