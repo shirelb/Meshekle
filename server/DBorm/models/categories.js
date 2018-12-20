@@ -3,6 +3,7 @@ module.exports = (sequelize, type) => {
         categoryId:{
             type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
         categoryName: {

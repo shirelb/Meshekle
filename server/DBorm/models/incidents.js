@@ -3,6 +3,7 @@ module.exports = (sequelize, type) => {
         incidentId:{
             type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
         userId: {
@@ -14,7 +15,7 @@ module.exports = (sequelize, type) => {
             required: true
         },
         description: {
-            type: type.INTEGER,
+            type: type.STRING,
             required: false
         },
         status: {
@@ -23,11 +24,11 @@ module.exports = (sequelize, type) => {
         },
         creationDate: {
             type: type.DATE,
-            required: false
+            required: true
         },
         closeDate: {
             type: type.DATE,
-            required: true
+            required: false
         },
         
     });

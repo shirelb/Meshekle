@@ -3,6 +3,7 @@ module.exports = (sequelize, type) => {
         choreId:{
             type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
         userId: {

@@ -9,6 +9,7 @@ module.exports = (sequelize, type) => {
         },
         role : {
             type: type.STRING,
+            primaryKey: true,
             allowNull: false,
             required: true
         },
@@ -24,7 +25,6 @@ module.exports = (sequelize, type) => {
         },
         phoneNumber: {
             type: type.STRING,
-            allowNull: false,
             required: true
         },
         appointmentWayType: {

@@ -1,7 +1,7 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('AppointmentRequests', {
         requestId:{
-            choreIdOfSender: type.INTEGER,
+            type: type.INTEGER,
             primaryKey: true,
             required: true
         },
@@ -14,7 +14,7 @@ module.exports = (sequelize, type) => {
             required: true
         },
         role: {
-            type: type.sTRING,
+            type: type.STRING,
             required: true
         },
         optionalTimes: {
@@ -23,7 +23,7 @@ module.exports = (sequelize, type) => {
         },
         notes: {
             type: type.STRING,
-            required: true
+            required: false
         },
         creationDate: {
             type: type.DATE,

@@ -3,6 +3,7 @@ module.exports = (sequelize, type) => {
         timeSlotBourdId:{
             type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
         serviceProviderId: {
@@ -26,7 +27,8 @@ module.exports = (sequelize, type) => {
             required: true
         },
         appointmentDuration: {
-            type: type.INTEGER
+            type: type.INTEGER,
+            required: true
         },
         status: {
             type: type.STRING,

@@ -3,6 +3,7 @@ module.exports = (sequelize, type) => {
         announcementId:{
             type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
         serviceProviderId: {
@@ -23,10 +24,10 @@ module.exports = (sequelize, type) => {
         },
         expirationTime: {
             type: type.DATE,
-            required: true
+            required: false
         },
         image: {
-            type: type.image,
+            type: type.BLOB,
             required: false
         },
         dateOfEvent: {

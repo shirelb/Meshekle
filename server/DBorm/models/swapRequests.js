@@ -1,12 +1,13 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('SwapRequests', {
-        role:{
-            choreIdOfSender: type.INTEGER,
+        choreIdOfSender:{
+            type: type.INTEGER,
             primaryKey: true,
             required: true
         },
         choreIdOfReceiver: {
             type: type.INTEGER,
+            primaryKey: true,
             required: true
         },
         status: {

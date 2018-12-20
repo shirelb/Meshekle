@@ -7,6 +7,7 @@ module.exports = (sequelize, type) => {
         },
         operationName: {
             type: type.STRING,
+            primaryKey: true,
             required: true
         },
         api: {

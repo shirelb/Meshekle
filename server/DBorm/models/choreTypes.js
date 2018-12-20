@@ -1,8 +1,9 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('Chores', {
+    return sequelize.define('ChoreTypes', {
         choreTypeId:{
             type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
         choreName: {
@@ -26,7 +27,8 @@ module.exports = (sequelize, type) => {
             required: true
         },
         color: {
-            type: type.STRING
+            type: type.STRING,
+            required: true
         },
     });
 };
