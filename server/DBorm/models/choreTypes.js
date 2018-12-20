@@ -1,35 +1,33 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('ServiceProviders', {
-        serviceProviderId:{
+    return sequelize.define('ChoreTypes', {
+        choreTypeId:{
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false,
             required: true
         },
-        role : {
+        choreName: {
             type: type.STRING,
-            primaryKey: true,
-            allowNull: false,
             required: true
         },
-        userId: {
+        days: {
+            type: type.STRING,
+            required: true
+        },
+        frequency: {
             type: type.INTEGER,
-            allowNull: false,
             required: true
         },
-        operationTime: {
-            type: type.STRING,
-            allowNull: false,
-            required: true
-        },
-        phoneNumber: {
+        startTime: {
             type: type.STRING,
             required: true
         },
-        appointmentWayType: {
+        endTime: {
             type: type.STRING,
-            allowNull: false,
+            required: true
+        },
+        color: {
+            type: type.STRING,
             required: true
         },
     });

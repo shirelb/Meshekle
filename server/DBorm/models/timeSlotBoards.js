@@ -1,35 +1,37 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('ServiceProviders', {
-        serviceProviderId:{
+    return sequelize.define('TimeSlotBoards', {
+        timeSlotBourdId:{
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true,
-            allowNull: false,
             required: true
         },
-        role : {
-            type: type.STRING,
-            primaryKey: true,
-            allowNull: false,
-            required: true
-        },
-        userId: {
+        serviceProviderId: {
             type: type.INTEGER,
-            allowNull: false,
             required: true
         },
-        operationTime: {
-            type: type.STRING,
-            allowNull: false,
-            required: true
-        },
-        phoneNumber: {
+        role: {
             type: type.STRING,
             required: true
         },
-        appointmentWayType: {
+        startDayTime: {
+            type: type.DATE,
+            required: true
+        },
+        endDayTime: {
+            type: type.DATE,
+            required: true
+        },
+        subject: {
             type: type.STRING,
-            allowNull: false,
+            required: true
+        },
+        appointmentDuration: {
+            type: type.INTEGER,
+            required: true
+        },
+        status: {
+            type: type.STRING,
             required: true
         },
     });
