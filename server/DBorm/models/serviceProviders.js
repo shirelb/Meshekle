@@ -3,7 +3,6 @@ module.exports = (sequelize, type) => {
         serviceProviderId:{
             type: type.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
             allowNull: false,
             required: true
         },
