@@ -47,6 +47,32 @@ describe('users route', function () {
         });
     });
 
+    describe('/GET users by name', () => {
+        let userTest = {
+            firstName: "Dafna",
+            lastName: "Or",
+            password: "dafnaor11",
+            email: "dafnaor@gmail.com",
+            mailbox: 1222,
+            cellphone: "0545249499",
+            phone: "089873645"
+        };
+
+        it('it should GET all the user with name dafna', (done) => {
+            chai.request(server)
+                .post('/api/users/add')
+                .send(userTest)
+                .get('/api/users/name/dafna')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(0);
+                    done();
+                });
+        });
+    });
+
+
     describe('/POST users', () => {
         it('it should not POST a user without username field', (done) => {
             let userTest = {
