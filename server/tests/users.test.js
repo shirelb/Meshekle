@@ -4,9 +4,11 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 
 const db = require('../DBorm/DBorm');
-const Users = db.Users;
-const ServiceProviders = db.ServiceProviders;
-const Events = db.Events;
+const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+
+// const Users = db.Users;
+// const ServiceProviders = db.ServiceProviders;
+// const Events = db.Events;
 
 let server = require('../app');
 
@@ -15,7 +17,10 @@ chai.use(chaiHttp);
 
 describe('users route', function () {
     before(() => {
-        return Users.sync() // also tried with {force: true}
+        db.sequelize.sync() // also tried with {force: true}
+            .then(done =>{
+                done();
+            })
     });
 
     let userTest = {
@@ -30,15 +35,38 @@ describe('users route', function () {
     };
 
     describe('/GET users', () => {
+        before((done) => {
+            Users.create({
+                userId: userTest.userId,
+                fullname: userTest.fullname,
+                password: userTest.password,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+                cellphone: userTest.cellphone,
+                phone: userTest.phone,
+                bornDate: new Date(userTest.bornDate),
+            });
+            done();
+        });
+
         it('it should GET all the users', (done) => {
             chai.request(server)
                 .get('/api/users')
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
+                    res.body.length.should.be.eql(1);
                     done();
                 });
+        });
+
+        after((done) => {
+            Users.destroy({
+                where: {
+                    userId: userTest.userId
+                }
+            });
+            done();
         });
     });
 
@@ -115,41 +143,66 @@ describe('users route', function () {
     });
 
     describe('/POST appointment request of user', () => {
+        let appointmentRequestTest = {
+            userId: userTest.userId,
+            serviceProviderId: 123,
+            availableTime: [
+                {
+                    "day": "Sunday",
+                    "hours": [
+                        {
+                            "startHour": "10:30",
+                            "endHour": "12:00"
+                        },
+                        {
+                            "startHour": "15:30",
+                            "endHour": "20:00"
+                        }
+                    ]
+                },
+                {
+                    "day": "Monday",
+                    "hours": [
+                        {
+                            "startHour": "10:30",
+                            "endHour": "12:00"
+                        },
+                        {
+                            "startHour": "15:30",
+                            "endHour": "20:00"
+                        }
+                    ]
+                }
+            ],
+            notes: "this is a note",
+            subject: " paint"
+        };
+
+        it('it should not POST an appointment request of non existent user ', (done) => {
+            chai.request(server)
+                .post('/api/users/appointments/request')
+                .send(appointmentRequestTest)
+                .end((err, res) => {
+                    res.should.have.status(500);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('err');
+                    res.body.should.have.property('message');
+                    res.body.message.should.equal('userId doesn\'t exist!');
+                    done();
+                });
+        });
+
         it('it should POST an appointment request of user ', (done) => {
-            let appointmentRequestTest = {
+            Users.create({
                 userId: userTest.userId,
-                serviceProviderId: 123,
-                availableTime: [
-                    {
-                        "day": "Sunday",
-                        "hours": [
-                            {
-                                "startHour": "10:30",
-                                "endHour": "12:00"
-                            },
-                            {
-                                "startHour": "15:30",
-                                "endHour": "20:00"
-                            }
-                        ]
-                    },
-                    {
-                        "day": "Monday",
-                        "hours": [
-                            {
-                                "startHour": "10:30",
-                                "endHour": "12:00"
-                            },
-                            {
-                                "startHour": "15:30",
-                                "endHour": "20:00"
-                            }
-                        ]
-                    }
-                ],
-                notes: "this is a note",
-                subject: " paint"
-            };
+                fullname: userTest.fullname,
+                password: userTest.password,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+                cellphone: userTest.cellphone,
+                phone: userTest.phone,
+                bornDate: new Date(userTest.bornDate),
+            });
 
             chai.request(server)
                 .post('/api/users/appointments/request')
@@ -160,6 +213,12 @@ describe('users route', function () {
                     res.body.should.have.property('message').eql('AppointmentRequest successfully added!');
                     done();
                 });
+
+            Users.destroy({
+                where: {
+                    userId: userTest.userId
+                }
+            });
         });
     });
 

@@ -1,11 +1,15 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('ScheduledAppointments', {
-        requestId:{
+        appointmentId:{
             type: type.INTEGER,
             primaryKey: true,
             required: true
         },
-        appointmentDateAndTime: {
+        startDateAndTime: {
+            type: type.DATE,
+            required: true
+        },
+        endDateAndTime: {
             type: type.DATE,
             required: true
         },

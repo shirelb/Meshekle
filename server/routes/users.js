@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {Users, AppointmentRequests, Appointments, Incidents, Events} = require('../DBorm/DBorm');
+const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -55,56 +55,71 @@ router.get('/userId/:userId', function (req, res, next) {
 
 /* POST appointment request of user . */
 router.post('/appointments/request', function (req, res, next) {
-    AppointmentRequests.create({
-        appointmentId: getAppointmentRequestId(),
-        userId: req.body.userId,
-        serviceProviderId: req.body.serviceProviderId,
-        availableTime: req.body.availableTime,
-        notes: req.body.notes,
-        status: "requested",
-        subject: req.body.subject
-    })
-        .then((newAppointmentRequest) => {
-            console.log('New appointmentRequest ' + newAppointmentRequest.appointmentRequestId + ', of userId' + newAppointmentRequest.userId + ' has been created.');
-            res.status(200).send({"message": "AppointmentRequest successfully added!", newAppointmentRequest});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
+    createAppointmentRequestId()
+        .then(appointmentRequestId => {
+            createAppointmentDetails(appointmentRequestId, req, res)
+                .then(newAppointmentDetails => {
+                    if (newAppointmentDetails) {
+                        AppointmentRequests.create({
+                            requestId: appointmentRequestId,
+                            optionalTimes: JSON.stringify(req.body.availableTime),
+                            notes: req.body.notes,
+                            status: "requested",
+                        })
+                            .then((newAppointmentRequest) => {
+                                res.status(200).send({
+                                    "message": "AppointmentRequest successfully added!",
+                                    newAppointmentDetails, newAppointmentRequest
+                                });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                    }
+                })
         })
 });
 
 /* POST appointment set of user . */
 router.post('/appointments/set', function (req, res, next) {
-    Appointments.create({
-        appointmentId: getAppointmentSetId(),
-        userId: req.body.userId,
-        serviceProviderId: req.body.serviceProviderId,
-        date: new Date(req.body.date),
-        startHour: req.body.startHour,
-        endHour: req.body.endHour,
-        notes: req.body.notes,
-        status: "set",
-        subject: req.body.subject
-    })
-        .then((newAppointment) => {
-            console.log('New appointmentRequest ' + newAppointment.appointmentRequestId + ', of userId' + newAppointmentRequest.userId + ' has been created.');
-            Events.create({
-                userId: newAppointment.userId,
-                eventType: "Appointments",
-                eventId: newAppointment.appointmentId
-            })
-                .then((newEvent) => {
-                    res.status(200).send({"message": "Event successfully added!", newAppointment});
+    createAppointmentSetId()
+        .then(appointmentSetId => {
+            createAppointmentDetails(appointmentSetId, req, res)
+                .then(newAppointmentDetails => {
+                    if (newAppointmentDetails) {
+                        ScheduledAppointments.create({
+                            appointmentId: appointmentSetId,
+                            startDateAndTime: new Date(req.body.date + "T" + req.body.startHour),
+                            endDateAndTime: new Date(req.body.date + "T" + req.body.endHour),
+                            remarks: req.body.notes,
+                            status: "set",
+                        })
+                            .then((newAppointment) => {
+                                Events.create({
+                                    userId: req.body.userId,
+                                    eventType: "Appointments",
+                                    eventId: newAppointment.appointmentId
+                                })
+                                    .then((newEvent) => {
+                                        res.status(200).send({
+                                            "message": "Event successfully added!",
+                                            newAppointmentDetails,
+                                            newAppointment,
+                                            newEvent
+                                        });
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).send(err);
+                                    });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                    }
                 })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send(err);
-                });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
         })
 });
 
@@ -124,7 +139,7 @@ router.post('/incidents/open', function (req, res, next) {
                 eventId: newIncident.incidentId
             })
                 .then((newEvent) => {
-                    res.status(200).send({"message": "Event successfully added!", newIncident});
+                    res.status(200).send({"message": "Event successfully added!", newIncident, newEvent});
                 })
                 .catch(err => {
                     console.log(err);
@@ -132,18 +147,28 @@ router.post('/incidents/open', function (req, res, next) {
                 });
         })
         .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
+            res.status(500).send({
+                "message": "userId doesn't exist!",
+                err
+            });
         })
 });
 
 /* POST appointment user approve . */
 router.post('/appointments/approve', function (req, res, next) {
-    AppointmentRequests.findAll({
+
+    AppointmentRequests.findOne({
         where: {
-            userId: req.body.userId,
-            appointmentRequestId: req.body.appointmentRequestId,
-        }
+            requestId: req.body.appointmentRequestId,
+        },
+        include: [{
+            model: AppointmentDetails,
+            where: {
+                clientId: req.body.userId,
+                appointmentId: req.body.appointmentRequestId,
+            },
+            required: true
+        }]
     })
         .then(appointmentsRequest => {
             console.log(appointmentsRequest);
@@ -152,26 +177,26 @@ router.post('/appointments/approve', function (req, res, next) {
                 status: "approved"
             });
 
-            Appointments.create({
-                appointmentId: appointmentsRequest.appointmentRequestId,
-                userId: appointmentsRequest.userId,
-                serviceProviderId: appointmentsRequest.serviceProviderId,
-                date: new Date(appointmentsRequest.date),
-                startHour: appointmentsRequest.startHour,
-                endHour: appointmentsRequest.endHour,
-                notes: appointmentsRequest.notes,
+            ScheduledAppointments.create({
+                appointmentId: appointmentsRequest.requestId,
+                startDateAndTime: new Date(req.body.date + "T" + req.body.startHour),
+                endDateAndTime: new Date(req.body.date + "T" + req.body.endHour),
+                remarks: appointmentsRequest.notes,
                 status: "set",
-                subject: appointmentsRequest.subject
             })
                 .then((newAppointment) => {
-                    console.log('New appointmentRequest ' + newAppointment.appointmentRequestId + ', of userId' + newAppointmentRequest.userId + ' has been created.');
                     Events.create({
-                        userId: newAppointment.userId,
+                        userId: appointmentsRequest.AppointmentDetail.clientId,
                         eventType: "Appointments",
                         eventId: newAppointment.appointmentId
                     })
                         .then((neEvent) => {
-                            res.status(200).send({"message": "Event successfully added!", newAppointment});
+                            res.status(200).send({
+                                "message": "Event successfully added!",
+                                appointmentsRequest,
+                                newAppointment,
+                                neEvent
+                            });
                         })
                         .catch(err => {
                             console.log(err);
@@ -183,16 +208,31 @@ router.post('/appointments/approve', function (req, res, next) {
                     console.log(err);
                     res.status(500).send(err);
                 });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({
+                "message": "AppointmentRequest not found!",
+                err
+            });
         });
+
 });
 
 /* POST appointment user reject . */
 router.post('/appointments/reject', function (req, res, next) {
-    AppointmentRequests.findAll({
+    AppointmentRequests.findOne({
         where: {
-            userId: req.body.userId,
-            appointmentRequestId: req.body.appointmentRequestId,
-        }
+            requestId: req.body.appointmentRequestId,
+        },
+        include: [{
+            model: AppointmentDetails,
+            where: {
+                clientId: req.body.userId,
+                appointmentId: req.body.appointmentRequestId,
+            },
+            required: true
+        }]
     })
         .then(appointmentsRequest => {
             console.log(appointmentsRequest);
@@ -203,23 +243,37 @@ router.post('/appointments/reject', function (req, res, next) {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).send({
+                "message": "AppointmentRequest not found!",
+                err
+            });
         });
 });
 
 /* GET appointments of user by userId listing. */
 router.get('/appointments/userId/:userId', function (req, res, next) {
-    Appointments.findAll({
+    AppointmentDetails.findAll({
         where: {
-            userId: req.params.userId,
-        }
+            clientId: req.params.userId,
+        },
+        include: [
+            {
+                model: ScheduledAppointments,
+                required: true
+            },
+            {
+                model: Users,
+                where: {
+                    userId: req.params.userId,
+                },
+            },
+        ]
     })
         .then(userAppointments => {
             console.log(userAppointments);
             res.status(200).send(userAppointments);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).send(err);
         })
 });
@@ -229,7 +283,15 @@ router.get('/incidents/userId/:userId', function (req, res, next) {
     Incidents.findAll({
         where: {
             userId: req.params.userId,
-        }
+        },
+        include: [
+            {
+                model: Users,
+                where: {
+                    userId: req.params.userId,
+                },
+            },
+        ]
     })
         .then(userIncidents => {
             console.log(userIncidents);
@@ -241,26 +303,51 @@ router.get('/incidents/userId/:userId', function (req, res, next) {
         })
 });
 
-function getAppointmentRequestId() {
-    AppointmentRequests.max('appointmentRequestId')
+function createAppointmentRequestId() {
+    return AppointmentRequests.max('requestId')
         .then(max => {
-            return max + 2;
+            return isNaN(max) ?
+                1
+                :
+                max + 2
         })
         .catch(err => {
             console.log(err);
         })
 }
 
-function getAppointmentSetId() {
-    Sequelize.query("SELECT * from Appointment WHERE ( appointmentId % 2 ) = 0")
+function createAppointmentSetId() {
+    return sequelize.query("SELECT * FROM ScheduledAppointments WHERE ( appointmentId % 2 ) == 0")
         .then(appointmentsSet => {
-            let max = Math.max.apply(Math, appointmentsSet.map(function (o) {
+            let max = Math.max.apply(Math, appointmentsSet[0].map(function (o) {
                 return o.appointmentId;
             }));
-            return max + 2;
+            if (appointmentsSet[0].length === 0)
+                return 2;
+            else
+                return max + 2;
         })
         .catch(err => {
             console.log(err);
+        })
+}
+
+function createAppointmentDetails(id, req, res) {
+    return AppointmentDetails.create({
+        appointmentId: id,
+        clientId: req.body.userId,
+        role: req.body.role,
+        serviceProviderId: req.body.serviceProviderId,
+        subject: req.body.subject
+    })
+        .then(newAppointmentDetails => {
+            return newAppointmentDetails;
+        })
+        .catch(err => {
+            res.status(500).send({
+                "message": "userId doesn't exist!",
+                err
+            });
         })
 }
 
@@ -304,16 +391,16 @@ router.put('/users/incidents/cancel/userId/:userId/incidentsId/:incidentsId', fu
         })
 });
 
-/* GET incidents of user by userId listing. */
-router.get('/userId/:userId/chores/settings', function (req, res, next) {
-    Incidents.findAll({
+/* GET releases of user by userId and choreTypeId listing. */
+router.get('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function (req, res, next) {
+    UsersReleases.findAll({
         where: {
             userId: req.params.userId,
+            choreTypeId: req.params.choreTypeId,
         }
     })
-        .then(userIncidents => {
-            console.log(userIncidents);
-            res.status(200).send(userIncidents);
+        .then(userReleases => {
+            res.status(200).send(userReleases);
         })
         .catch(err => {
             console.log(err);
@@ -321,8 +408,93 @@ router.get('/userId/:userId/chores/settings', function (req, res, next) {
         })
 });
 
+/* PUT releases of user by userId and choreTypeId listing. */
+router.put('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function (req, res, next) {
+    UsersReleases.findAll({
+        where: {
+            userId: req.params.userId,
+            choreTypeId: req.params.choreTypeId,
+        }
+    })
+        .then(userReleases => {
+            userReleases ?
+                userReleases.update({
+                    startDate: req.body.startDate,
+                    endDate: req.body.endDate
+                })
+                    .then(update => {
+                        res.status(200).send({"message": "releases of user updated successfully!", update});
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+                :
+                UsersReleases.create({
+                    userId: req.params.userId,
+                    choreTypeId: req.params.choreTypeId,
+                    startDate: req.body.startDate,
+                    endDate: req.body.endDate
+                })
+                    .then(newUserRelease => {
+                        res.status(200).send({"message": "releases of user added successfully!", newUserRelease});
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
 
+/* GET user chores by userId listing. */
+router.get('/userId/:userId/chores', function (req, res, next) {
+    UsersChores.findAll({
+        where: {
+            userId: req.params.userId,
+        }
+    })
+        .then(userChores => {
+            res.status(200).send(userChores);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
 
+/* GET user choresTypes by userId listing. */
+router.get('/userId/:userId/choresTypes', function (req, res, next) {
+    UsersChores.findAll({
+        where: {
+            userId: req.params.userId,
+        }
+    })
+        .then(userChoresTypes => {
+            while (i < req.body.questions.length) {
+                arr.push(DButilsAzure.execQuery("" +
+                    "INSERT INTO QaRestorePassword (userId,question,answer)" +
+                    " VALUES (" + user_id + ",'" + req.body.questions[i] + "','" + req.body.answers[i] + "')"));
+                i++;
+            }
+            for (choreTypeId in userChoresTypes) {
+                ChoreTypes.findAll({
+                    where: {
+                        userId: req.params.userId,
+                    }
+                })
+            }
+
+            res.status(200).send(userChores);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
 
 /* PUT cancel incident of user by userId listing. */
 router.put('/users/userId/:userId/update', function (req, res, next) {

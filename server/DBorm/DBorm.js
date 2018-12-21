@@ -12,6 +12,7 @@ const UsersChoresModel = require('./models/usersChores');
 const SwapRequestsModel = require('./models/swapRequests');
 const UsersReleasesModel = require('./models/usersReleases');
 const AppointmentRequestsModel = require('./models/appointmentRequests');
+const AppointmentDetailsModel = require('./models/appointmentDetails');
 const ScheduledAppointmentsModel = require('./models/scheduledAppointments');
 const IncidentsModel = require('./models/incidents');
 const TimeSlotBoardsModel = require('./models/timeSlotBoards') ;
@@ -62,6 +63,7 @@ const UsersChores = UsersChoresModel(sequelize, Sequelize);
 const SwapRequests = SwapRequestsModel(sequelize, Sequelize);
 const UsersReleases = UsersReleasesModel(sequelize, Sequelize);
 const AppointmentRequests = AppointmentRequestsModel(sequelize, Sequelize);
+const AppointmentDetails = AppointmentDetailsModel(sequelize, Sequelize);
 const ScheduledAppointments = ScheduledAppointmentsModel(sequelize, Sequelize);
 const Incidents = IncidentsModel(sequelize, Sequelize);
 const TimeSlotBoards = TimeSlotBoardsModel(sequelize, Sequelize);
@@ -73,6 +75,33 @@ const Events = EventsModel(sequelize, Sequelize);
 const Logs = LogsModel(sequelize, Sequelize);
 
 
+// Users.hasMany(AppointmentDetails, {
+//     foreignKey : 'userId'
+// });
+
+AppointmentDetails.belongsTo(Users, {
+    foreignKey : 'clientId',
+    targetKey:'userId'
+});
+
+Incidents.belongsTo(Users, {
+    foreignKey : 'userId',
+    targetKey:'userId'
+});
+
+AppointmentDetails.belongsTo(ScheduledAppointments, {
+    foreignKey: 'appointmentId',
+    targetKey:'appointmentId'
+});
+
+AppointmentDetails.belongsTo(AppointmentRequests, {
+    foreignKey: 'appointmentId',
+    targetKey:'requestId'
+});
+
+// AppointmentRequests.belongsTo(AppointmentDetails, {
+//     foreignKey: 'requestId'
+// });
 
 sequelize.sync({ force: true })
     .then(() => {
@@ -80,6 +109,7 @@ sequelize.sync({ force: true })
     });
 
 module.exports = {
+    sequelize,
     Users,
     ServiceProviders,
     Permissions,
@@ -93,6 +123,7 @@ module.exports = {
     SwapRequests,
     UsersReleases,
     AppointmentRequests,
+    AppointmentDetails,
     ScheduledAppointments,
     Incidents,
     TimeSlotBoards,
