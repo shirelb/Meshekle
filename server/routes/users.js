@@ -103,7 +103,7 @@ router.post('/appointments/set', function (req, res, next) {
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": "Event successfully added!",
+                                            "message": "Appointment successfully added!",
                                             newAppointmentDetails,
                                             newAppointment,
                                             newEvent
@@ -139,7 +139,7 @@ router.post('/incidents/open', function (req, res, next) {
                 eventId: newIncident.incidentId
             })
                 .then((newEvent) => {
-                    res.status(200).send({"message": "Event successfully added!", newIncident, newEvent});
+                    res.status(200).send({"message": "Incident successfully added!", newIncident, newEvent});
                 })
                 .catch(err => {
                     console.log(err);
@@ -192,7 +192,7 @@ router.post('/appointments/approve', function (req, res, next) {
                     })
                         .then((neEvent) => {
                             res.status(200).send({
-                                "message": "Event successfully added!",
+                                "message": "Appointment successfully added!",
                                 appointmentsRequest,
                                 newAppointment,
                                 neEvent

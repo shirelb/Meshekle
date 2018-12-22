@@ -16,12 +16,25 @@ chai.use(chaiHttp);
 
 
 describe('users route', function () {
-    before(() => {
-        db.sequelize.sync() // also tried with {force: true}
-            .then(done =>{
-                done();
-            })
+    this.timeout(10000);
+
+    before(async () => {
+        await db.sequelize.sync({force: true}); // also tried with {force: true}
+        // .then(done => {
+        // .then( () => {
+        //     done();
+        // })
+        // done();
     });
+
+    /*afterEach(async () => {
+        await db.sequelize.drop();
+        // .then(done => {
+        // .then( () => {
+        //     done();
+        // })
+        // done();
+    });*/
 
     let userTest = {
         userId: "436547125",
@@ -34,118 +47,11 @@ describe('users route', function () {
         bornDate: "1992-05-20"
     };
 
-    describe('/GET users', () => {
-        before((done) => {
-            Users.create({
-                userId: userTest.userId,
-                fullname: userTest.fullname,
-                password: userTest.password,
-                email: userTest.email,
-                mailbox: userTest.mailbox,
-                cellphone: userTest.cellphone,
-                phone: userTest.phone,
-                bornDate: new Date(userTest.bornDate),
-            });
-            done();
-        });
-
-        it('it should GET all the users', (done) => {
-            chai.request(server)
-                .get('/api/users')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    done();
-                });
-        });
-
-        after((done) => {
-            Users.destroy({
-                where: {
-                    userId: userTest.userId
-                }
-            });
-            done();
-        });
-    });
-
-    describe('/GET users by name', () => {
-        before((done) => {
-            Users.create({
-                userId: userTest.userId,
-                fullname: userTest.fullname,
-                password: userTest.password,
-                email: userTest.email,
-                mailbox: userTest.mailbox,
-                cellphone: userTest.cellphone,
-                phone: userTest.phone,
-                bornDate: new Date(userTest.bornDate),
-            });
-            done();
-        });
-
-        it('it should GET all the user with name dafna', (done) => {
-            chai.request(server)
-                .get('/api/users/name/test')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    done();
-                });
-        });
-
-        after((done) => {
-            Users.destroy({
-                where: {
-                    userId: userTest.userId
-                }
-            });
-            done();
-        });
-    });
-
-    describe('/GET users by userId', () => {
-        before((done) => {
-            Users.create({
-                userId: userTest.userId,
-                fullname: userTest.fullname,
-                password: userTest.password,
-                email: userTest.email,
-                mailbox: userTest.mailbox,
-                cellphone: userTest.cellphone,
-                phone: userTest.phone,
-                bornDate: new Date(userTest.bornDate),
-            });
-            done();
-        });
-
-        it('it should GET all the user with userId 436547125', (done) => {
-            chai.request(server)
-                .get('/api/users/userId/'+userTest.userId)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    done();
-                });
-        });
-
-        after((done) => {
-            Users.destroy({
-                where: {
-                    userId: userTest.userId
-                }
-            });
-            done();
-        });
-    });
-
-    describe('/POST appointment request of user', () => {
-        let appointmentRequestTest = {
+    let
+        appointmentRequestTest = {
             userId: userTest.userId,
             serviceProviderId: 123,
+            role: "Driver",
             availableTime: [
                 {
                     "day": "Sunday",
@@ -175,25 +81,123 @@ describe('users route', function () {
                 }
             ],
             notes: "this is a note",
-            subject: " paint"
+            subject: "paint"
         };
 
-        it('it should not POST an appointment request of non existent user ', (done) => {
+    let appointmentTest = {
+        userId: userTest.userId,
+        serviceProviderId: 123,
+        role: "Driver",
+        date: "2019-05-20",
+        startHour: "10:00",
+        endHour: "12:00",
+        notes: "this is a note"
+    };
+
+    let incidentTest = {
+        userId: userTest.userId,
+        category: "Plumbing",
+        description: "this is a description"
+    };
+
+    let appointmentApproveTest = {
+        userId: userTest.userId,
+        appointmentRequestId: 123,
+    };
+
+    describe('/GET users', () => {
+        before((done) => {
+            /*await Users.create({
+                 userId: userTest.userId,
+                 fullname: userTest.fullname,
+                 password: userTest.password,
+                 email: userTest.email,
+                 mailbox: userTest.mailbox,
+                 cellphone: userTest.cellphone,
+                 phone: userTest.phone,
+                 bornDate: new Date(userTest.bornDate),
+             });*/
+            // done();
+            createUser(userTest)
+                .then(
+                    done()
+                );
+        });
+
+
+        it('it should GET all the users', (done) => {
             chai.request(server)
-                .post('/api/users/appointments/request')
-                .send(appointmentRequestTest)
+                .get('/api/users')
                 .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('err');
-                    res.body.should.have.property('message');
-                    res.body.message.should.equal('userId doesn\'t exist!');
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
                     done();
                 });
         });
 
-        it('it should POST an appointment request of user ', (done) => {
-            Users.create({
+        after((done) => {
+            /*Users.destroy({
+                where: {
+                    userId: userTest.userId
+                }
+            });
+            done();*/
+            deleteUser(userTest)
+                .then(
+                    done()
+                );
+            // Users.sync({force: true});
+        });
+    });
+
+    describe('/GET users by name', () => {
+        before((done) => {
+            /* Users.create({
+                 userId: userTest.userId,
+                 fullname: userTest.fullname,
+                 password: userTest.password,
+                 email: userTest.email,
+                 mailbox: userTest.mailbox,
+                 cellphone: userTest.cellphone,
+                 phone: userTest.phone,
+                 bornDate: new Date(userTest.bornDate),
+             });
+             done();*/
+            createUser(userTest)
+                .then(
+                    done()
+                );
+        });
+
+        it('it should GET all the user with name dafna', (done) => {
+            chai.request(server)
+                .get('/api/users/name/test')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+
+        after((done) => {
+            /*Users.destroy({
+                where: {
+                    userId: userTest.userId
+                }
+            });
+            done();*/
+            deleteUser(userTest)
+                .then(
+                    done()
+                );
+        });
+    });
+
+    describe('/GET users by userId', () => {
+        before((done) => {
+            /*Users.create({
                 userId: userTest.userId,
                 fullname: userTest.fullname,
                 password: userTest.password,
@@ -203,125 +207,445 @@ describe('users route', function () {
                 phone: userTest.phone,
                 bornDate: new Date(userTest.bornDate),
             });
+            done();*/
+            createUser(userTest)
+                .then(
+                    done()
+                );
+        });
 
+        it('it should GET all the user with userId 436547125', (done) => {
             chai.request(server)
-                .post('/api/users/appointments/request')
-                .send(appointmentRequestTest)
+                .get('/api/users/userId/' + userTest.userId)
                 .end((err, res) => {
                     res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('message').eql('AppointmentRequest successfully added!');
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
                     done();
                 });
+        });
 
-            Users.destroy({
-                where: {
-                    userId: userTest.userId
-                }
+        after((done) => {
+            /* Users.destroy({
+                 where: {
+                     userId: userTest.userId
+                 }
+             });
+             done();*/
+            deleteUser(userTest)
+                .then(
+                    done()
+                );
+        });
+    });
+
+    describe('/POST appointment request of user', () => {
+        describe('test with non existent user', () => {
+            it('it should not POST an appointment request of non existent user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/request')
+                    .send(appointmentRequestTest)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('err');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            before((done) => {
+                /*await Users.create({
+                    userId: userTest.userId,
+                    fullname: userTest.fullname,
+                    password: userTest.password,
+                    email: userTest.email,
+                    mailbox: userTest.mailbox,
+                    cellphone: userTest.cellphone,
+                    phone: userTest.phone,
+                    bornDate: new Date(userTest.bornDate),
+                });*/
+                // done();
+                createUser(userTest)
+                    .then(
+                        done()
+                    );
+            });
+
+            it('it should POST an appointment request of user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/request')
+                    .send(appointmentRequestTest)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message').eql('AppointmentRequest successfully added!');
+                        done();
+                    })
+
+            });
+
+            after((done) => {
+                /*await Users.destroy({
+                    where: {
+                        userId: userTest.userId
+                    }
+                });
+                // done();*/
+                AppointmentRequests.sync({force: true})
+                    .then(
+                        AppointmentDetails.sync({force: true})
+                            .then(
+                                Users.sync({force: true})
+                                    .then(
+                                        done()
+                                    )
+                            )
+                    );
+
+
+                /* AppointmentRequests.destroy({
+                     where: {
+                         optionalTimes: appointmentRequestTest.availableTime,
+                         status: "requested",
+                         notes: appointmentRequestTest.notes
+                     },
+                 })
+                     .then(
+                         AppointmentDetails.destroy({
+                             where: {
+                                 clientId: appointmentRequestTest.userId,
+                                 role: appointmentRequestTest.role,
+                                 serviceProviderId: appointmentRequestTest.serviceProviderId,
+                                 subject: appointmentRequestTest.subject
+                             },
+                         })
+                             .then(
+                                 deleteUser(userTest)
+                                     .then(
+                                         done()
+                                     )
+                             )
+                     );*/
             });
         });
     });
 
     describe('/POST appointment set of user', () => {
-        it('it should POST an appointment request of user ', (done) => {
-            let appointmentTest = {
-                userId: userTest.userId,
-                serviceProviderId: 123,
-                date: "2019-05-20",
-                startHour: "10:00",
-                endHour: "12:00",
-                notes: "this is a note"
-            };
+        describe('test with non existent user', () => {
+            it('it should not POST an appointment set of non existent user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/set')
+                    .send(appointmentTest)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('err');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
 
-            chai.request(server)
-                .post('/api/users/appointments/set')
-                .send(appointmentTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('message').eql('appointment successfully added!');
-                    done();
-                });
+        describe('test with existent user', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(
+                        done()
+                    );
+            });
 
-            chai.request(server)
-                .get('/api/users/events/userId/'+userTest.userId)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
-                    done();
+            it('it should POST an appointment set of user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/set')
+                    .send(appointmentTest)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message').eql('Appointment successfully added!');
+                        done();
+                    });
+            });
+
+            it('it should save the appointment in Event table', (done) => {
+                chai.request(server)
+                    .get('/api/users/events/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('array');
+                        res.body.length.should.be.eql(1);
+                        done();
+                    });
+            });
+
+            after((done) => {
+                /*Users.destroy({
+                    where: {
+                        userId: userTest.userId
+                    }
                 });
+                done();*/
+                ScheduledAppointments.sync({force: true})
+                    .then(
+                        AppointmentDetails.sync({force: true})
+                            .then(
+                                Events.sync({force: true})
+                                    .then(
+                                        Users.sync({force: true})
+                                            .then(
+                                                done()
+                                            )
+                                    )
+                            )
+                    );
+                /*ScheduledAppointments.destroy({
+                    where: {
+                        status: "set",
+                        remarks: appointmentTest.notes
+                    },
+                })
+                    .then(
+                        AppointmentDetails.destroy({
+                            where: {
+                                clientId: appointmentTest.userId,
+                                role: appointmentTest.role,
+                                serviceProviderId: appointmentTest.serviceProviderId,
+                                subject: appointmentTest.subject
+                            },
+                        })
+                            .then(
+                                Events.destroy({
+                                    where: {
+                                        userId: appointmentTest.userId,
+                                        eventType: "Appointments",
+                                    },
+                                })
+                                    .then(
+                                        deleteUser(userTest)
+                                            .then(
+                                                done()
+                                            )
+                                    )
+                            )
+                    );*/
+            });
         });
     });
 
     describe('/POST incident of user', () => {
-        it('it should POST an appointment request of user ', (done) => {
-            let incidentTest = {
-                userId: userTest.userId,
-                category: "Plumbing",
-                description: "this is a description"
-            };
+        describe('test with non existent user', () => {
+            it('it should not POST an incident of non existent user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/incidents/open')
+                    .send(incidentTest)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('err');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
 
-            chai.request(server)
-                .post('/api/users/incidents/open')
-                .send(incidentTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('message').eql('Incident successfully added!');
-                    done();
+        describe('test with existent user', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(
+                        done()
+                    );
+            });
+
+            it('it should POST an incident of user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/incidents/open')
+                    .send(incidentTest)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message').eql('Incident successfully added!');
+                        done();
+                    });
+
+                it('it should save the incident in Event table', (done) => {
+                    chai.request(server)
+                        .get('/api/users/events/userId/' + userTest.userId)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('array');
+                            res.body.length.should.be.eql(1);
+                            done();
+                        });
                 });
 
-            chai.request(server)
-                .get('/api/users/events/userId/'+userTest.userId)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
-                    done();
+                after((done) => {
+                    /*Users.destroy({
+                        where: {
+                            userId: userTest.userId
+                        }
+                    });
+                    done();*/
+                    Incidents.sync({force: true})
+                        .then(
+                            Events.sync({force: true})
+                                .then(
+                                    Users.sync({force: true})
+                                        .then(
+                                            done()
+                                        )
+                                )
+                        );
+
+                    /*Incidents.destroy({
+                        where: {
+                            userId: incidentTest.userId,
+                            category: incidentTest.category,
+                            description: incidentTest.description,
+                            status: "opened",
+                        },
+                    })
+                        .then(
+                            Events.destroy({
+                                where: {
+                                    userId: incidentTest.userId,
+                                    eventType: "Incidents",
+                                },
+                            })
+                                .then(
+                                    deleteUser(userTest)
+                                        .then(
+                                            deleteUser(userTest)
+                                                .then(
+                                                    done()
+                                                )
+                                            // done()
+                                        )
+                                )
+                        );*/
                 });
+            });
         });
     });
 
     describe('/POST appointment user approve', () => {
-        it('it should POST an appointment request of user ', (done) => {
-            let bodyTest = {
-                userId: userTest.userId,
-                appointmentRequestId: 123,
-            };
+        describe('test with non existent user', () => {
+            it('it should not POST an appointment approve of non existent user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/request')
+                    .send(appointmentApproveTest)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('err');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
 
-            chai.request(server)
-                .post('/api/users/appointments/approve')
-                .send(bodyTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    //TODO check if the status is rejected
-                    res.body.should.have.property('message').eql('Event successfully added!');
-                    done();
-                });
+        describe('test with existent user', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(
+                        done()
+                    );
+            });
 
-            chai.request(server)
-                .get('/api/users/events/userId/'+userTest.userId)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
-                    done();
+
+            it('it should POST an appointment approve of user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/approve')
+                    .send(appointmentApproveTest)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        //TODO check if the status is rejected
+                        res.body.should.have.property('message').eql('Appointment successfully added!');
+                        done();
+                    });
+            });
+
+            it('it should save the appointment in Event table', (done) => {
+                chai.request(server)
+                    .get('/api/users/events/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('array');
+                        res.body.length.should.be.eql(1);
+                        done();
+                    });
+            });
+
+            after((done) => {
+                /*Users.destroy({
+                    where: {
+                        userId: userTest.userId
+                    }
                 });
+                done();*/
+                AppointmentRequests.sync({force: true})
+                    .then(
+                        ScheduledAppointments.sync({force: true})
+                            .then(
+                                AppointmentDetails.sync({force: true})
+                                    .then(
+                                        Events.sync({force: true})
+                                            .then(
+                                                Users.sync({force: true})
+                                                    .then(
+                                                        done()
+                                                    )
+                                            )
+                                    )
+                            )
+                    );
+
+                /*ScheduledAppointments.destroy({
+                    where: {
+                        status: "set",
+                        remarks: appointmentTest.notes
+                    },
+                })
+                    .then(
+                        AppointmentDetails.destroy({
+                            where: {
+                                clientId: appointmentTest.userId,
+                                role: appointmentTest.role,
+                                serviceProviderId: appointmentTest.serviceProviderId,
+                                subject: appointmentTest.subject
+                            },
+                        })
+                            .then(
+                                Events.destroy({
+                                    where: {
+                                        userId: appointmentTest.userId,
+                                        eventType: "Appointments",
+                                    },
+                                })
+                                    .then(
+                                        deleteUser(userTest)
+                                            .then(
+                                                done()
+                                            )
+                                    )
+                            )
+                    );*/
+            });
         });
     });
+
 
     describe('/POST appointment user reject', () => {
         it('it should POST an appointment request of user ', (done) => {
-            let bodyTest = {
-                userId: userTest.userId,
-                appointmentRequestId: 123,
-            };
-
             chai.request(server)
                 .post('/api/users/appointments/reject')
-                .send(bodyTest)
+                .send(appointmentApproveTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('object');
@@ -332,7 +656,6 @@ describe('users route', function () {
 
         });
     });
-
 
 
     describe('/POST users', () => {
@@ -391,4 +714,26 @@ describe('users route', function () {
         });
     });
 
-});
+})
+;
+
+function createUser(userTest) {
+    return Users.create({
+        userId: userTest.userId,
+        fullname: userTest.fullname,
+        password: userTest.password,
+        email: userTest.email,
+        mailbox: userTest.mailbox,
+        cellphone: userTest.cellphone,
+        phone: userTest.phone,
+        bornDate: new Date(userTest.bornDate),
+    });
+}
+
+function deleteUser(userTest) {
+    return Users.destroy({
+        where: {
+            userId: userTest.userId
+        }
+    });
+}
