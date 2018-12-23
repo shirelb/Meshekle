@@ -275,7 +275,8 @@ describe('users route', function () {
                     .end((err, res) => {
                         res.should.have.status(200);
                         res.body.should.be.a('array');
-                        res.body.length.should.be.eql(1);
+                        res.body[0].should.have.property('eventType');
+                        res.body[0].eventType.should.eql("Appointments");
                         done();
                     });
             });
@@ -537,6 +538,67 @@ describe('users route', function () {
         });
     });
 
+    describe('/GET events of user', () => {
+        this.timeout(20000);
+
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        describe('test with non existent user', () => {
+            before(done => {
+                Incidents.destroy({where: {}})
+                    .then(Users.destroy({where: {}}))
+                    .then(done())
+            });
+
+            it('it should not GET events of non existent user ', (done) => {
+                chai.request(server)
+                    .get('/api/users/events/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(
+                        Events.create({
+                            userId: appointmentTest.userId,
+                            eventType: "Appointments",
+                            eventId: 1
+                        })
+                    )
+                    .then(
+                        done()
+                    );
+            });
+
+            it('it should POST an appointment reject of user ', (done) => {
+                chai.request(server)
+                    .get('/api/users/events/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('array');
+                        res.body.length.should.be.eql(1);
+                        done();
+                    });
+            });
+
+            after((done) => {
+                Events.destroy({where: {}})
+                    .then(Users.destroy({where: {}}))
+                    .then(done());
+            });
+        });
+    });
 
     /*  describe('/POST users', () => {
           it('it should not POST a user without username field', (done) => {
@@ -617,7 +679,7 @@ function createAppointmentRequest(appointmentRequestTest) {
         serviceProviderId: appointmentRequestTest.serviceProviderId,
         subject: appointmentRequestTest.subject
     })
-        .then( () => {
+        .then(() => {
             return AppointmentRequests.create({
                 requestId: 1,
                 notes: appointmentRequestTest.notes,

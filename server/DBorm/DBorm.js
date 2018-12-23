@@ -74,6 +74,15 @@ const UserYearUtilization = UserYearUtilizationModel(sequelize, Sequelize);
 const Events = EventsModel(sequelize, Sequelize);
 const Logs = LogsModel(sequelize, Sequelize);
 
+Events.belongsTo(Users, {
+    foreignKey : 'userId',
+    targetKey:'userId'
+});
+
+Users.hasMany(Events, {
+    foreignKey : 'userId',
+    targetKey:'userId'
+});
 
 Users.hasMany(AppointmentDetails, {
     foreignKey : 'userId',
@@ -95,20 +104,15 @@ Users.hasMany(Incidents, {
     targetKey:'userId'
 });
 
-ScheduledAppointments.hasOne(AppointmentDetails, {
+AppointmentDetails.hasOne(ScheduledAppointments, {
     foreignKey: 'appointmentId',
     targetKey:'appointmentId'
 });
 
-/*AppointmentDetails.belongsTo(ScheduledAppointments, {
-    foreignKey: 'appointmentId',
-    targetKey:'appointmentId'
-});*/
-
-/*AppointmentRequests.hasOne(AppointmentDetails, {
-    foreignKey: 'requestId',
-    targetKey:'appointmentId'
-});*/
+ScheduledAppointments.belongsTo(AppointmentDetails, {
+    foreignKey:'appointmentId',
+    targetKey: 'appointmentId'
+});
 
 AppointmentDetails.hasOne(AppointmentRequests, {
     foreignKey: 'appointmentId',
