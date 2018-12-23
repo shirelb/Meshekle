@@ -85,7 +85,7 @@ describe('users route', function () {
 
     let appointmentApproveTest = {
         userId: userTest.userId,
-        appointmentRequestId: 123,
+        appointmentRequestId: 1,
     };
 
     describe('/GET users', () => {
@@ -150,11 +150,11 @@ describe('users route', function () {
                 );
         });
 
-        beforeEach((done) => {
+        /*beforeEach((done) => {
             setTimeout(function () {
                 done();
-            }, 500);
-        });
+            }, 1000);
+        });*/
 
         it('it should GET all the user with userId 436547125', (done) => {
             chai.request(server)
@@ -170,16 +170,20 @@ describe('users route', function () {
         after((done) => {
             deleteUser(userTest)
                 .then(
-                    done()
+                    setTimeout(function () {
+                        done();
+                    }, 1000)
+                    // done()
                 );
         });
+
     });
 
     describe('/POST appointment request of user', () => {
         beforeEach((done) => {
             setTimeout(function () {
                 done();
-            }, 500);
+            }, 1000);
         });
 
         describe('test with non existent user', () => {
@@ -344,139 +348,251 @@ describe('users route', function () {
     });
 
     describe('/POST appointment user approve', () => {
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
         describe('test with non existent user', () => {
             it('it should not POST an appointment approve of non existent user ', (done) => {
                 chai.request(server)
-                    .post('/api/users/appointments/request')
+                    .post('/api/users/appointments/approve')
                     .send(appointmentApproveTest)
                     .end((err, res) => {
                         res.should.have.status(500);
                         res.body.should.be.a('object');
                         res.body.should.have.property('err');
                         res.body.should.have.property('message');
-                        res.body.message.should.equal('userId doesn\'t exist!');
+                        res.body.message.should.equal('AppointmentRequest not found!');
                         done();
                     });
             });
         });
 
         describe('test with existent user', () => {
-            before((done) => {
-                createUser(userTest)
-                    .then(
-                        done()
-                    );
+            describe('test with non existent appointment request', () => {
+                before((done) => {
+                    createUser(userTest)
+                        .then(
+                            done()
+                        );
+                });
+
+                it('it should not POST an appointment approve without existing request ', (done) => {
+                    chai.request(server)
+                        .post('/api/users/appointments/approve')
+                        .send(appointmentApproveTest)
+                        .end((err, res) => {
+                            res.should.have.status(500);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('err');
+                            res.body.should.have.property('message');
+                            res.body.message.should.equal('AppointmentRequest not found!');
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    Users.destroy({where: {}})
+                        .then(done());
+                });
             });
 
+            describe('test with existent user and existent appointment request', () => {
+                before((done) => {
+                    createUser(userTest)
+                        .then(
+                            createAppointmentRequest(appointmentRequestTest)
+                        )
+                        .then(
+                            done()
+                        );
+                });
 
-            it('it should POST an appointment approve of user ', (done) => {
-                chai.request(server)
-                    .post('/api/users/appointments/approve')
-                    .send(appointmentApproveTest)
-                    .end((err, res) => {
-                        res.should.have.status(200);
-                        res.body.should.be.a('object');
-                        //TODO check if the status is rejected
-                        res.body.should.have.property('message').eql('Appointment successfully added!');
-                        done();
-                    });
-            });
+                it('it should POST an appointment approve of user ', (done) => {
+                    chai.request(server)
+                        .post('/api/users/appointments/approve')
+                        .send(appointmentApproveTest)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('newAppointment');
+                            res.body.newAppointment.should.have.property('status').eql('set');
+                            res.body.should.have.property('appointmentsRequest');
+                            res.body.appointmentsRequest.should.have.property('status').eql('approved');
+                            res.body.should.have.property('message').eql('Appointment successfully added!');
+                            done();
+                        });
+                });
 
-            it('it should save the appointment in Event table', (done) => {
-                chai.request(server)
-                    .get('/api/users/events/userId/' + userTest.userId)
-                    .end((err, res) => {
-                        res.should.have.status(200);
-                        res.body.should.be.a('array');
-                        res.body.length.should.be.eql(1);
-                        done();
-                    });
-            });
+                it('it should save the appointment in Event table', (done) => {
+                    chai.request(server)
+                        .get('/api/users/events/userId/' + userTest.userId)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('array');
+                            res.body[0].should.have.property('eventType');
+                            res.body[0].eventType.should.eql("Appointments");
+                            done();
+                        });
+                });
 
-            after((done) => {
-                AppointmentRequests.destroy({where: {}})
-                    .then(ScheduledAppointments.destroy({where: {}}))
-                    .then(AppointmentDetails.destroy({where: {}}))
-                    .then(Events.destroy({where: {}}))
-                    .then(Users.destroy({where: {}}))
-                    .then(done());
+                after((done) => {
+                    AppointmentRequests.destroy({where: {}})
+                        .then(ScheduledAppointments.destroy({where: {}}))
+                        .then(AppointmentDetails.destroy({where: {}}))
+                        .then(Events.destroy({where: {}}))
+                        .then(Users.destroy({where: {}}))
+                        .then(done());
+                });
             });
         });
     });
-
 
     describe('/POST appointment user reject', () => {
-        it('it should POST an appointment request of user ', (done) => {
-            chai.request(server)
-                .post('/api/users/appointments/reject')
-                .send(appointmentApproveTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    //TODO check if the status is rejected
-                    res.body.should.have.property('message').eql('Event successfully added!');
-                    done();
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        describe('test with non existent user', () => {
+            it('it should not POST an appointment reject of non existent user ', (done) => {
+                chai.request(server)
+                    .post('/api/users/appointments/reject')
+                    .send(appointmentApproveTest)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('err');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('AppointmentRequest not found!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            describe('test with non existent appointment request', () => {
+                before((done) => {
+                    createUser(userTest)
+                        .then(
+                            done()
+                        );
                 });
 
+                it('it should not POST an appointment approve without existing request ', (done) => {
+                    chai.request(server)
+                        .post('/api/users/appointments/reject')
+                        .send(appointmentApproveTest)
+                        .end((err, res) => {
+                            res.should.have.status(500);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('err');
+                            res.body.should.have.property('message');
+                            res.body.message.should.equal('AppointmentRequest not found!');
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    Users.destroy({where: {}})
+                        .then(done());
+                });
+            });
+
+            describe('test with existent user and existent appointment request', () => {
+                before((done) => {
+                    createUser(userTest)
+                        .then(
+                            createAppointmentRequest(appointmentRequestTest)
+                        )
+                        .then(
+                            done()
+                        );
+                });
+
+                it('it should POST an appointment reject of user ', (done) => {
+                    chai.request(server)
+                        .post('/api/users/appointments/reject')
+                        .send(appointmentApproveTest)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('appointmentsRequest');
+                            res.body.appointmentsRequest.should.have.property('status').eql('rejected');
+                            res.body.should.have.property('message').eql('AppointmentsRequest successfully rejected!');
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    AppointmentRequests.destroy({where: {}})
+                        .then(AppointmentDetails.destroy({where: {}}))
+                        .then(Users.destroy({where: {}}))
+                        .then(done());
+                });
+            });
         });
     });
 
 
-  /*  describe('/POST users', () => {
-        it('it should not POST a user without username field', (done) => {
-            let userTest = {
-                firstName: "Dafna",
-                lastName: "Or",
-                password: "dafnaor11",
-                email: "dafnaor@gmail.com",
-                mailbox: 1222,
-                cellphone: "0545249499",
-                phone: "089873645"
-            };
+    /*  describe('/POST users', () => {
+          it('it should not POST a user without username field', (done) => {
+              let userTest = {
+                  firstName: "Dafna",
+                  lastName: "Or",
+                  password: "dafnaor11",
+                  email: "dafnaor@gmail.com",
+                  mailbox: 1222,
+                  cellphone: "0545249499",
+                  phone: "089873645"
+              };
 
-            chai.request(server)
-                .post('/api/users/add')
-                .send(userTest)
-                .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('errors');
-                    res.body.errors[0].path.should.equal('username');
-                    done();
-                });
-        });
+              chai.request(server)
+                  .post('/api/users/add')
+                  .send(userTest)
+                  .end((err, res) => {
+                      res.should.have.status(500);
+                      res.body.should.be.a('object');
+                      res.body.should.have.property('errors');
+                      res.body.errors[0].path.should.equal('username');
+                      done();
+                  });
+          });
 
-        it('it should POST a user ', (done) => {
-            let userTest = {
-                username: "dafnao",
-                firstName: "Dafna",
-                lastName: "Or",
-                password: "dafnaor11",
-                email: "dafnaor@gmail.com",
-                mailbox: 1222,
-                cellphone: "0545249499",
-                phone: "089873645"
-            };
+          it('it should POST a user ', (done) => {
+              let userTest = {
+                  username: "dafnao",
+                  firstName: "Dafna",
+                  lastName: "Or",
+                  password: "dafnaor11",
+                  email: "dafnaor@gmail.com",
+                  mailbox: 1222,
+                  cellphone: "0545249499",
+                  phone: "089873645"
+              };
 
-            chai.request(server)
-                .post('/api/users/add')
-                .send(userTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('message').eql('User successfully added!');
-                    res.body.newUser.should.have.property('username');
-                    res.body.newUser.should.have.property('firstName');
-                    res.body.newUser.should.have.property('lastName');
-                    res.body.newUser.should.have.property('password');
-                    res.body.newUser.should.have.property('email');
-                    res.body.newUser.should.have.property('mailbox');
-                    res.body.newUser.should.have.property('cellphone');
-                    res.body.newUser.should.have.property('phone');
-                    done();
-                });
-        });
-    });*/
+              chai.request(server)
+                  .post('/api/users/add')
+                  .send(userTest)
+                  .end((err, res) => {
+                      res.should.have.status(200);
+                      res.body.should.be.a('object');
+                      res.body.should.have.property('message').eql('User successfully added!');
+                      res.body.newUser.should.have.property('username');
+                      res.body.newUser.should.have.property('firstName');
+                      res.body.newUser.should.have.property('lastName');
+                      res.body.newUser.should.have.property('password');
+                      res.body.newUser.should.have.property('email');
+                      res.body.newUser.should.have.property('mailbox');
+                      res.body.newUser.should.have.property('cellphone');
+                      res.body.newUser.should.have.property('phone');
+                      done();
+                  });
+          });
+      });*/
 
 });
 
@@ -491,6 +607,24 @@ function createUser(userTest) {
         phone: userTest.phone,
         bornDate: new Date(userTest.bornDate),
     });
+}
+
+function createAppointmentRequest(appointmentRequestTest) {
+    return AppointmentDetails.create({
+        appointmentId: 1,
+        clientId: appointmentRequestTest.userId,
+        role: appointmentRequestTest.role,
+        serviceProviderId: appointmentRequestTest.serviceProviderId,
+        subject: appointmentRequestTest.subject
+    })
+        .then( () => {
+            return AppointmentRequests.create({
+                requestId: 1,
+                notes: appointmentRequestTest.notes,
+                optionalTimes: JSON.stringify(appointmentRequestTest.availableTime),
+                status: "requested",
+            });
+        })
 }
 
 function deleteUser(userTest) {

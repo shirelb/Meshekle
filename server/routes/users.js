@@ -156,7 +156,6 @@ router.post('/incidents/open', function (req, res, next) {
 
 /* POST appointment user approve . */
 router.post('/appointments/approve', function (req, res, next) {
-
     AppointmentRequests.findOne({
         where: {
             requestId: req.body.appointmentRequestId,
@@ -167,12 +166,10 @@ router.post('/appointments/approve', function (req, res, next) {
                 clientId: req.body.userId,
                 appointmentId: req.body.appointmentRequestId,
             },
-            required: true
+            required: true,
         }]
     })
         .then(appointmentsRequest => {
-            console.log(appointmentsRequest);
-
             appointmentsRequest.update({
                 status: "approved"
             });

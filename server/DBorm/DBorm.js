@@ -75,9 +75,10 @@ const Events = EventsModel(sequelize, Sequelize);
 const Logs = LogsModel(sequelize, Sequelize);
 
 
-// Users.hasMany(AppointmentDetails, {
-//     foreignKey : 'userId'
-// });
+Users.hasMany(AppointmentDetails, {
+    foreignKey : 'userId',
+    targetKey:'clientId'
+});
 
 AppointmentDetails.belongsTo(Users, {
     foreignKey : 'clientId',
@@ -89,19 +90,41 @@ Incidents.belongsTo(Users, {
     targetKey:'userId'
 });
 
-AppointmentDetails.belongsTo(ScheduledAppointments, {
+Users.hasMany(Incidents, {
+    foreignKey : 'userId',
+    targetKey:'userId'
+});
+
+ScheduledAppointments.hasOne(AppointmentDetails, {
     foreignKey: 'appointmentId',
     targetKey:'appointmentId'
 });
 
-AppointmentDetails.belongsTo(AppointmentRequests, {
+/*AppointmentDetails.belongsTo(ScheduledAppointments, {
+    foreignKey: 'appointmentId',
+    targetKey:'appointmentId'
+});*/
+
+/*AppointmentRequests.hasOne(AppointmentDetails, {
+    foreignKey: 'requestId',
+    targetKey:'appointmentId'
+});*/
+
+AppointmentDetails.hasOne(AppointmentRequests, {
     foreignKey: 'appointmentId',
     targetKey:'requestId'
 });
 
-// AppointmentRequests.belongsTo(AppointmentDetails, {
-//     foreignKey: 'requestId'
-// });
+AppointmentRequests.belongsTo(AppointmentDetails, {
+    foreignKey:'requestId',
+    targetKey: 'appointmentId'
+});
+
+AppointmentRequests.belongsTo(ScheduledAppointments, {
+    foreignKey: 'requestId',
+    targetKey:'appointmentId'
+});
+
 
 sequelize.sync({ force: true })
     .then(() => {
