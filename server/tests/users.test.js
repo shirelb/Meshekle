@@ -6,35 +6,19 @@ let should = chai.should();
 const db = require('../DBorm/DBorm');
 const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
 
-// const Users = db.Users;
-// const ServiceProviders = db.ServiceProviders;
-// const Events = db.Events;
-
 let server = require('../app');
 
 chai.use(chaiHttp);
 
 
 describe('users route', function () {
-    this.timeout(10000);
+    this.timeout(20000);
 
-    before(async () => {
-        await db.sequelize.sync({force: true}); // also tried with {force: true}
-        // .then(done => {
-        // .then( () => {
-        //     done();
-        // })
-        // done();
+    beforeEach((done) => {
+        setTimeout(function () {
+            done();
+        }, 1000);
     });
-
-    /*afterEach(async () => {
-        await db.sequelize.drop();
-        // .then(done => {
-        // .then( () => {
-        //     done();
-        // })
-        // done();
-    });*/
 
     let userTest = {
         userId: "436547125",
@@ -47,42 +31,41 @@ describe('users route', function () {
         bornDate: "1992-05-20"
     };
 
-    let
-        appointmentRequestTest = {
-            userId: userTest.userId,
-            serviceProviderId: 123,
-            role: "Driver",
-            availableTime: [
-                {
-                    "day": "Sunday",
-                    "hours": [
-                        {
-                            "startHour": "10:30",
-                            "endHour": "12:00"
-                        },
-                        {
-                            "startHour": "15:30",
-                            "endHour": "20:00"
-                        }
-                    ]
-                },
-                {
-                    "day": "Monday",
-                    "hours": [
-                        {
-                            "startHour": "10:30",
-                            "endHour": "12:00"
-                        },
-                        {
-                            "startHour": "15:30",
-                            "endHour": "20:00"
-                        }
-                    ]
-                }
-            ],
-            notes: "this is a note",
-            subject: "paint"
-        };
+    let appointmentRequestTest = {
+        userId: userTest.userId,
+        serviceProviderId: 123,
+        role: "Driver",
+        availableTime: [
+            {
+                "day": "Sunday",
+                "hours": [
+                    {
+                        "startHour": "10:30",
+                        "endHour": "12:00"
+                    },
+                    {
+                        "startHour": "15:30",
+                        "endHour": "20:00"
+                    }
+                ]
+            },
+            {
+                "day": "Monday",
+                "hours": [
+                    {
+                        "startHour": "10:30",
+                        "endHour": "12:00"
+                    },
+                    {
+                        "startHour": "15:30",
+                        "endHour": "20:00"
+                    }
+                ]
+            }
+        ],
+        notes: "this is a note",
+        subject: "paint"
+    };
 
     let appointmentTest = {
         userId: userTest.userId,
@@ -107,23 +90,11 @@ describe('users route', function () {
 
     describe('/GET users', () => {
         before((done) => {
-            /*await Users.create({
-                 userId: userTest.userId,
-                 fullname: userTest.fullname,
-                 password: userTest.password,
-                 email: userTest.email,
-                 mailbox: userTest.mailbox,
-                 cellphone: userTest.cellphone,
-                 phone: userTest.phone,
-                 bornDate: new Date(userTest.bornDate),
-             });*/
-            // done();
             createUser(userTest)
                 .then(
                     done()
                 );
         });
-
 
         it('it should GET all the users', (done) => {
             chai.request(server)
@@ -137,33 +108,15 @@ describe('users route', function () {
         });
 
         after((done) => {
-            /*Users.destroy({
-                where: {
-                    userId: userTest.userId
-                }
-            });
-            done();*/
             deleteUser(userTest)
                 .then(
                     done()
                 );
-            // Users.sync({force: true});
         });
     });
 
     describe('/GET users by name', () => {
         before((done) => {
-            /* Users.create({
-                 userId: userTest.userId,
-                 fullname: userTest.fullname,
-                 password: userTest.password,
-                 email: userTest.email,
-                 mailbox: userTest.mailbox,
-                 cellphone: userTest.cellphone,
-                 phone: userTest.phone,
-                 bornDate: new Date(userTest.bornDate),
-             });
-             done();*/
             createUser(userTest)
                 .then(
                     done()
@@ -182,12 +135,6 @@ describe('users route', function () {
         });
 
         after((done) => {
-            /*Users.destroy({
-                where: {
-                    userId: userTest.userId
-                }
-            });
-            done();*/
             deleteUser(userTest)
                 .then(
                     done()
@@ -197,21 +144,16 @@ describe('users route', function () {
 
     describe('/GET users by userId', () => {
         before((done) => {
-            /*Users.create({
-                userId: userTest.userId,
-                fullname: userTest.fullname,
-                password: userTest.password,
-                email: userTest.email,
-                mailbox: userTest.mailbox,
-                cellphone: userTest.cellphone,
-                phone: userTest.phone,
-                bornDate: new Date(userTest.bornDate),
-            });
-            done();*/
             createUser(userTest)
                 .then(
                     done()
                 );
+        });
+
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 500);
         });
 
         it('it should GET all the user with userId 436547125', (done) => {
@@ -226,12 +168,6 @@ describe('users route', function () {
         });
 
         after((done) => {
-            /* Users.destroy({
-                 where: {
-                     userId: userTest.userId
-                 }
-             });
-             done();*/
             deleteUser(userTest)
                 .then(
                     done()
@@ -240,6 +176,12 @@ describe('users route', function () {
     });
 
     describe('/POST appointment request of user', () => {
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 500);
+        });
+
         describe('test with non existent user', () => {
             it('it should not POST an appointment request of non existent user ', (done) => {
                 chai.request(server)
@@ -258,17 +200,6 @@ describe('users route', function () {
 
         describe('test with existent user', () => {
             before((done) => {
-                /*await Users.create({
-                    userId: userTest.userId,
-                    fullname: userTest.fullname,
-                    password: userTest.password,
-                    email: userTest.email,
-                    mailbox: userTest.mailbox,
-                    cellphone: userTest.cellphone,
-                    phone: userTest.phone,
-                    bornDate: new Date(userTest.bornDate),
-                });*/
-                // done();
                 createUser(userTest)
                     .then(
                         done()
@@ -289,47 +220,10 @@ describe('users route', function () {
             });
 
             after((done) => {
-                /*await Users.destroy({
-                    where: {
-                        userId: userTest.userId
-                    }
-                });
-                // done();*/
-                AppointmentRequests.sync({force: true})
-                    .then(
-                        AppointmentDetails.sync({force: true})
-                            .then(
-                                Users.sync({force: true})
-                                    .then(
-                                        done()
-                                    )
-                            )
-                    );
-
-
-                /* AppointmentRequests.destroy({
-                     where: {
-                         optionalTimes: appointmentRequestTest.availableTime,
-                         status: "requested",
-                         notes: appointmentRequestTest.notes
-                     },
-                 })
-                     .then(
-                         AppointmentDetails.destroy({
-                             where: {
-                                 clientId: appointmentRequestTest.userId,
-                                 role: appointmentRequestTest.role,
-                                 serviceProviderId: appointmentRequestTest.serviceProviderId,
-                                 subject: appointmentRequestTest.subject
-                             },
-                         })
-                             .then(
-                                 deleteUser(userTest)
-                                     .then(
-                                         done()
-                                     )
-                             )
-                     );*/
+                AppointmentRequests.destroy({where: {}})
+                    .then(AppointmentDetails.destroy({where: {}}))
+                    .then(Users.destroy({where: {}}))
+                    .then(done())
             });
         });
     });
@@ -383,55 +277,11 @@ describe('users route', function () {
             });
 
             after((done) => {
-                /*Users.destroy({
-                    where: {
-                        userId: userTest.userId
-                    }
-                });
-                done();*/
-                ScheduledAppointments.sync({force: true})
-                    .then(
-                        AppointmentDetails.sync({force: true})
-                            .then(
-                                Events.sync({force: true})
-                                    .then(
-                                        Users.sync({force: true})
-                                            .then(
-                                                done()
-                                            )
-                                    )
-                            )
-                    );
-                /*ScheduledAppointments.destroy({
-                    where: {
-                        status: "set",
-                        remarks: appointmentTest.notes
-                    },
-                })
-                    .then(
-                        AppointmentDetails.destroy({
-                            where: {
-                                clientId: appointmentTest.userId,
-                                role: appointmentTest.role,
-                                serviceProviderId: appointmentTest.serviceProviderId,
-                                subject: appointmentTest.subject
-                            },
-                        })
-                            .then(
-                                Events.destroy({
-                                    where: {
-                                        userId: appointmentTest.userId,
-                                        eventType: "Appointments",
-                                    },
-                                })
-                                    .then(
-                                        deleteUser(userTest)
-                                            .then(
-                                                done()
-                                            )
-                                    )
-                            )
-                    );*/
+                ScheduledAppointments.destroy({where: {}})
+                    .then(AppointmentDetails.destroy({where: {}}))
+                    .then(Events.destroy({where: {}}))
+                    .then(Users.destroy({where: {}}))
+                    .then(done());
             });
         });
     });
@@ -484,49 +334,10 @@ describe('users route', function () {
                 });
 
                 after((done) => {
-                    /*Users.destroy({
-                        where: {
-                            userId: userTest.userId
-                        }
-                    });
-                    done();*/
-                    Incidents.sync({force: true})
-                        .then(
-                            Events.sync({force: true})
-                                .then(
-                                    Users.sync({force: true})
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        );
-
-                    /*Incidents.destroy({
-                        where: {
-                            userId: incidentTest.userId,
-                            category: incidentTest.category,
-                            description: incidentTest.description,
-                            status: "opened",
-                        },
-                    })
-                        .then(
-                            Events.destroy({
-                                where: {
-                                    userId: incidentTest.userId,
-                                    eventType: "Incidents",
-                                },
-                            })
-                                .then(
-                                    deleteUser(userTest)
-                                        .then(
-                                            deleteUser(userTest)
-                                                .then(
-                                                    done()
-                                                )
-                                            // done()
-                                        )
-                                )
-                        );*/
+                    Incidents.destroy({where: {}})
+                        .then(Events.destroy({where: {}}))
+                        .then(Users.destroy({where: {}}))
+                        .then(done())
                 });
             });
         });
@@ -583,59 +394,12 @@ describe('users route', function () {
             });
 
             after((done) => {
-                /*Users.destroy({
-                    where: {
-                        userId: userTest.userId
-                    }
-                });
-                done();*/
-                AppointmentRequests.sync({force: true})
-                    .then(
-                        ScheduledAppointments.sync({force: true})
-                            .then(
-                                AppointmentDetails.sync({force: true})
-                                    .then(
-                                        Events.sync({force: true})
-                                            .then(
-                                                Users.sync({force: true})
-                                                    .then(
-                                                        done()
-                                                    )
-                                            )
-                                    )
-                            )
-                    );
-
-                /*ScheduledAppointments.destroy({
-                    where: {
-                        status: "set",
-                        remarks: appointmentTest.notes
-                    },
-                })
-                    .then(
-                        AppointmentDetails.destroy({
-                            where: {
-                                clientId: appointmentTest.userId,
-                                role: appointmentTest.role,
-                                serviceProviderId: appointmentTest.serviceProviderId,
-                                subject: appointmentTest.subject
-                            },
-                        })
-                            .then(
-                                Events.destroy({
-                                    where: {
-                                        userId: appointmentTest.userId,
-                                        eventType: "Appointments",
-                                    },
-                                })
-                                    .then(
-                                        deleteUser(userTest)
-                                            .then(
-                                                done()
-                                            )
-                                    )
-                            )
-                    );*/
+                AppointmentRequests.destroy({where: {}})
+                    .then(ScheduledAppointments.destroy({where: {}}))
+                    .then(AppointmentDetails.destroy({where: {}}))
+                    .then(Events.destroy({where: {}}))
+                    .then(Users.destroy({where: {}}))
+                    .then(done());
             });
         });
     });
@@ -658,7 +422,7 @@ describe('users route', function () {
     });
 
 
-    describe('/POST users', () => {
+  /*  describe('/POST users', () => {
         it('it should not POST a user without username field', (done) => {
             let userTest = {
                 firstName: "Dafna",
@@ -712,10 +476,9 @@ describe('users route', function () {
                     done();
                 });
         });
-    });
+    });*/
 
-})
-;
+});
 
 function createUser(userTest) {
     return Users.create({
