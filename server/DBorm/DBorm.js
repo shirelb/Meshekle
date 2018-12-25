@@ -15,7 +15,7 @@ const AppointmentRequestsModel = require('./models/appointmentRequests');
 const AppointmentDetailsModel = require('./models/appointmentDetails');
 const ScheduledAppointmentsModel = require('./models/scheduledAppointments');
 const IncidentsModel = require('./models/incidents');
-const TimeSlotBoardsModel = require('./models/timeSlotBoards') ;
+const TimeSlotBoardsModel = require('./models/timeSlotBoards');
 const TimeSlotBoardAppointmentsModel = require('./models/timeSlotBoardAppointments');
 const ApartmentConstraintsModel = require('./models/apartmentConstraints')
 const ApartmentReservationsModel = require('./models/apartmentReservations');
@@ -75,62 +75,62 @@ const Events = EventsModel(sequelize, Sequelize);
 const Logs = LogsModel(sequelize, Sequelize);
 
 Events.belongsTo(Users, {
-    foreignKey : 'userId',
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 Users.hasMany(Events, {
-    foreignKey : 'userId',
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 Users.hasMany(AppointmentDetails, {
-    foreignKey : 'userId',
-    targetKey:'clientId'
+    foreignKey: 'userId',
+    targetKey: 'clientId'
 });
 
 AppointmentDetails.belongsTo(Users, {
-    foreignKey : 'clientId',
-    targetKey:'userId'
+    foreignKey: 'clientId',
+    targetKey: 'userId'
 });
 
 Incidents.belongsTo(Users, {
-    foreignKey : 'userId',
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 Users.hasMany(Incidents, {
-    foreignKey : 'userId',
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 AppointmentDetails.hasOne(ScheduledAppointments, {
     foreignKey: 'appointmentId',
-    targetKey:'appointmentId'
+    targetKey: 'appointmentId'
 });
 
 ScheduledAppointments.belongsTo(AppointmentDetails, {
-    foreignKey:'appointmentId',
+    foreignKey: 'appointmentId',
     targetKey: 'appointmentId'
 });
 
 AppointmentDetails.hasOne(AppointmentRequests, {
     foreignKey: 'appointmentId',
-    targetKey:'requestId'
+    targetKey: 'requestId'
 });
 
 AppointmentRequests.belongsTo(AppointmentDetails, {
-    foreignKey:'requestId',
+    foreignKey: 'requestId',
     targetKey: 'appointmentId'
 });
 
 AppointmentRequests.belongsTo(ScheduledAppointments, {
     foreignKey: 'requestId',
-    targetKey:'appointmentId'
+    targetKey: 'appointmentId'
 });
 
 
-sequelize.sync({ force: true })
+sequelize.sync({force: true})
     .then(() => {
         console.log(`Database & tables created!`)
     });
@@ -141,8 +141,8 @@ module.exports = {
     ServiceProviders,
     Permissions,
     RulesModules,
-    Categories, 
-    Announcements, 
+    Categories,
+    Announcements,
     AnnouncementSubscriptions,
     ChoreTypes,
     UsersChoresTypes,

@@ -410,13 +410,29 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                         if (appointment) {
                             if (appointment.status === "set") {
                                 appointment.update({
-                                    status: "cancelled"
+                                    status: "canceled"
                                 });
-                                res.status(200).send({"message": "Appointment cancelled successfully!", appointment});
+                                Events.destroy({
+                                    where:{
+                                        userId: req.params.userId,
+                                        eventType: "Appointments",
+                                        eventId: appointment.appointmentId
+                                    }
+                                })
+                                    .then((newEvent) => {
+                                        res.status(200).send({
+                                            "message": "Appointment canceled successfully!",
+                                            appointment
+                                        });
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).send(err);
+                                    });
                             }
                             else {
-                                appointment.status === "cancelled" ?
-                                    res.status(200).send({"message": "Appointment already cancelled !", appointment})
+                                appointment.status === "canceled" ?
+                                    res.status(200).send({"message": "Appointment already canceled !", appointment})
                                     :
                                     res.status(200).send({"message": "Appointment already passed !", appointment});
                             }
@@ -454,13 +470,30 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                         if (incident) {
                             if (incident.status === "opened") {
                                 incident.update({
-                                    status: "cancelled"
+                                    status: "canceled"
                                 });
-                                res.status(200).send({"message": "Incident cancelled successfully!", incident});
+
+                                Events.destroy({
+                                    where:{
+                                        userId: req.params.userId,
+                                        eventType: "Incidents",
+                                        eventId: incident.incidentId
+                                    }
+                                })
+                                    .then((newEvent) => {
+                                        res.status(200).send({
+                                            "message": "Incident canceled successfully!",
+                                            incident
+                                        });
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).send(err);
+                                    });
                             }
                             else {
-                                incident.status === "cancelled" ?
-                                    res.status(200).send({"message": "Incident already cancelled !", incident})
+                                incident.status === "canceled" ?
+                                    res.status(200).send({"message": "Incident already canceled !", incident})
                                     :
                                     res.status(200).send({"message": "Appointment already resolved !", incident});
                             }
@@ -602,7 +635,7 @@ router.put('/users/userId/:userId/update', function (req, res, next) {
             cellphone: req.body.cellphone ? req.body.cellphone : user.cellphone,
             phone: req.body.phone ? req.body.phone : user.phone,
         });
-        res.status(200).send({"message": "Incident cancelled successfully!", appointment});
+        res.status(200).send({"message": "Incident canceled successfully!", appointment});
     })
         .catch(err => {
             console.log(err);
