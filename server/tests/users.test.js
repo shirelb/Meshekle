@@ -538,6 +538,117 @@ describe('users route', function () {
         });
     });
 
+    describe('/GET scheduled appointments of user', () => {
+        this.timeout(20000);
+
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        describe('test with non existent user', () => {
+            before(done => {
+                ScheduledAppointments.destroy({where: {}})
+                    .then(Users.destroy({where: {}}))
+                    .then(done())
+            });
+
+            it('it should not GET scheduled appointments of non existent user ', (done) => {
+                chai.request(server)
+                    .get('/api/users/appointments/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(createScheduledAppointment(appointmentTest)
+                        .then(done()
+                        ));
+            });
+
+            it('it should POST an appointment reject of user ', (done) => {
+                chai.request(server)
+                    .get('/api/users/appointments/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('array');
+                        res.body.length.should.be.eql(1);
+                        done();
+                    });
+            });
+
+            after((done) => {
+                ScheduledAppointments.destroy({where: {}})
+                    .then(Users.destroy({where: {}}))
+                    .then(done());
+            });
+        });
+    });
+
+    describe('/GET incidents of user', () => {
+        this.timeout(20000);
+
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        describe('test with non existent user', () => {
+            before(done => {
+                Incidents.destroy({where: {}})
+                    .then(Users.destroy({where: {}}))
+                    .then(done())
+            });
+
+            it('it should not GET scheduled appointments of non existent user ', (done) => {
+                chai.request(server)
+                    .get('/api/users/incidents/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(createIncident(incidentTest)
+                        .then(done()
+                        ));
+            });
+
+            it('it should POST an appointment reject of user ', (done) => {
+                chai.request(server)
+                    .get('/api/users/incidents/userId/' + userTest.userId)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('array');
+                        res.body.length.should.be.eql(1);
+                        done();
+                    });
+            });
+
+            after((done) => {
+                Incidents.destroy({where: {}})
+                    .then(Users.destroy({where: {}}))
+                    .then(done());
+            });
+        });
+    });
+
+
     describe('/GET events of user', () => {
         this.timeout(20000);
 
@@ -687,6 +798,34 @@ function createAppointmentRequest(appointmentRequestTest) {
                 status: "requested",
             });
         })
+}
+
+function createScheduledAppointment(appointmentTest) {
+    return AppointmentDetails.create({
+        appointmentId: 2,
+        clientId: appointmentTest.userId,
+        role: appointmentTest.role,
+        serviceProviderId: appointmentTest.serviceProviderId,
+        subject: appointmentTest.subject
+    })
+        .then(() => {
+            return ScheduledAppointments.create({
+                appointmentId: 2,
+                startDateAndTime: new Date(appointmentTest.date + "T" + appointmentTest.startHour),
+                endDateAndTime: new Date(appointmentTest.date + "T" + appointmentTest.endHour),
+                remarks: appointmentTest.notes,
+                status: "set",
+            });
+        })
+}
+
+function createIncident(incidentTest) {
+    return Incidents.create({
+        userId: incidentTest.userId,
+        category: incidentTest.category,
+        description: incidentTest.description,
+        status: "opened",
+    });
 }
 
 function deleteUser(userTest) {

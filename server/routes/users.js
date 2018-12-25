@@ -252,21 +252,15 @@ router.get('/appointments/userId/:userId', function (req, res, next) {
     checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
-                AppointmentDetails.findAll({
-                    where: {
-                        clientId: req.params.userId,
-                    },
+                ScheduledAppointments.findAll({
                     include: [
                         {
-                            model: ScheduledAppointments,
-                            required: true
-                        },
-                        {
-                            model: Users,
+                            model: AppointmentDetails,
                             where: {
-                                userId: req.params.userId,
+                                clientId: req.params.userId,
                             },
-                        },
+                            required: true
+                        }
                     ]
                 })
                     .then(userAppointments => {
@@ -288,15 +282,7 @@ router.get('/incidents/userId/:userId', function (req, res, next) {
                 Incidents.findAll({
                     where: {
                         userId: req.params.userId,
-                    },
-                    include: [
-                        {
-                            model: Users,
-                            where: {
-                                userId: req.params.userId,
-                            },
-                        },
-                    ]
+                    }
                 })
                     .then(userIncidents => {
                         console.log(userIncidents);
