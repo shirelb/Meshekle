@@ -1,36 +1,35 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('Users', {
-        userId:{
-            type: type.STRING,
+    return sequelize.define('Incidents', {
+        incidentId:{
+            type: type.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
             required: true
         },
-        fullname: {
-            type: type.STRING,
-            required: true
-        },
-        password: {
-            type: type.STRING,
-            required: true
-        },
-        email: {
-            type: type.STRING,
-            required: true
-        },
-        mailbox: {
+        userId: {
             type: type.INTEGER,
             required: true
         },
-        cellphone: {
+        category: {
             type: type.STRING,
             required: true
         },
-        phone: {
-            type: type.STRING
+        description: {
+            type: type.STRING,
+            required: false
         },
-        bornDate: {
+        status: {
+            type: type.STRING,
+            required: true
+        },
+        creationDate: {
             type: type.DATE,
             required: true
         },
+        closeDate: {
+            type: type.DATE,
+            required: false
+        },
+        
     });
 };
