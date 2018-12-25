@@ -3,6 +3,7 @@ var router = express.Router();
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+var validations = require('./shared/validations');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -249,49 +250,92 @@ router.post('/appointments/reject', function (req, res, next) {
 
 /* GET appointments of user by userId listing. */
 router.get('/appointments/userId/:userId', function (req, res, next) {
-    checkIfUserExist(req.params.userId, res)
+    validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
-                ScheduledAppointments.findAll({
-                    include: [
-                        {
-                            model: AppointmentDetails,
-                            where: {
-                                clientId: req.params.userId,
-                            },
-                            required: true
-                        }
-                    ]
-                })
-                    .then(userAppointments => {
-                        console.log(userAppointments);
-                        res.status(200).send(userAppointments);
+                if (req.query.status !== undefined) {
+                    ScheduledAppointments.findAll({
+                        where: {
+                            status: req.query.status,
+                        },
+                        include: [
+                            {
+                                model: AppointmentDetails,
+                                where: {
+                                    clientId: req.params.userId,
+                                },
+                                required: true
+                            }
+                        ]
                     })
-                    .catch(err => {
-                        res.status(500).send(err);
+                        .then(userAppointments => {
+                            console.log(userAppointments);
+                            res.status(200).send(userAppointments);
+                        })
+                        .catch(err => {
+                            res.status(500).send(err);
+                        })
+                }
+                else {
+                    ScheduledAppointments.findAll({
+                        include: [
+                            {
+                                model: AppointmentDetails,
+                                where: {
+                                    clientId: req.params.userId,
+                                },
+                                required: true
+                            }
+                        ]
                     })
+                        .then(userAppointments => {
+                            console.log(userAppointments);
+                            res.status(200).send(userAppointments);
+                        })
+                        .catch(err => {
+                            res.status(500).send(err);
+                        })
+                }
             }
         })
 });
 
 /* GET incidents of user by userId listing. */
 router.get('/incidents/userId/:userId', function (req, res, next) {
-    checkIfUserExist(req.params.userId, res)
+    validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
-                Incidents.findAll({
-                    where: {
-                        userId: req.params.userId,
-                    }
-                })
-                    .then(userIncidents => {
-                        console.log(userIncidents);
-                        res.status(200).send(userIncidents);
+                if (req.query.status !== undefined) {
+                    Incidents.findAll({
+                        where: {
+                            userId: req.params.userId,
+                            status: req.query.status,
+                        }
                     })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
+                        .then(userIncidents => {
+                            console.log(userIncidents);
+                            res.status(200).send(userIncidents);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                }
+                else {
+                    Incidents.findAll({
+                        where: {
+                            userId: req.params.userId,
+                        }
                     })
+                        .then(userIncidents => {
+                            console.log(userIncidents);
+                            res.status(200).send(userIncidents);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                }
             }
         });
 });
@@ -346,21 +390,44 @@ function createAppointmentDetails(id, req, res) {
 
 /* PUT cancel appointment of user by userId listing. */
 router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', function (req, res, next) {
-    Appointments.findAll({
-        where: {
-            userId: req.params.userId,
-            appointmentId: req.params.appointmentId,
-        }
-    })
-        .then(appointment => {
-            appointment.update({
-                status: "cancelled"
-            });
-            res.status(200).send({"message": "Appointment cancelled successfully!", appointment});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
+    validations.checkIfUserExist(req.params.userId,res)
+        .then(user => {
+            ScheduledAppointments.findOne({
+                where: {
+                    appointmentId: req.params.appointmentId,
+                },
+                include: {
+                    model: AppointmentDetails,
+                    where: {
+                        clientId: req.params.userId,
+                        appointmentId: req.params.appointmentId,
+                    },
+                    required: true
+                }
+            })
+                .then(appointment => {
+                    if (appointment) {
+                        if (appointment.status === "set") {
+                            appointment.update({
+                                status: "cancelled"
+                            });
+                            res.status(200).send({"message": "Appointment cancelled successfully!", appointment});
+                        }
+                        else {
+                            appointment.status === "cancelled" ?
+                                res.status(200).send({"message": "Appointment already cancelled !", appointment})
+                                :
+                                res.status(200).send({"message": "Appointment already passed !", appointment});
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send({
+                        "message": "Appointment not found!",
+                        err
+                    });
+                })
         })
 });
 
@@ -513,7 +580,7 @@ router.put('/users/userId/:userId/update', function (req, res, next) {
 
 /* GET events of user by userId listing. */
 router.get('/events/userId/:userId', function (req, res, next) {
-    checkIfUserExist(req.params.userId, res)
+    validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
                 Events.findAll({
@@ -535,29 +602,6 @@ router.get('/events/userId/:userId', function (req, res, next) {
         })
 });
 
-function checkIfUserExist(userId, res) {
-    return Users.findOne({
-        where: {
-            userId: userId,
-        }
-    })
-        .then(user => {
-            if (user) {
-                return user;
-            }
-            else {
-                return res.status(500).send({
-                    "message": "userId doesn't exist!",
-                });
-            }
-        })
-        .catch(err => {
-            return res.status(500).send({
-                "message": "userId doesn't exist!",
-                err
-            });
-        })
-}
 
 
 module.exports = router;
