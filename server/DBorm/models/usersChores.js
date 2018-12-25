@@ -1,6 +1,6 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('UsersChores', {
-        choreId:{
+        userChoreId:{
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true,

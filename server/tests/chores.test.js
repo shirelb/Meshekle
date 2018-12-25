@@ -25,10 +25,49 @@ describe('chores route', function () {
             phone: "012365948",
             bornDate: "1992-05-20"
         };
+        let choreTypeTest = {
+            choreTypeId: 1,
+            choreName: "satCoocking",
+            days: "{saturday: true}",
+            frequency: "12",
+            startTime: "10:00",
+            endTime: "14:00",
+            color: "blue"
+        }
+    });
+        
+    describe('/GET all choreTypes ', () => {
+        before((done) => {
+            ChoreTypes.create(choreTypeTest);
+            done();
+        });
 
-        describe('/GET users by name', () => {
+        it('it should GET all the choreTypes ', (done) => {
+            chai.request(server)
+                .get('/api/chores/choreTypes/test')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    res.body[0].choreName.should.be.eql("satCooking")
+                    done();
+                });
+        });
+
+        after((done) => {
+            ChoreTypes.destroy({
+                where: {
+                    choreTypeId: choreTypeTest.choreTypeId
+                }
+            });
+            done();
+        });
+    });
+    
+    describe('/POST new choreType ', () => {
             before((done) => {
                 Users.create(userTest);
+                ChoreTypes.create(choreTypeTest);
                 UsersChores.create(userTest);
                 ///continue prepare the before test (create chore type...define choretype object like in userTest...blabla)
                 done();
@@ -58,7 +97,7 @@ describe('chores route', function () {
 
 
         //
-    });
+    
 
 
 });

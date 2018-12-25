@@ -18,9 +18,8 @@ router.get('/', function (req, res, next) {
 /* POST user . */
 router.post('/add', function (req, res, next) {
     Users.create({
-        username: req.body.username,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        userId: req.body.userId,
+        fullname: req.body.fullname,
         password: req.body.password,
         email: req.body.email,
         mailbox: req.body.mailbox,

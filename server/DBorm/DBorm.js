@@ -80,6 +80,12 @@ sequelize.sync({ force: false })
         console.log(`Database & tables created!`)
     });
 
+    
+    // Users.hasMany(UsersChores, {
+    //     foreignKey : 'userId',
+    //     targetKey:'userId'
+    // });
+    
 module.exports = {
     Users,
     ServiceProviders,
