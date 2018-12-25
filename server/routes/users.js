@@ -390,66 +390,98 @@ function createAppointmentDetails(id, req, res) {
 
 /* PUT cancel appointment of user by userId listing. */
 router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', function (req, res, next) {
-    validations.checkIfUserExist(req.params.userId,res)
+    validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            ScheduledAppointments.findOne({
-                where: {
-                    appointmentId: req.params.appointmentId,
-                },
-                include: {
-                    model: AppointmentDetails,
+            if (user.dataValues) {
+                ScheduledAppointments.findOne({
                     where: {
-                        clientId: req.params.userId,
                         appointmentId: req.params.appointmentId,
                     },
-                    required: true
-                }
-            })
-                .then(appointment => {
-                    if (appointment) {
-                        if (appointment.status === "set") {
-                            appointment.update({
-                                status: "cancelled"
-                            });
-                            res.status(200).send({"message": "Appointment cancelled successfully!", appointment});
-                        }
-                        else {
-                            appointment.status === "cancelled" ?
-                                res.status(200).send({"message": "Appointment already cancelled !", appointment})
-                                :
-                                res.status(200).send({"message": "Appointment already passed !", appointment});
-                        }
+                    include: {
+                        model: AppointmentDetails,
+                        where: {
+                            clientId: req.params.userId,
+                            appointmentId: req.params.appointmentId,
+                        },
+                        required: true
                     }
                 })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send({
-                        "message": "Appointment not found!",
-                        err
-                    });
-                })
+                    .then(appointment => {
+                        if (appointment) {
+                            if (appointment.status === "set") {
+                                appointment.update({
+                                    status: "cancelled"
+                                });
+                                res.status(200).send({"message": "Appointment cancelled successfully!", appointment});
+                            }
+                            else {
+                                appointment.status === "cancelled" ?
+                                    res.status(200).send({"message": "Appointment already cancelled !", appointment})
+                                    :
+                                    res.status(200).send({"message": "Appointment already passed !", appointment});
+                            }
+                        }
+                        else {
+                            // if (user !== null)
+                                res.status(500).send({
+                                    "message": "Appointment not found!",
+                                });
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send({
+                            "message": "Appointment not found!",
+                            err
+                        });
+                    })
+            }
         })
 });
 
 /* PUT cancel incident of user by userId listing. */
-router.put('/incidents/cancel/userId/:userId/incidentsId/:incidentsId', function (req, res, next) {
-    Incidents.findAll({
-        where: {
-            userId: req.params.userId,
-            incidentsId: req.params.incidentsId,
-        }
-    })
-        .then(incident => {
-            incident.update({
-                status: "cancelled"
-            });
-            res.status(200).send({"message": "Incident cancelled successfully!", appointment});
+router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            if (user.dataValues) {
+                Incidents.findOne({
+                    where: {
+                        userId: req.params.userId,
+                        incidentId: req.params.incidentId,
+                    }
+                })
+                    .then(incident => {
+                        if (incident) {
+                            if (incident.status === "opened") {
+                                incident.update({
+                                    status: "cancelled"
+                                });
+                                res.status(200).send({"message": "Incident cancelled successfully!", incident});
+                            }
+                            else {
+                                incident.status === "cancelled" ?
+                                    res.status(200).send({"message": "Incident already cancelled !", incident})
+                                    :
+                                    res.status(200).send({"message": "Appointment already resolved !", incident});
+                            }
+                        }
+                        else {
+                            // if (user !== null)
+                                res.status(500).send({
+                                    "message": "Incident not found!",
+                                });
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send({
+                            "message": "Incident not found!",
+                            err
+                        });
+                    })
+            }
         })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
+})
 
 /* GET releases of user by userId and choreTypeId listing. */
 router.get('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function (req, res, next) {
@@ -601,7 +633,6 @@ router.get('/events/userId/:userId', function (req, res, next) {
             }
         })
 });
-
 
 
 module.exports = router;
