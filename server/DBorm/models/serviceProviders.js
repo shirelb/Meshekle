@@ -31,5 +31,5 @@ module.exports = (sequelize, type) => {
             allowNull: false,
             required: true
         },
-    })
+    });
 };
