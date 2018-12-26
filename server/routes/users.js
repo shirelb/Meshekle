@@ -1,9 +1,93 @@
 var express = require('express');
 var router = express.Router();
+var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
 var validations = require('./shared/validations');
+var constants = require('./shared/constants');
+
+/* POST login authenticate a user . */
+router.post('/login/authenticate', function (req, res) {
+    if (!req.body.userId || !req.body.password) {
+        res.status(500).send({"message": "Authentication failed due to incorrect parameters"});
+    } else {
+        validations.checkIfUserExist(req.body.userId,res)
+            .then(user => {
+                if (user.dataValues) {
+                    user.userId === req.body.userId &&
+                    user.password === req.body.password ?
+                        sendToken(user, res)
+                        :
+                        res.json({
+                            "success": false,
+                            "message": 'Authentication failed due to incorrect parameters',
+                            "token": 'null'
+                        });
+
+                }
+            });
+    }
+});
+
+function sendToken(user, res) {
+    var payload = {
+        userId: user.userId,
+        userFullname: user.fullname,
+        // admin: user.isAdmin
+    };
+
+    var token = jwt.sign(payload, constants.superSecret, {
+        expiresIn: "10h" // expires in 10 hours
+    });
+
+    // return the information including token as JSON
+    res.json({
+        'success': true,
+        'message': 'Token generated successfully !',
+        'token': token
+    });
+}
+
+router.use(function (req, res, next) {
+    console.log("in route middleware to verify a token");
+
+    // check header or url parameters or post parameters for token
+    var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.headers.authorization;
+
+    token.startsWith("Bearer ") ? token = token.substring(7, token.length) : token;
+
+    console.log("token: " + token);
+
+    // decode token
+    if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, constants.superSecret, function (err, decoded) {
+            if (err) {
+                return res.json({success: false, message: 'Failed to authenticate token.',err});
+            } else {
+                // if everything is good, save to request for use in other routes
+                // get the decoded payload and header
+                var decoded = jwt.decode(token, {complete: true});
+                req.decoded = decoded;
+                console.log(decoded.header);
+                console.log(decoded.payload);
+                next();
+            }
+        });
+    } else {
+        // if there is no token
+        // return an error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+});
+
+router.post('/validToken', function (req, res) {
+    res.status(200).send({success: "Token is valid!", payload: req.decoded.payload});
+});
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -413,7 +497,7 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                                     status: "canceled"
                                 });
                                 Events.destroy({
-                                    where:{
+                                    where: {
                                         userId: req.params.userId,
                                         eventType: "Appointments",
                                         eventId: appointment.appointmentId
@@ -439,9 +523,9 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                         }
                         else {
                             // if (user !== null)
-                                res.status(500).send({
-                                    "message": "Appointment not found!",
-                                });
+                            res.status(500).send({
+                                "message": "Appointment not found!",
+                            });
                         }
                     })
                     .catch(err => {
@@ -474,7 +558,7 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                                 });
 
                                 Events.destroy({
-                                    where:{
+                                    where: {
                                         userId: req.params.userId,
                                         eventType: "Incidents",
                                         eventId: incident.incidentId
@@ -500,9 +584,9 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                         }
                         else {
                             // if (user !== null)
-                                res.status(500).send({
-                                    "message": "Incident not found!",
-                                });
+                            res.status(500).send({
+                                "message": "Incident not found!",
+                            });
                         }
                     })
                     .catch(err => {
@@ -516,7 +600,8 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
         })
 })
 
-/* GET releases of user by userId and choreTypeId listing. */
+/*
+/!* GET releases of user by userId and choreTypeId listing. *!/
 router.get('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function (req, res, next) {
     UsersReleases.findAll({
         where: {
@@ -533,7 +618,7 @@ router.get('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function 
         })
 });
 
-/* PUT releases of user by userId and choreTypeId listing. */
+/!* PUT releases of user by userId and choreTypeId listing. *!/
 router.put('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function (req, res, next) {
     UsersReleases.findAll({
         where: {
@@ -575,7 +660,7 @@ router.put('/userId/:userId/chores/choreTypeId/:choreTypeId/releases', function 
         })
 });
 
-/* GET user chores by userId listing. */
+/!* GET user chores by userId listing. *!/
 router.get('/userId/:userId/chores', function (req, res, next) {
     UsersChores.findAll({
         where: {
@@ -591,7 +676,7 @@ router.get('/userId/:userId/chores', function (req, res, next) {
         })
 });
 
-/* GET user choresTypes by userId listing. */
+/!* GET user choresTypes by userId listing. *!/
 router.get('/userId/:userId/choresTypes', function (req, res, next) {
     UsersChores.findAll({
         where: {
@@ -621,7 +706,7 @@ router.get('/userId/:userId/choresTypes', function (req, res, next) {
         })
 });
 
-/* PUT cancel incident of user by userId listing. */
+/!* PUT cancel incident of user by userId listing. *!/
 router.put('/users/userId/:userId/update', function (req, res, next) {
     Users.findOne({
         where: {
@@ -642,6 +727,7 @@ router.put('/users/userId/:userId/update', function (req, res, next) {
             res.status(500).send(err);
         })
 });
+*/
 
 /* GET events of user by userId listing. */
 router.get('/events/userId/:userId', function (req, res, next) {
