@@ -1,17 +1,22 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('ChoreTypes', {
-        choreTypeId:{
-            type: type.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-            required: true
-        },
-        choreName: {
+        // choreTypeId:{
+        //     type: type.INTEGER,
+        //     primaryKey: true,
+        //     autoIncrement: true,
+        //     required: true
+        // },
+        choreTypeName: {
             type: type.STRING,
+            primaryKey: true,
             required: true
         },
         days: {
             type: type.STRING,
+            required: true
+        },
+        numberOfWorkers: {
+            type: type.INTEGER,
             required: true
         },
         frequency: {

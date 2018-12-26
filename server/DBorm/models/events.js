@@ -7,10 +7,12 @@ module.exports = (sequelize, type) => {
         },
         eventType: {
             type: type.STRING,
+            primaryKey: true,
             required: true
         },
         eventId: {
             type: type.INTEGER,
+            primaryKey: true,
             required: true
         },
         

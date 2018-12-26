@@ -10,8 +10,8 @@ module.exports = (sequelize, type) => {
             type: type.INTEGER,
             required: true
         },
-        choreTypeId: {
-            type: type.INTEGER,
+        choreTypeName: {
+            type: type.STRING,
             required: true
         },
         date: {
