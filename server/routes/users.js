@@ -34,7 +34,6 @@ function sendToken(user, res) {
     var payload = {
         userId: user.userId,
         userFullname: user.fullname,
-        // admin: user.isAdmin
     };
 
     var token = jwt.sign(payload, constants.superSecret, {
