@@ -24,5 +24,29 @@ module.exports = {
                     console.log(err)
                     res.status(500).send("Something went wrong", err);
                 })
-    }
-}
+    },
+
+    checkIfUserExist: function (userId, res) {
+        return Users.findOne({
+            where: {
+                userId: userId,
+            }
+        })
+            .then(user => {
+                if (user) {
+                    return user;
+                }
+                else {
+                    return res.status(500).send({
+                        "message": "userId doesn't exist!",
+                    });
+                }
+            })
+            .catch(err => {
+                return res.status(500).send({
+                    "message": "userId doesn't exist!",
+                    err
+                });
+            })
+    },
+};
