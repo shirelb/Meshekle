@@ -1,12 +1,12 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('ServiceProviders', {
-        serviceProviderId:{
+        serviceProviderId: {
             type: type.INTEGER,
             primaryKey: true,
             allowNull: false,
             required: true
         },
-        role : {
+        role: {
             type: type.STRING,
             primaryKey: true,
             allowNull: false,

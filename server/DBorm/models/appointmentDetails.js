@@ -1,20 +1,24 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('Events', {
-        userId:{
+    return sequelize.define('AppointmentDetails', {
+        appointmentId:{
             type: type.INTEGER,
             primaryKey: true,
             required: true
         },
-        eventType: {
+        clientId: {
             type: type.STRING,
-            primaryKey: true,
             required: true
         },
-        eventId: {
+        serviceProviderId: {
             type: type.INTEGER,
-            primaryKey: true,
             required: true
         },
-        
+        role: {
+            type: type.STRING,
+            required: true
+        },
+        subject: {
+            type: type.STRING,
+        },
     });
 };
