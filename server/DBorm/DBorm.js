@@ -12,9 +12,10 @@ const UsersChoresModel = require('./models/usersChores');
 const SwapRequestsModel = require('./models/swapRequests');
 const UsersReleasesModel = require('./models/usersReleases');
 const AppointmentRequestsModel = require('./models/appointmentRequests');
+const AppointmentDetailsModel = require('./models/appointmentDetails');
 const ScheduledAppointmentsModel = require('./models/scheduledAppointments');
 const IncidentsModel = require('./models/incidents');
-const TimeSlotBoardsModel = require('./models/timeSlotBoards') ;
+const TimeSlotBoardsModel = require('./models/timeSlotBoards');
 const TimeSlotBoardAppointmentsModel = require('./models/timeSlotBoardAppointments');
 const ApartmentConstraintsModel = require('./models/apartmentConstraints')
 const ApartmentReservationsModel = require('./models/apartmentReservations');
@@ -58,35 +59,90 @@ const Announcements = AnnouncementsModel(sequelize, Sequelize);
 const AnnouncementSubscriptions = AnnouncementSubscriptionsModel(sequelize, Sequelize);
 const ChoreTypes = ChoreTypesModel(sequelize, Sequelize);
 const UsersChoresTypes = UsersChoresTypesModel(sequelize, Sequelize);
-const UsersChores = UsersChoresModel(sequelize,Sequelize);
-const SwapRequests = SwapRequestsModel(sequelize,Sequelize);
+const UsersChores = UsersChoresModel(sequelize, Sequelize);
+const SwapRequests = SwapRequestsModel(sequelize, Sequelize);
 const UsersReleases = UsersReleasesModel(sequelize, Sequelize);
-const AppointmentRequests = AppointmentRequestsModel(sequelize,Sequelize);
+const AppointmentRequests = AppointmentRequestsModel(sequelize, Sequelize);
+const AppointmentDetails = AppointmentDetailsModel(sequelize, Sequelize);
 const ScheduledAppointments = ScheduledAppointmentsModel(sequelize, Sequelize);
 const Incidents = IncidentsModel(sequelize, Sequelize);
-const TimeSlotBoards = TimeSlotBoardsModel(sequelize,Sequelize);
-const TimeSlotBoardAppointments = TimeSlotBoardAppointmentsModel(sequelize,Sequelize);
-const ApartmentConstraints = ApartmentConstraintsModel(sequelize,Sequelize);
-const ApartmentReservations = ApartmentReservationsModel(sequelize,Sequelize);
-const UserYearUtilization = UserYearUtilizationModel(sequelize,Sequelize);
-const Events = EventsModel(sequelize,Sequelize);
-const Logs = LogsModel(sequelize,Sequelize);
+const TimeSlotBoards = TimeSlotBoardsModel(sequelize, Sequelize);
+const TimeSlotBoardAppointments = TimeSlotBoardAppointmentsModel(sequelize, Sequelize);
+const ApartmentConstraints = ApartmentConstraintsModel(sequelize, Sequelize);
+const ApartmentReservations = ApartmentReservationsModel(sequelize, Sequelize);
+const UserYearUtilization = UserYearUtilizationModel(sequelize, Sequelize);
+const Events = EventsModel(sequelize, Sequelize);
+const Logs = LogsModel(sequelize, Sequelize);
+
+Events.belongsTo(Users, {
+    foreignKey: 'userId',
+    targetKey: 'userId'
+});
+
+Users.hasMany(Events, {
+    foreignKey: 'userId',
+    targetKey: 'userId'
+});
+
+Users.hasMany(AppointmentDetails, {
+    foreignKey: 'userId',
+    targetKey: 'clientId'
+});
+
+AppointmentDetails.belongsTo(Users, {
+    foreignKey: 'clientId',
+    targetKey: 'userId'
+});
+
+Incidents.belongsTo(Users, {
+    foreignKey: 'userId',
+    targetKey: 'userId'
+});
+
+Users.hasMany(Incidents, {
+    foreignKey: 'userId',
+    targetKey: 'userId'
+});
+
+AppointmentDetails.hasOne(ScheduledAppointments, {
+    foreignKey: 'appointmentId',
+    targetKey: 'appointmentId'
+});
+
+ScheduledAppointments.belongsTo(AppointmentDetails, {
+    foreignKey: 'appointmentId',
+    targetKey: 'appointmentId'
+});
+
+AppointmentDetails.hasOne(AppointmentRequests, {
+    foreignKey: 'appointmentId',
+    targetKey: 'requestId'
+});
+
+AppointmentRequests.belongsTo(AppointmentDetails, {
+    foreignKey: 'requestId',
+    targetKey: 'appointmentId'
+});
+
+AppointmentRequests.belongsTo(ScheduledAppointments, {
+    foreignKey: 'requestId',
+    targetKey: 'appointmentId'
+});
 
 
-
-
-sequelize.sync({ force: false })
+sequelize.sync({force: true})
     .then(() => {
         console.log(`Database & tables created!`)
     });
 
 module.exports = {
+    sequelize,
     Users,
     ServiceProviders,
     Permissions,
     RulesModules,
-    Categories, 
-    Announcements, 
+    Categories,
+    Announcements,
     AnnouncementSubscriptions,
     ChoreTypes,
     UsersChoresTypes,
@@ -94,6 +150,7 @@ module.exports = {
     SwapRequests,
     UsersReleases,
     AppointmentRequests,
+    AppointmentDetails,
     ScheduledAppointments,
     Incidents,
     TimeSlotBoards,

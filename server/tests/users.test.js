@@ -144,10 +144,11 @@ describe('users route', function () {
 
     describe('/GET users by userId', () => {
         before((done) => {
-            createUser(userTest)
-                .then(
-                    done()
-                );
+            setTimeout(function () {
+                createUser(userTest)
+                    .then(done()
+                    );
+            }, 1000);
         });
 
         /*beforeEach((done) => {
@@ -539,8 +540,6 @@ describe('users route', function () {
     });
 
     describe('/GET scheduled appointments of user', () => {
-        this.timeout(20000);
-
         beforeEach((done) => {
             setTimeout(function () {
                 done();
@@ -549,9 +548,11 @@ describe('users route', function () {
 
         describe('test with non existent user', () => {
             before(done => {
-                ScheduledAppointments.destroy({where: {}})
-                    .then(Users.destroy({where: {}}))
-                    .then(done())
+                setTimeout(function () {
+                    ScheduledAppointments.destroy({where: {}})
+                        .then(Users.destroy({where: {}}))
+                        .then(done())
+                }, 2000);
             });
 
             it('it should not GET scheduled appointments of non existent user ', (done) => {
@@ -648,6 +649,219 @@ describe('users route', function () {
         });
     });
 
+    describe('/PUT cancel scheduled appointments of user', () => {
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        describe('test with non existent user', () => {
+            it('it should not cancel an appointment of non existent user ', (done) => {
+                chai.request(server)
+                    .put(`/api/users/appointments/cancel/userId/${userTest.userId}/appointmentId/2`)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            describe('test with non existent appointment', () => {
+                before((done) => {
+                    setTimeout(function () {
+                        createUser(userTest)
+                            .then(done()
+                            );
+                    }, 2000);
+                });
+
+                it('it should not cancel an appointment without existing one ', (done) => {
+                    chai.request(server)
+                        .put(`/api/users/appointments/cancel/userId/${userTest.userId}/appointmentId/2`)
+                        .end((err, res) => {
+                            res.should.have.status(500);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('message');
+                            res.body.message.should.equal('Appointment not found!');
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    Users.destroy({where: {}})
+                        .then(done());
+                });
+            });
+
+            describe('test with existent user and existent appointment', () => {
+                before((done) => {
+                    setTimeout(function () {
+                        createUser(userTest)
+                            .then(createScheduledAppointment(appointmentTest)
+                                .then(done()
+                                ));
+                    }, 2000);
+                });
+
+                it('it should cancel an appointment of user ', (done) => {
+                    chai.request(server)
+                        .put(`/api/users/appointments/cancel/userId/${userTest.userId}/appointmentId/2`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('appointment');
+                            res.body.appointment.should.have.property('status').eql('canceled');
+                            res.body.should.have.property('message').eql('Appointment canceled successfully!');
+                            done();
+                        });
+                });
+
+                it('it should not cancel a canceled appointment of user ', (done) => {
+                    chai.request(server)
+                        .put(`/api/users/appointments/cancel/userId/${userTest.userId}/appointmentId/2`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('appointment');
+                            res.body.appointment.should.have.property('status').eql('canceled');
+                            res.body.should.have.property('message').eql('Appointment already canceled !');
+                            done();
+                        });
+                });
+
+                it('it should delete the appointment from Event table', (done) => {
+                    chai.request(server)
+                        .get('/api/users/events/userId/' + userTest.userId)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('array');
+                            res.body.length.should.be.eql(0);
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    ScheduledAppointments.destroy({where: {}})
+                        .then(Events.destroy({where: {}}))
+                        .then(Users.destroy({where: {}}))
+                        .then(done());
+                });
+            });
+        });
+    });
+
+    describe('/PUT cancel incidents of user', () => {
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        describe('test with non existent user', () => {
+            it('it should not cancel an incident of non existent user ', (done) => {
+                chai.request(server)
+                    .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/1`)
+                    .end((err, res) => {
+                        res.should.have.status(500);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('userId doesn\'t exist!');
+                        done();
+                    });
+            });
+        });
+
+        describe('test with existent user', () => {
+            describe('test with non existent incident', () => {
+                before((done) => {
+                    setTimeout(function () {
+                        createUser(userTest)
+                            .then(
+                                done()
+                            );
+                    }, 2000)
+                });
+
+                it('it should not cancel an incident without existing one ', (done) => {
+                    chai.request(server)
+                        .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/1`)
+                        .end((err, res) => {
+                            res.should.have.status(500);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('message');
+                            res.body.message.should.equal('Incident not found!');
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    Users.destroy({where: {}})
+                        .then(done());
+                });
+            });
+
+            describe('test with existent user and existent incident', () => {
+                before((done) => {
+                    setTimeout(function () {
+                        createUser(userTest)
+                            .then(createIncident(incidentTest)
+                                .then(done()
+                                ));
+                    }, 2000)
+                });
+
+                it('it should cancel an incident of user ', (done) => {
+                    chai.request(server)
+                        .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/1`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('incident');
+                            res.body.incident.should.have.property('status').eql('canceled');
+                            res.body.should.have.property('message').eql('Incident canceled successfully!');
+                            done();
+                        });
+                });
+
+                it('it should not cancel a canceled incident of user ', (done) => {
+                    chai.request(server)
+                        .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/1`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('incident');
+                            res.body.incident.should.have.property('status').eql('canceled');
+                            res.body.should.have.property('message').eql('Incident already canceled !');
+                            done();
+                        });
+                });
+
+                it('it should delete the incident from Event table', (done) => {
+                    chai.request(server)
+                        .get('/api/users/events/userId/' + userTest.userId)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('array');
+                            res.body.length.should.be.eql(0);
+                            done();
+                        });
+                });
+
+                after((done) => {
+                    Incidents.destroy({where: {}})
+                        .then(Events.destroy({where: {}}))
+                        .then(Users.destroy({where: {}}))
+                        .then(done());
+                });
+            });
+        });
+    });
+
 
     describe('/GET events of user', () => {
         this.timeout(20000);
@@ -722,6 +936,7 @@ describe('users route', function () {
                   cellphone: "0545249499",
                   phone: "089873645"
               };
+
               chai.request(server)
                   .post('/api/users/add')
                   .send(userTest)
@@ -733,6 +948,7 @@ describe('users route', function () {
                       done();
                   });
           });
+
           it('it should POST a user ', (done) => {
               let userTest = {
                   username: "dafnao",
@@ -744,6 +960,7 @@ describe('users route', function () {
                   cellphone: "0545249499",
                   phone: "089873645"
               };
+
               chai.request(server)
                   .post('/api/users/add')
                   .send(userTest)
