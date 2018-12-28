@@ -13,11 +13,11 @@ export default class LoginScreen extends Component {
 
     onSubmitPress = () => {
         console.log("in onSubmitPress");
-        return axios.get(`${SERVER_URL}/api/users/login/authenticate`,
+        return axios.post(`${SERVER_URL}/api/users/login/authenticate`,
             {
                 "userId": "436547125",
                 "password": "tset22"
-            }
+            },
         )
             .then((response) => {
                 console.log("after get response");
