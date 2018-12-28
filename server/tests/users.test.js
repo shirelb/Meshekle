@@ -216,6 +216,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             it('it should not POST an appointment request of non existent user ', (done) => {
                 chai.request(server)
@@ -232,6 +233,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             before((done) => {
@@ -265,7 +267,7 @@ describe('users route', function () {
     });
 
     describe('/POST appointment set of user', () => {
-        describe('test with non existent user', () => {
+        /*describe('test with non existent user', () => {
             it('it should not POST an appointment set of non existent user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/set')
@@ -280,7 +282,7 @@ describe('users route', function () {
                         done();
                     });
             });
-        });
+        });*/
 
         describe('test with existent user', () => {
             before((done) => {
@@ -327,6 +329,7 @@ describe('users route', function () {
     });
 
     describe('/POST incident of user', () => {
+/*
         describe('test with non existent user', () => {
             it('it should not POST an incident of non existent user ', (done) => {
                 chai.request(server)
@@ -343,6 +346,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             before((done) => {
@@ -393,6 +397,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             it('it should not POST an appointment approve of non existent user ', (done) => {
                 chai.request(server)
@@ -409,6 +414,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             describe('test with non existent appointment request', () => {
@@ -500,6 +506,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             it('it should not POST an appointment reject of non existent user ', (done) => {
                 chai.request(server)
@@ -516,6 +523,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             describe('test with non existent appointment request', () => {
@@ -590,6 +598,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             before(done => {
                 setTimeout(function () {
@@ -611,6 +620,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             before((done) => {
@@ -649,6 +659,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             before(done => {
                 Incidents.destroy({where: {}})
@@ -668,6 +679,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             before((done) => {
@@ -704,6 +716,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             it('it should not cancel an appointment of non existent user ', (done) => {
                 chai.request(server)
@@ -717,6 +730,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             describe('test with non existent appointment', () => {
@@ -811,6 +825,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             it('it should not cancel an incident of non existent user ', (done) => {
                 chai.request(server)
@@ -824,6 +839,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             describe('test with non existent incident', () => {
@@ -922,6 +938,7 @@ describe('users route', function () {
             }, 1000);
         });
 
+/*
         describe('test with non existent user', () => {
             before(done => {
                 Incidents.destroy({where: {}})
@@ -941,6 +958,7 @@ describe('users route', function () {
                     });
             });
         });
+*/
 
         describe('test with existent user', () => {
             before((done) => {
