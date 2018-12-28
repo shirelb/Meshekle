@@ -10,7 +10,7 @@ var constants = require('./shared/constants');
 /* POST login authenticate a user . */
 router.post('/login/authenticate', function (req, res) {
     if (!req.body.userId || !req.body.password) {
-        res.status(500).send({"message": "Authentication failed due to incorrect parameters"});
+        res.status(200).send({"message": constants.usersRoute.authenticationFailed});
     } else {
         validations.checkIfUserExist(req.body.userId,res)
             .then(user => {
@@ -19,9 +19,9 @@ router.post('/login/authenticate', function (req, res) {
                     user.password === req.body.password ?
                         sendToken(user, res)
                         :
-                        res.json({
+                        res.status(200).send({
                             "success": false,
-                            "message": 'Authentication failed due to incorrect parameters',
+                            "message": constants.usersRoute.authenticationFailed,
                             "token": 'null'
                         });
 
@@ -36,14 +36,14 @@ function sendToken(user, res) {
         userFullname: user.fullname,
     };
 
-    var token = jwt.sign(payload, constants.superSecret, {
+    var token = jwt.sign(payload, constants.general.superSecret, {
         expiresIn: "10h" // expires in 10 hours
     });
 
     // return the information including token as JSON
-    res.json({
+    res.status(200).send({
         'success': true,
-        'message': 'Token generated successfully !',
+        'message': constants.usersRoute.successfulToken,
         'token': token
     });
 }
@@ -63,7 +63,7 @@ router.use(function (req, res, next) {
         // verifies secret and checks exp
         jwt.verify(token, constants.superSecret, function (err, decoded) {
             if (err) {
-                return res.json({success: false, message: 'Failed to authenticate token.',err});
+                return res.status(200).send({success: false, message: constants.usersRoute.failedToken,err});
             } else {
                 // if everything is good, save to request for use in other routes
                 // get the decoded payload and header
@@ -79,13 +79,13 @@ router.use(function (req, res, next) {
         // return an error
         return res.status(403).send({
             success: false,
-            message: 'No token provided.'
+            message: constants.usersRoute.tokenNotProvided
         });
     }
 });
 
 router.post('/validToken', function (req, res) {
-    res.status(200).send({success: "Token is valid!", payload: req.decoded.payload});
+    res.status(200).send({success: constants.usersRoute.validToken, payload: req.decoded.payload});
 });
 
 /* GET users listing. */
@@ -152,7 +152,7 @@ router.post('/appointments/request', function (req, res, next) {
                         })
                             .then((newAppointmentRequest) => {
                                 res.status(200).send({
-                                    "message": "AppointmentRequest successfully added!",
+                                    "message": constants.usersRoute.successfulAppointmentRequest,
                                     newAppointmentDetails, newAppointmentRequest
                                 });
                             })
@@ -187,7 +187,7 @@ router.post('/appointments/set', function (req, res, next) {
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": "Appointment successfully added!",
+                                            "message": constants.usersRoute.successfulAppointment,
                                             newAppointmentDetails,
                                             newAppointment,
                                             newEvent
@@ -223,7 +223,7 @@ router.post('/incidents/open', function (req, res, next) {
                 eventId: newIncident.incidentId
             })
                 .then((newEvent) => {
-                    res.status(200).send({"message": "Incident successfully added!", newIncident, newEvent});
+                    res.status(200).send({"message": constants.usersRoute.successfulIncident, newIncident, newEvent});
                 })
                 .catch(err => {
                     console.log(err);
@@ -231,8 +231,8 @@ router.post('/incidents/open', function (req, res, next) {
                 });
         })
         .catch(err => {
-            res.status(500).send({
-                "message": "userId doesn't exist!",
+            res.status(200).send({
+                "message": constants.usersRoute.userNotFound,
                 err
             });
         })
@@ -273,7 +273,7 @@ router.post('/appointments/approve', function (req, res, next) {
                     })
                         .then((neEvent) => {
                             res.status(200).send({
-                                "message": "Appointment successfully added!",
+                                "message": constants.usersRoute.successfulAppointment,
                                 appointmentsRequest,
                                 newAppointment,
                                 neEvent
@@ -292,8 +292,8 @@ router.post('/appointments/approve', function (req, res, next) {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({
-                "message": "AppointmentRequest not found!",
+            res.status(200).send({
+                "message":constants.usersRoute.appointmentRequestNotFound,
                 err
             });
         });
@@ -320,12 +320,12 @@ router.post('/appointments/reject', function (req, res, next) {
             appointmentsRequest.update({
                 status: "rejected"
             });
-            res.status(200).send({"message": "AppointmentsRequest successfully rejected!", appointmentsRequest});
+            res.status(200).send({"message": constants.usersRoute.successfulRejectAppointmentRequest, appointmentsRequest});
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send({
-                "message": "AppointmentRequest not found!",
+            res.status(200).send({
+                "message": constants.usersRoute.appointmentRequestNotFound,
                 err
             });
         });
@@ -464,8 +464,8 @@ function createAppointmentDetails(id, req, res) {
             return newAppointmentDetails;
         })
         .catch(err => {
-            return res.status(500).send({
-                "message": "userId doesn't exist!",
+            return res.status(200).send({
+                "message": constants.usersRoute.userNotFound,
                 err
             });
         })
@@ -504,7 +504,7 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": "Appointment canceled successfully!",
+                                            "message": constants.usersRoute.successfulCancelAppointment,
                                             appointment
                                         });
                                     })
@@ -515,22 +515,22 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                             }
                             else {
                                 appointment.status === "canceled" ?
-                                    res.status(200).send({"message": "Appointment already canceled !", appointment})
+                                    res.status(200).send({"message": constants.usersRoute.alreadyCanceledAppointment, appointment})
                                     :
-                                    res.status(200).send({"message": "Appointment already passed !", appointment});
+                                    res.status(200).send({"message": constants.usersRoute.passedAppointment, appointment});
                             }
                         }
                         else {
                             // if (user !== null)
-                            res.status(500).send({
-                                "message": "Appointment not found!",
+                            res.status(200).send({
+                                "message": constants.usersRoute.appointmentNotFound,
                             });
                         }
                     })
                     .catch(err => {
                         console.log(err);
-                        res.status(500).send({
-                            "message": "Appointment not found!",
+                        res.status(200).send({
+                            "message": constants.usersRoute.appointmentNotFound,
                             err
                         });
                     })
@@ -565,7 +565,7 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": "Incident canceled successfully!",
+                                            "message": constants.usersRoute.successfulCancelIncident,
                                             incident
                                         });
                                     })
@@ -576,22 +576,22 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                             }
                             else {
                                 incident.status === "canceled" ?
-                                    res.status(200).send({"message": "Incident already canceled !", incident})
+                                    res.status(200).send({"message": constants.usersRoute.alreadyCanceledIncident, incident})
                                     :
-                                    res.status(200).send({"message": "Appointment already resolved !", incident});
+                                    res.status(200).send({"message": constants.usersRoute.alreadyResolvedIncident, incident});
                             }
                         }
                         else {
                             // if (user !== null)
-                            res.status(500).send({
-                                "message": "Incident not found!",
+                            res.status(200).send({
+                                "message": constants.usersRoute.incidentNotFound,
                             });
                         }
                     })
                     .catch(err => {
                         console.log(err);
-                        res.status(500).send({
-                            "message": "Incident not found!",
+                        res.status(200).send({
+                            "message": constants.usersRoute.incidentNotFound,
                             err
                         });
                     })
@@ -744,7 +744,7 @@ router.get('/events/userId/:userId', function (req, res, next) {
                     })
                     .catch(err => {
                         res.status(500).send({
-                            "message": "Something went wrong!",
+                            "message": constants.general.somethingWentWrong,
                             err
                         });
                     })
