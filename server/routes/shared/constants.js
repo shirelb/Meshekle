@@ -2,6 +2,7 @@ module.exports = {
     general: {
         superSecret: "Kibutzation",
         somethingWentWrong: "Something went wrong!",
+        successfulToken: "Token generated successfully !",
     },
     usersRoute:{
         userNotFound: "userId doesn't exist!",
@@ -9,7 +10,6 @@ module.exports = {
         appointmentNotFound: "Appointment not found!",
         incidentNotFound: "Incident not found!",
         authenticationFailed: "Authentication failed due to incorrect parameters",
-        successfulToken: "Token generated successfully !",
         failedToken: "Failed to authenticate token",
         validToken: "Token is valid!",
         tokenNotProvided: "No token provided",

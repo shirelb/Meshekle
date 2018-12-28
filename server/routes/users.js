@@ -1,11 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var jwt = require('jsonwebtoken');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
 var validations = require('./shared/validations');
 var constants = require('./shared/constants');
+var authentications = require('./shared/authentications');
 
 /* POST login authenticate a user . */
 router.post('/login/authenticate', function (req, res) {
@@ -15,9 +16,13 @@ router.post('/login/authenticate', function (req, res) {
         validations.checkIfUserExist(req.body.userId,res)
             .then(user => {
                 if (user.dataValues) {
+                    var payload = {
+                        userId: user.userId,
+                        userFullname: user.fullname,
+                    };
                     user.userId === req.body.userId &&
                     user.password === req.body.password ?
-                        sendToken(user, res)
+                        authentications.sendToken(payload, res)
                         :
                         res.status(200).send({
                             "success": false,
@@ -30,23 +35,6 @@ router.post('/login/authenticate', function (req, res) {
     }
 });
 
-function sendToken(user, res) {
-    var payload = {
-        userId: user.userId,
-        userFullname: user.fullname,
-    };
-
-    var token = jwt.sign(payload, constants.general.superSecret, {
-        expiresIn: "10h" // expires in 10 hours
-    });
-
-    // return the information including token as JSON
-    res.status(200).send({
-        'success': true,
-        'message': constants.usersRoute.successfulToken,
-        'token': token
-    });
-}
 
 router.use(function (req, res, next) {
     console.log("in route middleware to verify a token");
@@ -61,7 +49,7 @@ router.use(function (req, res, next) {
     // decode token
     if (token) {
         // verifies secret and checks exp
-        jwt.verify(token, constants.superSecret, function (err, decoded) {
+        jwt.verify(token, constants.general.superSecret, function (err, decoded) {
             if (err) {
                 return res.status(200).send({success: false, message: constants.usersRoute.failedToken,err});
             } else {

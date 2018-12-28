@@ -8,6 +8,8 @@ const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppoi
 
 let server = require('../app');
 
+var constants = require('../routes/shared/constants');
+
 chai.use(chaiHttp);
 
 
@@ -19,6 +21,8 @@ describe('users route', function () {
             done();
         }, 1000);
     });
+
+    var tokenTest = `Bearer token`;
 
     let userTest = {
         userId: "436547125",
@@ -88,6 +92,28 @@ describe('users route', function () {
         appointmentRequestId: 1,
     };
 
+    describe('/POST login and authenticate a user', () => {
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 1000);
+        });
+
+        it('it should Register, Login, and check token', (done) => {
+            createUser(userTest)
+                .then(
+                    loginAuthenticateUser(userTest)
+                        .then(token => {
+                            tokenTest = `Bearer ${token}`;
+                            deleteUser(userTest)
+                                .then(
+                                    done()
+                                )
+                        })
+                );
+        });
+    });
+
     describe('/GET users', () => {
         before((done) => {
             createUser(userTest)
@@ -99,6 +125,7 @@ describe('users route', function () {
         it('it should GET all the users', (done) => {
             chai.request(server)
                 .get('/api/users')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -123,9 +150,10 @@ describe('users route', function () {
                 );
         });
 
-        it('it should GET all the user with name dafna', (done) => {
+        it('it should GET all the user with name test', (done) => {
             chai.request(server)
                 .get('/api/users/name/test')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -160,6 +188,7 @@ describe('users route', function () {
         it('it should GET all the user with userId 436547125', (done) => {
             chai.request(server)
                 .get('/api/users/userId/' + userTest.userId)
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -191,6 +220,7 @@ describe('users route', function () {
             it('it should not POST an appointment request of non existent user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/request')
+                    .set('Authorization', tokenTest)
                     .send(appointmentRequestTest)
                     .end((err, res) => {
                         res.should.have.status(500);
@@ -214,6 +244,7 @@ describe('users route', function () {
             it('it should POST an appointment request of user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/request')
+                    .set('Authorization', tokenTest)
                     .send(appointmentRequestTest)
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -238,6 +269,7 @@ describe('users route', function () {
             it('it should not POST an appointment set of non existent user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/set')
+                    .set('Authorization', tokenTest)
                     .send(appointmentTest)
                     .end((err, res) => {
                         res.should.have.status(500);
@@ -261,6 +293,7 @@ describe('users route', function () {
             it('it should POST an appointment set of user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/set')
+                    .set('Authorization', tokenTest)
                     .send(appointmentTest)
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -273,6 +306,7 @@ describe('users route', function () {
             it('it should save the appointment in Event table', (done) => {
                 chai.request(server)
                     .get('/api/users/events/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(200);
                         res.body.should.be.a('array');
@@ -297,6 +331,7 @@ describe('users route', function () {
             it('it should not POST an incident of non existent user ', (done) => {
                 chai.request(server)
                     .post('/api/users/incidents/open')
+                    .set('Authorization', tokenTest)
                     .send(incidentTest)
                     .end((err, res) => {
                         res.should.have.status(500);
@@ -320,6 +355,7 @@ describe('users route', function () {
             it('it should POST an incident of user ', (done) => {
                 chai.request(server)
                     .post('/api/users/incidents/open')
+                    .set('Authorization', tokenTest)
                     .send(incidentTest)
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -331,6 +367,7 @@ describe('users route', function () {
                 it('it should save the incident in Event table', (done) => {
                     chai.request(server)
                         .get('/api/users/events/userId/' + userTest.userId)
+                        .set('Authorization', tokenTest)
                         .end((err, res) => {
                             res.should.have.status(200);
                             res.body.should.be.a('array');
@@ -360,6 +397,7 @@ describe('users route', function () {
             it('it should not POST an appointment approve of non existent user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/approve')
+                    .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
                         res.should.have.status(500);
@@ -384,6 +422,7 @@ describe('users route', function () {
                 it('it should not POST an appointment approve without existing request ', (done) => {
                     chai.request(server)
                         .post('/api/users/appointments/approve')
+                        .set('Authorization', tokenTest)
                         .send(appointmentApproveTest)
                         .end((err, res) => {
                             res.should.have.status(500);
@@ -415,6 +454,7 @@ describe('users route', function () {
                 it('it should POST an appointment approve of user ', (done) => {
                     chai.request(server)
                         .post('/api/users/appointments/approve')
+                        .set('Authorization', tokenTest)
                         .send(appointmentApproveTest)
                         .end((err, res) => {
                             res.should.have.status(200);
@@ -431,6 +471,7 @@ describe('users route', function () {
                 it('it should save the appointment in Event table', (done) => {
                     chai.request(server)
                         .get('/api/users/events/userId/' + userTest.userId)
+                        .set('Authorization', tokenTest)
                         .end((err, res) => {
                             res.should.have.status(200);
                             res.body.should.be.a('array');
@@ -463,6 +504,7 @@ describe('users route', function () {
             it('it should not POST an appointment reject of non existent user ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/reject')
+                    .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
                         res.should.have.status(500);
@@ -487,6 +529,7 @@ describe('users route', function () {
                 it('it should not POST an appointment approve without existing request ', (done) => {
                     chai.request(server)
                         .post('/api/users/appointments/reject')
+                        .set('Authorization', tokenTest)
                         .send(appointmentApproveTest)
                         .end((err, res) => {
                             res.should.have.status(500);
@@ -518,6 +561,7 @@ describe('users route', function () {
                 it('it should POST an appointment reject of user ', (done) => {
                     chai.request(server)
                         .post('/api/users/appointments/reject')
+                        .set('Authorization', tokenTest)
                         .send(appointmentApproveTest)
                         .end((err, res) => {
                             res.should.have.status(200);
@@ -558,6 +602,7 @@ describe('users route', function () {
             it('it should not GET scheduled appointments of non existent user ', (done) => {
                 chai.request(server)
                     .get('/api/users/appointments/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(500);
                         res.body.should.have.property('message');
@@ -578,6 +623,7 @@ describe('users route', function () {
             it('it should POST an appointment reject of user ', (done) => {
                 chai.request(server)
                     .get('/api/users/appointments/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(200);
                         res.body.should.be.a('array');
@@ -613,6 +659,7 @@ describe('users route', function () {
             it('it should not GET scheduled appointments of non existent user ', (done) => {
                 chai.request(server)
                     .get('/api/users/incidents/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(500);
                         res.body.should.have.property('message');
@@ -633,6 +680,7 @@ describe('users route', function () {
             it('it should POST an appointment reject of user ', (done) => {
                 chai.request(server)
                     .get('/api/users/incidents/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(200);
                         res.body.should.be.a('array');
@@ -737,6 +785,7 @@ describe('users route', function () {
                 it('it should delete the appointment from Event table', (done) => {
                     chai.request(server)
                         .get('/api/users/events/userId/' + userTest.userId)
+                        .set('Authorization', tokenTest)
                         .end((err, res) => {
                             res.should.have.status(200);
                             res.body.should.be.a('array');
@@ -844,6 +893,7 @@ describe('users route', function () {
                 it('it should delete the incident from Event table', (done) => {
                     chai.request(server)
                         .get('/api/users/events/userId/' + userTest.userId)
+                        .set('Authorization', tokenTest)
                         .end((err, res) => {
                             res.should.have.status(200);
                             res.body.should.be.a('array');
@@ -882,6 +932,7 @@ describe('users route', function () {
             it('it should not GET events of non existent user ', (done) => {
                 chai.request(server)
                     .get('/api/users/events/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(500);
                         res.body.should.have.property('message');
@@ -909,6 +960,7 @@ describe('users route', function () {
             it('it should POST an appointment reject of user ', (done) => {
                 chai.request(server)
                     .get('/api/users/events/userId/' + userTest.userId)
+                    .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(200);
                         res.body.should.be.a('array');
@@ -939,6 +991,7 @@ describe('users route', function () {
 
               chai.request(server)
                   .post('/api/users/add')
+                  .set('Authorization', tokenTest)
                   .send(userTest)
                   .end((err, res) => {
                       res.should.have.status(500);
@@ -963,6 +1016,7 @@ describe('users route', function () {
 
               chai.request(server)
                   .post('/api/users/add')
+                  .set('Authorization', tokenTest)
                   .send(userTest)
                   .end((err, res) => {
                       res.should.have.status(200);
@@ -1048,4 +1102,26 @@ function deleteUser(userTest) {
             userId: userTest.userId
         }
     });
+}
+
+function loginAuthenticateUser(userTest) {
+    return chai.request(server)
+        .post('/api/users/login/authenticate')
+        .send({
+            "userId": userTest.userId,
+            "password": userTest.password
+        })
+        .then((res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success');
+            res.body.success.should.be.true;
+            res.body.should.have.property('message');
+            res.body.message.should.equal(constants.general.successfulToken,);
+            res.body.should.have.property('token');
+            return res.body.token;
+        })
+        .catch((err) => {
+            throw err;
+        });
 }
