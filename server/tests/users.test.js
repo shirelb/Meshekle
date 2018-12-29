@@ -996,7 +996,7 @@ function loginAuthenticateUser(userTest) {
             res.body.should.have.property('success');
             res.body.success.should.be.true;
             res.body.should.have.property('message');
-            res.body.message.should.equal(constants.general.successfulToken,);
+            res.body.message.should.equal(constants.general.SUCCESSFUL_TOKEN,);
             res.body.should.have.property('token');
             return res.body.token;
         })

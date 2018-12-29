@@ -16,13 +16,13 @@ module.exports = {
                 }
                 else {
                     return res.status(200).send({
-                        "message": constants.usersRoute.userNotFound,
+                        "message": constants.usersRoute.USER_NOT_FOUND,
                     });
                 }
             })
             .catch(err => {
-                return res.status(500).send({
-                    "message": constants.usersRoute.userNotFound,
+                return res.status(400).send({
+                    "message": constants.usersRoute.USER_NOT_FOUND,
                     err
                 });
             })
