@@ -4,7 +4,7 @@ const {ChoreTypes, sequelize, Users, AppointmentRequests, AppointmentDetails, Sc
 
 module.exports = {
     checkIfChoreTypeExist: function (choreTypeName, res){
-            return ChoreTypes.findOne({
+             return ChoreTypes.findOne({
                             where: {
                                 choreTypeName: choreTypeName
                             }
@@ -15,14 +15,14 @@ module.exports = {
                     //     return choreType;
                     // }
                     // else{
-                    //     return res.status(500).send({
+                    //     return res.status(200).send({
                     //         "message": "choreType doesn't exist!",
                     //     });
                     // }
                 })
                 .catch(err => {
                     console.log(err)
-                    res.status(500).send("Something went wrong", err);
+                    return res.status(500).send("Something went wrong"+ err);
                 })
     },
 
