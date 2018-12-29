@@ -4,14 +4,14 @@ var constants = require('./constants');
 
 module.exports = {
     sendToken: function (payload, res) {
-            var token = jwt.sign(payload, constants.general.superSecret, {
+            var token = jwt.sign(payload, constants.general.SUPER_SECRET, {
                 expiresIn: "10h" // expires in 10 hours
             });
 
             // return the information including token as JSON
             res.status(200).send({
                 'success': true,
-                'message': constants.general.successfulToken,
+                'message': constants.general.SUCCESSFUL_TOKEN,
                 'token': token
             });
         },
@@ -28,9 +28,9 @@ module.exports = {
         // decode token
         if (token) {
             // verifies secret and checks exp
-            jwt.verify(token, constants.general.superSecret, function (err, decoded) {
+            jwt.verify(token, constants.general.SUPER_SECRET, function (err, decoded) {
                 if (err) {
-                    return res.status(200).send({success: false, message: constants.usersRoute.failedToken,err});
+                    return res.status(200).send({success: false, message: constants.usersRoute.FAILED_TOKEN,err});
                 } else {
                     // if everything is good, save to request for use in other routes
                     // get the decoded payload and header
@@ -46,7 +46,7 @@ module.exports = {
             // return an error
             return res.status(403).send({
                 success: false,
-                message: constants.usersRoute.tokenNotProvided
+                message: constants.usersRoute.TOKEN_NOT_PROVIDED
             });
         }
     },
