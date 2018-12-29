@@ -34,5 +34,9 @@ module.exports = (sequelize, type) => {
             type: type.STRING,
             required: true
         },
+        color: {
+            type: type.STRING,
+            required: true
+        },
     });
 };
