@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+var constants = require('./constants');
 
 module.exports = {
     checkIfUserExist: function (userId, res) {
@@ -14,14 +15,14 @@ module.exports = {
                     return user;
                 }
                 else {
-                    return res.status(500).send({
-                        "message": "userId doesn't exist!",
+                    return res.status(200).send({
+                        "message": constants.usersRoute.userNotFound,
                     });
                 }
             })
             .catch(err => {
                 return res.status(500).send({
-                    "message": "userId doesn't exist!",
+                    "message": constants.usersRoute.userNotFound,
                     err
                 });
             })
