@@ -1,10 +1,104 @@
 const Sequelize = require('sequelize');
 var express = require('express');
 var router = express.Router();
-const {ServiceProviders,Users} = require('../DBorm/DBorm');
+const {ServiceProviders,Users,ScheduledAppointments, AppointmentDetails,RulesModules,Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
+var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var constants = require('./shared/constants');
 
-/* GET serviceProviders listing. */
+//Login from service provider by userId and password
+router.post('/login/authenticate', function (req, res, next) {
+    Users.findAll({
+        where: {
+            userId: req.body.userId,
+            password: req.body.password,
+        }
+    })
+        .then(users => {
+            if (users.length === 0)
+                res.status(200).send({"result":false, "message": "Wrong user id or password", "serviceProviderId": ""});
+            else {
+                ServiceProviders.findAll({
+                    where: {
+                        userId: users[0].userId
+                    }
+                }).then(serviceProviders => {
+                    if (serviceProviders.length === 0)
+                        res.status(200).send({"result":false, "message": "Wrong user id or password", "serviceProviderId": ""});
+                    else
+                        sendToken(serviceProviders[0],res);
+                        // res.status(200).send({"result":true, "message": "Login successful", "serviceProviderId": serviceProviders[0].serviceProviderId
+                        // });
+                })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+
+function sendToken(serProv, res) {
+    var payload = {
+        serviceProviderId: serProv.serviceProviderId,
+        userId: serProv.userId
+    };
+
+    var token = jwt.sign(payload, constants.superSecret, {
+        expiresIn: "10h" // expires in 10 hours
+    });
+
+    // return the information including token as JSON
+    res.status(200).send({
+        success: true,
+        message: 'Token generated successfully !',
+        token: token
+    });
+}
+
+/*router.use(function (req, res, next) {
+    console.log("in route middleware to verify a token");
+
+    // check header or url parameters or post parameters for token
+    var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.headers.authorization;
+
+    token.startsWith("Bearer ") ? token = token.substring(7, token.length) : token;
+
+    console.log("token: " + token);
+
+    // decode token
+    if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, constants.superSecret, function (err, decoded) {
+            if (err) {
+                return res.json({success: false, message: 'Failed to authenticate token.',err});
+            } else {
+                // if everything is good, save to request for use in other routes
+                // get the decoded payload and header
+                var decoded = jwt.decode(token, {complete: true});
+                req.decoded = decoded;
+                console.log(decoded.header);
+                console.log(decoded.payload);
+                next();
+            }
+        });
+    } else {
+        // if there is no token
+        // return an error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+});
+*/
+
+// GET all serviceProviders .
 router.get('/', function(req, res, next) {
     ServiceProviders.findAll()
         .then(serviceProviders => {
@@ -17,7 +111,7 @@ router.get('/', function(req, res, next) {
         })
 });
 
-/* GET serviceProviders by name listing. */
+//GET serviceProviders by full name
 router.get('/name/:name', function(req, res, next) {
     Users.findAll({
         attributes: ['userId'],
@@ -50,7 +144,7 @@ router.get('/name/:name', function(req, res, next) {
         })
 });
 
-/* GET serviceProviders by role. */
+//Get service providers by role
 router.get('/role/:role', function(req, res, next) {
     ServiceProviders.findAll({
         where: {
@@ -67,7 +161,7 @@ router.get('/role/:role', function(req, res, next) {
         })
 });
 
-/* GET appointmentWayType serviceProvidersId */
+// GET appointmentWayType by serviceProvidersId
 router.get('/serviceProviderId/:serviceProviderId/appointmentWayType', function(req, res, next) {
     ServiceProviders.findAll({
         attributes: ['appointmentWayType'],
@@ -85,7 +179,7 @@ router.get('/serviceProviderId/:serviceProviderId/appointmentWayType', function(
         })
 });
 
-/* put service providers day user . */
+// update the appointment way of service provider
 router.put('/serviceProviderId/:serviceProviderId/appointmentWayType/set', function (req, res, next) {
     ServiceProviders.update(
         {appointmentWayType: req.body.appointmentWayType},
@@ -121,7 +215,7 @@ router.post('/add', function (req, res, next) {
         })
 });
 
-/* put role to a service provider . */
+// put role to a service provider
 router.put('/roles/addToServiceProvider', function (req, res, next) {
     ServiceProviders.findAll(
         {where : {
@@ -153,7 +247,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
         })
 });
 
-/* DELETE role to a service providers. */
+// DELETE role to a service providers.
 router.put('/roles/removeFromServiceProvider', function (req, res, next) {
     ServiceProviders.destroy(
         {where : {
@@ -171,43 +265,8 @@ router.put('/roles/removeFromServiceProvider', function (req, res, next) {
 });
 
 
-//Login from service provider by userId and password
-router.post('/login/authenticate', function (req, res, next) {
-    Users.findAll({
-        where: {
-            userId: req.body.userId,
-            password: req.body.password,
-        }
-    })
-        .then(users => {
-            if (users.length === 0)
-                res.status(200).send({"result":false, "message": "Wrong user id or password", "serviceProviderId": ""});
-            else {
-                ServiceProviders.findAll({
-                    where: {
-                        userId: users[0].userId
-                    }
-                }).then(serviceProviders => {
-                    if (serviceProviders.length === 0)
-                        res.status(200).send({"result":false, "message": "Wrong user id or password", "serviceProviderId": ""});
-                    else
-                        res.status(200).send({"result":true, "message": "Login successful", "serviceProviderId": serviceProviders[0].serviceProviderId
-                    });
-                })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    })
-            }
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
 
-
-/* DELETE a service providers. */
+// DELETE a service provider by userId
 router.delete('/userId/:userId/delete', function (req, res, next) {
     ServiceProviders.destroy(
         {where : {
@@ -248,7 +307,7 @@ router.post('/users/add', function (req, res, next) {
         })
 });
 
-/* DELETE a user. */
+// DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
     Users.destroy(
         {where : {
@@ -267,7 +326,7 @@ router.delete('/users/userId/:userId/delete', function (req, res, next) {
 
 
 
-/* Update the operation time of a service provider with role */
+// Update the operation time of a service provider with role
 router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set', function (req, res, next) {
     ServiceProviders.update(
         {operationTime: req.body.operationTime},
@@ -285,7 +344,7 @@ router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set',
         })
 });
 
-/* GET operation time of service provider with role. */
+// GET operation time of service provider with role.
 router.get('/serviceProviderId/:serviceProviderId/role/:role/operationTime', function(req, res, next) {
     ServiceProviders.findAll({
         where:{
@@ -304,9 +363,122 @@ router.get('/serviceProviderId/:serviceProviderId/role/:role/operationTime', fun
 });
 
 
+// update appointment status to 'cancelled' by appointmentId .
+router.put('/appointments/cancel/appointmentId/:appointmentId', function (req, res, next) {
+    ScheduledAppointments.update(
+        {status: 'cancelled'},
+        {where : {
+                appointmentId: req.params.appointmentId
+            }
+        })
+        .then(result => {
+            res.status(200).send({"message": "Appointment status changed to cancelled successfully!","result":result[0]});
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+//GET all appointments by serviceProviderId .
+router.get('/appointments/serviceProviderId/:serviceProviderId', function(req, res, next) {
+    AppointmentDetails.findAll({
+        where: {
+            serviceProviderId: req.params.serviceProviderId
+        }
+    })
+        .then((apps) => {
+            const idsList = apps.map((app) => app.dataValues.appointmentId);
+            ScheduledAppointments.findAll({
+                where: {
+                    appointmentId:{
+                        [Op.in]: idsList
+                    }
+                }
+            })
+                .then(appointmentsDetails => {
+                    console.log(appointmentsDetails);
+                    res.status(200).send(appointmentsDetails);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
 
 
 
+
+// GET roles of service provider by service provider id. */
+router.get('/roles/serviceProviderId/:serviceProviderId', function(req, res, next) {
+    ServiceProviders.findAll({
+        attributes: ['role'],
+        where:{
+            serviceProviderId : req.params.serviceProviderId,
+        }
+    })
+        .then(roles => {
+            console.log(roles);
+            res.status(200).send({roles: roles.map(role => role.role)});
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+
+/* GET permissions of service provider by service provider id. */
+router.get('/serviceProviderId/:serviceProviderId/permissions', function(req, res, next) {
+    ServiceProviders.findAll({
+        attributes: ['role'],
+        where:{
+            serviceProviderId : req.params.serviceProviderId,
+        }
+    })
+        .then(roles => {
+            const rolesList=roles.map(role => role.role);
+            RulesModules.findAll({
+                attributes: ['module'],
+                where:{
+                    role:{
+                        [Op.in]: rolesList
+                    }
+                }
+            }).then(modules =>{
+                const moduleList=modules.map(module => module.module);
+                Permissions.findAll({
+                    attributes: ['operationName'],
+                    where:{
+                        module:{
+                            [Op.in]: moduleList
+                        }
+                    }
+                }).then(permissions => {
+                    console.log(permissions);
+                    res.status(200).send(permissions.map(permission => permission.operationName));
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).send(err);
+            })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
 
 
 

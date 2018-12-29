@@ -7,17 +7,25 @@ let server = require('../app');
 chai.use(chaiHttp);
 
 const db = require('../DBorm/DBorm');
-const {sequelize, Users, ServiceProviders} = require('../DBorm/DBorm');
+const {sequelize, Users, ServiceProviders,ScheduledAppointments,AppointmentDetails,RulesModules,Permissions} = require('../DBorm/DBorm');
 
 
 
 describe('service providers route', function () {
     this.timeout(20000);
 
-    beforeEach((done) => {
-        setTimeout(function () {
+    before((done) => {
+        sequelize.sync({ force : true }) // drops table and re-creates it
+            .then(function() {
+                done(null);
+            })
+            .catch(function(error) {
+                done(error);
+            });
+       /* setTimeout(function () {
+            console.log("NOW START TESTS");
             done();
-        }, 1000);
+        }, 1000);*/
     });
 
     let userTest = {
@@ -85,6 +93,33 @@ describe('service providers route', function () {
         appointmentWayType: 'Dialog'
     };
 
+    let schedAppointmentTest={
+        appointmentId: '1',
+        startDateAndTime: '2018-12-12 11:00',
+        endDateAndTime: '2018-12-12 13:00',
+        remarks: 'blob',
+        status: 'set'
+    };
+
+    let appointmentDetailTest={
+        appointmentId: '1',
+        clientId: '111111111',
+        serviceProviderId: '123456789',
+        role: 'Dentist',
+        subject: 'blob'
+    };
+
+    let roleModuleTest={
+        role:'Dentist',
+        module:'Doctors'
+    };
+
+    let permissionTest={
+        module:'Doctors',
+        operationName:'add users',
+        api:'serviceProviders'
+    };
+    //Get all the service providers
     describe('/GET serviceProviders', () => {
         before((done) => {
             createUser(userTest)
@@ -116,7 +151,7 @@ describe('service providers route', function () {
                 );
         });
     });
-
+    //Get all the service providers by full name
     describe('/GET serviceProviders by full name ', () => {
         before((done) => {
             createUser(userTest)
@@ -129,7 +164,7 @@ describe('service providers route', function () {
 
         });
 
-        it('it should GET all the service providers with given name', (done) => {
+        it('it should GET all the service providers by full name', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/name/Amit mazuz')
                 .end((err, res) => {
@@ -153,7 +188,7 @@ describe('service providers route', function () {
         });
     });
 
-    // get service provider by role
+    // Get service provider by role
     describe('/GET serviceProviders by role ', () => {
         before((done) => {
             createUser(userTest)
@@ -223,6 +258,7 @@ describe('service providers route', function () {
         });
     });
 
+    //Gets the appointment type by service provider id
     describe('/GET appointmentWayType by serviceProvidersId', () => {
         before((done) => {
             createUser(userTest)
@@ -234,7 +270,7 @@ describe('service providers route', function () {
                 );
 
         });
-        it('it should GET the appointmentWayType of a given service provider', (done) => {
+        it('it should GET the appointmentWayType by service provider id', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/serviceProviderId/123456789/appointmentWayType')
                 .end((err, res) => {
@@ -255,7 +291,7 @@ describe('service providers route', function () {
         });
     });
 
-    //Add service provider test
+    //Add service provider
     describe('/POST add serviceProvider', () => {
         before((done) => {
             createUser(userTest)
@@ -331,7 +367,7 @@ describe('service providers route', function () {
         });
     });
 
-    //delete role of a service provider
+    //Delete role of a service provider
     describe('/PUT delete role to a serviceProvider', () => {
         before((done) => {
             createUser(userTest)
@@ -378,7 +414,7 @@ describe('service providers route', function () {
                         )
                 );
         });
-        it('it should DELETE the serviceProviders with the given userId', (done) => {
+        it('it should DELETE the serviceProvider by userId', (done) => {
             chai.request(server)
                 .delete('/api/serviceProviders/userId/111111111/delete')
                 .end((err, res) => {
@@ -397,7 +433,7 @@ describe('service providers route', function () {
                 );
         });
     });
-
+    //Add a service provider
     describe('/POST add serviceProvider', () => {
         before((done) => {
             createUser(userTest)
@@ -445,19 +481,19 @@ describe('service providers route', function () {
                 );
 
         });
-        it('it should update the appointmentWayType of the service provider', (done) => {
+        it('it should log in the service provider to the system', (done) => {
             chai.request(server)
                 .post('/api/serviceProviders/login/authenticate')
                 .send({userId:'111111111',password:'123456789'})
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
-                    res.body.result.should.be.eql(true);
-                    res.body.serviceProviderId.should.be.eql('123456789');
+                    res.body.success.should.be.eql(true);
+                    //res.body.should.have.property('token');
                     done();
                 });
         });
-        it('it should update the appointmentWayType of the service provider', (done) => {
+       /* it('it should update the appointmentWayType of the service provider', (done) => {
             chai.request(server)
                 .post('/api/serviceProviders/login/authenticate')
                 .send({userId:'222222222',password:'123456789'})
@@ -468,7 +504,7 @@ describe('service providers route', function () {
                     res.body.serviceProviderId.should.be.eql("");
                     done();
                 });
-        });
+        });*/
 
         after((done) => {
             deleteUser(userTest)
@@ -507,7 +543,7 @@ describe('service providers route', function () {
 
 
 //delete a user with a given userID
-    describe('/DELETE delete a serviceProvider by userId', () => {
+    describe('/DELETE delete a user by userId', () => {
         before((done) => {
             createUser(userTest)
                 .then(
@@ -597,6 +633,174 @@ describe('service providers route', function () {
         });
     });
 
+    //Set cancelled status to appointment by appointmentID
+    describe('/Put cancelled status to appointment ', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createSchedAppointment(schedAppointmentTest).then(
+                                done()
+                            )
+                        )
+                );
+
+        });
+        it('it should update the status of the appointment to cancelled', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/appointments/cancel/appointmentId/1')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql('Appointment status changed to cancelled successfully!');
+                    res.body.result.should.be.eql(1);
+                    //TODO: check if the appointment (with id 1) status as changed to cancelled
+                    done();
+                });
+        });
+
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteSchedAppointment(schedAppointmentTest)
+                                .then(
+                                    done()
+                                )
+                        )
+                );
+        });
+    });
+
+
+
+    //GET appointments details of serviceProvider
+    describe('/GET appointments details of serviceProvider', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createSchedAppointment(schedAppointmentTest)
+                                .then(
+                                    createAppointmentDetail(appointmentDetailTest)
+                                        .then(
+                                            done()
+                                        )
+                            )
+                        )
+                );
+
+        });
+        it('it should GET all the appointmentsDetails of the serviceProvider', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/appointments/serviceProviderId/123456789')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteSchedAppointment(schedAppointmentTest)
+                                .then(
+                                    deleteAppointmentDetail(appointmentDetailTest)
+                                        .then(
+                                            done()
+                                        )
+                                )
+                        )
+                );
+        });
+    });
+
+
+
+
+    // Get roles of a service provider
+    describe('/GET roles of serviceProvider ', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+
+        });
+        it('it should GET all the roles of a service provider', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/roles/serviceProviderId/123456789')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.roles.should.be.a('array');
+                    res.body.roles.length.should.be.eql(1);
+                    res.body.roles[0].should.be.eql('Dentist');
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+
+    //GET permissions of serviceProvider
+    describe('/GET permissions of serviceProvider', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createRoleModule(roleModuleTest)
+                                .then(
+                                    createPermission(permissionTest)
+                                        .then(
+                                            done()
+                                        )
+                                )
+                        )
+                );
+
+        });
+        it('it should GET all the permissions of the serviceProvider', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/serviceProviderId/123456789/permissions')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteRoleModule(roleModuleTest)
+                                .then(
+                                    deletePermission(permissionTest)
+                                        .then(
+                                            done()
+                                        )
+                                )
+                        )
+                );
+        });
+    });
 
     /* describe('/POST users', () => {
          it('it should not POST a user without username field', (done) => {
@@ -689,6 +893,12 @@ describe('service providers route', function () {
      });*/
 
 });
+
+
+
+
+
+
 function createUser(userTest) {
     return Users.create({
         userId: userTest.userId,
@@ -725,6 +935,75 @@ function deleteServiceProvider(serviceProviderTest) {
     return ServiceProviders.destroy({
         where: {
             serviceProviderId: serviceProviderTest.serviceProviderId
+        }
+    });
+}
+
+function createSchedAppointment(schedAppointment) {
+    return ScheduledAppointments.create({
+        appointmentId: schedAppointment.appointmentId,
+        startDateAndTime: schedAppointment.startDateAndTime,
+        endDateAndTime: schedAppointment.endDateAndTime,
+        remarks: schedAppointment.remarks,
+        status: schedAppointment.status,
+    });
+}
+function deleteSchedAppointment(schedAppointment) {
+    return ScheduledAppointments.destroy({
+        where: {
+            appointmentId: schedAppointment.appointmentId
+        }
+    });
+}
+
+function createAppointmentDetail(appointmentDetail) {
+    return AppointmentDetails.create({
+        appointmentId: appointmentDetail.appointmentId,
+        clientId: appointmentDetail.clientId,
+        serviceProviderId: appointmentDetail.serviceProviderId,
+        role: appointmentDetail.role,
+        subject: appointmentDetail.subject,
+    });
+}
+function deleteAppointmentDetail(appointmentDetail) {
+    return AppointmentDetails.destroy({
+        where: {
+            appointmentId: appointmentDetail.appointmentId,
+            clientId: appointmentDetail.clientId,
+            serviceProviderId: appointmentDetail.serviceProviderId,
+        }
+    });
+}
+
+
+function createRoleModule(roleModule) {
+    return RulesModules.create({
+        role: roleModule.role,
+        module: roleModule.module,
+    });
+}
+function deleteRoleModule(roleModule) {
+    return RulesModules.destroy({
+        where: {
+            role: roleModule.role,
+            module: roleModule.module
+        }
+    });
+}
+
+function createPermission(permission) {
+    return Permissions.create({
+        module: permission.module,
+        operationName: permission.operationName,
+        api: permission.api,
+    });
+}
+function deletePermission(permission) {
+    return Permissions.destroy({
+        where: {
+            module: permission.module,
+            operationName: permission.operationName,
+            api: permission.api,
         }
     });
 }
