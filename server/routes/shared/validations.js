@@ -15,7 +15,7 @@ module.exports = {
                     return user;
                 }
                 else {
-                    return res.status(200).send({
+                    return res.status(400).send({
                         "message": constants.usersRoute.USER_NOT_FOUND,
                     });
                 }
