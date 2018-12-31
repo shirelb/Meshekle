@@ -7,7 +7,7 @@ module.exports = (sequelize, type) => {
             required: true
         },
         userId: {
-            type: type.INTEGER,
+            type: type.STRING,
             required: true
         },
         choreTypeName: {

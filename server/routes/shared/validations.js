@@ -3,10 +3,10 @@ const Op = Sequelize.Op;
 const {ChoreTypes, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
 
 module.exports = {
-    checkIfChoreTypeExist: function (choreTypeName, res){
+    checkIfChoreTypeExist: function (typeName, res){
              return ChoreTypes.findOne({
                             where: {
-                                choreTypeName: choreTypeName
+                                choreTypeName: typeName
                             }
                         })
                 .then(choreType => {
@@ -15,21 +15,20 @@ module.exports = {
                     //     return choreType;
                     // }
                     // else{
-                    //     return res.status(200).send({
+                    //     return res.status(400).send({
                     //         "message": "choreType doesn't exist!",
                     //     });
                     // }
                 })
                 .catch(err => {
-                    console.log(err)
-                    return res.status(500).send("Something went wrong"+ err);
+                    return res.status(400).send({"message":"choreType is not exist!",err});
                 })
     },
 
-    checkIfUserExist: function (userId, res) {
+    checkIfUserExist: function (uId, res) {
         return Users.findOne({
             where: {
-                userId: userId,
+                userId: uId,
             }
         })
             .then(user => {
@@ -37,14 +36,14 @@ module.exports = {
                     return user;
                 }
                 else {
-                    return res.status(500).send({
+                    return res.status(400).send({
                         "message": "userId doesn't exist!",
                     });
                 }
             })
             .catch(err => {
-                return res.status(500).send({
-                    "message": "userId doesn't exist!",
+                return res.status(400).send({
+                    "message": "user is not exist...",
                     err
                 });
             })

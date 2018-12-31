@@ -128,6 +128,16 @@ AppointmentRequests.belongsTo(ScheduledAppointments, {
     foreignKey: 'requestId',
     targetKey: 'appointmentId'
 });
+//
+Users.hasMany(UsersChoresTypes, {
+    foreignKey: 'userId', 
+    targetKey:'userId'
+});
+UsersChoresTypes.belongsTo(Users, {
+    foreignKey: 'userId', 
+    targetKey:'userId'
+});
+
 
 
 sequelize.sync({force: true})
