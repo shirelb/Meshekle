@@ -253,7 +253,6 @@ router.post('/appointments/approve', function (req, res, next) {
                 err
             });
         });
-
 });
 
 /* POST appointment user reject . */

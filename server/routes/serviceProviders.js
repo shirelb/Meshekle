@@ -1,10 +1,14 @@
+var authentications = require('./shared/authentications');
+var validiation =require('./shared/validations');
 const Sequelize = require('sequelize');
 var express = require('express');
 var router = express.Router();
 const {ServiceProviders,Users,ScheduledAppointments, AppointmentDetails,RulesModules,Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
-var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var constants = require('./shared/constants');
+var serviceProvidersRoute=constants.serviceProvidersRoute;
+
+
 
 //Login from service provider by userId and password
 router.post('/login/authenticate', function (req, res, next) {
@@ -16,7 +20,7 @@ router.post('/login/authenticate', function (req, res, next) {
     })
         .then(users => {
             if (users.length === 0)
-                res.status(200).send({"result":false, "message": "Wrong user id or password", "serviceProviderId": ""});
+                return res.status(400).send({"result":false, "message": serviceProvidersRoute.AUTHENTICATION_FAIL, "serviceProviderId": ""});
             else {
                 ServiceProviders.findAll({
                     where: {
@@ -24,11 +28,15 @@ router.post('/login/authenticate', function (req, res, next) {
                     }
                 }).then(serviceProviders => {
                     if (serviceProviders.length === 0)
-                        res.status(200).send({"result":false, "message": "Wrong user id or password", "serviceProviderId": ""});
+                        return res.status(400).send({"result":false, "message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND, "serviceProviderId": ""});
                     else
-                        sendToken(serviceProviders[0],res);
-                        // res.status(200).send({"result":true, "message": "Login successful", "serviceProviderId": serviceProviders[0].serviceProviderId
-                        // });
+                    {
+                        let payload = {
+                            serviceProviderId: serviceProviders[0].serviceProviderId,
+                            userId: serviceProviders[0].userId
+                        };
+                        authentications.sendToken(payload,res);
+                    }
                 })
                     .catch(err => {
                         console.log(err);
@@ -41,25 +49,6 @@ router.post('/login/authenticate', function (req, res, next) {
             res.status(500).send(err);
         })
 });
-
-
-function sendToken(serProv, res) {
-    var payload = {
-        serviceProviderId: serProv.serviceProviderId,
-        userId: serProv.userId
-    };
-
-    var token = jwt.sign(payload, constants.superSecret, {
-        expiresIn: "10h" // expires in 10 hours
-    });
-
-    // return the information including token as JSON
-    res.status(200).send({
-        success: true,
-        message: 'Token generated successfully !',
-        token: token
-    });
-}
 
 /*router.use(function (req, res, next) {
     console.log("in route middleware to verify a token");
@@ -120,6 +109,9 @@ router.get('/name/:name', function(req, res, next) {
         }
     })
     .then((ids) => {
+            if(ids.length === 0){
+                return res.status(400).send({"message":serviceProvidersRoute.USER_NOT_FOUND});
+            }
             const idsList = ids.map((id) => id.dataValues.userId);
             console.log(ids);
             ServiceProviders.findAll({
@@ -130,6 +122,9 @@ router.get('/name/:name', function(req, res, next) {
                 }
             })
                 .then(serviceProviders => {
+                    if(serviceProviders.length === 0){
+                        return res.status(400).send({"message":serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+                    }
                     console.log(serviceProviders);
                     res.status(200).send(serviceProviders);
                 })
@@ -152,6 +147,9 @@ router.get('/role/:role', function(req, res, next) {
         }
     })
         .then(serviceProviders => {
+            if(serviceProviders.length === 0){
+                return res.status(400).send({message:serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
             console.log(serviceProviders);
             res.status(200).send(serviceProviders);
         })
@@ -170,6 +168,9 @@ router.get('/serviceProviderId/:serviceProviderId/appointmentWayType', function(
         }
     })
         .then(serviceProviders => {
+            if(serviceProviders.length === 0){
+                return res.status(400).send({message:serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
             console.log(serviceProviders);
             res.status(200).send(serviceProviders);
         })
@@ -179,62 +180,98 @@ router.get('/serviceProviderId/:serviceProviderId/appointmentWayType', function(
         })
 });
 
-// update the appointment way of service provider
-router.put('/serviceProviderId/:serviceProviderId/appointmentWayType/set', function (req, res, next) {
+// update the appointment way of service provider in role
+router.put('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType/set', function (req, res, next) {
+    if(!isAppWayTypeExists(req.body.appointmentWayType))
+        return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
     ServiceProviders.update(
         {appointmentWayType: req.body.appointmentWayType},
         {where : {
-            serviceProviderId: req.params.serviceProviderId
+            serviceProviderId: req.params.serviceProviderId,
+            role: req.params.role
             }
     })
-        .then(result => {
-            res.status(200).send({"message": "User successfully updated!","result":result[0]});
+        .then(isUpdated => {
+            if(isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            res.status(200).send({"message": serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC,"result":isUpdated[0]});
         })
         .catch(err => {
             console.log(err);
             res.status(500).send(err);
         })
 });
+
 
 //Add serviceProvider
 router.post('/add', function (req, res, next) {
-    ServiceProviders.create({
-        serviceProviderId: req.body.serviceProviderId,
-        role: req.body.role,
-        userId: req.body.userId,
-        operationTime: req.body.operationTime,
-        phoneNumber: req.body.phoneNumber,
-        appointmentWayType: req.body.appointmentWayType,
-    })
-        .then(result => {
-            res.status(200).send({"message": "ServiceProvider successfully added!","newServiceProvider":result.dataValues});
+    let isInputValid=isServiceProviderInputValid(req.body);
+    if(isInputValid !== '')
+        return res.status(400).send({"message": isInputValid});
+    validiation.getUsersByUserIdPromise(req.body.userId).then(users =>
+        {
+            if(users.length === 0 )
+                return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
+            validiation.getServiceProvidersByServProIdPromise(req.body.serviceProviderId).then(serviceProviders=>
+            {
+                if(serviceProviders.length !== 0)
+                    return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
+                ServiceProviders.create({
+                    serviceProviderId: req.body.serviceProviderId,
+                    role: req.body.role,
+                    userId: req.body.userId,
+                    operationTime: req.body.operationTime,
+                    phoneNumber: req.body.phoneNumber,
+                    appointmentWayType: req.body.appointmentWayType,
+                })
+                    .then(newServiceProvider => {
+                        res.status(200).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,"result":newServiceProvider.dataValues});
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+            })
         })
         .catch(err => {
             console.log(err);
             res.status(500).send(err);
         })
+
+
 });
 
-// put role to a service provider
+
+
+// add role to a service provider
 router.put('/roles/addToServiceProvider', function (req, res, next) {
+    if(!isRoleExists(req.body.role))
+        return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
     ServiceProviders.findAll(
         {where : {
                 serviceProviderId: req.body.serviceProviderId
             }
         })
-        .then(serviceProvider => {
-            const serProv = serviceProvider[0];
+        .then(serviceProviders => {
+            if(serviceProviders.length === 0){
+                return res.status(400).send({message:serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            let rolesOfServiceProvider= serviceProviders.map(serProv => serProv.role);
+            if(rolesOfServiceProvider.includes(req.body.role))
+                return res.status(400).send({message:serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
+
+            const serProv = serviceProviders[0];
             ServiceProviders.create(
                 {
-                     serviceProviderId: serProv.serviceProviderId,
+                    serviceProviderId: serProv.serviceProviderId,
                     role: req.body.role,
                     userId: serProv.userId,
                     operationTime: req.body.operationTime,
                     phoneNumber: serProv.phoneNumber,
                     appointmentWayType: serProv.appointmentWayType,
                 }
-            ).then(result => {
-                    res.status(200).send({"message": "ServiceProvider role successfully added!","newServiceProvider":result.dataValues});
+            ).then(updateServiceProvider => {
+                    res.status(200).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC,"result":updateServiceProvider.dataValues});
                 })
                 .catch(err => {
                     console.log(err);
@@ -247,16 +284,23 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
         })
 });
 
+
+
 // DELETE role to a service providers.
 router.put('/roles/removeFromServiceProvider', function (req, res, next) {
+    if(!isRoleExists(req.body.role))
+        return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
     ServiceProviders.destroy(
         {where : {
                 serviceProviderId: req.body.serviceProviderId,
                 role:req.body.role
             }
         })
-        .then(result => {
-            res.status(200).send({"message": "Role successfully deleted!","result":result});
+        .then(numOfDeletes => {
+            if(numOfDeletes === 0){
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            res.status(200).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC,"result":numOfDeletes});
         })
         .catch(err => {
             console.log(err);
@@ -273,8 +317,11 @@ router.delete('/userId/:userId/delete', function (req, res, next) {
                 userId: req.params.userId
             }
         })
-        .then(result => {
-            res.status(200).send({"message": "serviceProviders successfully deleted!","result":result});
+        .then(numOfDeletes => {
+            if(numOfDeletes === 0){
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            res.status(200).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_DEL_SUCC,"result":numOfDeletes});
         })
         .catch(err => {
             console.log(err);
@@ -286,26 +333,39 @@ router.delete('/userId/:userId/delete', function (req, res, next) {
 
 //Add user
 router.post('/users/add', function (req, res, next) {
-    const randomPassword=genereateRandomPassword();
-    Users.create({
-        userId: req.body.userId,
-        fullname: req.body.fullname,
-        password: randomPassword,
-        email: req.body.email,
-        mailbox: req.body.mailbox,
-        mobile: req.body.mobile,
-        phone: req.body.phone,
-        bornDate: req.body.bornDate,
-
-    })
-        .then(result => {
-            res.status(200).send({"message": "User successfully added!","userId":result.userId,"password":randomPassword});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
+    let isInputValid=isUserInputValid(req.body);
+    if(isInputValid !== '')
+        return res.status(400).send({"message": isInputValid});
+    validiation.getUsersByUserIdPromise(req.body.userId).then(users=>
+     {
+         if(users.length !== 0)
+             return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
+         const randomPassword=genereateRandomPassword();
+         Users.create({
+             userId: req.body.userId,
+             fullname: req.body.fullname,
+             password: randomPassword,
+             email: req.body.email,
+             mailbox: req.body.mailbox,
+             mobile: req.body.mobile,
+             phone: req.body.phone,
+             bornDate: req.body.bornDate,
+         })
+             .then(newUser => {
+                 res.status(200).send({"message": serviceProvidersRoute.USER_ADDED_SUCC, "result": {"userId":newUser.userId,"password":randomPassword}});
+             })
+             .catch(err => {
+                 console.log(err);
+                 res.status(500).send(err);
+             })
+     })
+         .catch(err => {
+             console.log(err);
+             res.status(500).send(err);
+         })
 });
+
+
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
@@ -314,8 +374,11 @@ router.delete('/users/userId/:userId/delete', function (req, res, next) {
                 userId: req.params.userId
             }
         })
-        .then(result => {
-            res.status(200).send({"message": "User successfully deleted!","result":result});
+        .then(numOfDeletes => {
+            if(numOfDeletes === 0){
+                return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
+            }
+            res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC,"result":numOfDeletes});
         })
         .catch(err => {
             console.log(err);
@@ -324,10 +387,10 @@ router.delete('/users/userId/:userId/delete', function (req, res, next) {
 });
 
 
-
-
 // Update the operation time of a service provider with role
 router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set', function (req, res, next) {
+    if(!isRoleExists(req.params.role))
+        return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
     ServiceProviders.update(
         {operationTime: req.body.operationTime},
         {where : {
@@ -335,8 +398,10 @@ router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set',
                 role: req.params.role
             }
         })
-        .then(result => {
-            res.status(200).send({"message": "Service Provider operationTime updated successfully!","result":result[0]});
+        .then(isUpdated => {
+            if(isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            res.status(200).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_OPTIME_UPDATED_SUCC,"result":isUpdated[0]});
         })
         .catch(err => {
             console.log(err);
@@ -344,8 +409,12 @@ router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set',
         })
 });
 
+
+
 // GET operation time of service provider with role.
 router.get('/serviceProviderId/:serviceProviderId/role/:role/operationTime', function(req, res, next) {
+    if(!isRoleExists(req.params.role))
+        return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
     ServiceProviders.findAll({
         where:{
             serviceProviderId : req.params.serviceProviderId,
@@ -353,26 +422,32 @@ router.get('/serviceProviderId/:serviceProviderId/role/:role/operationTime', fun
         }
     })
         .then(serviceProviders => {
-            console.log(serviceProviders);
-            res.status(200).send({operationTime: serviceProviders[0].operationTime});
+            if(serviceProviders.length === 0){
+                return res.status(400).send({message:serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            res.status(200).send({result:serviceProviders[0].dataValues.operationTime});
         })
         .catch(err => {
             console.log(err);
             res.status(500).send(err);
         })
 });
+
 
 
 // update appointment status to 'cancelled' by appointmentId .
 router.put('/appointments/cancel/appointmentId/:appointmentId', function (req, res, next) {
     ScheduledAppointments.update(
-        {status: 'cancelled'},
+        {status: constants.appointmentStatuses.APPOINTMENT_CANCELLED},
         {where : {
                 appointmentId: req.params.appointmentId
             }
         })
-        .then(result => {
-            res.status(200).send({"message": "Appointment status changed to cancelled successfully!","result":result[0]});
+        .then(isUpdated => {
+            if(isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
+
+            res.status(200).send({"message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,"result":isUpdated[0]});
         })
         .catch(err => {
             console.log(err);
@@ -380,42 +455,48 @@ router.put('/appointments/cancel/appointmentId/:appointmentId', function (req, r
         })
 });
 
+
+
 //GET all appointments by serviceProviderId .
 router.get('/appointments/serviceProviderId/:serviceProviderId', function(req, res, next) {
-    AppointmentDetails.findAll({
-        where: {
-            serviceProviderId: req.params.serviceProviderId
-        }
-    })
-        .then((apps) => {
-            const idsList = apps.map((app) => app.dataValues.appointmentId);
-            ScheduledAppointments.findAll({
-                where: {
-                    appointmentId:{
-                        [Op.in]: idsList
+    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
+        if(serviceProviders.length === 0)
+            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+        AppointmentDetails.findAll({
+            where: {
+                serviceProviderId: req.params.serviceProviderId
+            }
+        })
+            .then((appointmentsDetails) => {
+                const idsList = appointmentsDetails.map((app) => app.dataValues.appointmentId);
+                ScheduledAppointments.findAll({
+                    where: {
+                        appointmentId:{
+                            [Op.in]: idsList
+                        }
                     }
-                }
+                })
+                    .then(schedAppointments => {
+                        console.log(schedAppointments);
+                        res.status(200).send(schedAppointments);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
             })
-                .then(appointmentsDetails => {
-                    console.log(appointmentsDetails);
-                    res.status(200).send(appointmentsDetails);
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send(err);
-                })
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).send(err);
-        })
+            .catch((err) => {
+                console.log(err);
+                res.status(500).send(err);
+            })
+    });
 });
-
 
 
 
 // GET roles of service provider by service provider id. */
 router.get('/roles/serviceProviderId/:serviceProviderId', function(req, res, next) {
+
     ServiceProviders.findAll({
         attributes: ['role'],
         where:{
@@ -423,8 +504,10 @@ router.get('/roles/serviceProviderId/:serviceProviderId', function(req, res, nex
         }
     })
         .then(roles => {
+            if(roles.length === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             console.log(roles);
-            res.status(200).send({roles: roles.map(role => role.role)});
+            res.status(200).send(roles.map(role => role.role));
         })
         .catch(err => {
             console.log(err);
@@ -442,6 +525,8 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function(req, re
         }
     })
         .then(roles => {
+            if(roles.length === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             const rolesList=roles.map(role => role.role);
             RulesModules.findAll({
                 attributes: ['module'],
@@ -494,6 +579,85 @@ function genereateRandomPassword()
 function checkIfPasswordLegal(passToCheck)
 {
     return /\d/.test(passToCheck) && isNaN(passToCheck) ;
+}
+
+let takeValues = (dic) =>{
+    return Object.keys(dic).map(function(key){
+        return dic[key];
+    });
+};
+
+
+function isServiceProviderInputValid(serviceProviderInput) {
+    if(!isAppWayTypeExists(serviceProviderInput.appointmentWayType))
+        return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
+    if(!isRoleExists(serviceProviderInput.role))
+        return serviceProvidersRoute.INVALID_ROLE_INPUT;
+    if(serviceProviderInput.phoneNumber.match(/^[0-9]+$/) === null || serviceProviderInput.phoneNumber.length < 9 || serviceProviderInput.phoneNumber.length > 10)
+        return serviceProvidersRoute.INVALID_PHONE_INPUT;
+
+    return '';
+}
+
+function isUserInputValid(userInput) {
+    if(!validateEmail(userInput.email))
+        return serviceProvidersRoute.INVALID_EMAIL_INPUT;
+    if(!validateBornDate(userInput.bornDate))
+        return serviceProvidersRoute.INVALID_BORN_DATE_INPUT;
+    if(isNaN(userInput.mailbox))
+        return serviceProvidersRoute.INVALID_MAIL_BOX_INPUT;
+    if(userInput.phone.match(/^[0-9]+$/) === null)
+        return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    if(userInput.cellphone.match(/^[0-9]+$/) === null)
+        return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    return '';
+}
+
+
+
+
+// async function isServiceProviderInputCompitable(serviceProviderInput) {
+//     let bool=isUserIdExists(serviceProviderInput.userId);
+//     if(!bool)
+//         return serviceProvidersRoute.USER_NOT_FOUND;
+//     let bool1=isServiceProviderExists(serviceProviderInput.serviceProviderId);
+//     if(bool1)
+//         return serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS;
+//     return "";
+// }
+
+
+
+function isRoleExists(roleToCheck){
+    let roles = takeValues(constants.roles);
+    return roles.includes(roleToCheck)
+}
+
+function isAppWayTypeExists(wayType){
+    let appWayTypes = takeValues(constants.appointmentWayTypes);
+    return appWayTypes.includes(wayType)
+}
+
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
+//userInput.cellphone.match(/^[0-9]+$/) === null
+function validateBornDate(bornDateString) {
+    let splitted=bornDateString.split('-');
+    if(splitted.length !== 3)
+        return false;
+    if(splitted[0].length !== 4 && splitted[0].match(/^[0-9]+$/) === null)
+        return false;
+    if(splitted[1].length !== 2 && splitted[1].match(/^[0-9]+$/) === null)
+        return false;
+    if(splitted[2].length !== 2 && splitted[2].match(/^[0-9]+$/) === null)
+        return false;
+    let today=new Date();
+    let bornDate=new Date(bornDateString);
+
+    return bornDate < today
 }
 
 module.exports = router;
