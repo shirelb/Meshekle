@@ -1,5 +1,9 @@
 import React, {Component} from 'react';
-import {Button, ScrollView, Text, View} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
+import AgendaCalendar from "../../components/agendaCalendar/AgendaCalendar";
+import Button from "../../components/submitButton/Button";
+import strings from "../../shared/strings";
+
 
 export default class MainScreen extends Component {
     render() {
@@ -7,13 +11,16 @@ export default class MainScreen extends Component {
             <ScrollView style={{padding: 20}}>
                 <Text
                     style={{fontSize: 27}}>
+                    {/*Welcome {userFullname}*/}
                     Welcome
                 </Text>
-                <View style={{margin: 20}}/>
+
                 <Button
+                    label={strings.mainScreenStrings.LOGOUT}
                     onPress={this.props.onLogoutPress}
-                    title="Logout"
                 />
+
+                <AgendaCalendar />
             </ScrollView>
         )
     }

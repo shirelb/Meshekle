@@ -31,5 +31,9 @@ module.exports = (sequelize, type) => {
             allowNull: false,
             required: true
         },
+        active: {
+            type: type.BOOLEAN,
+            required: true
+        },
     });
 };

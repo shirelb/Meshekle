@@ -32,5 +32,12 @@ module.exports = (sequelize, type) => {
             type: type.DATE,
             required: true
         },
+        active: {
+            type: type.BOOLEAN,
+            required: true
+        },
+        image: {
+            type: type.BLOB,
+        }
     });
 };

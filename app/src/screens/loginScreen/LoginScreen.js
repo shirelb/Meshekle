@@ -7,6 +7,7 @@ import {SERVER_URL} from '../../shared/constants'
 import Button from "../../components/submitButton/Button";
 import FormTextInput from "../../components/formTextInput/FormTextInput";
 import strings from "../../shared/strings";
+import mappers from "../../shared/mappers";
 
 const imageLogo = require("../../images/logo4000.png");
 
@@ -26,30 +27,32 @@ export default class LoginScreen extends Component {
     validate = (userId, password) => {
         console.log('in validate func');
         const errors = [];
+        let item = strings.loginScreenStrings.WRONG_CREDENTIALS;
 
         if (userId.length === 0) {
-            errors.push("הוסף ת.ז. ונסה להתחבר שוב");
+            errors.push(strings.loginScreenStrings.EMPTY_USER_ID);
         } else {
+
             if (userId.length > 9) {
-                errors.push("ת.ז. צריכה להיות באורך של מקסימום 9 ספרות");
+                if (errors.indexOf(item) === -1) errors.push(item);
             }
             if (!(/^\d+$/.test(userId))) {
-                errors.push("ת.ז. צריכה להכיל רק ספרות");
+                if (errors.indexOf(item) === -1) errors.push(item);
             }
         }
 
 
         if (password.length === 0) {
-            errors.push("הוסף סיסמא ונסה להתחבר שוב");
+            errors.push(strings.loginScreenStrings.EMPTY_PASSWORD);
         } else {
             if (password.length < 8) {
-                errors.push("סיסמא צריכה להכיל 8 ספרות לפחות");
+                if (errors.indexOf(item) === -1) errors.push(item);
             }
             if (password.length > 12) {
-                errors.push("סיסמא צריכה להכיל 12 ספרות לכל היותר");
+                if (errors.indexOf(item) === -1) errors.push(item);
             }
             if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
-                errors.push("סיסמא צריכה להכיל לפחות ספרה אחת ולפחות אות אחת");
+                if (errors.indexOf(item) === -1) errors.push(item);
             }
         }
 
@@ -79,7 +82,8 @@ export default class LoginScreen extends Component {
                 })
                 .catch((error) => {
                     console.log(error);
-                    this.setState({err: [error.response.data.message]});
+                    this.setState({err: []});
+                    this.setState({err: [mappers.loginScreenMapper(error.response.data.message)]});
                 });
         }
     };
@@ -92,24 +96,24 @@ export default class LoginScreen extends Component {
             <View style={styles.container}>
                 <Image source={imageLogo} style={styles.logo}/>
                 <Text style={styles.titleText}>
-                    {strings.APP_NAME}
+                    {strings.loginScreenStrings.APP_NAME}
                 </Text>
                 <View style={styles.form}>
                     <FormTextInput
                         value={this.state.userId}
                         onChangeText={(userId) => this.setState({userId: userId})}
                         onFocus={() => this.setState({err: []})}
-                        placeholder={strings.USER_ID_PLACEHOLDER}
+                        placeholder={strings.loginScreenStrings.USER_ID_PLACEHOLDER}
                     />
                     <FormTextInput
                         value={this.state.password}
                         onChangeText={(password) => this.setState({password: password})}
                         onFocus={() => this.setState({err: []})}
-                        placeholder={strings.PASSWORD_PLACEHOLDER}
+                        placeholder={strings.loginScreenStrings.PASSWORD_PLACEHOLDER}
                         secureTextEntry={true}
                     />
                     <Button
-                        label={strings.LOGIN}
+                        label={strings.loginScreenStrings.LOGIN}
                         onPress={this.onSubmitPress.bind(this)}
                     />
                     {this.state.err.map(error => (
