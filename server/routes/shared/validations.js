@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+const {sequelize, Users,ServiceProviders, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
                     return user;
                 }
                 else {
-                    return res.status(200).send({
+                    return res.status(400).send({
                         "message": constants.usersRoute.userNotFound,
                     });
                 }
@@ -26,5 +26,27 @@ module.exports = {
                     err
                 });
             })
+    },
+
+    getUsersByUserIdPromise: function(userId) {
+        return Users.findAll({
+            where: {
+                userId: userId
+            }
+        })
+    },
+    getServiceProvidersByServProIdPromise: function(serviceProviderId) {
+        return ServiceProviders.findAll({
+            where: {
+                serviceProviderId: serviceProviderId
+            }
+        })
+    },
+    getSchedAppointmentByIdPromise: function(appointmentId) {
+        return ScheduledAppointments.findAll({
+            where: {
+                appointmentId: appointmentId
+            }
+        })
     },
 };

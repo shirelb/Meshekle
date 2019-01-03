@@ -50,6 +50,10 @@ router.post('/login/authenticate', function (req, res, next) {
         })
 });
 
+router.use(function (req, res, next) {
+    authentications.verifyToken(req, res, next);
+});
+
 /*router.use(function (req, res, next) {
     console.log("in route middleware to verify a token");
 

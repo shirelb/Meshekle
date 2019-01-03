@@ -28,6 +28,9 @@ describe('service providers route', function () {
         }, 1000);*/
     });
 
+    var tokenTest = null;
+
+
     let userTest = {
         userId: "111111111",
         fullname: "Amit mazuz",
@@ -130,517 +133,8 @@ describe('service providers route', function () {
         api:'serviceProviders'
     };
 
-    //Get all the service providers
-    describe('/GET serviceProviders', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
 
-        });
-        it('it should GET all the service providers', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-    });
-    //Get all the service providers by full name
-    describe('/GET serviceProviders by full name ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createUser(userTest1)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-
-        });
-
-        it('it should GET all the service providers by full name', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/name/Amit mazuz')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    validiation.getUsersByUserIdPromise(res.body[0].userId).then(users =>{
-                        users[0].fullname.should.be.eql("Amit mazuz");
-                        done();
-                        }
-                    );
-                });
-        });
-
-        it('it should send error that the user is not found', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/name/Amit temp')
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
-                    done();
-                });
-        });
-
-        it('it should send error that the service provider is not found', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/name/roy elia')
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            deleteUser(userTest1)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-        });
-    });
-
-    // Get service provider by role
-    describe('/GET serviceProviders by role ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-
-        });
-        it('it should GET all the service providers with given role', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/role/'+constants.roles.DENTIST_ROLE)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    res.body[0].role.should.be.eql(constants.roles.DENTIST_ROLE);
-                    done();
-                });
-        });
-        it('it should send error that the service provider not found', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/role/'+constants.roles.HAIRDRESSER_ROLE)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-    });
-
-    //Update service provider (in role) way of appointment
-    describe('/Put serviceProviders appointmentWayType ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-
-        });
-        it('it should update the appointmentWayType of the service provider in role', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
-                .send({appointmentWayType:constants.appointmentWayTypes.SLOT_WAY_TYPE})
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC);
-                    res.body.result.should.be.eql(1);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
-                        serviceProviders[0].appointmentWayType.should.be.eql(constants.appointmentWayTypes.SLOT_WAY_TYPE);
-                        done();
-                    })
-
-                });
-        });
-
-        it('it should send an error that the appoint way type doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
-                .send({appointmentWayType:"invalid way type"})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT);
-                    done();
-                });
-        });
-
-        it('it should send an error that the service provider not found', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
-                .send({appointmentWayType:constants.appointmentWayTypes.SLOT_WAY_TYPE})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-    });
-
-    //Gets the appointment type by service provider id
-    describe('/GET appointmentWayType by serviceProvidersId', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-
-        });
-        it('it should GET the appointmentWayType by service provider id', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/serviceProviderId/123456789/appointmentWayType')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body[0].appointmentWayType.should.be.eql(constants.appointmentWayTypes.DIALOG_WAY_TYPE);
-                    done();
-                });
-        });
-        it('it should send error that the service provider not found', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/serviceProviderId/123456781/appointmentWayType')
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-    });
-
-    //Add service provider
-    describe('/POST add serviceProvider', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    done()
-                );
-
-        });
-        it('it should ADD the service provider', (done) => {
-            chai.request(server)
-                .post('/api/serviceProviders/add')
-                .send(serviceProviderTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC);
-                    res.body.result.serviceProviderId.should.be.eql(serviceProviderTest.serviceProviderId);
-                    res.body.result.role.should.be.eql(serviceProviderTest.role);
-                    res.body.result.should.have.property('userId');
-                    res.body.result.should.have.property('operationTime');
-                    res.body.result.should.have.property('phoneNumber');
-                    res.body.result.should.have.property('appointmentWayType');
-                    deleteServiceProvider(serviceProviderTest).then(done());
-                });
-        });
-        it('it should send an error that the appointment way type doesnt exists', (done) => {
-            serviceProviderTest.appointmentWayType="Invalid appointment way type";
-            chai.request(server)
-                .post('/api/serviceProviders/add')
-                .send(serviceProviderTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT);
-                    serviceProviderTest.appointmentWayType=constants.appointmentWayTypes.DIALOG_WAY_TYPE;
-                    done();
-                });
-        });
-        it('it should send an error that the role doesnt exists', (done) => {
-            serviceProviderTest.role="Invalid role";
-            chai.request(server)
-                .post('/api/serviceProviders/add')
-                .send(serviceProviderTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
-                    serviceProviderTest.role=constants.roles.DENTIST_ROLE;
-                    done();
-                });
-        });
-        it('it should send an error that the phone number is invalid', (done) => {
-            serviceProviderTest.phoneNumber="invalid phone number";
-            chai.request(server)
-                .post('/api/serviceProviders/add')
-                .send(serviceProviderTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_PHONE_INPUT);
-                    serviceProviderTest.phoneNumber="0535311303";
-                    done();
-                });
-        });
-        it('it should send an error that the user not found', (done) => {
-            serviceProviderTest.userId="111111112";
-            chai.request(server)
-                .post('/api/serviceProviders/add')
-                .send(serviceProviderTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
-                    serviceProviderTest.userId="111111111";
-                    done();
-                });
-        });
-
-        it('it should send an error that the service provider already exists ', (done) => {
-                createServiceProvider(serviceProviderTest).then(
-                    chai.request(server)
-                        .post('/api/serviceProviders/add')
-                        .send(serviceProviderTest)
-                        .end((err, res) => {
-                            res.should.have.status(400);
-                            res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
-                            done();
-                        })
-                );
-        });
-
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-    });
-
-    //Add role to a service provider
-    describe('/Put role to a serviceProvider ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-
-        });
-        it('it should add role to the service provider', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/addToServiceProvider')
-                .send({serviceProviderId:'123456789',role:constants.roles.HAIRDRESSER_ROLE,operationTime:'sunday'})
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC);
-                    res.body.result.serviceProviderId.should.be.eql(serviceProviderTest.serviceProviderId);
-                    res.body.result.role.should.be.eql(constants.roles.HAIRDRESSER_ROLE);
-                    res.body.result.should.have.property('userId');
-                    res.body.result.should.have.property('operationTime');
-                    res.body.result.should.have.property('phoneNumber');
-                    res.body.result.should.have.property('appointmentWayType');
-                    done();
-                });
-        });
-        it('it should send error that the role doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/addToServiceProvider')
-                .send({serviceProviderId:'123456789',role:"invalid role",operationTime:'sunday'})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
-                    done();
-                });
-        });
-        it('it should send error that the service provider doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/addToServiceProvider')
-                .send({serviceProviderId:'123456781',role:constants.roles.HAIRDRESSER_ROLE,operationTime:'sunday'})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        it('it should send error that the service provider already exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/addToServiceProvider')
-                .send({serviceProviderId:'123456789',role:constants.roles.DENTIST_ROLE,operationTime:'sunday'})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-    });
-
-    //Delete role of a service provider
-    describe('/PUT delete role to a serviceProvider', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-        it('it should DELETE the given role to the given serviceProvider', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/removeFromServiceProvider')
-                .send({serviceProviderId:'123456789',role:constants.roles.DENTIST_ROLE})
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC);
-                    res.body.result.should.be.eql(1);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
-                        serviceProviders.length.should.be.eql(0);
-                        done();
-                    });
-                });
-        });
-        it('it should send error that the role doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/removeFromServiceProvider')
-                .send({serviceProviderId:'123456789',role:"invalid role"})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
-                    done();
-                });
-        });
-        it('it should send error that the service provider doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/removeFromServiceProvider')
-                .send({serviceProviderId:'123456781',role:constants.roles.DENTIST_ROLE})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    done()
-                );
-        });
-    });
-
-
-//delete a service provider with a given userID
-    describe('/DELETE delete a serviceProvider by userId', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            serviceProviderTest.role = constants.roles.HAIRDRESSER_ROLE,
-                            createServiceProvider(serviceProviderTest)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-        });
-        it('it should DELETE the serviceProvider by userId', (done) => {
-            chai.request(server)
-                .delete('/api/serviceProviders/userId/111111111/delete')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_DEL_SUCC);
-                    res.body.result.should.be.eql(2);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
-                        serviceProviders.length.should.be.eql(0);
-                        done()
-                    });
-                });
-        });
-        it('it should send error that the serviceProvider doesnt exists', (done) => {
-            chai.request(server)
-                .delete('/api/serviceProviders/userId/111111119/delete')
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    serviceProviderTest.role = constants.roles.DENTIST_ROLE,
-                    done()
-                );
-        });
-    });
-
-
-
-    //Service provider login by userId and password
+//Service provider login by userId and password
     describe('/POST Service provider login by userId and password ', () => {
         before((done) => {
             createUser(userTest)
@@ -661,9 +155,10 @@ describe('service providers route', function () {
                 .send({userId:'111111111',password:'123456789'})
                 .end((err, res) => {
                     res.should.have.status(200);
-                    res.body.message.should.be.eql(constants.general.successfulToken);
+                    res.body.message.should.be.eql(constants.general.SUCCESSFUL_TOKEN);
                     res.body.success.should.be.eql(true);
                     res.body.should.have.property('token');
+                    tokenTest = `Bearer ${res.body.token}`;
                     done();
                 });
         });
@@ -704,11 +199,551 @@ describe('service providers route', function () {
         });
     });
 
+
+
+
+
+    //Get all the service providers
+    describe('/GET serviceProviders', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+
+        });
+        it('it should GET all the service providers', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+    //Get all the service providers by full name
+    describe('/GET serviceProviders by full name ', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createUser(userTest1)
+                                .then(
+                                    done()
+                                )
+                        )
+                );
+
+        });
+
+        it('it should GET all the service providers by full name', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/name/Amit mazuz')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    validiation.getUsersByUserIdPromise(res.body[0].userId).then(users =>{
+                        users[0].fullname.should.be.eql("Amit mazuz");
+                        done();
+                        }
+                    );
+                });
+        });
+
+        it('it should send error that the user is not found', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/name/Amit temp')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
+                    done();
+                });
+        });
+
+        it('it should send error that the service provider is not found', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/name/roy elia')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteUser(userTest1)
+                                .then(
+                                    done()
+                                )
+                        )
+                );
+        });
+    });
+
+    // Get service provider by role
+    describe('/GET serviceProviders by role ', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+
+        });
+        it('it should GET all the service providers with given role', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/role/'+constants.roles.DENTIST_ROLE)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    res.body[0].role.should.be.eql(constants.roles.DENTIST_ROLE);
+                    done();
+                });
+        });
+        it('it should send error that the service provider not found', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/role/'+constants.roles.HAIRDRESSER_ROLE)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+
+    //Update service provider (in role) way of appointment
+    describe('/Put serviceProviders appointmentWayType ', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+
+        });
+        it('it should update the appointmentWayType of the service provider in role', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
+                .set('Authorization', tokenTest)
+                .send({appointmentWayType:constants.appointmentWayTypes.SLOT_WAY_TYPE})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC);
+                    res.body.result.should.be.eql(1);
+                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                        serviceProviders[0].appointmentWayType.should.be.eql(constants.appointmentWayTypes.SLOT_WAY_TYPE);
+                        done();
+                    })
+
+                });
+        });
+
+        it('it should send an error that the appoint way type doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
+                .set('Authorization', tokenTest)
+                .send({appointmentWayType:"invalid way type"})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT);
+                    done();
+                });
+        });
+
+        it('it should send an error that the service provider not found', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
+                .set('Authorization', tokenTest)
+                .send({appointmentWayType:constants.appointmentWayTypes.SLOT_WAY_TYPE})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+
+    //Gets the appointment type by service provider id
+    describe('/GET appointmentWayType by serviceProvidersId', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+
+        });
+        it('it should GET the appointmentWayType by service provider id', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/serviceProviderId/123456789/appointmentWayType')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body[0].appointmentWayType.should.be.eql(constants.appointmentWayTypes.DIALOG_WAY_TYPE);
+                    done();
+                });
+        });
+        it('it should send error that the service provider not found', (done) => {
+            chai.request(server)
+                .get('/api/serviceProviders/serviceProviderId/123456781/appointmentWayType')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+
+    //Add service provider
+    describe('/POST add serviceProvider', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    done()
+                );
+
+        });
+        it('it should ADD the service provider', (done) => {
+            chai.request(server)
+                .post('/api/serviceProviders/add')
+                .set('Authorization', tokenTest)
+                .send(serviceProviderTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC);
+                    res.body.result.serviceProviderId.should.be.eql(serviceProviderTest.serviceProviderId);
+                    res.body.result.role.should.be.eql(serviceProviderTest.role);
+                    res.body.result.should.have.property('userId');
+                    res.body.result.should.have.property('operationTime');
+                    res.body.result.should.have.property('phoneNumber');
+                    res.body.result.should.have.property('appointmentWayType');
+                    deleteServiceProvider(serviceProviderTest).then(done());
+                });
+        });
+        it('it should send an error that the appointment way type doesnt exists', (done) => {
+            serviceProviderTest.appointmentWayType="Invalid appointment way type";
+            chai.request(server)
+                .post('/api/serviceProviders/add')
+                .set('Authorization', tokenTest)
+                .send(serviceProviderTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT);
+                    serviceProviderTest.appointmentWayType=constants.appointmentWayTypes.DIALOG_WAY_TYPE;
+                    done();
+                });
+        });
+        it('it should send an error that the role doesnt exists', (done) => {
+            serviceProviderTest.role="Invalid role";
+            chai.request(server)
+                .post('/api/serviceProviders/add')
+                .set('Authorization', tokenTest)
+                .send(serviceProviderTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
+                    serviceProviderTest.role=constants.roles.DENTIST_ROLE;
+                    done();
+                });
+        });
+        it('it should send an error that the phone number is invalid', (done) => {
+            serviceProviderTest.phoneNumber="invalid phone number";
+            chai.request(server)
+                .post('/api/serviceProviders/add')
+                .set('Authorization', tokenTest)
+                .send(serviceProviderTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_PHONE_INPUT);
+                    serviceProviderTest.phoneNumber="0535311303";
+                    done();
+                });
+        });
+        it('it should send an error that the user not found', (done) => {
+            serviceProviderTest.userId="111111112";
+            chai.request(server)
+                .post('/api/serviceProviders/add')
+                .set('Authorization', tokenTest)
+                .send(serviceProviderTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
+                    serviceProviderTest.userId="111111111";
+                    done();
+                });
+        });
+
+        it('it should send an error that the service provider already exists ', (done) => {
+                createServiceProvider(serviceProviderTest).then(
+                    chai.request(server)
+                        .post('/api/serviceProviders/add')
+                        .set('Authorization', tokenTest)
+                        .send(serviceProviderTest)
+                        .end((err, res) => {
+                            res.should.have.status(400);
+                            res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
+                            done();
+                        })
+                );
+        });
+
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+
+    //Add role to a service provider
+    describe('/Put role to a serviceProvider ', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+
+        });
+        it('it should add role to the service provider', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/addToServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456789',role:constants.roles.HAIRDRESSER_ROLE,operationTime:'sunday'})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC);
+                    res.body.result.serviceProviderId.should.be.eql(serviceProviderTest.serviceProviderId);
+                    res.body.result.role.should.be.eql(constants.roles.HAIRDRESSER_ROLE);
+                    res.body.result.should.have.property('userId');
+                    res.body.result.should.have.property('operationTime');
+                    res.body.result.should.have.property('phoneNumber');
+                    res.body.result.should.have.property('appointmentWayType');
+                    done();
+                });
+        });
+        it('it should send error that the role doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/addToServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456789',role:"invalid role",operationTime:'sunday'})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
+                    done();
+                });
+        });
+        it('it should send error that the service provider doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/addToServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456781',role:constants.roles.HAIRDRESSER_ROLE,operationTime:'sunday'})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        it('it should send error that the service provider already exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/addToServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456789',role:constants.roles.DENTIST_ROLE,operationTime:'sunday'})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+    });
+
+    //Delete role of a service provider
+    describe('/PUT delete role to a serviceProvider', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            done()
+                        )
+                );
+        });
+        it('it should DELETE the given role to the given serviceProvider', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/removeFromServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456789',role:constants.roles.DENTIST_ROLE})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC);
+                    res.body.result.should.be.eql(1);
+                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                        serviceProviders.length.should.be.eql(0);
+                        done();
+                    });
+                });
+        });
+        it('it should send error that the role doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/removeFromServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456789',role:"invalid role"})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
+                    done();
+                });
+        });
+        it('it should send error that the service provider doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/removeFromServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId:'123456781',role:constants.roles.DENTIST_ROLE})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    done()
+                );
+        });
+    });
+
+
+//delete a service provider with a given userID
+    describe('/DELETE delete a serviceProvider by userId', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            serviceProviderTest.role = constants.roles.HAIRDRESSER_ROLE,
+                            createServiceProvider(serviceProviderTest)
+                                .then(
+                                    done()
+                                )
+                        )
+                );
+        });
+        it('it should DELETE the serviceProvider by userId', (done) => {
+            chai.request(server)
+                .delete('/api/serviceProviders/userId/111111111/delete')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_DEL_SUCC);
+                    res.body.result.should.be.eql(2);
+                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                        serviceProviders.length.should.be.eql(0);
+                        done()
+                    });
+                });
+        });
+        it('it should send error that the serviceProvider doesnt exists', (done) => {
+            chai.request(server)
+                .delete('/api/serviceProviders/userId/111111119/delete')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    serviceProviderTest.role = constants.roles.DENTIST_ROLE,
+                    done()
+                );
+        });
+    });
+
+
     //Add User
     describe('/POST add user', () => {
         it('it should ADD the user', (done) => {
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
+                .set('Authorization', tokenTest)
                 .send(userTest)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -727,6 +762,7 @@ describe('service providers route', function () {
             userTest.email="invalid email";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
+                .set('Authorization', tokenTest)
                 .send(userTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -739,6 +775,7 @@ describe('service providers route', function () {
             userTest.mailbox="invalid mail box";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
+                .set('Authorization', tokenTest)
                 .send(userTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -751,6 +788,7 @@ describe('service providers route', function () {
             userTest.phone="invalid phone number";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
+                .set('Authorization', tokenTest)
                 .send(userTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -763,6 +801,7 @@ describe('service providers route', function () {
             userTest.cellphone="invalid cellphone";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
+                .set('Authorization', tokenTest)
                 .send(userTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -775,6 +814,7 @@ describe('service providers route', function () {
             userTest.bornDate="2100-04-04";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
+                .set('Authorization', tokenTest)
                 .send(userTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -787,6 +827,7 @@ describe('service providers route', function () {
             createUser(userTest).then(
                 chai.request(server)
                     .post('/api/serviceProviders/users/add')
+                    .set('Authorization', tokenTest)
                     .send(userTest)
                     .end((err, res) => {
                         res.should.have.status(400);
@@ -817,6 +858,7 @@ describe('service providers route', function () {
         it('it should DELETE the user with the given userId', (done) => {
             chai.request(server)
                 .delete('/api/serviceProviders/users/userId/111111111/delete')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.USER_DEL_SUCC);
@@ -830,6 +872,7 @@ describe('service providers route', function () {
         it('it should send an error that the user doesnt exists', (done) => {
             chai.request(server)
                 .delete('/api/serviceProviders/users/userId/111111119/delete')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
@@ -853,6 +896,7 @@ describe('service providers route', function () {
         it('it should update the operation time of the service provider', (done) => {
             chai.request(server)
                 .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/operationTime/set')
+                .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -867,6 +911,7 @@ describe('service providers route', function () {
         it('it should send an error that the role doesnt exists', (done) => {
             chai.request(server)
                 .put('/api/serviceProviders/serviceProviderId/123456789/role/invalidRole/operationTime/set')
+                .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -877,6 +922,7 @@ describe('service providers route', function () {
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
                 .put('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/operationTime/set')
+                .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -911,6 +957,7 @@ describe('service providers route', function () {
         it('it should GET the operation time of the service provider', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/operationTime')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.result.should.be.eql(serviceProviderTest.operationTime);
@@ -920,6 +967,7 @@ describe('service providers route', function () {
         it('it should send an error that the role doesnt exists', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/serviceProviderId/123456789/role/invalidRole/operationTime')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
@@ -929,6 +977,7 @@ describe('service providers route', function () {
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/operationTime')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -964,6 +1013,7 @@ describe('service providers route', function () {
         it('it should update the status of the appointment to cancelled', (done) => {
             chai.request(server)
                 .put('/api/serviceProviders/appointments/cancel/appointmentId/1')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED);
@@ -977,6 +1027,7 @@ describe('service providers route', function () {
         it('it should send an error that the appointment doesnt exists', (done) => {
             chai.request(server)
                 .put('/api/serviceProviders/appointments/cancel/appointmentId/2')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_NOT_FOUND);
@@ -1022,6 +1073,7 @@ describe('service providers route', function () {
         it('it should GET all the appointmentsDetails of the serviceProvider', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/appointments/serviceProviderId/123456789')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -1032,6 +1084,7 @@ describe('service providers route', function () {
         it('it should send an error that the service provider not found', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/appointments/serviceProviderId/123456781')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -1073,6 +1126,7 @@ describe('service providers route', function () {
         it('it should GET all the roles of a service provider', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/roles/serviceProviderId/123456789')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -1084,6 +1138,7 @@ describe('service providers route', function () {
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/roles/serviceProviderId/123456781')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -1122,6 +1177,7 @@ describe('service providers route', function () {
         it('it should GET all the permissions of the serviceProvider', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/serviceProviderId/123456789/permissions')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -1132,6 +1188,7 @@ describe('service providers route', function () {
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/serviceProviderId/123456781/permissions')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
