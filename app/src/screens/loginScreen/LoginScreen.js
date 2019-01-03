@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {Image, Text, View} from 'react-native';
-import PropTypes from 'prop-types'
 import axios from 'axios';
-import store from 'react-native-simple-store';
+import phoneStorage from 'react-native-simple-store';
 import styles from './LoginStyles';
 import {SERVER_URL} from '../../shared/constants'
 import Button from "../../components/submitButton/Button";
@@ -72,12 +71,13 @@ export default class LoginScreen extends Component {
             )
                 .then((response) => {
                     console.log(response);
-                    store.save('userData', {
+                    phoneStorage.save('userData', {
                         token: response.data.token
                     })
                         .then(
                             // this.props.onLoginPress()
-                            this.props.navigation.navigate('MainScreen')
+                            // this.props.navigation.navigate('MainScreen')
+                            this.props.navigation.navigate('App')
                         )
                 })
                 .catch((error) => {

@@ -8,10 +8,11 @@
 
 import React, {Component} from 'react';
 import {Platform} from 'react-native';
-import {createAppContainer, createStackNavigator} from 'react-navigation';
+import {createAppContainer, createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
 import LoginScreen from './screens/loginScreen/LoginScreen';
 import MainScreen from './screens/mainScreen/MainScreen';
+import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -22,6 +23,21 @@ const instructions = Platform.select({
 
 const AppNavigator = createStackNavigator(
     {
+        MainScreen: {
+            screen: MainScreen,
+            params: {},
+            navigationOptions: {
+                // header: null,
+                // title: `Main`,
+                headerStyle: {
+                    elevation: 0,
+                },
+            }
+        }
+    }
+);
+const AuthNavigator = createStackNavigator(
+    {
         LoginScreen: {
             screen: LoginScreen,
             params: {},
@@ -29,30 +45,69 @@ const AppNavigator = createStackNavigator(
                 header: null,
             }*/
         },
-        MainScreen: {
-            screen: MainScreen,
-            params: {},
-            /*navigationOptions: {
-                header: null,
-            }*/
-        }
     },
     {
-        // initialRouteName: 'Login',
-        headerMode: 'none',
-        /*contentOptions: {
-            activeTintColor: '#e91e63',
-        },*/
+        headerMode: 'none'
     }
 );
 
 
-const AppContainer = createAppContainer(AppNavigator);
+const AppContainer = createAppContainer(
+    createSwitchNavigator(
+        {
+            AuthLoading: AuthLoadingScreen,
+            App: AppNavigator,
+            Auth: AuthNavigator,
+        },
+        {
+            initialRouteName: 'AuthLoading',
+        }
+    )
+);
 
 export default class App extends Component {
     state = {
-        isLoggedIn: false
+        isLoggedIn: false,
+        initialScreen: 'LoginScreen',
+        userId: null,
+        userFullname: null
     };
+
+    /*
+        checkUserDataInStorage = () => {
+            phoneStorage.get('userData')
+                .then(userData => {
+                    if (userData.token) {
+                        axios.post(`${SERVER_URL}/api/users/validToken`,
+                            {
+                                "token": userData.token,
+                            },
+                        )
+                            .then((response) => {
+                                console.log(response);
+                                this.setState({
+                                    userId: response.data.payload.userId,
+                                    userFullname: response.data.payload.userId,
+                                    initialScreen: 'MainScreen',
+                                })
+                            })
+                            .catch((error) => {
+                                this.setState({
+                                    userId: null,
+                                    userFullname: null,
+                                    initialScreen: 'LoginScreen',
+                                })
+                            });
+                    } else {
+                        this.setState({
+                            userId: null,
+                            userFullname: null,
+                            initialScreen: 'LoginScreen',
+                        })
+                    }
+                });
+        };
+    */
 
     render() {
         return (

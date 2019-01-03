@@ -12,6 +12,7 @@ const loginScreenStrings = {
 
 const mainScreenStrings = {
     LOGOUT: "התנתק",
+    WELCOME: "ברוכים הבאים ",
 };
 
 export default {loginScreenStrings,mainScreenStrings};
