@@ -143,6 +143,7 @@ router.get('/name/:name', function(req, res, next) {
         })
 });
 
+
 //Get service providers by role
 router.get('/role/:role', function(req, res, next) {
     ServiceProviders.findAll({

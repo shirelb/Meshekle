@@ -30,7 +30,7 @@ module.exports = {
             // verifies secret and checks exp
             jwt.verify(token, constants.general.SUPER_SECRET, function (err, decoded) {
                 if (err) {
-                    return res.status(200).send({success: false, message: constants.usersRoute.FAILED_TOKEN,err});
+                    return res.status(403).send({success: false, message: constants.usersRoute.FAILED_TOKEN,err});
                 } else {
                     // if everything is good, save to request for use in other routes
                     // get the decoded payload and header
