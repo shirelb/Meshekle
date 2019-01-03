@@ -11,7 +11,7 @@ var authentications = require('./shared/authentications');
 /* POST login authenticate a user . */
 router.post('/login/authenticate', function (req, res) {
     if (!req.body.userId || !req.body.password) {
-        res.status(200).send({"message": constants.usersRoute.authenticationFailed});
+        res.status(400).send({"message": constants.usersRoute.AUTHENTICATION_FAILED});
     } else {
         validations.checkIfUserExist(req.body.userId,res)
             .then(user => {
@@ -24,9 +24,9 @@ router.post('/login/authenticate', function (req, res) {
                     user.password === req.body.password ?
                         authentications.sendToken(payload, res)
                         :
-                        res.status(200).send({
+                        res.status(400).send({
                             "success": false,
-                            "message": constants.usersRoute.authenticationFailed,
+                            "message": constants.usersRoute.AUTHENTICATION_FAILED,
                             "token": 'null'
                         });
 
@@ -35,13 +35,12 @@ router.post('/login/authenticate', function (req, res) {
     }
 });
 
-
 router.use(function (req, res, next) {
    authentications.verifyToken(req, res, next);
 });
 
-router.post('/validToken', function (req, res) {
-    res.status(200).send({success: constants.usersRoute.validToken, payload: req.decoded.payload});
+router.post('/VALID_TOKEN', function (req, res) {
+    res.status(200).send({success: constants.usersRoute.VALID_TOKEN, payload: req.decoded.payload});
 });
 
 /* GET users listing. */
@@ -108,7 +107,7 @@ router.post('/appointments/request', function (req, res, next) {
                         })
                             .then((newAppointmentRequest) => {
                                 res.status(200).send({
-                                    "message": constants.usersRoute.successfulAppointmentRequest,
+                                    "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT_REQUEST,
                                     newAppointmentDetails, newAppointmentRequest
                                 });
                             })
@@ -143,7 +142,7 @@ router.post('/appointments/set', function (req, res, next) {
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": constants.usersRoute.successfulAppointment,
+                                            "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT,
                                             newAppointmentDetails,
                                             newAppointment,
                                             newEvent
@@ -179,7 +178,7 @@ router.post('/incidents/open', function (req, res, next) {
                 eventId: newIncident.incidentId
             })
                 .then((newEvent) => {
-                    res.status(200).send({"message": constants.usersRoute.successfulIncident, newIncident, newEvent});
+                    res.status(200).send({"message": constants.usersRoute.SUCCESSFUL_INCIDENT, newIncident, newEvent});
                 })
                 .catch(err => {
                     console.log(err);
@@ -187,8 +186,8 @@ router.post('/incidents/open', function (req, res, next) {
                 });
         })
         .catch(err => {
-            res.status(200).send({
-                "message": constants.usersRoute.userNotFound,
+            res.status(400).send({
+                "message": constants.usersRoute.USER_NOT_FOUND,
                 err
             });
         })
@@ -229,7 +228,7 @@ router.post('/appointments/approve', function (req, res, next) {
                     })
                         .then((neEvent) => {
                             res.status(200).send({
-                                "message": constants.usersRoute.successfulAppointment,
+                                "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT,
                                 appointmentsRequest,
                                 newAppointment,
                                 neEvent
@@ -248,8 +247,8 @@ router.post('/appointments/approve', function (req, res, next) {
         })
         .catch(err => {
             console.log(err);
-            res.status(200).send({
-                "message":constants.usersRoute.appointmentRequestNotFound,
+            res.status(400).send({
+                "message":constants.usersRoute.APPOINTMENT_REQUEST_NOT_FOUND,
                 err
             });
         });
@@ -275,12 +274,12 @@ router.post('/appointments/reject', function (req, res, next) {
             appointmentsRequest.update({
                 status: "rejected"
             });
-            res.status(200).send({"message": constants.usersRoute.successfulRejectAppointmentRequest, appointmentsRequest});
+            res.status(200).send({"message": constants.usersRoute.SUCCESSFUL_REJECT_APPOINTMENT_REQUEST, appointmentsRequest});
         })
         .catch(err => {
             console.log(err);
-            res.status(200).send({
-                "message": constants.usersRoute.appointmentRequestNotFound,
+            res.status(400).send({
+                "message": constants.usersRoute.APPOINTMENT_REQUEST_NOT_FOUND,
                 err
             });
         });
@@ -420,7 +419,7 @@ function createAppointmentDetails(id, req, res) {
         })
         .catch(err => {
             return res.status(200).send({
-                "message": constants.usersRoute.userNotFound,
+                "message": constants.usersRoute.USER_NOT_FOUND,
                 err
             });
         })
@@ -459,7 +458,7 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": constants.usersRoute.successfulCancelAppointment,
+                                            "message": constants.usersRoute.SUCCESSFUL_CANCEL_APPOINTMENT,
                                             appointment
                                         });
                                     })
@@ -470,22 +469,21 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                             }
                             else {
                                 appointment.status === "canceled" ?
-                                    res.status(200).send({"message": constants.usersRoute.alreadyCanceledAppointment, appointment})
+                                    res.status(400).send({"message": constants.usersRoute.ALREADY_CANCELED_APPOINTMENT, appointment})
                                     :
-                                    res.status(200).send({"message": constants.usersRoute.passedAppointment, appointment});
+                                    res.status(400).send({"message": constants.usersRoute.PASSED_APPOINTMENT, appointment});
                             }
                         }
                         else {
-                            // if (user !== null)
-                            res.status(200).send({
-                                "message": constants.usersRoute.appointmentNotFound,
+                            res.status(400).send({
+                                "message": constants.usersRoute.APPOINTMENT_NOT_FOUND,
                             });
                         }
                     })
                     .catch(err => {
                         console.log(err);
-                        res.status(200).send({
-                            "message": constants.usersRoute.appointmentNotFound,
+                        res.status(400).send({
+                            "message": constants.usersRoute.APPOINTMENT_NOT_FOUND,
                             err
                         });
                     })
@@ -494,7 +492,8 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
 });
 
 /* PUT cancel incident of user by userId listing. */
-router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (req, res, next) {validations.checkIfUserExist(req.params.userId, res)
+router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
                 Incidents.findOne({
@@ -519,7 +518,7 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                                 })
                                     .then((newEvent) => {
                                         res.status(200).send({
-                                            "message": constants.usersRoute.successfulCancelIncident,
+                                            "message": constants.usersRoute.SUCCESSFUL_CANCEL_INCIDENT,
                                             incident
                                         });
                                     })
@@ -530,28 +529,28 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                             }
                             else {
                                 incident.status === "canceled" ?
-                                    res.status(200).send({"message": constants.usersRoute.alreadyCanceledIncident, incident})
+                                    res.status(400).send({"message": constants.usersRoute.ALREADY_CANCELED_INCIDENT, incident})
                                     :
-                                    res.status(200).send({"message": constants.usersRoute.alreadyResolvedIncident, incident});
+                                    res.status(400).send({"message": constants.usersRoute.ALREADY_RESOLVED_INCIDENT, incident});
                             }
                         }
                         else {
                             // if (user !== null)
-                            res.status(200).send({
-                                "message": constants.usersRoute.incidentNotFound,
+                            res.status(400).send({
+                                "message": constants.usersRoute.INCIDENT_NOT_FOUND,
                             });
                         }
                     })
                     .catch(err => {
                         console.log(err);
-                        res.status(200).send({
-                            "message": constants.usersRoute.incidentNotFound,
+                        res.status(400).send({
+                            "message": constants.usersRoute.INCIDENT_NOT_FOUND,
                             err
                         });
                     })
             }
         })
-})
+});
 
 /*
 /!* GET releases of user by userId and choreTypeId listing. *!/
@@ -698,7 +697,7 @@ router.get('/events/userId/:userId', function (req, res, next) {
                     })
                     .catch(err => {
                         res.status(500).send({
-                            "message": constants.general.somethingWentWrong,
+                            "message": constants.general.SOMETHING_WENT_WRONG,
                             err
                         });
                     })
