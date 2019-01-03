@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+const {sequelize, Users,ServiceProviders, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 
 module.exports = {
@@ -17,15 +17,37 @@ module.exports = {
                 }
                 else {
                     return res.status(400).send({
-                        "message": constants.usersRoute.USER_NOT_FOUND,
+                        "message": constants.usersRoute.userNotFound,
                     });
                 }
             })
             .catch(err => {
-                return res.status(400).send({
-                    "message": constants.usersRoute.USER_NOT_FOUND,
+                return res.status(500).send({
+                    "message": constants.usersRoute.userNotFound,
                     err
                 });
             })
+    },
+
+    getUsersByUserIdPromise: function(userId) {
+        return Users.findAll({
+            where: {
+                userId: userId
+            }
+        })
+    },
+    getServiceProvidersByServProIdPromise: function(serviceProviderId) {
+        return ServiceProviders.findAll({
+            where: {
+                serviceProviderId: serviceProviderId
+            }
+        })
+    },
+    getSchedAppointmentByIdPromise: function(appointmentId) {
+        return ScheduledAppointments.findAll({
+            where: {
+                appointmentId: appointmentId
+            }
+        })
     },
 };
