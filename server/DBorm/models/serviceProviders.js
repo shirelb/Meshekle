@@ -33,7 +33,8 @@ module.exports = (sequelize, type) => {
         },
         active: {
             type: type.BOOLEAN,
-            required: true
+            required: true,
+            defaultValue: true
         },
     });
 };

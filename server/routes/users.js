@@ -39,8 +39,11 @@ router.use(function (req, res, next) {
    authentications.verifyToken(req, res, next);
 });
 
-router.post('/VALID_TOKEN', function (req, res) {
-    res.status(200).send({success: constants.usersRoute.VALID_TOKEN, payload: req.decoded.payload});
+router.post('/validToken', function (req, res) {
+    res.status(200).send({
+        message: constants.usersRoute.VALID_TOKEN,
+        payload: req.decoded.payload
+    });
 });
 
 /* GET users listing. */

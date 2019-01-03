@@ -135,7 +135,7 @@ sequelize.sync({force: true})
         Users.create({
             userId: '1',
             fullname: 'Administrator',
-            password: 'admin123',
+            password: 'Admin123',
             email: 'admin@gamil.com',
             mailbox: 1,
             cellphone: '0123456789',

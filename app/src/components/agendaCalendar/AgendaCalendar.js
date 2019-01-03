@@ -49,13 +49,19 @@ export default class AgendaCalendar extends Component {
     render() {
         LocaleConfig.defaultLocale = 'il';
 
+        let currDay = new Date; // get current date
+        let first = currDay.getDate() - currDay.getDay(); // First day is the day of the month - the day of the week
+        let last = first + 6; // last day is the first day + 6
+        let firstDay = new Date(currDay.setDate(first)).toUTCString();
+        let lastDay = new Date(currDay.setDate(last)).toUTCString();
+
         return (
             <Agenda
                 items={this.state.items}
                 loadItemsForMonth={this.loadItems.bind(this)}
-                selected={'2012-05-22'}
-                minDate={'2012-05-20'}
-                maxDate={'2012-05-27'}
+                selected={currDay}//{'2012-05-22'}
+                minDate={firstDay}//{'2012-05-20'}
+                maxDate={lastDay}//{'2012-05-27'}
                 renderItem={this.renderItem.bind(this)}
                 renderEmptyDate={this.renderEmptyDate.bind(this)}
                 rowHasChanged={this.rowHasChanged.bind(this)}

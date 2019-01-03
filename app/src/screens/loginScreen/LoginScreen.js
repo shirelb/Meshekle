@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Image, Text, View} from 'react-native';
 import PropTypes from 'prop-types'
 import axios from 'axios';
+import store from 'react-native-simple-store';
 import styles from './LoginStyles';
 import {SERVER_URL} from '../../shared/constants'
 import Button from "../../components/submitButton/Button";
@@ -12,12 +13,6 @@ import mappers from "../../shared/mappers";
 const imageLogo = require("../../images/logo4000.png");
 
 export default class LoginScreen extends Component {
-    /*componentDidMount(){
-        const headers = {
-            'Authorization': 'Bearer ' + this.props.jwt
-        };
-    }*/
-
     state = {
         userId: '',
         password: '',
@@ -77,8 +72,13 @@ export default class LoginScreen extends Component {
             )
                 .then((response) => {
                     console.log(response);
-                    // deviceStorage.saveKey("id_token", response.data.jwt);
-                    this.props.onLoginPress();
+                    store.save('userData', {
+                        token: response.data.token
+                    })
+                        .then(
+                            // this.props.onLoginPress()
+                            this.props.navigation.navigate('MainScreen')
+                        )
                 })
                 .catch((error) => {
                     console.log(error);
@@ -130,6 +130,7 @@ export default class LoginScreen extends Component {
     }
 }
 
+/*
 LoginScreen.propTypes = {
     onLogoutPress: PropTypes.func,
-};
+};*/
