@@ -132,7 +132,31 @@ AppointmentRequests.belongsTo(ScheduledAppointments, {
 
 sequelize.sync({force: true})
     .then(() => {
-        console.log(`Database & tables created!`)
+        Users.create({
+            userId: '1',
+            fullname: 'Administrator',
+            password: 'Admin123',
+            email: 'admin@gamil.com',
+            mailbox: 1,
+            cellphone: '0123456789',
+            phone: '0123456789',
+            bornDate: new Date('1992-11-25'),
+            active: true,
+        })
+            .then(user => {
+                ServiceProviders.create({
+                    serviceProviderId: 1,
+                    userId: user.userId,
+                    role: 'Admin',
+                    operationTime: 'all time',
+                    phoneNumber: '0123456789',
+                    appointmentWayType: 'all',
+                    active: true,
+                })
+            })
+            .then(
+                console.log(`Database & tables created!`)
+            )
     });
 
 module.exports = {

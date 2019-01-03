@@ -21,6 +21,7 @@ router.post('/users/add', function (req, res, next) {
         cellphone: req.body.cellphone,
         phone: req.body.phone,
         bornDate: new Date(req.body.bornDate),
+        active: true,
     })
         .then((newUser) => {
             console.log('New user' + newUser.username + ', with id ' + newUser.userId + ' has been created.');
@@ -41,6 +42,7 @@ router.post('/add', function (req, res, next) {
         operationTime: req.body.operationTime,
         phoneNumber: req.body.phoneNumber,
         appointmentWayType: req.body.appointmentWayType,
+        active: true,
     })
         .then((newUser) => {
             console.log('New user' + newUser.username + ', with id ' + newUser.userId + ' has been created.');

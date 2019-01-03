@@ -8,6 +8,7 @@ module.exports = {
         return Users.findOne({
             where: {
                 userId: userId,
+                active: true,
             }
         })
             .then(user => {

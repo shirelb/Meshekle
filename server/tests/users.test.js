@@ -926,6 +926,7 @@ function createUser(userTest) {
         cellphone: userTest.cellphone,
         phone: userTest.phone,
         bornDate: new Date(userTest.bornDate),
+        active: true,
     });
 }
 
