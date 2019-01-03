@@ -156,7 +156,6 @@ router.get('/type/:type/settings', function (req, res, next) {
 router.get('/type/:type/users', function (req, res, next) {
   validations.checkIfChoreTypeExist(req.params.type, res)
   .then(type=>{
-    console.log("\n\n\nlalalalalalala:"+type+"\n\n\n")
     if(type){
       UsersChoresTypes.findAll({ 
         include: [{model: Users}],
@@ -263,31 +262,40 @@ router.get('/usersChores/type/:type/userId/:userId/future/:future', function (re
 router.get('/usersChores/type/:type/month/:month/year/:year', function (req, res, next) {
   validations.checkIfChoreTypeExist(req.params.type)
   .then(type=>{
-    if(typeof req.params.month==='number' && req.params.month>=1 && req.params.month<=12 && typeof req.params.year==='number'){
-      UsersChores.findAll({
-                      where: {
-                        choreTypeName: req.params.type,
-                        date: {
-                          [Op.gte]: new Date(req.params.year+"-"+req.params.month+"-01"),
-                          [Op.lt]: new Date(req.params.year+"-"+(req.params.month+1)+"-01")
+    if(type){
+      if((typeof Number(req.params.month))==='number' && Number(req.params.month)>=1 && Number(req.params.month)<=12 && (typeof Number(req.params.year))==='number'){
+        UsersChores.findAll({
+                        where: {
+                          choreTypeName: req.params.type,
+                          date: {
+                            [Op.gte]: new Date(req.params.year+"-"+req.params.month+"-01"),
+                            [Op.lt]: new Date(req.params.year+"-"+(Number(req.params.month)+1)+"-01")
+                          }
                         }
-                      }
-                    })
-          .then(usersChores => {
-              console.log('getting users chores from choreType and month seccussfully done'+usersChores);
-              res.status(200).send('getting users chores from choreType and month seccussfully done'+usersChores);
-          })
-          .catch(err => {
-              console.log(err);
-              res.status(500).send("Something went wrong "+err);
-          })
+                      })
+            .then(usersChores => {
+              console.log("\n\n\n: USRESCHORES:\n"+usersChores[0].dataValues.userId+"\n\n\n");
+              if(usersChores && usersChores.length>0){
+                res.status(200).send({"message":'getting users chores from choreType and month seccussfully done',usersChores});
+              }
+              else{
+                res.status(200).send({"message":'no users chores found for choreType and month',usersChores});
+              }
+            })
+            .catch(err => {
+                res.status(200).send({"message":"no users chores found for choreType and month",err});
+            })
+      }
+      else{
+        res.status(400).send({"message":"year or month with illegal values"});
+      }
     }
     else{
-      res.status(200).send("year or month with illegal values");
+      res.status(400).send({"message":"choreType is not exist"});
     }
   })
   .catch(err=>{
-    res.status(500).send("Something went wrong "+err);
+    res.status(500).send({"message":"choreType is not exist",err});
   })
 });
 
@@ -295,7 +303,7 @@ router.get('/usersChores/type/:type/month/:month/year/:year', function (req, res
 router.get('/usersChores/month/:month/year/:year/userId/:userId', function (req, res, next) {
   validations.checkIfUserExist(req.params.userId)
   .then(user=>{
-    if(typeof req.params.month==='number' && req.params.month>=1 && req.params.month<=12 && typeof req.params.year==='number'){
+    if((typeof Number(req.params.month))==='number' && Number(req.params.month)>=1 && Number(req.params.month)<=12 && (typeof Number(req.params.year))==='number'){
       UsersChores.findAll({
                       where: {
                         userId: req.params.userId,
@@ -306,63 +314,78 @@ router.get('/usersChores/month/:month/year/:year/userId/:userId', function (req,
                       }
                     })
           .then(usersChores => {
+            if(usersChores && usersChores.length>0){
               console.log('getting users chores for userId and month seccussfully done'+usersChores);
-              res.status(200).send('getting users chores for userId and month seccussfully done'+usersChores);
+              res.status(200).send({"message":'getting users chores for userId and month seccussfully done',usersChores});
+            }
+            else{
+              res.status(200).send({"message":'no such users chores for userId and month',usersChores});
+            }
           })
           .catch(err => {
               console.log(err);
-              res.status(500).send("Something went wrong "+err);
+              res.status(200).send({"message":"no such users chores for userId and month",err});
           })     
     }
     else{
-      res.status(200).send("year or month with illegal values");
+      res.status(400).send({"message":"year or month with illegal values"});
     }
   })
   .catch(err=>{
-    res.status(500).send("Something went wrong "+err);
+    res.status(400).send({"message":"userId doesn't exist!",err});
   })
 });
 
 /* GET  getChoresForSpecificMonthAndForSpecificUserAndType  api7. */
 router.get('/usersChores/choreType/:choreType/month/:month/year/:year/userId/:userId', function (req, res, next) {
-  validations.checkIfUserExist(req.params.userId)
+  validations.checkIfUserExist(req.params.userId, res)
   .then(user=>{
-    validations.checkIfChoreTypeExist(req.params.choreType, res)
-    .then(type=>{
-      if(type){
-        if((typeof Numbre(req.params.month))==='number' && Numbre(req.params.month)>=1 && Numbre(req.params.month)<=12 && (typeof Numbre(req.params.month))==='number'){
-          UsersChores.findAll({
-                          where: {
-                            userId: req.params.userId,
-                            choreTypeName: req.params.choreType,
-                            date: {
-                              [Op.gte]: new Date(req.params.year+"-"+req.params.month+"-01"),
-                              [Op.lt]: new Date(req.params.year+"-"+(Number(req.params.month)+1)+"-01")
+    if(user.dataValues){
+      validations.checkIfChoreTypeExist(req.params.choreType, res)
+      .then(type=>{
+        if(type.dataValues){
+          if((typeof Number(req.params.month))==='number' && Number(req.params.month)>=1 && Number(req.params.month)<=12 && (typeof Number(req.params.month))==='number'){
+            UsersChores.findAll({
+                            where: {
+                              userId: req.params.userId,
+                              choreTypeName: req.params.choreType,
+                              date: {
+                                [Op.gte]: new Date(req.params.year+"-"+req.params.month+"-01"),
+                                [Op.lt]: new Date(req.params.year+"-"+(Number(req.params.month)+1)+"-01")
+                              }
                             }
-                          }
-                        })
-              .then(usersChores => {
-                  console.log('getting users chores for userId, type and month seccussfully done'+usersChores);
-                  res.status(200).send({"message":'getting users chores for userId,type and month seccussfully done',usersChores});
-              })
-              .catch(err => {
-                  res.status(500).send({"message":"Something went wrong ",err});
-              })
+                          })
+                .then(usersChores => {
+                  if(usersChores && usersChores.length>0){
+                    res.status(200).send({"message":'getting users chores for userId,type and month seccussfully done',usersChores});
+                  }
+                  else{
+                    res.status(200).send({"message":'no users chores found for userId,type and month',usersChores});
+                  }
+                })
+                .catch(err => {
+                    res.status(500).send({"message":"Something went wrong ",err});
+                })
+          }
+          else{
+            res.status(400).send({"message":"year or month with illegal values"});
+          }
         }
         else{
-          res.status(400).send({"message":"year or month with illegal values"});
+          res.status(400).send({"message":"choreType is not exist"});
         }
-      }
-      else{
-        res.status(400).send({"message":"choreType is not exist"});
-      }
-    })
-    .catch(err=>{
-      res.status(400).send({"message":"choreType is not exist",err});
-    })
+      })
+      .catch(err=>{
+        res.status(400).send({"message":"choreType is not exist",err});
+      })
+
+    }
+    else{
+      //res.status(400).send({"message": "userId doesn't exist!"});
+    }
   })
   .catch(err=>{
-    res.status(500).send({"message":"Something went wrong ",err});
+    //res.status(400).send({"message": "userId doesn't exist!",err});//if it un-note it trow exeption but all tests pass
   })
 });
 
@@ -370,34 +393,54 @@ router.get('/usersChores/choreType/:choreType/month/:month/year/:year/userId/:us
 router.delete('/type/:type/users/userId/:userId', function (req, res, next) {
   validations.checkIfChoreTypeExist(req.params.type)
   .then(type=>{
-    validations.checkIfUserExist(req.params.userId)
-    .then(user=>{
-      UsersChoresTypes.findOne({
-                      where: {
-                        choreTypeName: req.params.type,
-                        userId: req.params.userId
-                      }
-                    })
-          .then(userChoreType => {
-            if(userChoreType){
-              userChoreType.destroy();
-              console.log('remove userId from choreType seccussfully done'+userChoreType);
-              res.status(200).send('remove userId from choreType seccussfully done'+userChoreType);
-            }else{
-              res.status(500).send("The chore type didnt found for this user");
-            }
-          })
-          .catch(err => {
-              console.log(err);
-              res.status(500).send("Something went wrong "+err);
-          })
-    })
-    .catch(err=>{
-      res.status(500).send("Something went wrong "+err);
-    })
+    if(type){
+      validations.checkIfUserExist(req.params.userId)
+      .then(user=>{
+        UsersChoresTypes.findOne({
+                        where: {
+                          choreTypeName: req.params.type,
+                          userId: req.params.userId
+                        }
+                      })
+            .then(userChoreType => {
+              if(userChoreType){
+                //
+                UsersChores.findAll({
+                  where:{
+                    choreTypeName: req.params.type,
+                    userId: req.params.userId,
+                    date: {[Op.gt]: Date.now()}
+                  }
+                })
+                .then(futureUserChores=>{
+                  if(futureUserChores && futureUserChores.length>0){
+                    res.status(400).send({"message":"The user has a future userChores, cannot continue in removing from this choreType"});
+                  }
+                  else{
+                    userChoreType.destroy();
+                    res.status(200).send({"message":'remove userId from choreType seccussfully done',userChoreType});
+                  }
+                })
+                //
+              }else{
+                res.status(400).send({"message":"The chore type didnt found for this user"});
+              }
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(400).send({"message":"The chore type didnt found for this user"});
+            })
+      })
+      .catch(err=>{
+        res.status(400).send({"message":"userId doesn't exist!",err});
+      })
+    }
+    else{
+      res.status(400).send({"message":"choreType is not exist",err});
+    }
   })
   .catch(err=>{
-    res.status(500).send("Something went wrong "+err);
+    res.status(400).send({"message":"choreType is not exist",err});
   })
 });
 
@@ -493,15 +536,16 @@ router.post('/add/userChore', function (req, res, next) {
   //*if isUserExist(req.body.userId)
   //*if isChoreTypeExist(req.body.choreTypeName)
   //*if isLegalDate(pastORfuture) // will (check if the pattern present an legal data?) + check the parameter: if is future so will chek if the date is in the future and same for past
-  //if isUserNeedToDoThisChore(req.body.userId, req.body.choreTypeName) //will check if 1.this user register for this choreType. 2. no relesee for this user for this chorttype 3. check if no deviation according the his last userchore
-  validations.checkIfChoreTypeExist(req.body.choreTypeName)
+  //NH-if isUserNeedToDoThisChore(req.body.userId, req.body.choreTypeName) //will check if 1.this user register for this choreType. 2. no relesee for this user for this chorttype 3. check if no deviation according the his last userchore
+  validations.checkIfChoreTypeExist(req.body.choreTypeName, res)
   .then(choreType=>{
       if (choreType){
+        let frequency = choreType.frequency; 
         date = new Date(req.body.date);
-        dateNow = new Date(Date.now());
+        dateNow = Date.now();
+        //if(Date(req.body.date)<Date.now()){
         if(date<dateNow){
-            console.log("\n the date in the past\n")
-            return res.status(200).send({
+            res.status(400).send({
               "message": "Cannot schedule a user chore at a past date",
             });
         }else{
@@ -509,28 +553,83 @@ router.post('/add/userChore', function (req, res, next) {
           validations.checkIfUserExist(req.body.userId, res)
           .then(user=>{
             //check if the user have releases for that chore
-            if(checkIfUserDoChoreType(req.body.userId, req.body.choreTypeName, res)){
-              UsersChores.create({
-                userId: req.body.userId,
-                choreTypeName: req.body.choreTypeName,
-                date: new Date( req.body.date),
-                isMark: req.body.isMark,
-              })
-                  .then(newUserChore => {
-                      console.log('New user chore created with Id:'+ newUserChore.userChoreId+',  has been created.');
-                      res.status(200).send({"message": "userChore successfully added!",newUserChore});
-                  })
-                  .catch(err => {
-                      console.log(err);
-                      res.status(500).send(err);
-                  })
-            }
-            else{
-              res.status(400).send("user not do this chore");
-            }
+            checkIfUserDoChoreType(req.body.userId, req.body.choreTypeName, res)
+            .then(ans=>{
+              if(ans){
+                //check if the last userchore was far enough:
+                //console.log("\n\n\nbringing max date\n\n\n");
+                // UsersChores.findAll({
+                //   //limit: 1,
+                //   where: {
+                //     userId: req.body.userId,
+                //     choreTypeName: req.body.choreTypeName,
+                //     [Op.and]:
+                //       [{date: {[Op.gte]: (new Date(req.body.date)-((-7*1)*23*59*59*1000))}} ,
+                //        {date: {[Op.lte]: (new Date(req.body.date)-((7*1)*23*59*59*1000))}}]
+                //     }
+                  
+                //   //order: [['date','DESC']],
+                // })
+                // .then(chore=>{
+                  //consule.log("\n\n\nmax userchore: "+((new Date(req.body.date))-(7*frequency)*24*59*59*1000)+"\n\n\n");
+                  // if(chore && chore.date>Date.now()){
+                  //   res.status("400").send({"message":"the user allready have chore of this type in future"});
+                  // }
+                  // else{
+                    // if(chore && (Date(req.body.date)-chore.date)/7<frequency){
+                    //   console.log("\n\n\nreq.body.date-chore.date: "+req.body.date-chore.date+"\n\n\n");
+                    //   res.status(400).send({"message":"this user did that chore no long ago"})
+                    // }
+                    // else{
+                      //everything ok and create a userchore
+                      UsersChores.create({
+                        userId: req.body.userId,
+                        choreTypeName: req.body.choreTypeName,
+                        date: new Date( req.body.date),
+                        isMark: req.body.isMark,
+                      })
+                          .then(newUserChore => {
+                              res.status(200).send({"message": "userChore successfully added!",newUserChore});
+                          })
+                          .catch(err => {
+                              console.log(err);
+                              res.status(500).send(err);
+                          })
+                    }
+                    
+                 // }
+              //   })
+              //   .catch(err=>{
+              //       //no userchore in db so its ok to create one
+              //       console.log("\n\n\nno userchore in db so its ok to create one\n\n\n")
+              //       UsersChores.create({
+              //         userId: req.body.userId,
+              //         choreTypeName: req.body.choreTypeName,
+              //         date: new Date( req.body.date),
+              //         isMark: req.body.isMark,
+              //       })
+              //           .then(newUserChore => {
+              //             console.log("\n\n\nuserchoreadded:"+newUserChore.userChoreId+"\n\n\n");
+    
+              //               res.status(200).send({"message": "userChore successfully added!",newUserChore});
+              //           })
+              //           .catch(err => {
+              //               console.log(err);
+              //               res.status(500).send(err);
+              //           })
+              //   })
+              // }
+              else{
+                res.status(400).send({"message":"user not do this chore"});
+              }
+            })
+            .catch(err=>{
+              //res.status(400).send({"message":"user not do this chore"});
+            })
+              //
           })
           .catch(err=>{
-            res.status(500).send("Something went wrong!",err);
+            //res.status(400).send({"message":"userId doesn't exist!",err});
           })
         }
       }
@@ -545,14 +644,13 @@ router.post('/add/userChore', function (req, res, next) {
 
 /* PUT update settings of choreType api21. */
 router.put('/type/:type/settings/set', function (req, res, next) {
-  validations.checkIfChoreTypeExist(req.params.type)
-  .then(type=>{
-    ChoreTypes.findOne({
-                    where: {
-                      choreTypeName: req.params.type
-                    }
-                  })
-        .then(choreType => {
+  ChoreTypes.findOne({
+                  where: {
+                    choreTypeName: req.params.type
+                  }
+                })
+      .then(choreType => {
+        if(choreType){
           choreType.update({
               days: (req.body.days && (typeof req.body.days==='string')) ? req.body.days: choreType.days,//JSON.stringify(req.body.days),
               numberOfWorkers: (req.body.numberOfWorkers && (typeof req.body.numberOfWorkers==='number')) ? req.body.numberOfWorkers: choreType.numberOfWorkers,
@@ -563,20 +661,15 @@ router.put('/type/:type/settings/set', function (req, res, next) {
             
           }).then(ct => {
             console.log(ct);
-            res.status(200).send(ct);
+            res.status(200).send({"message":"choreType updated successfully", ct});
           }).catch(er => {
             console.log(er);
             res.status(500).send("Something went wrong!",err);
             })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-
-  })
-  .catch(err=>{
-    res.status(500).send("Something went wrong!",err);
+        }
+        else{
+          res.status(400).send({"message":"choreType is not exist"});
+        }
   })
 });
 

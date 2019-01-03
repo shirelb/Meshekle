@@ -21,7 +21,7 @@ module.exports = {
                     // }
                 })
                 .catch(err => {
-                    return res.status(400).send({"message":"choreType is not exist!",err});
+                    return res.status(400).send({"message":"choreType is not exist",err});
                 })
     },
 
@@ -32,7 +32,7 @@ module.exports = {
             }
         })
             .then(user => {
-                if (user) {
+                if (user.dataValues) {
                     return user;
                 }
                 else {
@@ -43,8 +43,7 @@ module.exports = {
             })
             .catch(err => {
                 return res.status(400).send({
-                    "message": "user is not exist...",
-                    err
+                    "message": "userId doesn't exist!", err
                 });
             })
     },
