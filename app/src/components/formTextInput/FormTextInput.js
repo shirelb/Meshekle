@@ -5,7 +5,7 @@ import colors from "../../shared/colors";
 // We support all the TextInput props
 // type Props = TextInputProps;
 
-export default class FormTextInput extends React.Component {
+export default class FormTextInput extends Component {
 
     render() {
         // We define our own custom style for the TextInput, but

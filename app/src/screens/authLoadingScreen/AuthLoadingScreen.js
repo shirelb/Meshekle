@@ -12,24 +12,28 @@ export default class AuthLoadingScreen extends React.Component {
 
     checkUserDataInStorage = async () => {
         var userData = await phoneStorage.get('userData');
-        var validTokenResponse = await axios.post(`${SERVER_URL}/api/users/validToken`,
-            {
-                "token": userData.token,
-            },
-        );
-        validTokenResponse.status === 200 ?
-            phoneStorage.update('userData', {
-                userId: validTokenResponse.data.payload.userId,
-                userFullname: validTokenResponse.data.payload.userFullname,
-            })
-                .then(res => {
-                    this.props.navigation.navigate('App');
-                })
-                .catch(err => {
-                    console.log(err)
-                })
-            :
+        if(userData.token === null)
             this.props.navigation.navigate('Auth');
+        else {
+            var validTokenResponse = await axios.post(`${SERVER_URL}/api/users/validToken`,
+                {
+                    "token": userData.token,
+                },
+            );
+            validTokenResponse.status === 200 ?
+                phoneStorage.update('userData', {
+                    userId: validTokenResponse.data.payload.userId,
+                    userFullname: validTokenResponse.data.payload.userFullname,
+                })
+                    .then(res => {
+                        this.props.navigation.navigate('App');
+                    })
+                    .catch(err => {
+                        console.log('in checkUserDataInStorage ', err)
+                    })
+                :
+                this.props.navigation.navigate('Auth');
+        }
     };
 
     // Render any loading content that you like here

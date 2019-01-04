@@ -8,7 +8,6 @@ import Button from "../../components/submitButton/Button";
 import FormTextInput from "../../components/formTextInput/FormTextInput";
 import strings from "../../shared/strings";
 import mappers from "../../shared/mappers";
-
 const imageLogo = require("../../images/logo4000.png");
 
 export default class LoginScreen extends Component {

@@ -1,42 +1,66 @@
 import React, {Component} from 'react';
 import {ScrollView, Text} from 'react-native';
-import axios from 'axios';
-import {SERVER_URL} from '../../shared/constants'
 
 import AgendaCalendar from "../../components/agendaCalendar/AgendaCalendar";
 import Button from "../../components/submitButton/Button";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
+import axios from "axios";
+import {SERVER_URL} from "../../shared/constants";
 
 
 export default class MainScreen extends Component {
-    state = {
-        userId: null,
-        userFullname: null
-    };
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            userId: null,
+            userFullname: null
+        };
+
+        this.userHeaders = {};
+    }
+
 
     componentDidMount() {
         phoneStorage.get('userData')
             .then(userData => {
-                const headers = {
+                this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
                 this.setState({
                     userId: userData.userId,
                     userFullname: userData.userFullname,
                 })
-            });
+            })
+            .catch(error => {
+                console.log('main componentDidMount ', error)
+            })
     }
 
     onLogoutPress = () => {
         phoneStorage.update('userData', {
-            token: null
+            token: null,
+            userId: null,
+            userFullname: null
         })
             .then(
                 // this.props.onLoginPress()
                 // this.props.navigation.navigate('MainScreen')
                 this.props.navigation.navigate('Auth')
             )
+    };
+
+    getUserEvents = () => {
+        console.log('getUserEvents this.state.userId ', this.state.userId);
+        console.log('getUserEvents this.userHeaders ', this.userHeaders);
+        axios.get(`${SERVER_URL}/api/users/events/userId/${this.state.userId}`, {headers: this.userHeaders})
+            .then(events => {
+                console.log('events ', events)
+            })
+            .catch(error => {
+                console.log('error ', error)
+            });
     };
 
     render() {
@@ -54,7 +78,14 @@ export default class MainScreen extends Component {
                     onPress={this.onLogoutPress.bind(this)}
                 />
 
-                <AgendaCalendar/>
+               {/* <Button
+                    label='get events'
+                    onPress={this.getUserEvents.bind(this)}
+                />*/}
+
+                <AgendaCalendar
+                    userId={this.state.userId}
+                />
             </ScrollView>
         )
     }

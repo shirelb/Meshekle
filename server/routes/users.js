@@ -13,7 +13,7 @@ router.post('/login/authenticate', function (req, res) {
     if (!req.body.userId || !req.body.password) {
         res.status(400).send({"message": constants.usersRoute.AUTHENTICATION_FAILED});
     } else {
-        validations.checkIfUserExist(req.body.userId,res)
+        validations.checkIfUserExist(req.body.userId, res)
             .then(user => {
                 if (user.dataValues) {
                     var payload = {
@@ -36,7 +36,7 @@ router.post('/login/authenticate', function (req, res) {
 });
 
 router.use(function (req, res, next) {
-   authentications.verifyToken(req, res, next);
+    authentications.verifyToken(req, res, next);
 });
 
 router.post('/validToken', function (req, res) {
@@ -251,7 +251,7 @@ router.post('/appointments/approve', function (req, res, next) {
         .catch(err => {
             console.log(err);
             res.status(400).send({
-                "message":constants.usersRoute.APPOINTMENT_REQUEST_NOT_FOUND,
+                "message": constants.usersRoute.APPOINTMENT_REQUEST_NOT_FOUND,
                 err
             });
         });
@@ -278,7 +278,10 @@ router.post('/appointments/reject', function (req, res, next) {
             appointmentsRequest.update({
                 status: "rejected"
             });
-            res.status(200).send({"message": constants.usersRoute.SUCCESSFUL_REJECT_APPOINTMENT_REQUEST, appointmentsRequest});
+            res.status(200).send({
+                "message": constants.usersRoute.SUCCESSFUL_REJECT_APPOINTMENT_REQUEST,
+                appointmentsRequest
+            });
         })
         .catch(err => {
             console.log(err);
@@ -294,49 +297,28 @@ router.get('/appointments/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
-                if (req.query.status !== undefined) {
-                    ScheduledAppointments.findAll({
-                        where: {
-                            status: req.query.status,
-                        },
-                        include: [
-                            {
-                                model: AppointmentDetails,
-                                where: {
-                                    clientId: req.params.userId,
-                                },
-                                required: true
-                            }
-                        ]
+                let whereClause = {};
+                req.query.status ? whereClause.status = req.query.status : null;
+                req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+                ScheduledAppointments.findAll({
+                    where: whereClause,
+                    include: [
+                        {
+                            model: AppointmentDetails,
+                            where: {
+                                clientId: req.params.userId,
+                            },
+                            required: true
+                        }
+                    ]
+                })
+                    .then(userAppointments => {
+                        console.log(userAppointments);
+                        res.status(200).send(userAppointments);
                     })
-                        .then(userAppointments => {
-                            console.log(userAppointments);
-                            res.status(200).send(userAppointments);
-                        })
-                        .catch(err => {
-                            res.status(500).send(err);
-                        })
-                }
-                else {
-                    ScheduledAppointments.findAll({
-                        include: [
-                            {
-                                model: AppointmentDetails,
-                                where: {
-                                    clientId: req.params.userId,
-                                },
-                                required: true
-                            }
-                        ]
+                    .catch(err => {
+                        res.status(500).send(err);
                     })
-                        .then(userAppointments => {
-                            console.log(userAppointments);
-                            res.status(200).send(userAppointments);
-                        })
-                        .catch(err => {
-                            res.status(500).send(err);
-                        })
-                }
             }
         })
 });
@@ -346,37 +328,21 @@ router.get('/incidents/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             if (user.dataValues) {
-                if (req.query.status !== undefined) {
-                    Incidents.findAll({
-                        where: {
-                            userId: req.params.userId,
-                            status: req.query.status,
-                        }
+                let whereClause = {};
+                whereClause.userId = req.params.userId;
+                req.query.status ? whereClause.status = req.query.status : null;
+                req.query.incidentId ? whereClause.incidentId = req.query.incidentId : null;
+                Incidents.findAll({
+                    where: whereClause
+                })
+                    .then(userIncidents => {
+                        console.log(userIncidents);
+                        res.status(200).send(userIncidents);
                     })
-                        .then(userIncidents => {
-                            console.log(userIncidents);
-                            res.status(200).send(userIncidents);
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).send(err);
-                        })
-                }
-                else {
-                    Incidents.findAll({
-                        where: {
-                            userId: req.params.userId,
-                        }
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
                     })
-                        .then(userIncidents => {
-                            console.log(userIncidents);
-                            res.status(200).send(userIncidents);
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).send(err);
-                        })
-                }
             }
         });
 });
@@ -470,15 +436,19 @@ router.put('/appointments/cancel/userId/:userId/appointmentId/:appointmentId', f
                                         console.log(err);
                                         res.status(500).send(err);
                                     });
-                            }
-                            else {
+                            } else {
                                 appointment.status === "canceled" ?
-                                    res.status(400).send({"message": constants.usersRoute.ALREADY_CANCELED_APPOINTMENT, appointment})
+                                    res.status(400).send({
+                                        "message": constants.usersRoute.ALREADY_CANCELED_APPOINTMENT,
+                                        appointment
+                                    })
                                     :
-                                    res.status(400).send({"message": constants.usersRoute.PASSED_APPOINTMENT, appointment});
+                                    res.status(400).send({
+                                        "message": constants.usersRoute.PASSED_APPOINTMENT,
+                                        appointment
+                                    });
                             }
-                        }
-                        else {
+                        } else {
                             res.status(400).send({
                                 "message": constants.usersRoute.APPOINTMENT_NOT_FOUND,
                             });
@@ -530,15 +500,19 @@ router.put('/incidents/cancel/userId/:userId/incidentId/:incidentId', function (
                                         console.log(err);
                                         res.status(500).send(err);
                                     });
-                            }
-                            else {
+                            } else {
                                 incident.status === "canceled" ?
-                                    res.status(400).send({"message": constants.usersRoute.ALREADY_CANCELED_INCIDENT, incident})
+                                    res.status(400).send({
+                                        "message": constants.usersRoute.ALREADY_CANCELED_INCIDENT,
+                                        incident
+                                    })
                                     :
-                                    res.status(400).send({"message": constants.usersRoute.ALREADY_RESOLVED_INCIDENT, incident});
+                                    res.status(400).send({
+                                        "message": constants.usersRoute.ALREADY_RESOLVED_INCIDENT,
+                                        incident
+                                    });
                             }
-                        }
-                        else {
+                        } else {
                             // if (user !== null)
                             res.status(400).send({
                                 "message": constants.usersRoute.INCIDENT_NOT_FOUND,
