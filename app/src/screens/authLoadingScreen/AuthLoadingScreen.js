@@ -1,6 +1,8 @@
 import React from 'react';
-import {ActivityIndicator, StyleSheet, StatusBar, View,} from 'react-native';
+import {ActivityIndicator, StatusBar, StyleSheet, View,} from 'react-native';
 import phoneStorage from "react-native-simple-store";
+import axios from "axios";
+import {SERVER_URL} from "../../shared/constants";
 
 export default class AuthLoadingScreen extends React.Component {
     constructor(props) {
@@ -8,13 +10,26 @@ export default class AuthLoadingScreen extends React.Component {
         this.checkUserDataInStorage();
     }
 
-    checkUserDataInStorage = () => {
-        phoneStorage.get('userData')
-            .then(userData => {
-                // This will switch to the App screen or Auth screen and this loading
-                // screen will be unmounted and thrown away.
-                this.props.navigation.navigate(userData.token ? 'App' : 'Auth');
+    checkUserDataInStorage = async () => {
+        var userData = await phoneStorage.get('userData');
+        var validTokenResponse = await axios.post(`${SERVER_URL}/api/users/validToken`,
+            {
+                "token": userData.token,
+            },
+        );
+        validTokenResponse.status === 200 ?
+            phoneStorage.update('userData', {
+                userId: validTokenResponse.data.payload.userId,
+                userFullname: validTokenResponse.data.payload.userFullname,
             })
+                .then(res => {
+                    this.props.navigation.navigate('App');
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+            :
+            this.props.navigation.navigate('Auth');
     };
 
     // Render any loading content that you like here

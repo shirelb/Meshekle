@@ -21,22 +21,10 @@ export default class MainScreen extends Component {
                 const headers = {
                     'Authorization': 'Bearer ' + userData.token
                 };
-                axios.post(`${SERVER_URL}/api/users/validToken`,
-                    {
-                        "token": userData.token,
-                    },
-                )
-                    .then((response) => {
-                        console.log(response);
-                        phoneStorage.update('userData', {
-                            userId: response.data.payload.userId,
-                            userFullname: response.data.payload.userFullname,
-                        });
-                        this.setState({
-                            userId: response.data.payload.userId,
-                            userFullname: response.data.payload.userFullname,
-                        })
-                    })
+                this.setState({
+                    userId: userData.userId,
+                    userFullname: userData.userFullname,
+                })
             });
     }
 
