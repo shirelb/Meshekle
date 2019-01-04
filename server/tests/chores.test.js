@@ -60,10 +60,20 @@ var choreTypeTestFri = {
     color: "blue"
 };
 
+var choreTypeTestSun = {
+    choreTypeName: "sunCoocking",
+    days: "[friday]",
+    numberOfWorkers: 2,
+    frequency: 12,
+    startTime: "10:00",
+    endTime: "14:00",
+    color: "blue"
+};
+
 var userChoreTestNow = {
     userId: "436547125",
     choreTypeName: "satCoocking",
-    date: Date.now(),//"2018-12-25 10:00",
+    date: "2018-12-25",//Date.now(),//"2018-12-25 10:00",
     isMark: false
 }
 var userChoreTestFuture = {
@@ -73,6 +83,8 @@ var userChoreTestFuture = {
     isMark: false,
 };
 var choreId= 0;
+var choreIdPast = 0;
+
 
 describe('chores route', function () {
      this.timeout(20000);
@@ -1146,7 +1158,7 @@ describe('chores route', function () {
             done();
         });
     });
-  
+ 
     //5 it
     describe('/DELETE user from choreTypeName api24', () => {
         before((done) => {
@@ -1390,103 +1402,197 @@ describe('chores route', function () {
         });
     });
 
-    //2 it
-    describe('/PUT update settings of choreType api21', () => {
+ 
+    //4 it
+    describe('/DELETE user from choreTypeName api28', () => {
         before((done) => {
+            setTimeout(function () {
             ChoreTypes.create(choreTypeTestSat);
+            ChoreTypes.create(choreTypeTestFri);
+            ChoreTypes.create(choreTypeTestSun);
+            Users.create(userTest);
+            Users.create(userTest2);
+            UsersChoresTypes.create({
+                userId: userTest.userId,
+                choreTypeName: choreTypeTestFri.choreTypeName
+            });
+            UsersChoresTypes.create({
+                userId: userTest.userId,
+                choreTypeName: choreTypeTestSat.choreTypeName
+            });
+            UsersChores.create(userChoreTestNow);
+            UsersChores.create(userChoreTestFuture);
+
             done();
+        }, 3000);
+    
         });
 
-        it('it should update settings specific choretype ', (done) => {
+        it('it should DELETE the choreType when no future userchore for it', (done) => {
             chai.request(server)
-            .put('/api/chores/type/'+choreTypeTestSat.choreTypeName+'/settings/set')
-            .send({
-                days: "[saturday]",
-                numberOfWorkers: 1,
-                frequency: 6,
-                startTime: "9:00",
-                endTime: 7,//pay attention this field will not update because it illegal type
-                color: "yellow"
-            })
+                .delete('/api/chores/type/'+choreTypeTestSat.choreTypeName+'/delete')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('message');
+                    res.body.message.should.be.eql('The chore type removed successfully (with the userchores and from usrschoretypes)');
+                    res.body.should.have.property('removedType').eql(1);
+                    done();
+                });
+        });
+
+        it('it should DELETE choreType even if has a future userchores', (done) => {
+            chai.request(server)
+            .delete('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/delete')
             .end((err, res) => {
                 res.should.have.status(200);
-                setTimeout(function () {
-                    res.body.should.have.property('ct');
-                    res.body.ct.should.have.property('numberOfWorkers').eql(1);
-                    res.body.ct.should.have.property('frequency').eql(6);
-                    res.body.ct.should.have.property('startTime').eql("9:00");
-                    res.body.ct.should.have.property('endTime').eql("14:00");
-                    res.body.ct.should.have.property('color').eql("yellow");
-                    //res.body.usersChoreType.length.should.be.eql(1);
-                    res.body.should.have.property('message').eql('choreType updated successfully');
-                    done();
-                }, 5000);
-            });
-        });
-
-        it('it should not GET settings of not exist choretype ', (done) => {
-            chai.request(server)
-            .put('/api/chores/type/'+'no_such_type'+'/settings/set')
-            .send({
-                days: "[saturday]",
-                numberOfWorkers: 8,
-                frequency: 7,
-                startTime: "10:00",
-                endTime: "12:00",
-                color: "blue"
-            })
-            .end((err, res) => {
-                res.should.have.status(400);
-               setTimeout(function () {
-                   //res.body.should.have.property('err');
-                   res.body.should.have.property('message');
-                   res.body.message.should.be.eql('choreType is not exist');
-                   done();
-                }, 5000);
-            });
-        });
-    
-    
-        after((done) => {
-            UsersChoresTypes.destroy({
-                where: {
-                choreTypeName: choreTypeTestSat.choreTypeName,
-                userId: userTest.userId
-                }
-            });
-            UsersChoresTypes.destroy({
-                where: {
-                choreTypeName: choreTypeTestFri.choreTypeName,
-                userId: userTest2.userId
-                }
-            });
-            Users.destroy({
-                where: {
-                userId: userTest.userId
-                }
-            });
-            Users.destroy({
-                where: {
-                userId: userTest2.userId
-                }
-            });
-            ChoreTypes.destroy({
-                where: {
-                choreTypeName: choreTypeTestSat.choreTypeName
-                }
-            });
-            
-            ChoreTypes.destroy({
-                where: {
-                choreTypeName: choreTypeTestFri.choreTypeName
-                }
-            });
-
-            //done();
-            setTimeout(function () {
-                            done();
-                        }, 5000);
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('The chore type removed successfully (with the userchores and from usrschoretypes)');
+                res.body.should.have.property('removedType').eql(1);
+                done();
+                });
         });
         
+        it('it should DELETE choreType when no user belong to', (done) => {
+            chai.request(server)
+            .delete('/api/chores/type/'+choreTypeTestSun.choreTypeName+'/delete')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('The chore type removed successfully (with the userchores and from usrschoretypes)');
+                res.body.should.have.property('removedType').eql(1);
+                //res.body.removedType.should.have.property('choreTypeName').eql(choreTypeTestSun.choreTypeName);
+                done();
+                });
+        });
+
+        it('it should not DELTE user from choreType that not exist', (done) => {
+            chai.request(server)
+            .delete('/api/chores/type/'+'no such type'+'/delete')
+            .end((err, res) => {
+                    res.should.have.status(400);
+                    //res.body.should.have.property('userChores');
+                    //res.body.userChores.should.be.a('array');
+                    //res.body.userChores.length.should.be.eql(0);
+                    res.body.should.have.property('message');
+                    res.body.message.should.equal('choreType is not exist');
+                    done();
+                });
+        });
+
+        after((done) => {
+            UsersChores.destroy({
+                where: {
+                    userId: {[Op.or]: [userTest.userId, userTest2.userId]}
+                }
+            });
+            ChoreTypes.destroy({
+                where: {
+                    choreTypeName: {[Op.or]: [choreTypeTestSat.choreTypeName, choreTypeTestFri.choreTypeName]}
+                }
+            });
+            Users.destroy({
+                where: {
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId]}
+                }
+            });
+            done();
+        });
     });
+
+    //3 it
+    describe('/DELETE user from choreTypeName api29', () => {
+        before((done) => {
+            setTimeout(function () {
+            ChoreTypes.create(choreTypeTestSat);
+            ChoreTypes.create(choreTypeTestFri);
+            ChoreTypes.create(choreTypeTestSun);
+            Users.create(userTest);
+            Users.create(userTest2);
+            UsersChoresTypes.create({
+                userId: userTest.userId,
+                choreTypeName: choreTypeTestFri.choreTypeName
+            });
+            UsersChoresTypes.create({
+                userId: userTest.userId,
+                choreTypeName: choreTypeTestSat.choreTypeName
+            });
+
+            UsersChores.create(userChoreTestFuture)
+            .then(created=>{
+                choreId = created.userChoreId;
+                console.log("\n\n\n1. choreId: "+choreId+"\n\n\n");    
+                UsersChores.create(userChoreTestNow)
+                .then(cre=>{
+                    choreIdPast = cre.userChoreId;
+                    console.log("\n\n\n3. choreIdpast: "+choreIdPast+"\n\n\n");    
+                    done();
+                }) .catch(err=>{
+                    done();
+                })           
+            })
+
+        }, 3000);
+    
+        });
+
+        it('it should DELETE the userChore in future', (done) => {
+            chai.request(server)
+                .delete('/api/chores/userChoreId/'+choreId+'/delete')
+                .end((err, res) => {
+                    setTimeout(function () {
+                    console.log("\n\n\n2. choreId: "+choreId+"\n\n\n");
+                    res.should.have.status(200);
+                    res.body.should.have.property('message');
+                    res.body.message.should.be.eql('userChore removed successfully');
+                    res.body.should.have.property('deleted').eql(1);
+                    done();
+                }, 6000);
+
+                });
+        });
+
+        it('it should not DELETE userchore in past', (done) => {
+            chai.request(server)
+            .delete('/api/chores/userChoreId/'+choreIdPast+'/delete')
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('no such userChore in the future (cannot remove userchore that already executed)');
+                res.body.should.have.property('deleted').eql(0);
+                done();
+                });
+        });
+        
+        it('it should not  DELETE userChore not exist', (done) => {
+            chai.request(server)
+            .delete('/api/chores/userChoreId/'+"0"+'/delete')
+            .end((err, res) => {
+                res.should.have.status(400);
+                res.body.should.have.property('message');
+                res.body.message.should.be.eql('no such userChore in the future (cannot remove userchore that already executed)');
+                res.body.should.have.property('deleted').eql(0);
+                done();
+                });
+        });
+
+        after((done) => {
+            UsersChores.destroy({
+                where: {
+                    userId: {[Op.or]: [userTest.userId, userTest2.userId]}
+                }
+            });
+            ChoreTypes.destroy({
+                where: {
+                    choreTypeName: {[Op.or]: [choreTypeTestSat.choreTypeName, choreTypeTestFri.choreTypeName, choreTypeTestSun.choreTypeName]}
+                }
+            });
+            Users.destroy({
+                where: {
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId]}
+                }
+            });
+            done();
+        });
+    });
+
 });

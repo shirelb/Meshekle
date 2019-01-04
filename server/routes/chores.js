@@ -673,13 +673,79 @@ router.put('/type/:type/settings/set', function (req, res, next) {
   })
 });
 
+/* DELETE  choreType  api28. */
+router.delete('/type/:type/delete', function (req, res, next) {
+  validations.checkIfChoreTypeExist(req.params.type)
+  .then(type=>{
+    if(type){
+        UsersChoresTypes.destroy({
+                        where: {
+                          choreTypeName: req.params.type
+                        }
+                      })
+            .then(userChoreType => {
+                UsersChores.destroy({
+                  where:{
+                    choreTypeName: req.params.type,
+                    date: {[Op.gt]: Date.now()}
+                  }
+                })
+                .then(futureUserChores=>{
+                  ChoreTypes.destroy({
+                    where:{
+                      choreTypeName: req.params.type,
+                    }
+                  })
+                  .then(removedType=>{
+                    res.status(200).send({"message":"The chore type removed successfully (with the userchores and from usrschoretypes)", removedType});
+                  })
+                  .catch(err=>{
+                    res.status(500).send({"message":"Something went wrong"});
+                  })
+                })
+            })
+            .catch(err => {
+                res.status(400).send({"message":"Something went wrong"});
+            })
+    }
+    else{
+      res.status(400).send({"message":"choreType is not exist",err});
+    }
+  })
+  .catch(err=>{
+    res.status(400).send({"message":"choreType is not exist",err});
+  })
+});
+
+/* DELETE  userChore  api29. */
+router.delete('/userChoreId/:userChoreId/delete', function (req, res, next) {
+  UsersChores.destroy({
+    where:{
+      userChoreId: req.params.userChoreId,
+      [Op.and]: {date: {[Op.gt]:Date.now()}},
+    }
+  })
+  .then(deleted=>{
+    if(deleted===1){
+        //iteration2 : delete all replacement requests!!
+        res.status(200).send({"message":"userChore removed successfully",deleted});
+    }
+    else{
+      res.status(400).send({"message":"no such userChore in the future (cannot remove userchore that already executed)",deleted});
+    }
+  })
+  .catch(err=>{
+    res.status(400).send({"message":"no such userChore in the future (cannot remove userchore that already executed)"});
+  })
+});
+
 checkIfUserDoChoreType = function(userId, type, res){
   return UsersChoresTypes.findOne({
     where: {
       userId:userId,
       choreTypeName:type
     }
-})
+  })
     .then(userChoreType => {
         if (userChoreType) {
             return true;
