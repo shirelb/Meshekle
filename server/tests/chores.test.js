@@ -89,14 +89,10 @@ var choreIdPast = 0;
 describe('chores route', function () {
      this.timeout(20000);
 
-    // beforeEach((done) => {
-    //     setTimeout(function () {
-    //         done();
-    //     }, 5000);
-    // });
-    before(() => {
-        
-        return UsersChores.sync() // also tried with {force: true}
+    beforeEach((done) => {
+        setTimeout(function () {
+            done();
+        }, 500);
     });
 
     //2 it's

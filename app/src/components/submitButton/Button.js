@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import PropTypes from 'prop-types'
 import colors from "../../shared/colors";
-import LoginScreen from "../../screens/loginScreen/LoginScreen";
 
 
 export default class Button extends Component {

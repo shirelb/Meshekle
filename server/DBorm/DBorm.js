@@ -37,7 +37,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: './sqlite.db'
+    storage: './server/DBorm/sqlite.db'
 });
 
 sequelize
@@ -144,7 +144,7 @@ sequelize.sync({force: true})
     .then(() => {
         Users.create({
             userId: '1',
-            fullname: 'Administrator',
+            fullname: 'Administrator Administrator',
             password: 'Admin123',
             email: 'admin@gamil.com',
             mailbox: 1,

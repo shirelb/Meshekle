@@ -5,31 +5,23 @@ let should = chai.should();
 let server = require('../app');
 
 chai.use(chaiHttp);
-const db = require('../DBorm/DBorm');
-const {sequelize, Users, ServiceProviders,ScheduledAppointments,AppointmentDetails,RulesModules,Permissions} = require('../DBorm/DBorm');
+// const db = require('../DBorm/DBorm');
+const {sequelize, Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 var constants = require('../routes/shared/constants');
-var validiation =require('../routes/shared/validations');
-var serviceProvidersRoute=constants.serviceProvidersRoute;
+var validiation = require('../routes/shared/validations');
+var serviceProvidersRoute = constants.serviceProvidersRoute;
 
 
 describe('service providers route', function () {
     this.timeout(20000);
+
     before((done) => {
-        sequelize.sync({ force : true }) // drops table and re-creates it
-            .then(function() {
-                done(null);
-            })
-            .catch(function(error) {
-                done(error);
-            });
-       /* setTimeout(function () {
-            console.log("NOW START TESTS");
+        setTimeout(function () {
             done();
-        }, 1000);*/
+        }, 5000);
     });
 
     var tokenTest = null;
-
 
     let userTest = {
         userId: "111111111",
@@ -52,7 +44,7 @@ describe('service providers route', function () {
         phone: "012365948",
         bornDate: "1992-05-20"
     };
-    let operationTimeTest ={
+    let operationTimeTest = {
         operationTime: "[\n" +
             "    {\n" +
             "      \"day\": \"Sunday\",\n" +
@@ -106,7 +98,7 @@ describe('service providers route', function () {
         appointmentWayType: constants.appointmentWayTypes.DIALOG_WAY_TYPE
     };
 
-    let schedAppointmentTest={
+    let schedAppointmentTest = {
         appointmentId: '1',
         startDateAndTime: '2018-12-12 11:00',
         endDateAndTime: '2018-12-12 13:00',
@@ -114,7 +106,7 @@ describe('service providers route', function () {
         status: constants.appointmentStatuses.APPOINTMENT_SET
     };
 
-    let appointmentDetailTest={
+    let appointmentDetailTest = {
         appointmentId: '1',
         clientId: '111111111',
         serviceProviderId: '123456789',
@@ -122,15 +114,15 @@ describe('service providers route', function () {
         subject: 'blob'
     };
 
-    let roleModuleTest={
+    let roleModuleTest = {
         role: constants.roles.DENTIST_ROLE,
-        module:'Doctors'
+        module: 'Doctors'
     };
 
-    let permissionTest={
-        module:'Doctors',
-        operationName:'add users',
-        api:'serviceProviders'
+    let permissionTest = {
+        module: 'Doctors',
+        operationName: 'add users',
+        api: 'serviceProviders'
     };
 
 
@@ -152,7 +144,7 @@ describe('service providers route', function () {
         it('it should log in the service provider to the system', (done) => {
             chai.request(server)
                 .post('/api/serviceProviders/login/authenticate')
-                .send({userId:'111111111',password:'123456789'})
+                .send({userId: '111111111', password: '123456789'})
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(constants.general.SUCCESSFUL_TOKEN);
@@ -165,7 +157,7 @@ describe('service providers route', function () {
         it('it should send error that the authentication failed', (done) => {
             chai.request(server)
                 .post('/api/serviceProviders/login/authenticate')
-                .send({userId:'111111111',password:'123456788'})
+                .send({userId: '111111111', password: '123456788'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.AUTHENTICATION_FAIL);
@@ -176,7 +168,7 @@ describe('service providers route', function () {
         it('it should send error that the service provider not found', (done) => {
             chai.request(server)
                 .post('/api/serviceProviders/login/authenticate')
-                .send({userId:'222222222',password:'123456789'})
+                .send({userId: '222222222', password: '123456789'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -200,20 +192,19 @@ describe('service providers route', function () {
     });
 
 
-
-
-
     //Get all the service providers
     describe('/GET serviceProviders', () => {
         before((done) => {
-            createUser(userTest)
+            ServiceProviders.destroy({where: {}})
                 .then(
-                    createServiceProvider(serviceProviderTest)
+                    createUser(userTest)
                         .then(
-                            done()
+                            createServiceProvider(serviceProviderTest)
+                                .then(
+                                    done()
+                                )
                         )
-                );
-
+                )
         });
         it('it should GET all the service providers', (done) => {
             chai.request(server)
@@ -260,9 +251,9 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
                     res.body.length.should.be.eql(1);
-                    validiation.getUsersByUserIdPromise(res.body[0].userId).then(users =>{
-                        users[0].fullname.should.be.eql("Amit mazuz");
-                        done();
+                    validiation.getUsersByUserIdPromise(res.body[0].userId).then(users => {
+                            users[0].fullname.should.be.eql("Amit mazuz");
+                            done();
                         }
                     );
                 });
@@ -317,7 +308,7 @@ describe('service providers route', function () {
         });
         it('it should GET all the service providers with given role', (done) => {
             chai.request(server)
-                .get('/api/serviceProviders/role/'+constants.roles.DENTIST_ROLE)
+                .get('/api/serviceProviders/role/' + constants.roles.DENTIST_ROLE)
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -329,7 +320,7 @@ describe('service providers route', function () {
         });
         it('it should send error that the service provider not found', (done) => {
             chai.request(server)
-                .get('/api/serviceProviders/role/'+constants.roles.HAIRDRESSER_ROLE)
+                .get('/api/serviceProviders/role/' + constants.roles.HAIRDRESSER_ROLE)
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -362,9 +353,9 @@ describe('service providers route', function () {
         });
         it('it should update the appointmentWayType of the service provider in role', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
+                .put('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/appointmentWayType/set')
                 .set('Authorization', tokenTest)
-                .send({appointmentWayType:constants.appointmentWayTypes.SLOT_WAY_TYPE})
+                .send({appointmentWayType: constants.appointmentWayTypes.SLOT_WAY_TYPE})
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC);
@@ -379,9 +370,9 @@ describe('service providers route', function () {
 
         it('it should send an error that the appoint way type doesnt exists', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
+                .put('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/appointmentWayType/set')
                 .set('Authorization', tokenTest)
-                .send({appointmentWayType:"invalid way type"})
+                .send({appointmentWayType: "invalid way type"})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT);
@@ -391,9 +382,9 @@ describe('service providers route', function () {
 
         it('it should send an error that the service provider not found', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/appointmentWayType/set')
+                .put('/api/serviceProviders/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE + '/appointmentWayType/set')
                 .set('Authorization', tokenTest)
-                .send({appointmentWayType:constants.appointmentWayTypes.SLOT_WAY_TYPE})
+                .send({appointmentWayType: constants.appointmentWayTypes.SLOT_WAY_TYPE})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -482,7 +473,7 @@ describe('service providers route', function () {
                 });
         });
         it('it should send an error that the appointment way type doesnt exists', (done) => {
-            serviceProviderTest.appointmentWayType="Invalid appointment way type";
+            serviceProviderTest.appointmentWayType = "Invalid appointment way type";
             chai.request(server)
                 .post('/api/serviceProviders/add')
                 .set('Authorization', tokenTest)
@@ -490,12 +481,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT);
-                    serviceProviderTest.appointmentWayType=constants.appointmentWayTypes.DIALOG_WAY_TYPE;
+                    serviceProviderTest.appointmentWayType = constants.appointmentWayTypes.DIALOG_WAY_TYPE;
                     done();
                 });
         });
         it('it should send an error that the role doesnt exists', (done) => {
-            serviceProviderTest.role="Invalid role";
+            serviceProviderTest.role = "Invalid role";
             chai.request(server)
                 .post('/api/serviceProviders/add')
                 .set('Authorization', tokenTest)
@@ -503,12 +494,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
-                    serviceProviderTest.role=constants.roles.DENTIST_ROLE;
+                    serviceProviderTest.role = constants.roles.DENTIST_ROLE;
                     done();
                 });
         });
         it('it should send an error that the phone number is invalid', (done) => {
-            serviceProviderTest.phoneNumber="invalid phone number";
+            serviceProviderTest.phoneNumber = "invalid phone number";
             chai.request(server)
                 .post('/api/serviceProviders/add')
                 .set('Authorization', tokenTest)
@@ -516,12 +507,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_PHONE_INPUT);
-                    serviceProviderTest.phoneNumber="0535311303";
+                    serviceProviderTest.phoneNumber = "0535311303";
                     done();
                 });
         });
         it('it should send an error that the user not found', (done) => {
-            serviceProviderTest.userId="111111112";
+            serviceProviderTest.userId = "111111112";
             chai.request(server)
                 .post('/api/serviceProviders/add')
                 .set('Authorization', tokenTest)
@@ -529,23 +520,23 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
-                    serviceProviderTest.userId="111111111";
+                    serviceProviderTest.userId = "111111111";
                     done();
                 });
         });
 
         it('it should send an error that the service provider already exists ', (done) => {
-                createServiceProvider(serviceProviderTest).then(
-                    chai.request(server)
-                        .post('/api/serviceProviders/add')
-                        .set('Authorization', tokenTest)
-                        .send(serviceProviderTest)
-                        .end((err, res) => {
-                            res.should.have.status(400);
-                            res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
-                            done();
-                        })
-                );
+            createServiceProvider(serviceProviderTest).then(
+                chai.request(server)
+                    .post('/api/serviceProviders/add')
+                    .set('Authorization', tokenTest)
+                    .send(serviceProviderTest)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
+                        done();
+                    })
+            );
         });
 
         after((done) => {
@@ -575,7 +566,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/addToServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456789',role:constants.roles.HAIRDRESSER_ROLE,operationTime:'sunday'})
+                .send({serviceProviderId: '123456789', role: constants.roles.HAIRDRESSER_ROLE, operationTime: 'sunday'})
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC);
@@ -592,7 +583,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/addToServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456789',role:"invalid role",operationTime:'sunday'})
+                .send({serviceProviderId: '123456789', role: "invalid role", operationTime: 'sunday'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
@@ -603,7 +594,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/addToServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456781',role:constants.roles.HAIRDRESSER_ROLE,operationTime:'sunday'})
+                .send({serviceProviderId: '123456781', role: constants.roles.HAIRDRESSER_ROLE, operationTime: 'sunday'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -614,7 +605,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/addToServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456789',role:constants.roles.DENTIST_ROLE,operationTime:'sunday'})
+                .send({serviceProviderId: '123456789', role: constants.roles.DENTIST_ROLE, operationTime: 'sunday'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
@@ -647,7 +638,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/removeFromServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456789',role:constants.roles.DENTIST_ROLE})
+                .send({serviceProviderId: '123456789', role: constants.roles.DENTIST_ROLE})
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC);
@@ -662,7 +653,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/removeFromServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456789',role:"invalid role"})
+                .send({serviceProviderId: '123456789', role: "invalid role"})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
@@ -673,7 +664,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/removeFromServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId:'123456781',role:constants.roles.DENTIST_ROLE})
+                .send({serviceProviderId: '123456781', role: constants.roles.DENTIST_ROLE})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
@@ -759,7 +750,7 @@ describe('service providers route', function () {
                 });
         });
         it('it should send an error that the email is invalid', (done) => {
-            userTest.email="invalid email";
+            userTest.email = "invalid email";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
                 .set('Authorization', tokenTest)
@@ -767,12 +758,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_EMAIL_INPUT);
-                    userTest.email="amit@gmail.com";
+                    userTest.email = "amit@gmail.com";
                     done();
                 });
         });
         it('it should send an error that the mail box is invalid', (done) => {
-            userTest.mailbox="invalid mail box";
+            userTest.mailbox = "invalid mail box";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
                 .set('Authorization', tokenTest)
@@ -780,12 +771,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_MAIL_BOX_INPUT);
-                    userTest.mailbox=10;
+                    userTest.mailbox = 10;
                     done();
                 });
         });
         it('it should send an error that the phone is invalid', (done) => {
-            userTest.phone="invalid phone number";
+            userTest.phone = "invalid phone number";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
                 .set('Authorization', tokenTest)
@@ -793,12 +784,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_PHONE_INPUT);
-                    userTest.phone="0535311303";
+                    userTest.phone = "0535311303";
                     done();
                 });
         });
         it('it should send an error that the cellphone is invalid', (done) => {
-            userTest.cellphone="invalid cellphone";
+            userTest.cellphone = "invalid cellphone";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
                 .set('Authorization', tokenTest)
@@ -806,12 +797,12 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_PHONE_INPUT);
-                    userTest.cellphone="0777007024";
+                    userTest.cellphone = "0777007024";
                     done();
                 });
         });
         it('it should send an error that the born date is invalid', (done) => {
-            userTest.bornDate="2100-04-04";
+            userTest.bornDate = "2100-04-04";
             chai.request(server)
                 .post('/api/serviceProviders/users/add')
                 .set('Authorization', tokenTest)
@@ -819,7 +810,7 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.INVALID_BORN_DATE_INPUT);
-                    userTest.bornDate="1992-05-20";
+                    userTest.bornDate = "1992-05-20";
                     done();
                 });
         });
@@ -846,7 +837,6 @@ describe('service providers route', function () {
     });
 
 
-
 //delete a user with a given userID
     describe('/DELETE delete a user by userId', () => {
         before((done) => {
@@ -864,8 +854,8 @@ describe('service providers route', function () {
                     res.body.message.should.be.eql(serviceProvidersRoute.USER_DEL_SUCC);
                     res.body.result.should.be.eql(1);
                     validiation.getUsersByUserIdPromise('111111111').then(users => {
-                       users.length.should.be.eql(0);
-                       done();
+                        users.length.should.be.eql(0);
+                        done();
                     });
                 });
         });
@@ -895,7 +885,7 @@ describe('service providers route', function () {
         });
         it('it should update the operation time of the service provider', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/operationTime/set')
+                .put('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/operationTime/set')
                 .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
@@ -921,7 +911,7 @@ describe('service providers route', function () {
         });
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/operationTime/set')
+                .put('/api/serviceProviders/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE + '/operationTime/set')
                 .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
@@ -956,7 +946,7 @@ describe('service providers route', function () {
         });
         it('it should GET the operation time of the service provider', (done) => {
             chai.request(server)
-                .get('/api/serviceProviders/serviceProviderId/123456789/role/'+constants.roles.DENTIST_ROLE+'/operationTime')
+                .get('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/operationTime')
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -976,7 +966,7 @@ describe('service providers route', function () {
         });
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
-                .get('/api/serviceProviders/serviceProviderId/123456781/role/'+constants.roles.DENTIST_ROLE+'/operationTime')
+                .get('/api/serviceProviders/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE + '/operationTime')
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -1005,7 +995,7 @@ describe('service providers route', function () {
                             createSchedAppointment(schedAppointmentTest)
                                 .then(
                                     done()
-                            )
+                                )
                         )
                 );
 
@@ -1019,8 +1009,8 @@ describe('service providers route', function () {
                     res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED);
                     res.body.result.should.be.eql(1);
                     validiation.getSchedAppointmentByIdPromise(1).then(schedAppointment => {
-                       schedAppointment[0].status.should.be.eql(constants.appointmentStatuses.APPOINTMENT_CANCELLED);
-                       done();
+                        schedAppointment[0].status.should.be.eql(constants.appointmentStatuses.APPOINTMENT_CANCELLED);
+                        done();
                     });
                 });
         });
@@ -1051,7 +1041,6 @@ describe('service providers route', function () {
     });
 
 
-
     //GET appointments details of serviceProvider
     describe('/GET appointments details of serviceProvider', () => {
         before((done) => {
@@ -1065,7 +1054,7 @@ describe('service providers route', function () {
                                         .then(
                                             done()
                                         )
-                            )
+                                )
                         )
                 );
 
@@ -1107,8 +1096,6 @@ describe('service providers route', function () {
                 );
         });
     });
-
-
 
 
     // Get roles of a service provider
@@ -1215,10 +1202,6 @@ describe('service providers route', function () {
 });
 
 
-
-
-
-
 function createUser(userTest) {
     return Users.create({
         userId: userTest.userId,
@@ -1268,6 +1251,7 @@ function createSchedAppointment(schedAppointment) {
         status: schedAppointment.status,
     });
 }
+
 function deleteSchedAppointment(schedAppointment) {
     return ScheduledAppointments.destroy({
         where: {
@@ -1285,6 +1269,7 @@ function createAppointmentDetail(appointmentDetail) {
         subject: appointmentDetail.subject,
     });
 }
+
 function deleteAppointmentDetail(appointmentDetail) {
     return AppointmentDetails.destroy({
         where: {
@@ -1302,6 +1287,7 @@ function createRoleModule(roleModule) {
         module: roleModule.module,
     });
 }
+
 function deleteRoleModule(roleModule) {
     return RulesModules.destroy({
         where: {
@@ -1318,6 +1304,7 @@ function createPermission(permission) {
         api: permission.api,
     });
 }
+
 function deletePermission(permission) {
     return Permissions.destroy({
         where: {

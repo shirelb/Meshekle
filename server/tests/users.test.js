@@ -16,7 +16,7 @@ chai.use(chaiHttp);
 describe('users route', function () {
     this.timeout(20000);
 
-    beforeEach((done) => {
+    before((done) => {
         setTimeout(function () {
             done();
         }, 5000);
@@ -144,7 +144,7 @@ describe('users route', function () {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
+                    res.body.length.should.be.eql(2);
                     done();
                 });
         });
@@ -398,7 +398,7 @@ describe('users route', function () {
                     .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
-                        res.should.have.status(200);
+                        res.should.have.status(400);
                         res.body.should.be.a('object');
                         res.body.should.have.property('err');
                         res.body.should.have.property('message');
@@ -497,7 +497,7 @@ describe('users route', function () {
                     .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
-                        res.should.have.status(200);
+                        res.should.have.status(400);
                         res.body.should.be.a('object');
                         res.body.should.have.property('err');
                         res.body.should.have.property('message');
@@ -664,7 +664,7 @@ describe('users route', function () {
                     .put(`/api/users/appointments/cancel/userId/${userTest.userId}/appointmentId/2`)
                     .set('Authorization', tokenTest)
                     .end((err, res) => {
-                        res.should.have.status(200);
+                        res.should.have.status(400);
                         res.body.should.be.a('object');
                         res.body.should.have.property('message');
                         res.body.message.should.equal('Appointment not found!');
@@ -715,7 +715,7 @@ describe('users route', function () {
                     .put(`/api/users/appointments/cancel/userId/${userTest.userId}/appointmentId/2`)
                     .set('Authorization', tokenTest)
                     .end((err, res) => {
-                        res.should.have.status(200);
+                        res.should.have.status(400);
                         res.body.should.be.a('object');
                         res.body.should.have.property('appointment');
                         res.body.appointment.should.have.property('status').eql('canceled');
@@ -758,14 +758,14 @@ describe('users route', function () {
                 done()
         });
 
-        beforeEach((done) => {
+       /* beforeEach((done) => {
             setTimeout(function () {
                 Incidents.destroy({where: {}})
                     .then(
                         done()
                     )
             }, 5000);
-        });
+        });*/
 
         describe('test with non existent incident', () => {
             before((done) => {
@@ -789,7 +789,7 @@ describe('users route', function () {
                     .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/1`)
                     .set('Authorization', tokenTest)
                     .end((err, res) => {
-                        res.should.have.status(200);
+                        res.should.have.status(400);
                         res.body.should.be.a('object');
                         res.body.should.have.property('message');
                         res.body.message.should.equal('Incident not found!');
@@ -805,9 +805,10 @@ describe('users route', function () {
 
         describe('test with existent user and existent incident', () => {
             before((done) => {
-                setTimeout(function () {
-                    Incidents.destroy({where: {}})
-                        .then(createUser(userTest)
+                // setTimeout(function () {
+                //     Incidents.destroy({where: {}})
+                //         .then(
+                            createUser(userTest)
                             .then(createIncident(incidentTest)
                                 .then(incident => {
                                     incidentTestId = incident.incidentId;
@@ -819,13 +820,13 @@ describe('users route', function () {
                                             })
                                         :
                                         done()
-                                })));
-                }, 5000)
+                                }));
+                // }, 5000)
             });
 
             it('it should cancel an incident of user ', (done) => {
                 chai.request(server)
-                    .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/3`)
+                    .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/${incidentTestId}`)
                     .set('Authorization', tokenTest)
                     .end((err, res) => {
                         res.should.have.status(200);
@@ -842,7 +843,7 @@ describe('users route', function () {
                     .put(`/api/users/incidents/cancel/userId/${userTest.userId}/incidentId/${incidentTestId}`)
                     .set('Authorization', tokenTest)
                     .end((err, res) => {
-                        res.should.have.status(200);
+                        res.should.have.status(400);
                         res.body.should.be.a('object');
                         res.body.should.have.property('incident');
                         res.body.incident.should.have.property('status').eql('canceled');
