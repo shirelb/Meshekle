@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {ChoreTypes, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+const {ChoreTypes,ServiceProviders, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+var constants = require('./constants');
 
 module.exports = {
     checkIfChoreTypeExist: function (typeName, res){
@@ -28,7 +29,8 @@ module.exports = {
     checkIfUserExist: function (uId, res) {
         return Users.findOne({
             where: {
-                userId: uId,
+                userId: userId,
+                active: true,
             }
         })
             .then(user => {
@@ -37,14 +39,39 @@ module.exports = {
                 }
                 else {
                     return res.status(400).send({
-                        "message": "userId doesn't exist!",
+                        //"message": "userId doesn't exist!",
+                        "message": constants.usersRoute.userNotFound,
                     });
                 }
             })
             .catch(err => {
-                return res.status(400).send({
-                    "message": "userId doesn't exist!", err
+                return res.status(500).send({
+                    // "message": "userId doesn't exist!", err
+                    "message": constants.usersRoute.userNotFound,
+                    err
                 });
             })
+    },
+
+    getUsersByUserIdPromise: function(userId) {
+        return Users.findAll({
+            where: {
+                userId: userId
+            }
+        })
+    },
+    getServiceProvidersByServProIdPromise: function(serviceProviderId) {
+        return ServiceProviders.findAll({
+            where: {
+                serviceProviderId: serviceProviderId
+            }
+        })
+    },
+    getSchedAppointmentByIdPromise: function(appointmentId) {
+        return ScheduledAppointments.findAll({
+            where: {
+                appointmentId: appointmentId
+            }
+        })
     },
 };
