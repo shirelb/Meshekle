@@ -51,6 +51,7 @@ const DrawerMenuNavigator = createDrawerNavigator(
         initialRouteName: 'MainScreen',
         contentComponent: DrawerMenu,
         drawerWidth: Dimensions.get('window').width - 120,
+        drawerPosition: 'right',
     }
 );
 
