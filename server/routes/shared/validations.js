@@ -1,9 +1,31 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {sequelize, Users,ServiceProviders, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+const {ChoreTypes,ServiceProviders, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 
 module.exports = {
+    checkIfChoreTypeExist: function (typeName, res){
+             return ChoreTypes.findOne({
+                            where: {
+                                choreTypeName: typeName
+                            }
+                        })
+                .then(choreType => {
+                    return choreType;
+                    // if (choreType){
+                    //     return choreType;
+                    // }
+                    // else{
+                    //     return res.status(400).send({
+                    //         "message": "choreType doesn't exist!",
+                    //     });
+                    // }
+                })
+                .catch(err => {
+                    return res.status(400).send({"message":"choreType is not exist",err});
+                })
+    },
+
     checkIfUserExist: function (userId, res) {
         return Users.findOne({
             where: {
@@ -12,18 +34,18 @@ module.exports = {
             }
         })
             .then(user => {
-                if (user) {
+                if (user.dataValues) {
                     return user;
                 }
                 else {
                     return res.status(400).send({
-                        "message": constants.usersRoute.userNotFound,
+                        "message": constants.usersRoute.USER_NOT_FOUND,
                     });
                 }
             })
             .catch(err => {
-                return res.status(500).send({
-                    "message": constants.usersRoute.userNotFound,
+                 res.status(400).send({
+                    "message": constants.usersRoute.USER_NOT_FOUND,
                     err
                 });
             })
