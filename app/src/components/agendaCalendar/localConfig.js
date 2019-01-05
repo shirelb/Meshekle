@@ -8,3 +8,4 @@ LocaleConfig.locales['il'] = {
 };
 
 LocaleConfig.defaultLocale = 'il';
+

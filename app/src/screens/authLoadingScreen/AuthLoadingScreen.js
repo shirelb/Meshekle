@@ -11,28 +11,39 @@ export default class AuthLoadingScreen extends React.Component {
     }
 
     checkUserDataInStorage = async () => {
-        var userData = await phoneStorage.get('userData');
-        if(userData.token === null)
-            this.props.navigation.navigate('Auth');
-        else {
-            var validTokenResponse = await axios.post(`${SERVER_URL}/api/users/validToken`,
-                {
-                    "token": userData.token,
-                },
-            );
-            validTokenResponse.status === 200 ?
-                phoneStorage.update('userData', {
-                    userId: validTokenResponse.data.payload.userId,
-                    userFullname: validTokenResponse.data.payload.userFullname,
-                })
-                    .then(res => {
-                        this.props.navigation.navigate('App');
-                    })
-                    .catch(err => {
-                        console.log('in checkUserDataInStorage ', err)
-                    })
-                :
+        try {
+            var userData = await phoneStorage.get('userData');
+            if (userData.token === null)
                 this.props.navigation.navigate('Auth');
+            else {
+                try {
+                    var validTokenResponse = await axios.post(`${SERVER_URL}/api/users/validToken`,
+                        {
+                            "token": userData.token,
+                        },
+                    );
+                    console.log("validTokenResponse ", validTokenResponse);
+                    validTokenResponse.status === 200 ?
+                        phoneStorage.update('userData', {
+                            userId: validTokenResponse.data.payload.userId,
+                            userFullname: validTokenResponse.data.payload.userFullname,
+                        })
+                            .then(res => {
+                                this.props.navigation.navigate('App');
+                            })
+                            .catch(err => {
+                                console.log('in checkUserDataInStorage ', err)
+                            })
+                        :
+                        this.props.navigation.navigate('Auth');
+                }
+                catch (e) {
+                    this.props.navigation.navigate('Auth');
+                }
+            }
+        }
+        catch (e) {
+            this.props.navigation.navigate('Auth');
         }
     };
 

@@ -3,20 +3,14 @@ import strings from "./strings";
 var loginScreenMapper = function (value) {
     switch(value) {
         case "userId doesn't exist!":
-            strings.NO_SUCH_USER;
-            break;
+            return strings.loginScreenStrings.NO_SUCH_USER;
         default:
-            strings.WRONG_CREDENTIALS;
+            return strings.loginScreenStrings.WRONG_CREDENTIALS;
     }
 };
 
 var mainScreenMapper = function (value) {
     switch(value) {
-        case "userId doesn't exist!":
-            strings.NO_SUCH_USER;
-            break;
-        default:
-            strings.WRONG_CREDENTIALS;
     }
 };
 
