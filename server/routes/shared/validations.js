@@ -26,7 +26,7 @@ module.exports = {
                 })
     },
 
-    checkIfUserExist: function (uId, res) {
+    checkIfUserExist: function (userId, res) {
         return Users.findOne({
             where: {
                 userId: userId,
@@ -39,15 +39,13 @@ module.exports = {
                 }
                 else {
                     return res.status(400).send({
-                        //"message": "userId doesn't exist!",
-                        "message": constants.usersRoute.userNotFound,
+                        "message": constants.usersRoute.USER_NOT_FOUND,
                     });
                 }
             })
             .catch(err => {
-                return res.status(500).send({
-                    // "message": "userId doesn't exist!", err
-                    "message": constants.usersRoute.userNotFound,
+                 res.status(400).send({
+                    "message": constants.usersRoute.USER_NOT_FOUND,
                     err
                 });
             })

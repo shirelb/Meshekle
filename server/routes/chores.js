@@ -4,6 +4,8 @@ const {UsersChores, ChoreTypes, UsersChoresTypes, Users} = require('../DBorm/DBo
 const validations = require('./shared/validations');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+var constants = require('./shared/constants');
+
 
 /* GET users chores listing. api1 */
 router.get('/usersChores/future/:future', function (req, res, next) {
@@ -340,7 +342,7 @@ router.get('/usersChores/month/:month/year/:year/userId/:userId', function (req,
 router.get('/usersChores/choreType/:choreType/month/:month/year/:year/userId/:userId', function (req, res, next) {
   validations.checkIfUserExist(req.params.userId, res)
   .then(user=>{
-    if(user.dataValues){
+    //if(user.dataValues){
       validations.checkIfChoreTypeExist(req.params.choreType, res)
       .then(type=>{
         if(type.dataValues){
@@ -379,13 +381,13 @@ router.get('/usersChores/choreType/:choreType/month/:month/year/:year/userId/:us
         res.status(400).send({"message":"choreType is not exist",err});
       })
 
-    }
-    else{
+    //}
+    //else{
       //res.status(400).send({"message": "userId doesn't exist!"});
-    }
+    //}
   })
   .catch(err=>{
-    //res.status(400).send({"message": "userId doesn't exist!",err});//if it un-note it trow exeption but all tests pass
+    res.status(400).send({'message': constants.usersRoute.USER_NOT_FOUND ,err});//if it un-note it trow exeption but all tests pass
   })
 });
 
@@ -629,7 +631,7 @@ router.post('/add/userChore', function (req, res, next) {
               //
           })
           .catch(err=>{
-            //res.status(400).send({"message":"userId doesn't exist!",err});
+            res.status(400).send({"message":constants.usersRoute.USER_NOT_FOUND,err});
           })
         }
       }

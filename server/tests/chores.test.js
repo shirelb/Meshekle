@@ -912,7 +912,7 @@ describe('chores route', function () {
                 //setTimeout(function () {
                 res.should.have.status(400);
                 res.body.should.have.property('message');
-                res.body.message.should.eql('userId doesn\'t exist!');
+                res.body.message.should.equal("userId doesn't exist!");
                     done();
                    //}, 7000);
             });
@@ -1215,7 +1215,7 @@ describe('chores route', function () {
                     res.should.have.status(400);
                     res.body.should.have.property('err');
                     res.body.should.have.property('message');
-                    res.body.message.should.equal('userId doesn\'t exist!');
+                    res.body.message.should.equal("userId doesn't exist!");
                     done();
                 });
         });
@@ -1317,7 +1317,9 @@ describe('chores route', function () {
                 })
                 .end((err, res) => {
                     res.should.have.status(400);
-                    res.body.should.have.property('message').eql('userId doesn\'t exist!');
+                    //res.body.should.have.property('message').eql('userId doesn\'t exist!');
+                    res.body.should.have.property('message');
+                    res.body.message.should.eql("userId doesn't exist!");
                     done();
                 });
         });
