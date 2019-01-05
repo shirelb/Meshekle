@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Image, Text, View} from 'react-native';
 import axios from 'axios';
 import phoneStorage from 'react-native-simple-store';
-import styles from './LoginStyles';
+import styles from './Login.style';
 import {SERVER_URL} from '../../shared/constants'
 import Button from "../../components/submitButton/Button";
 import FormTextInput from "../../components/formTextInput/FormTextInput";

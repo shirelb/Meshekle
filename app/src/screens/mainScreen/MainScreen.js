@@ -73,12 +73,12 @@ export default class MainScreen extends Component {
                     {this.state.userFullname}
                 </Text>
 
-                <Button
+                {/*<Button
                     label={strings.mainScreenStrings.LOGOUT}
                     onPress={this.onLogoutPress.bind(this)}
-                />
+                />*/}
 
-               {/* <Button
+                {/* <Button
                     label='get events'
                     onPress={this.getUserEvents.bind(this)}
                 />*/}
