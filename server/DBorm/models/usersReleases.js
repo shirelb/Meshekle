@@ -18,6 +18,10 @@ module.exports = (sequelize, type) => {
             type: type.DATE,
             required: true
         },
+        description: {
+            type: type.STRING,
+            required: true
+        },
         
     });
 };
