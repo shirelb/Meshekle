@@ -106,7 +106,7 @@ describe('users route', function () {
             }, 5000);
         });
 
-        it('it should Register, Login, and check token', (done) => {
+        it('it should Login, and check token', (done) => {
             loginAuthenticateUser(userTest)
                 .then(token => {
                     tokenTest = `Bearer ${token}`;
@@ -348,25 +348,25 @@ describe('users route', function () {
                     res.body.should.have.property('message').eql('Incident successfully added!');
                     done();
                 });
+        });
 
-            it('it should save the incident in Event table', (done) => {
-                chai.request(server)
-                    .get('/api/users/events/userId/' + userTest.userId)
-                    .set('Authorization', tokenTest)
-                    .end((err, res) => {
-                        res.should.have.status(200);
-                        res.body.should.be.a('array');
-                        res.body.length.should.be.eql(1);
-                        done();
-                    });
-            });
+        it('it should save the incident in Event table', (done) => {
+            chai.request(server)
+                .get('/api/users/events/userId/' + userTest.userId)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
 
-            after((done) => {
-                Incidents.destroy({where: {}})
-                    .then(Events.destroy({where: {}}))
-                    .then(Users.destroy({where: {}}))
-                    .then(done())
-            });
+        after((done) => {
+            Incidents.destroy({where: {}})
+                .then(Events.destroy({where: {}}))
+                .then(Users.destroy({where: {}}))
+                .then(done())
         });
     });
 
@@ -491,7 +491,7 @@ describe('users route', function () {
                     );
             });
 
-            it('it should not POST an appointment approve without existing request ', (done) => {
+            it('it should not POST an appointment reject without existing request ', (done) => {
                 chai.request(server)
                     .post('/api/users/appointments/reject')
                     .set('Authorization', tokenTest)
@@ -565,7 +565,7 @@ describe('users route', function () {
             }, 5000);
         });
 
-        it('it should POST an appointment reject of user ', (done) => {
+        it('it should GET all schedule appointments of user ', (done) => {
             chai.request(server)
                 .get('/api/users/appointments/userId/' + userTest.userId)
                 .set('Authorization', tokenTest)
@@ -758,15 +758,6 @@ describe('users route', function () {
                 done()
         });
 
-       /* beforeEach((done) => {
-            setTimeout(function () {
-                Incidents.destroy({where: {}})
-                    .then(
-                        done()
-                    )
-            }, 5000);
-        });*/
-
         describe('test with non existent incident', () => {
             before((done) => {
                 setTimeout(function () {
@@ -808,19 +799,19 @@ describe('users route', function () {
                 // setTimeout(function () {
                 //     Incidents.destroy({where: {}})
                 //         .then(
-                            createUser(userTest)
-                            .then(createIncident(incidentTest)
-                                .then(incident => {
-                                    incidentTestId = incident.incidentId;
-                                    tokenTest === null ?
-                                        loginAuthenticateUser(userTest)
-                                            .then(token => {
-                                                tokenTest = `Bearer ${token}`;
-                                                done()
-                                            })
-                                        :
+                createUser(userTest)
+                    .then(createIncident(incidentTest)
+                        .then(incident => {
+                            incidentTestId = incident.incidentId;
+                            tokenTest === null ?
+                                loginAuthenticateUser(userTest)
+                                    .then(token => {
+                                        tokenTest = `Bearer ${token}`;
                                         done()
-                                }));
+                                    })
+                                :
+                                done()
+                        }));
                 // }, 5000)
             });
 
@@ -896,7 +887,7 @@ describe('users route', function () {
             }, 5000);
         });
 
-        it('it should POST an appointment reject of user ', (done) => {
+        it('it should GET all events of user ', (done) => {
             chai.request(server)
                 .get('/api/users/events/userId/' + userTest.userId)
                 .set('Authorization', tokenTest)
@@ -915,7 +906,8 @@ describe('users route', function () {
         });
     });
 
-});
+})
+;
 
 function createUser(userTest) {
     return Users.create({
