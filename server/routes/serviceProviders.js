@@ -54,6 +54,13 @@ router.use(function (req, res, next) {
     authentications.verifyToken(req, res, next);
 });
 
+router.post('/validToken', function (req, res) {
+    res.status(200).send({
+        message: constants.usersRoute.VALID_TOKEN,
+        payload: req.decoded.payload
+    });
+});
+
 
 // GET all serviceProviders .
 router.get('/', function(req, res, next) {
