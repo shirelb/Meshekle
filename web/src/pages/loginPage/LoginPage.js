@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
+import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Form, Grid, Header, Message} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
 import axios from 'axios';
-import styles from './styles.css';
 import {Redirect} from 'react-router-dom';
 import isLoggedIn from '../shared/isLoggedIn';
 import {SERVER_URL} from "../shared/constants";
@@ -20,12 +20,29 @@ class LoginPage extends Component {
             userId: '',
             password: '',
             error: false,
-            err:[]
+            err: []
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+
+        // isLoggedIn(props);
+        /*this.isLoggedIn = false;
+
+        if (isLoggedIn()) {
+            this.isLoggedIn = true;
+            console.log("componentDidMount isLoggedIn === true");
+        }*/
     }
+
+    /* componentDidMount() {
+         console.log("in componentDidMount");
+         if (isLoggedIn()) {
+             this.isLoggedIn = true;
+             console.log("componentDidMount isLoggedIn === true");
+         }
+         console.log("componentDidMount isLoggedIn === false");
+     }*/
 
     validate = (userId, password) => {
         console.log('in validate func');
@@ -65,7 +82,8 @@ class LoginPage extends Component {
     onSubmit(e) {
         e.preventDefault();
 
-        const { userId, password } = this.state;
+        const {userId, password} = this.state;
+        const { history } = this.props;
 
         this.setState({error: false});
 
@@ -83,9 +101,7 @@ class LoginPage extends Component {
             )
                 .then((response) => {
                     console.log(response);
-                    store.set('serviceProviderData', {
-                        token: response.data.token
-                    });
+                    store.set('serviceProviderToken', response.data.token);
                     axios.post(`${SERVER_URL}/api/serviceProviders/validToken`,
                         {
                             "token": response.data.token
@@ -93,19 +109,22 @@ class LoginPage extends Component {
                     )
                         .then((validTokenResponse) => {
                             console.log(validTokenResponse);
-                            store.set('serviceProviderData', {
-                                serviceProviderId: validTokenResponse.data.payload.serviceProviderId,
-                                userId: validTokenResponse.data.payload.userId,
-                            });
+                            store.set('serviceProviderId', validTokenResponse.data.payload.serviceProviderId);
+                            store.set('userId', validTokenResponse.data.payload.userId);
                             console.log("you're logged in. yay!");
-                            store.set('loggedIn', true);
-                            this.forceUpdate();
+                            // store.set('loggedIn', true);
+                            // this.isLoggedIn = true;
+                            // this.props.history.push("/");
+                            history.push('/users');
+                            // this.forceUpdate();
                         });
                 })
+
                 .catch((error) => {
                     let msg = mappers.loginPageMapper(error.response.data.message);
                     this.setState({err: [msg]});
                     this.setState({error: true});
+
                     // console.log('in auth msg: ',msg);
                     // if (this.state.err.indexOf(msg) === -1) this.setState({err: [msg]});
                 });
@@ -114,8 +133,8 @@ class LoginPage extends Component {
                 return this.setState({ error: true });
             }*/
 
-            // console.log("you're logged in. yay!");
-            // store.set('loggedIn', true);
+// console.log("you're logged in. yay!");
+// store.set('loggedIn', true);
         }
     }
 
@@ -125,8 +144,15 @@ class LoginPage extends Component {
 
     render() {
         if (isLoggedIn()) {
-            return <Redirect to="/users"/>;
+            return <Redirect to="/users" />;
         }
+        /*if (isLoggedIn()) {
+            console.log("isLoggedIn === true");
+            return <Redirect to="/users"/>;
+        }*/
+        // console.log("isLoggedIn === true");
+        // return <Redirect to="/users"/>;
+        console.log("isLoggedIn === false");
 
         const {error} = this.state;
 
@@ -138,7 +164,7 @@ class LoginPage extends Component {
 
                 <Grid.Column width={6}/>
                 <Grid.Column width={4}>
-                    <Form className={styles.loginForm} error={error} onSubmit={this.onSubmit}>
+                    <Form className="loginForm" error={error} onSubmit={this.onSubmit}>
                         <Header as="h1">{strings.loginPageStrings.LOGIN}</Header>
                         {error && <Message
                             error={error}

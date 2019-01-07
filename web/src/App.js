@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Switch, BrowserRouter as Router, Route} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import './App.css';
 import MainPage from './pages/mainPage/MainPage';
 import LoginPage from './pages/loginPage/LoginPage';
@@ -56,7 +56,7 @@ class App extends Component {
     }*/
     /*constructor() {
         super();
-        this.requireAuth = this.requireAuth.bind(this);
+        // this.requireAuth = this.requireAuth.bind(this);
     }*/
 
     /*requireAuth(nextState, replace, callback) {
