@@ -1,12 +1,13 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('UsersChoresTypes', {
         userId:{
-            type: type.INTEGER,
+            type: type.STRING,
             primaryKey: true,
             required: true
         },
-        choreTypeId: {
-            type: type.INTEGER,
+        choreTypeName: {
+            type: type.STRING,
+            primaryKey: true,
             required: true
         },
         
