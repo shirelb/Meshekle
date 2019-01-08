@@ -6,10 +6,10 @@ import {Helmet} from 'react-helmet';
 import store from 'store';
 import axios from 'axios';
 import {Redirect} from 'react-router-dom';
-import isLoggedIn from '../shared/isLoggedIn';
-import {SERVER_URL} from "../shared/constants";
-import strings from '../shared/strings'
-import mappers from '../shared/mappers'
+import isLoggedIn from '../../shared/isLoggedIn';
+import {SERVER_URL} from "../../shared/constants";
+import strings from '../../shared/strings'
+import mappers from '../../shared/mappers'
 
 class LoginPage extends Component {
 
@@ -20,29 +20,23 @@ class LoginPage extends Component {
             userId: '',
             password: '',
             error: false,
-            err: []
+            err: [],
+            isLoggedIn: false
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
-
-        // isLoggedIn(props);
-        /*this.isLoggedIn = false;
-
-        if (isLoggedIn()) {
-            this.isLoggedIn = true;
-            console.log("componentDidMount isLoggedIn === true");
-        }*/
     }
 
-    /* componentDidMount() {
-         console.log("in componentDidMount");
-         if (isLoggedIn()) {
-             this.isLoggedIn = true;
-             console.log("componentDidMount isLoggedIn === true");
-         }
-         console.log("componentDidMount isLoggedIn === false");
-     }*/
+    componentDidMount() {
+        isLoggedIn()
+            .then(answer => {
+                this.setState({isLoggedIn: answer});
+            })
+            .catch(answer => {
+                this.setState({isLoggedIn: answer});
+            });
+    }
 
     validate = (userId, password) => {
         console.log('in validate func');
@@ -83,7 +77,7 @@ class LoginPage extends Component {
         e.preventDefault();
 
         const {userId, password} = this.state;
-        const { history } = this.props;
+        const {history} = this.props;
 
         this.setState({error: false});
 
@@ -112,11 +106,8 @@ class LoginPage extends Component {
                             store.set('serviceProviderId', validTokenResponse.data.payload.serviceProviderId);
                             store.set('userId', validTokenResponse.data.payload.userId);
                             console.log("you're logged in. yay!");
-                            // store.set('loggedIn', true);
-                            // this.isLoggedIn = true;
-                            // this.props.history.push("/");
+                            this.setState({isLoggedIn: true});
                             history.push('/users');
-                            // this.forceUpdate();
                         });
                 })
 
@@ -124,17 +115,7 @@ class LoginPage extends Component {
                     let msg = mappers.loginPageMapper(error.response.data.message);
                     this.setState({err: [msg]});
                     this.setState({error: true});
-
-                    // console.log('in auth msg: ',msg);
-                    // if (this.state.err.indexOf(msg) === -1) this.setState({err: [msg]});
                 });
-
-            /*if (!(username === 'george' && password === 'foreman')) {
-                return this.setState({ error: true });
-            }*/
-
-// console.log("you're logged in. yay!");
-// store.set('loggedIn', true);
         }
     }
 
@@ -143,16 +124,10 @@ class LoginPage extends Component {
     }
 
     render() {
-        if (isLoggedIn()) {
-            return <Redirect to="/users" />;
-        }
-        /*if (isLoggedIn()) {
+        if (this.state.isLoggedIn) {
             console.log("isLoggedIn === true");
             return <Redirect to="/users"/>;
-        }*/
-        // console.log("isLoggedIn === true");
-        // return <Redirect to="/users"/>;
-        console.log("isLoggedIn === false");
+        }
 
         const {error} = this.state;
 
@@ -168,19 +143,16 @@ class LoginPage extends Component {
                         <Header as="h1">{strings.loginPageStrings.LOGIN}</Header>
                         {error && <Message
                             error={error}
-                            // content="That username/password is incorrect. Try again!"
                             content={strings.loginPageStrings.WRONG_CREDENTIALS}
                         />}
                         <Form.Input
                             inline
-                            // label="Username"
                             label={strings.loginPageStrings.USER_ID_PLACEHOLDER}
                             name="userId"
                             onChange={this.handleChange}
                         />
                         <Form.Input
                             inline
-                            // label="Password"
                             label={strings.loginPageStrings.PASSWORD_PLACEHOLDER}
                             type="password"
                             name="password"
@@ -193,57 +165,5 @@ class LoginPage extends Component {
         );
     }
 }
-
-/*
-class LoginPage extends Component {
-
-    // Using a class based component here because we're accessing DOM refs
-
-    handleSignIn(e) {
-        e.preventDefault();
-        let username = this.refs.username.value;
-        let password = this.refs.password.value;
-
-        axios.get("http://localhost:4000/users")
-            .then(response => {
-                console.log("after get response");
-                console.log(response);
-                this.props.onSignIn(username, password)
-            })
-            .catch(error => {
-                console.log("after get error");
-                console.log(error);
-            });
-    }
-
-    onSubmit(e) {
-        e.preventDefault();
-
-        const {username, password} = this.state;
-        const {history} = this.props;
-
-        this.setState({error: false});
-
-        if (!(username === 'george' && password === 'foreman')) {
-            return this.setState({error: true});
-        }
-
-        store.set('loggedIn', true);
-        history.push('/users');
-    }
-
-    render() {
-        return (
-            <form onSubmit={this.handleSignIn.bind(this)}>
-                <h3>Sign in</h3>
-                <input type="text" ref="username" placeholder="enter you username" />
-                <input type="password" ref="password" placeholder="enter password" />
-                <input type="submit" value="Login" />
-            </form>
-        )
-    }
-
-}
-*/
 
 export default LoginPage;

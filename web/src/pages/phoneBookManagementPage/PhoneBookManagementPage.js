@@ -1,12 +1,14 @@
 import React from 'react';
+import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Icon, Menu, Table,Header} from 'semantic-ui-react';
+import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
 import axios from 'axios';
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL} from "../../shared/constants";
+import strings from "../../shared/strings";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -19,6 +21,7 @@ class PhoneBookManagementPage extends React.Component {
             page: 0,
             totalPages: 0,
         };
+
         this.incrementPage = this.incrementPage.bind(this);
         this.decrementPage = this.decrementPage.bind(this);
         this.setPage = this.setPage.bind(this);
@@ -85,28 +88,42 @@ class PhoneBookManagementPage extends React.Component {
         });
     }
 
+    getUserByUserID(userId) {
+        axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
+            {headers: this.serviceProviderHeaders}
+        )
+            .then((response) => {
+                let user=response.data[0];
+                console.log('getUserByUserID ', userId, ' ', user);
+                this.props.history.push(`/users/${userId}`);
+            })
+            .catch((error) => {
+                console.log('getUserByUserID ', userId, ' ', error);
+            });
+    }
+
 
     render() {
         const {users, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
         return (
-            <Page title="Users">
+            <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}>
                 <Helmet>
                     <title>CMS | Users</title>
                 </Helmet>
 
-                <Table celled striped>
+                <Table celled striped textAlign='right' selectable sortable>
                     <Table.Header>
                         <Table.Row>
-                            <Table.HeaderCell>Fullname</Table.HeaderCell>
-                            <Table.HeaderCell>Password</Table.HeaderCell>
-                            <Table.HeaderCell>Email</Table.HeaderCell>
-                            <Table.HeaderCell>Mailbox</Table.HeaderCell>
-                            <Table.HeaderCell>Cellphone</Table.HeaderCell>
-                            <Table.HeaderCell>Phone</Table.HeaderCell>
-                            <Table.HeaderCell>BornDate</Table.HeaderCell>
-                            <Table.HeaderCell>Active</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.BORN_DATE_HEADER}</Table.HeaderCell>
+                            <Table.HeaderCell>{strings.phoneBookPageStrings.ACTIVE_HEADER}</Table.HeaderCell>
                             {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
                         </Table.Row>
                     </Table.Header>
@@ -116,7 +133,7 @@ class PhoneBookManagementPage extends React.Component {
                                 <Table.Cell>
                                     <Header as='h4' image>
                                         {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
-                                        <Header.Content>
+                                        <Header.Content as="a" icon onClick={this.getUserByUserID.bind(this,user.userId)}>
                                             {user.fullname}
                                             {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                         </Header.Content>
@@ -129,7 +146,7 @@ class PhoneBookManagementPage extends React.Component {
                                 <Table.Cell>{user.cellphone}</Table.Cell>
                                 <Table.Cell>{user.phone}</Table.Cell>
                                 <Table.Cell>{new Date(user.bornDate).toISOString().split('T')[0]}</Table.Cell>
-                                <Table.Cell>{user.active? 'yes':'no'}</Table.Cell>
+                                <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                 {/*<Table.Cell>{user.image}</Table.Cell>*/}
                             </Table.Row>),
                         )}
@@ -137,9 +154,9 @@ class PhoneBookManagementPage extends React.Component {
                     <Table.Footer>
                         <Table.Row>
                             <Table.HeaderCell colSpan={8}>
-                                <Menu floated="right" pagination>
+                                <Menu floated="left" pagination>
                                     {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
-                                        <Icon name="left chevron"/>
+                                        <Icon name="right chevron"/>
                                     </Menu.Item>}
                                     {times(totalPages, n =>
                                         (<Menu.Item as="a" key={n} active={n === page} onClick={this.setPage(n)}>
@@ -147,14 +164,14 @@ class PhoneBookManagementPage extends React.Component {
                                         </Menu.Item>),
                                     )}
                                     {page !== (totalPages - 1) && <Menu.Item as="a" icon onClick={this.incrementPage}>
-                                        <Icon name="right chevron"/>
+                                        <Icon name="left chevron"/>
                                     </Menu.Item>}
                                 </Menu>
                             </Table.HeaderCell>
                         </Table.Row>
                     </Table.Footer>
                 </Table>
-                <Button positive>New User</Button>
+                <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
             </Page>
         );
     }

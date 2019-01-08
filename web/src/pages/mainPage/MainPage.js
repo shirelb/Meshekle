@@ -6,7 +6,8 @@ import {Helmet} from 'react-helmet';
 import store from 'store';
 import {PhoneBookManagementPage as Users} from '../phoneBookManagementPage/PhoneBookManagementPage';
 import {Redirect} from 'react-router-dom';
-import isLoggedIn from '../shared/isLoggedIn';
+import isLoggedIn from '../../shared/isLoggedIn';
+import strings from '../../shared/strings';
 
 
 const handleLogout = history => () => {
@@ -18,10 +19,20 @@ const handleLogout = history => () => {
     history.push('/login');
 };
 
+
 const MainPage = ({history}) => {
-    if (!isLoggedIn()) {
+    isLoggedIn()
+        .then(answer => {
+            if(!answer)
+                return <Redirect to="/login"/>;
+        })
+        .catch(answer => {
+            if(!answer)
+                return <Redirect to="/login"/>;
+        });
+    /*if (!isLoggedIn()) {
         return <Redirect to="/login"/>;
-    }
+    }*/
 
     return (
         <div>
@@ -29,18 +40,18 @@ const MainPage = ({history}) => {
                 <title>CMS</title>
             </Helmet>
 
-            <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled">
+            <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
                 <Menu.Item name="users">
                     <Icon name="users"/>
-                    Users
+                    {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
                 </Menu.Item>
                 <Menu.Item name="logout" onClick={handleLogout(history)}>
                     <Icon name="power"/>
-                    Logout
+                    {strings.mainPageStrings.LOGOUT}
                 </Menu.Item>
             </Sidebar>
             <div className="mainBody">
-                <Users/>
+                <Users history={history}/>
             </div>
         </div>
     )

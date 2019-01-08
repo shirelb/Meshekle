@@ -37,17 +37,17 @@ export default class DrawerMenu extends Component {
                     <View >
                         <View style={styles.menuItem}>
                             <Text onPress={this.navigateToScreen('MainScreen')}>
-                                {strings.drawerMenu.MainScreenName}
+                                {strings.drawerMenu.MAIN_SCREEN_NAME}
                             </Text>
                         </View>
                         <View style={styles.menuItem}>
                             <Text onPress={this.navigateToScreen('AppointmentsScreen')}>
-                                {strings.drawerMenu.AppointmentsScreenName}
+                                {strings.drawerMenu.APPOINTMENTS_SCREEN_NAME}
                             </Text>
                         </View>
                         <View style={styles.menuItem}>
                             <Text onPress={this.navigateToScreen('ChoresScreen')}>
-                                {strings.drawerMenu.ChoresScreenName}
+                                {strings.drawerMenu.CHORES_SCREEN_NAME}
                             </Text>
                         </View>
                         <View style={styles.menuItem}>
