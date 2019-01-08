@@ -1,6 +1,7 @@
 import store from 'store';
 import axios from 'axios';
 import {SERVER_URL} from "./constants";
+import React from "react";
 
 export default () => {
     // !!store.get('loggedIn') ?
@@ -9,6 +10,7 @@ export default () => {
 
     if (serviceProviderToken === null || serviceProviderToken === undefined)
         return new Promise(resolve => false);
+        // return <Redirect to="/login"/>;
     else {
         return axios.post(`${SERVER_URL}/api/serviceProviders/validToken`,
             {
@@ -20,10 +22,12 @@ export default () => {
                 store.set('serviceProviderId', validTokenResponse.data.payload.serviceProviderId);
                 store.set('userId', validTokenResponse.data.payload.userId);
                 return true;
+                // return <Redirect to="/"/>;
             })
             .catch((error) => {
                 console.log(error);
                 return false;
+                // return <Redirect to="/login"/>;
             });
         // return true;
         // setTimeout(() => {

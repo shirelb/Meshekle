@@ -12,7 +12,7 @@ import strings from "../../shared/strings";
 
 const TOTAL_PER_PAGE = 10;
 
-class PhoneBookManagementPage extends React.Component {
+class AppointmentsManagementPage extends React.Component {
     constructor(props) {
         super(props);
 
@@ -40,7 +40,7 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     componentWillReceiveProps({location = {}}) {
-        if (location.pathname === '/chores' && location.pathname !== this.props.location.pathname) {
+        if (location.pathname === '/appointments' && location.pathname !== this.props.location.pathname) {
             this.getUsers();
         }
     }
@@ -108,7 +108,7 @@ class PhoneBookManagementPage extends React.Component {
         const startIndex = page * TOTAL_PER_PAGE;
 
         return (
-            <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}>
+            <Page children={users} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}>
                 <Helmet>
                     <title>CMS | Users</title>
                 </Helmet>
@@ -135,7 +135,6 @@ class PhoneBookManagementPage extends React.Component {
                                         {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                         <Header.Content as="a" onClick={this.getUserByUserID.bind(this,user.userId)}>
                                             {user.fullname}
-                                            {/*<Link to="/about">About</Link>*/}
                                             {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                         </Header.Content>
                                     </Header>
@@ -178,4 +177,4 @@ class PhoneBookManagementPage extends React.Component {
     }
 }
 
-export {PhoneBookManagementPage}
+export {AppointmentsManagementPage}

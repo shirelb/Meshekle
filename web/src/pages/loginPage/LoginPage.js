@@ -21,7 +21,8 @@ class LoginPage extends Component {
             password: '',
             error: false,
             err: [],
-            isLoggedIn: false
+            isLoggedIn: false,
+            redirectToReferrer: false,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -29,11 +30,14 @@ class LoginPage extends Component {
     }
 
     componentDidMount() {
+        console.log('compooooo');
         isLoggedIn()
             .then(answer => {
+                console.log('compooooo abs ', answer);
                 this.setState({isLoggedIn: answer});
             })
             .catch(answer => {
+                console.log('compooooo err ', answer);
                 this.setState({isLoggedIn: answer});
             });
     }
@@ -107,7 +111,7 @@ class LoginPage extends Component {
                             store.set('userId', validTokenResponse.data.payload.userId);
                             console.log("you're logged in. yay!");
                             this.setState({isLoggedIn: true});
-                            history.push('/users');
+                            history.push('/home');
                         });
                 })
 
@@ -126,7 +130,7 @@ class LoginPage extends Component {
     render() {
         if (this.state.isLoggedIn) {
             console.log("isLoggedIn === true");
-            return <Redirect to="/users"/>;
+            return <Redirect to="/home"/>;
         }
 
         const {error} = this.state;
