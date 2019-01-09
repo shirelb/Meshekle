@@ -10,7 +10,7 @@ export default () => {
 
     if (serviceProviderToken === null || serviceProviderToken === undefined)
         return new Promise(resolve => false);
-        // return <Redirect to="/login"/>;
+    // return <Redirect to="/login"/>;
     else {
         return axios.post(`${SERVER_URL}/api/serviceProviders/validToken`,
             {

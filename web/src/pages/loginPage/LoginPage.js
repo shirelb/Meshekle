@@ -112,7 +112,12 @@ class LoginPage extends Component {
                             console.log("you're logged in. yay!");
                             this.setState({isLoggedIn: true});
                             history.push('/home');
-                        });
+                        })
+                        .catch((error) => {
+                            let msg = mappers.loginPageMapper(error.response.data.message);
+                            this.setState({err: [msg]});
+                            this.setState({error: true});
+                    });
                 })
 
                 .catch((error) => {

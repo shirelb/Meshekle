@@ -10,6 +10,8 @@ import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import {AppointmentsManagementPage} from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
+import axios from "axios";
+import {SERVER_URL} from "../../shared/constants";
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -17,6 +19,55 @@ const handleLogout = history => () => {
     store.remove('userId');
     console.log('you have been logged out. boo!');
     history.push('/login');
+};
+
+const serviceProviderHeaders = {
+    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+};
+
+const getUserById = (userId) => {
+    return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            let user = response.data[0];
+            console.log('user ', user);
+            return user;
+        })
+        .catch((error) => {
+            console.log('error ', error);
+        });
+};
+
+const getServiceProviderPermissionsById = (serviceProviderId) => {
+    return axios.get(`${SERVER_URL}/api/serviceProviderId/${serviceProviderId}/permissions`,
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            let permissions = response.data;
+            console.log('permissions ', permissions);
+            return permissions;
+        })
+        .catch((error) => {
+            console.log('error ', error);
+        });
+};
+
+const Home = ({history, userId, serviceProviderId}) => {
+    let userData={fullname:'Administrator'};
+    getUserById(userId)
+        .then(user => userData = user)
+        .catch(error => console.log('error ', error));
+    let serviceProviderPermissions= '';
+    getServiceProviderPermissionsById(serviceProviderId)
+        .then(permissions => serviceProviderPermissions = permissions)
+        .catch(error => console.log('error ', error));
+    return (
+        <div>
+            Hello and welcome {userData.fullname}
+            your permissions are {serviceProviderPermissions}
+        </div>
+    );
 };
 
 
@@ -30,7 +81,10 @@ class MainPage extends Component {
             isLoggedIn: true
         };
 
-        this.chosedComponent= <PhoneBookManagementPage history={this.props.history}/>;
+        this.chosedComponent = <Home
+            history={this.props.history}
+            userId={store.get('userId')}
+            serviceProviderId={store.get('serviceProviderId')}/>;
     }
 
     componentDidMount() {
@@ -61,7 +115,10 @@ class MainPage extends Component {
                 break;
             default:
                 this.props.history.push('/home');
-                this.chosedComponent = <AppointmentsManagementPage history={this.props.history}/>;
+                this.chosedComponent = <Home
+                    history={this.props.history}
+                    userId={store.get('userId')}
+                    serviceProviderId={store.get('serviceProviderId')}/>;
                 break;
         }
         console.log(" this.chosedComponent ", this.chosedComponent);
