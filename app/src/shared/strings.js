@@ -20,9 +20,9 @@ const mainScreenStrings = {
 
 const drawerMenu = {
     LOGOUT: "התנתק",
-    MainScreenName: "בית",
-    AppointmentsScreenName: "תורים",
-    ChoresScreenName: "תורנויות",
+    MAIN_SCREEN_NAME: "בית",
+    APPOINTMENTS_SCREEN_NAME: "תורים",
+    CHORES_SCREEN_NAME: "תורנויות",
 };
 
 export default {loginScreenStrings,mainScreenStrings,drawerMenu};

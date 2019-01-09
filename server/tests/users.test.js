@@ -30,7 +30,7 @@ describe('users route', function () {
         password: "tset22",
         email: "test@gmail.com",
         mailbox: 444,
-        mobile: "1234567896",
+        cellphone: "1234567896",
         phone: "012365948",
         bornDate: "1992-05-20"
     };
