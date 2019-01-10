@@ -12,6 +12,7 @@ import {AppointmentsManagementPage} from '../appointmentsManagementPage/Appointm
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import axios from "axios";
 import {SERVER_URL} from "../../shared/constants";
+import helpers from "../../shared/helpers";
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -23,20 +24,6 @@ const handleLogout = history => () => {
 
 const serviceProviderHeaders = {
     'Authorization': 'Bearer ' + store.get('serviceProviderToken')
-};
-
-const getUserById = (userId) => {
-    return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-        {headers: serviceProviderHeaders}
-    )
-        .then((response) => {
-            let user = response.data[0];
-            console.log('user ', user);
-            return user;
-        })
-        .catch((error) => {
-            console.log('error ', error);
-        });
 };
 
 const getServiceProviderPermissionsById = (serviceProviderId) => {
@@ -54,18 +41,22 @@ const getServiceProviderPermissionsById = (serviceProviderId) => {
 };
 
 const Home = ({history, userId, serviceProviderId}) => {
-    let userData={fullname:'Administrator'};
-    getUserById(userId)
+    let userData = {fullname: 'Administrator'};
+    helpers.getUserByUserID(userId,serviceProviderHeaders)
         .then(user => userData = user)
         .catch(error => console.log('error ', error));
-    let serviceProviderPermissions= '';
+    let serviceProviderPermissions = '';
     getServiceProviderPermissionsById(serviceProviderId)
         .then(permissions => serviceProviderPermissions = permissions)
         .catch(error => console.log('error ', error));
     return (
         <div>
-            Hello and welcome {userData.fullname}
-            your permissions are {serviceProviderPermissions}
+            <p>
+                Hello and welcome {userData.fullname}
+            </p>
+            <p>
+                your permissions are {serviceProviderPermissions}
+            </p>
         </div>
     );
 };

@@ -23,17 +23,30 @@ const mainPageStrings = {
 const phoneBookPageStrings = {
     ADD_USER: "משתמש חדש",
     EDIT_USER: "ערוך משתמש",
-    USER_ID_HEADER:"ת.ז.",
-    FULLNAME_HEADER:"שם מלא",
-    PASSWORD_HEADER:"סיסמא",
-    EMAIL_HEADER:"אימייל",
-    MAILBOX_HEADER:"תיבת דואר",
-    CELLPHONE_HEADER:"פלאפון",
-    PHONE_HEADER:"טלפון",
-    BORN_DATE_HEADER:"תאריך לידה",
-    ACTIVE_HEADER:"קיים",
-    ACTIVE_ANSWER_YES:"כן",
-    ACTIVE_ANSWER_NO:"לא",
+    USER_ID_HEADER: "ת.ז.",
+    FULLNAME_HEADER: "שם מלא",
+    PASSWORD_HEADER: "סיסמא",
+    EMAIL_HEADER: "אימייל",
+    MAILBOX_HEADER: "תיבת דואר",
+    CELLPHONE_HEADER: "פלאפון",
+    PHONE_HEADER: "טלפון",
+    BORN_DATE_HEADER: "תאריך לידה",
+    ACTIVE_HEADER: "קיים",
+    ACTIVE_ANSWER_YES: "כן",
+    ACTIVE_ANSWER_NO: "לא",
 };
 
-export default {loginPageStrings, mainPageStrings, phoneBookPageStrings};
+const appointmentsPageStrings = {
+    CLIENT_ID: "ת.ז. משתמש",
+    SERVICE_PROVIDER_ID: "ת.ז. נותן שירות",
+    ROLE: "ענף",
+    SUBJECT: "נושא",
+    STATUS: "סטאטוס",
+    DATE: "תאריך",
+    START_TIME: "זמן התחלה",
+    END_TIME: "זמן סיום",
+    REMARKS: "הערות",
+};
+
+
+export default {loginPageStrings, mainPageStrings, phoneBookPageStrings, appointmentsPageStrings};

@@ -9,6 +9,7 @@ import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
+import helpers from "../../shared/helpers";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -89,16 +90,17 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     getUserByUserID(userId) {
-        axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-            {headers: this.serviceProviderHeaders}
-        )
-            .then((response) => {
-                let user=response.data[0];
-                console.log('getUserByUserID ', userId, ' ', user);
+        helpers.getUserByUserID(userId,this.serviceProviderHeaders)
+        // axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
+        //     {headers: this.serviceProviderHeaders}
+        // )
+            .then((user) => {
+                // let user=response.data[0];
+                console.log('then getUserByUserID ', userId, ' ', user);
                 this.props.history.push(`/users/${userId}`);
             })
             .catch((error) => {
-                console.log('getUserByUserID ', userId, ' ', error);
+                console.log('error getUserByUserID ', userId, ' ', error);
             });
     }
 

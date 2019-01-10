@@ -461,20 +461,35 @@ router.get('/appointments/serviceProviderId/:serviceProviderId', function (req, 
     validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
         if (serviceProviders.length === 0)
             return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-        AppointmentDetails.findAll({
-            where: {
-                serviceProviderId: req.params.serviceProviderId
-            }
-        })
-            .then((appointmentsDetails) => {
-                const idsList = appointmentsDetails.map((app) => app.dataValues.appointmentId);
-                ScheduledAppointments.findAll({
+        let whereClause = {};
+        req.query.status ? whereClause.status = req.query.status : null;
+        req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+        ScheduledAppointments.findAll({
+            where: whereClause,
+            include: [
+                {
+                    model: AppointmentDetails,
                     where: {
-                        appointmentId: {
-                            [Op.in]: idsList
-                        }
-                    }
-                })
+                        serviceProviderId: req.params.serviceProviderId
+                    },
+                    required: true
+                }
+            ]
+        })
+        // AppointmentDetails.findAll({
+        //     where: {
+        //         serviceProviderId: req.params.serviceProviderId
+        //     }
+        // })
+            // .then((appointmentsDetails) => {
+            //     const idsList = appointmentsDetails.map((app) => app.dataValues.appointmentId);
+            //     ScheduledAppointments.findAll({
+            //         where: {
+            //             appointmentId: {
+            //                 [Op.in]: idsList
+            //             }
+            //         }
+            //     })
                     .then(schedAppointments => {
                         console.log(schedAppointments);
                         res.status(200).send(schedAppointments);
@@ -483,11 +498,11 @@ router.get('/appointments/serviceProviderId/:serviceProviderId', function (req, 
                         console.log(err);
                         res.status(500).send(err);
                     })
-            })
-            .catch((err) => {
-                console.log(err);
-                res.status(500).send(err);
-            })
+            // })
+            // .catch((err) => {
+            //     console.log(err);
+            //     res.status(500).send(err);
+            // })
     });
 });
 

@@ -1,7 +1,6 @@
 import store from 'store';
 import axios from 'axios';
 import {SERVER_URL} from "./constants";
-import React from "react";
 
 export default () => {
     // !!store.get('loggedIn') ?
