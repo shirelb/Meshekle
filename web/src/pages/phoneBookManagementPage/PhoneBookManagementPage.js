@@ -2,7 +2,7 @@ import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {Route} from "react-router-dom";
+import {Link} from "react-router-dom";
 import axios from 'axios';
 import store from 'store';
 import times from 'lodash.times';
@@ -128,6 +128,8 @@ class PhoneBookManagementPage extends React.Component {
 
 
     render() {
+        console.log('app props ',this.props)
+
         const {users, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
@@ -157,8 +159,10 @@ class PhoneBookManagementPage extends React.Component {
                                 <Table.Cell>
                                     <Header as='h4' image>
                                         {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
-                                        <Header.Content as="a" onClick={this.getUserByUserID.bind(this, user.userId)}>
-                                            {user.fullname}
+                                        {/*<Header.Content as="a" onClick={this.getUserByUserID.bind(this, user.userId)}>*/}
+                                        <Header.Content>
+                                            <Link to={`${this.props.location.pathname}/users/${user.userId}`}>{user.fullname}</Link>
+                                            {/*{user.fullname}*/}
                                             {/*<Link to="/about">About</Link>*/}
                                             {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                         </Header.Content>
