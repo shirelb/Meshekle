@@ -37,6 +37,7 @@ const phoneBookPageStrings = {
 };
 
 const appointmentsPageStrings = {
+    ADD_APPOINTMENT: "תור חדש",
     CLIENT_ID: "ת.ז. משתמש",
     SERVICE_PROVIDER_ID: "ת.ז. נותן שירות",
     ROLE: "ענף",

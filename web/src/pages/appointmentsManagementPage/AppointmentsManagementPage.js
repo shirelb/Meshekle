@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Icon, Menu, Table} from 'semantic-ui-react';
+import {Button, Header, Icon, Image, Menu, Modal, Table} from 'semantic-ui-react';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
@@ -14,6 +14,7 @@ import Page from '../../components/Page';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
+import UserInfo from "../../components/UserInfo";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -28,8 +29,9 @@ class AppointmentsManagementPage extends React.Component {
             page: 0,
             totalPages: 0,
             openPopup: false,
-            eventPopup: null,
+            eventModal: null,
             highlightTableRow: null,
+            open: false,
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -48,6 +50,9 @@ class AppointmentsManagementPage extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
         this.getServiceProviderAppointments();
     }
+
+    show = (dimmer) => this.setState({dimmer, open: true});
+    close = () => this.setState({open: false});
 
     componentWillReceiveProps({location = {}}) {
         if (location.pathname === '/appointments' && location.pathname !== this.props.location.pathname) {
@@ -140,7 +145,12 @@ class AppointmentsManagementPage extends React.Component {
             this.setState({highlightTableRow: event.resource.appointmentId});
 
         // this.setState({openPopup: true, eventPopup: event});
+        console.log('onSelectEvent before state ', this.state);
+        this.show('blurring');
+        this.setState({eventModal: event});
         console.log('onSelectEvent=event  ', event);
+        console.log('onSelectEvent after state ', this.state);
+
         // alert(event);
     };
 
@@ -157,6 +167,8 @@ class AppointmentsManagementPage extends React.Component {
         // BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
         const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
         const {calendarEvents} = this.state;
+
+        const {open, dimmer} = this.state;
 
         return (
             /*<BigCalendar
@@ -243,7 +255,36 @@ class AppointmentsManagementPage extends React.Component {
                         </Table.Row>
                     </Table.Footer>
                 </Table>
-                <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+
+                <Button onClick={() => {
+                    this.props.history.push('/appointments/add')
+                }} positive>{strings.appointmentsPageStrings.ADD_APPOINTMENT}</Button>
+
+                <Modal dimmer={dimmer} open={open} onClose={this.close}>
+                    <Modal.Header>Select a Photo</Modal.Header>
+                    <Modal.Content>
+                        {/*<Image wrapped size='medium'
+                               src='https://react.semantic-ui.com/images/avatar/large/rachel.png'/>
+                        <Modal.Description>
+                            <Header>Default Profile Image</Header>
+                            <p>We've found the following gravatar image associated with your e-mail address.</p>
+                            <p>Is it okay to use this photo?</p>
+                        </Modal.Description>*/}
+                        <UserInfo/>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color='black' onClick={this.close}>
+                            Nope
+                        </Button>
+                        <Button
+                            positive
+                            icon='checkmark'
+                            labelPosition='right'
+                            content="Yep, that's me"
+                            onClick={this.close}
+                        />
+                    </Modal.Actions>
+                </Modal>
             </Page>
             // </Grid>*/
         );

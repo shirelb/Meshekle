@@ -2,6 +2,7 @@ import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
+import {Route} from "react-router-dom";
 import axios from 'axios';
 import store from 'store';
 import times from 'lodash.times';
@@ -10,6 +11,7 @@ import Page from '../../components/Page';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
+import UserInfo from "../../components/UserInfo";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -90,14 +92,34 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     getUserByUserID(userId) {
-        helpers.getUserByUserID(userId,this.serviceProviderHeaders)
+        helpers.getUserByUserID(userId, this.serviceProviderHeaders)
         // axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
         //     {headers: this.serviceProviderHeaders}
         // )
             .then((user) => {
                 // let user=response.data[0];
                 console.log('then getUserByUserID ', userId, ' ', user);
-                this.props.history.push(`/users/${userId}`);
+                console.log('then getUserByUserID props', this.props);
+                this.props.history.push({
+                    pathname: `/users/${userId}`,
+                    // search: '?query=abc',
+                    state: { userData: user }
+                })
+                // this.props.history.push(`/users/${userId}`);
+                // return <UserInfo/>
+                // return <Route
+                //     path={`${this.props.match.path}/:${userId}`}
+                //     render={() => {
+                //         return <UserInfo
+                //             user={
+                //                 this.state.users.filter(
+                //                     user => user.id === userId
+                //                 )[0]
+                //             }
+                //         />
+                //     }
+                //     }
+                // />
             })
             .catch((error) => {
                 console.log('error getUserByUserID ', userId, ' ', error);
@@ -135,7 +157,7 @@ class PhoneBookManagementPage extends React.Component {
                                 <Table.Cell>
                                     <Header as='h4' image>
                                         {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
-                                        <Header.Content as="a" onClick={this.getUserByUserID.bind(this,user.userId)}>
+                                        <Header.Content as="a" onClick={this.getUserByUserID.bind(this, user.userId)}>
                                             {user.fullname}
                                             {/*<Link to="/about">About</Link>*/}
                                             {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
