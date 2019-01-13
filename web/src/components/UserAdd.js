@@ -29,7 +29,7 @@ class UserAdd extends React.Component {
         return (
             <Page title="Add User" columns={3}>
                 <Helmet>
-                    <title>CMS | Add User</title>
+                    <title>Meshekle | Add User</title>
                 </Helmet>
 
                 <UserForm

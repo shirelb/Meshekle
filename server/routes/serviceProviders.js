@@ -227,7 +227,6 @@ router.post('/add', function (req, res, next) {
 });
 
 
-
 // add role to a service provider
 router.put('/roles/addToServiceProvider', function (req, res, next) {
     if (!isRoleExists(req.body.role))
@@ -476,33 +475,14 @@ router.get('/appointments/serviceProviderId/:serviceProviderId', function (req, 
                 }
             ]
         })
-        // AppointmentDetails.findAll({
-        //     where: {
-        //         serviceProviderId: req.params.serviceProviderId
-        //     }
-        // })
-            // .then((appointmentsDetails) => {
-            //     const idsList = appointmentsDetails.map((app) => app.dataValues.appointmentId);
-            //     ScheduledAppointments.findAll({
-            //         where: {
-            //             appointmentId: {
-            //                 [Op.in]: idsList
-            //             }
-            //         }
-            //     })
-                    .then(schedAppointments => {
-                        console.log(schedAppointments);
-                        res.status(200).send(schedAppointments);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    })
-            // })
-            // .catch((err) => {
-            //     console.log(err);
-            //     res.status(500).send(err);
-            // })
+            .then(schedAppointments => {
+                console.log(schedAppointments);
+                res.status(200).send(schedAppointments);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).send(err);
+            })
     });
 });
 

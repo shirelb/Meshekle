@@ -110,7 +110,7 @@ class ChoresManagementPage extends React.Component {
         return (
             <Page children={users} title={strings.mainPageStrings.CHORES_PAGE_TITLE}>
                 <Helmet>
-                    <title>CMS | Users</title>
+                    <title>Meshekle | Users</title>
                 </Helmet>
 
                 <Table celled striped textAlign='right' selectable sortable>

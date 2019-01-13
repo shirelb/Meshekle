@@ -38,6 +38,8 @@ const phoneBookPageStrings = {
 
 const appointmentsPageStrings = {
     ADD_APPOINTMENT: "תור חדש",
+    APPOINTMENT_ID: "מספר מזהה",
+    CLIENT_NAME: "שם משתמש",
     CLIENT_ID: "ת.ז. משתמש",
     SERVICE_PROVIDER_ID: "ת.ז. נותן שירות",
     ROLE: "ענף",

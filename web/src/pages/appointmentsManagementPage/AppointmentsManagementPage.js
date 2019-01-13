@@ -1,7 +1,7 @@
 import React from 'react';
-import './styles.css'
+import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Image, Menu, Modal, Table} from 'semantic-ui-react';
+import {Button, Icon, Menu, Modal, Table} from 'semantic-ui-react';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
@@ -15,6 +15,10 @@ import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
 import UserInfo from "../../components/UserInfo";
+import AppointmentInfo from "../../components/AppointmentInfo";
+import {Link, Redirect, Route, Switch} from "react-router-dom";
+import UserAdd from "../../components/UserAdd";
+import AppointmentAdd from "../../components/AppointmentAdd";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -32,6 +36,7 @@ class AppointmentsManagementPage extends React.Component {
             eventModal: null,
             highlightTableRow: null,
             open: false,
+            openSetNewAppointment:false,
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -51,8 +56,8 @@ class AppointmentsManagementPage extends React.Component {
         this.getServiceProviderAppointments();
     }
 
-    show = (dimmer) => this.setState({dimmer, open: true});
-    close = () => this.setState({open: false});
+    show = (dimmer,openModel) => this.setState({dimmer, openModel: true});
+    close = (openModel) => this.setState({openModel: false});
 
     componentWillReceiveProps({location = {}}) {
         if (location.pathname === '/appointments' && location.pathname !== this.props.location.pathname) {
@@ -145,13 +150,51 @@ class AppointmentsManagementPage extends React.Component {
             this.setState({highlightTableRow: event.resource.appointmentId});
 
         // this.setState({openPopup: true, eventPopup: event});
-        console.log('onSelectEvent before state ', this.state);
-        this.show('blurring');
-        this.setState({eventModal: event});
+        // console.log('onSelectEvent before state ', this.state);
+        // this.show('blurring');
+        // this.setState({eventModal: event});
         console.log('onSelectEvent=event  ', event);
-        console.log('onSelectEvent after state ', this.state);
+        // console.log('onSelectEvent after state ', this.state);
+        this.props.history.push(`${this.props.match.path}/${event.resource.appointmentId}`, {
+            event: event,
+            appointment: event.resource
+        });
 
         // alert(event);
+    };
+
+    onSelectSlot = slotInfo => {
+        console.log('onSelectSlot = slotInfo  ', slotInfo);
+
+        this.props.history.push(`${this.props.match.path}/set`, {
+            slotInfo: slotInfo
+        });
+
+       /* action: "click"
+        end: Tue Jan 15 2019 00:00:00 GMT+0200 (Israel Standard Time) {}
+        slots: [Tue Jan 15 2019 00:00:00 GMT+0200 (Israel Standard Time)]
+        start: Tue Jan 15 2019 00:00:00 GMT+0200 (Israel Standard Time) {}
+
+        slotInfo: {
+            start: Date,
+                end: Date,
+                slots: Array<Date>,
+                action: "select" | "click" | "doubleClick",
+                bounds: ?{ // For "select" action
+                x: number,
+                y: number,
+                top: number,
+                right: number,
+                left: number,
+                bottom: number,
+            },
+                box: ?{ // For "click" or "doubleClick" actions
+                clientX: number,
+                clientY: number,
+                x: number,
+                y: number,
+            },
+        }*/
     };
 
     render() {
@@ -168,7 +211,7 @@ class AppointmentsManagementPage extends React.Component {
         const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
         const {calendarEvents} = this.state;
 
-        const {open, dimmer} = this.state;
+        const {open, dimmer, openSetNewAppointment} = this.state;
 
         return (
             /*<BigCalendar
@@ -177,25 +220,35 @@ class AppointmentsManagementPage extends React.Component {
                 startAccessor="start"
                 endAccessor="end"
             />*/
+            <div>
+                <Page children={appointments} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE} columns={1}>
+                    <Helmet>
+                        <title>Meshekle | Users</title>
+                    </Helmet>
 
-            <Page children={appointments} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE} columns={1}>
-                <Helmet>
-                    <title>CMS | Users</title>
-                </Helmet>
+                    <BigCalendar
+                        localizer={localizer}
+                        events={calendarEvents}
+                        startAccessor="start"
+                        endAccessor="end"
+                        selectable
+                        onSelectEvent={this.onSelectEvent.bind(this)}
+                        onSelectSlot={this.onSelectSlot.bind(this)}
+                        popup
+                        rtl
+                        messages={{
+                            next: "הבא",
+                            previous: "הקודם",
+                            today: "היום",
+                            month: 'חודשי',
+                            week: 'שבועי',
+                            day: 'יומי',
+                            agenda: 'יומן'
+                        }}
+                    />
 
 
-                <BigCalendar
-                    localizer={localizer}
-                    events={calendarEvents}
-                    startAccessor="start"
-                    endAccessor="end"
-                    selectable
-                    onSelectEvent={this.onSelectEvent.bind(this)}
-                    popup
-                    rtl
-                />
-
-                {/*{this.state.openPopup &&
+                    {/*{this.state.openPopup &&
                 <Popup
                     key={this.state.eventPopup.title}
                     trigger={this.state.openPopup}
@@ -204,88 +257,125 @@ class AppointmentsManagementPage extends React.Component {
                     hideOnScroll
                 />}*/}
 
-                <Table celled striped textAlign='right' selectable sortable>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.CLIENT_ID}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.ROLE}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.SUBJECT}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.STATUS}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.DATE}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.START_TIME}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.END_TIME}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.appointmentsPageStrings.REMARKS}</Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {appointments.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(appointment =>
-                            (<Table.Row key={appointment.appointmentId}
-                                        positive={this.state.highlightTableRow === appointment.appointmentId}>
-                                <Table.Cell>{appointment.AppointmentDetail.clientId}</Table.Cell>
-                                <Table.Cell>{appointment.AppointmentDetail.serviceProviderId}</Table.Cell>
-                                <Table.Cell>{appointment.AppointmentDetail.role}</Table.Cell>
-                                <Table.Cell>{appointment.AppointmentDetail.subject}</Table.Cell>
-                                <Table.Cell>{appointment.status}</Table.Cell>
-                                <Table.Cell>{new Date(appointment.startDateAndTime).toISOString().split('T')[0]}</Table.Cell>
-                                <Table.Cell>{new Date(appointment.startDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
-                                <Table.Cell>{new Date(appointment.endDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
-                                <Table.Cell>{appointment.remarks}</Table.Cell>
-                            </Table.Row>),
-                        )}
-                    </Table.Body>
-                    <Table.Footer>
-                        <Table.Row>
-                            <Table.HeaderCell colSpan={9}>
-                                <Menu floated="left" pagination>
-                                    {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
-                                        <Icon name="right chevron"/>
-                                    </Menu.Item>}
-                                    {times(totalPages, n =>
-                                        (<Menu.Item as="a" key={n} active={n === page} onClick={this.setPage(n)}>
-                                            {n + 1}
-                                        </Menu.Item>),
-                                    )}
-                                    {page !== (totalPages - 1) &&
-                                    <Menu.Item as="a" icon onClick={this.incrementPage}>
-                                        <Icon name="left chevron"/>
-                                    </Menu.Item>}
-                                </Menu>
-                            </Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Footer>
-                </Table>
+                    <Table celled striped textAlign='right' selectable sortable>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.CLIENT_ID}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.ROLE}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.SUBJECT}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.STATUS}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.DATE}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.START_TIME}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.END_TIME}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.appointmentsPageStrings.REMARKS}</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {appointments.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(appointment =>
+                                (<Table.Row key={appointment.appointmentId}
+                                            positive={this.state.highlightTableRow === appointment.appointmentId}>
+                                    <Table.Cell>{appointment.AppointmentDetail.clientId}</Table.Cell>
+                                    <Table.Cell>{appointment.AppointmentDetail.serviceProviderId}</Table.Cell>
+                                    <Table.Cell>{appointment.AppointmentDetail.role}</Table.Cell>
+                                    <Table.Cell>{appointment.AppointmentDetail.subject}</Table.Cell>
+                                    <Table.Cell>{appointment.status}</Table.Cell>
+                                    <Table.Cell>{new Date(appointment.startDateAndTime).toISOString().split('T')[0]}</Table.Cell>
+                                    <Table.Cell>{new Date(appointment.startDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
+                                    <Table.Cell>{new Date(appointment.endDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
+                                    <Table.Cell>{appointment.remarks}</Table.Cell>
+                                </Table.Row>),
+                            )}
+                        </Table.Body>
+                        <Table.Footer>
+                            <Table.Row>
+                                <Table.HeaderCell colSpan={9}>
+                                    <Menu floated="left" pagination>
+                                        {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
+                                            <Icon name="right chevron"/>
+                                        </Menu.Item>}
+                                        {times(totalPages, n =>
+                                            (<Menu.Item as="a" key={n} active={n === page} onClick={this.setPage(n)}>
+                                                {n + 1}
+                                            </Menu.Item>),
+                                        )}
+                                        {page !== (totalPages - 1) &&
+                                        <Menu.Item as="a" icon onClick={this.incrementPage}>
+                                            <Icon name="left chevron"/>
+                                        </Menu.Item>}
+                                    </Menu>
+                                </Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Footer>
+                    </Table>
 
-                <Button onClick={() => {
-                    this.props.history.push('/appointments/add')
-                }} positive>{strings.appointmentsPageStrings.ADD_APPOINTMENT}</Button>
+                    <Button as={Link} to={`${this.props.match.path}/set`}
+                            positive>{strings.appointmentsPageStrings.ADD_APPOINTMENT}</Button>
 
-                <Modal dimmer={dimmer} open={open} onClose={this.close}>
-                    <Modal.Header>Select a Photo</Modal.Header>
-                    <Modal.Content>
-                        {/*<Image wrapped size='medium'
+                   {/* <Modal dimmer={dimmer} open={openSetNewAppointment} onClose={this.close}>
+                        <Modal.Header>Select a Photo</Modal.Header>
+                        <Modal.Content>
+                            <Image wrapped size='medium'
                                src='https://react.semantic-ui.com/images/avatar/large/rachel.png'/>
                         <Modal.Description>
                             <Header>Default Profile Image</Header>
                             <p>We've found the following gravatar image associated with your e-mail address.</p>
                             <p>Is it okay to use this photo?</p>
-                        </Modal.Description>*/}
-                        <UserInfo/>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color='black' onClick={this.close}>
-                            Nope
-                        </Button>
-                        <Button
-                            positive
-                            icon='checkmark'
-                            labelPosition='right'
-                            content="Yep, that's me"
-                            onClick={this.close}
-                        />
-                    </Modal.Actions>
-                </Modal>
-            </Page>
+                        </Modal.Description>
+                            <UserInfo/>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color='black' onClick={this.close}>
+                                Nope
+                            </Button>
+                            <Button
+                                positive
+                                icon='checkmark'
+                                labelPosition='right'
+                                content="Yep, that's me"
+                                onClick={this.close}
+                            />
+                        </Modal.Actions>
+                    </Modal>*/}
+
+                   {/* <Modal dimmer={dimmer} open={open} onClose={this.close}>
+                        <Modal.Header>Select a Photo</Modal.Header>
+                        <Modal.Content>
+                            <Image wrapped size='medium'
+                               src='https://react.semantic-ui.com/images/avatar/large/rachel.png'/>
+                        <Modal.Description>
+                            <Header>Default Profile Image</Header>
+                            <p>We've found the following gravatar image associated with your e-mail address.</p>
+                            <p>Is it okay to use this photo?</p>
+                        </Modal.Description>
+                            <UserInfo/>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color='black' onClick={this.close}>
+                                Nope
+                            </Button>
+                            <Button
+                                positive
+                                icon='checkmark'
+                                labelPosition='right'
+                                content="Yep, that's me"
+                                onClick={this.close}
+                            />
+                        </Modal.Actions>
+                    </Modal>*/}
+                </Page>
+                <div>
+                    <Switch>
+                        <Route exec path={`${this.props.match.path}/set`}
+                               component={AppointmentAdd}/>
+                        <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
+                               component={AppointmentInfo}/>
+                        <Route exec path={`${this.props.match.path}/:appointmentId`}
+                               component={AppointmentInfo}/>
+                        <Redirect to={`${this.props.match.path}`}/>
+                    </Switch>
+                </div>
+            </div>
             // </Grid>*/
         );
     }

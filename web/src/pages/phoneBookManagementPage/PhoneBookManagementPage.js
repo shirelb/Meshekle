@@ -2,7 +2,7 @@ import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {Link} from "react-router-dom";
+import {Link, Redirect, Route, Switch} from "react-router-dom";
 import axios from 'axios';
 import store from 'store';
 import times from 'lodash.times';
@@ -103,7 +103,7 @@ class PhoneBookManagementPage extends React.Component {
                 this.props.history.push({
                     pathname: `/users/${userId}`,
                     // search: '?query=abc',
-                    state: { userData: user }
+                    state: {userData: user}
                 })
                 // this.props.history.push(`/users/${userId}`);
                 // return <UserInfo/>
@@ -128,80 +128,89 @@ class PhoneBookManagementPage extends React.Component {
 
 
     render() {
-        console.log('app props ',this.props)
+        console.log('app props ', this.props)
 
         const {users, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
         return (
-            <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}>
-                <Helmet>
-                    <title>CMS | Users</title>
-                </Helmet>
+            <div>
+                <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}>
+                    <Helmet>
+                        <title>Meshekle | Users</title>
+                    </Helmet>
 
-                <Table celled striped textAlign='right' selectable sortable>
-                    <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.BORN_DATE_HEADER}</Table.HeaderCell>
-                            <Table.HeaderCell>{strings.phoneBookPageStrings.ACTIVE_HEADER}</Table.HeaderCell>
-                            {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {users.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(user =>
-                            (<Table.Row key={user.userId}>
-                                <Table.Cell>
-                                    <Header as='h4' image>
-                                        {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
-                                        {/*<Header.Content as="a" onClick={this.getUserByUserID.bind(this, user.userId)}>*/}
-                                        <Header.Content>
-                                            <Link to={`${this.props.location.pathname}/users/${user.userId}`}>{user.fullname}</Link>
-                                            {/*{user.fullname}*/}
-                                            {/*<Link to="/about">About</Link>*/}
-                                            {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
-                                        </Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                {/*<Table.Cell>{user.fullname}</Table.Cell>*/}
-                                <Table.Cell>{user.password}</Table.Cell>
-                                <Table.Cell>{user.email}</Table.Cell>
-                                <Table.Cell>{user.mailbox}</Table.Cell>
-                                <Table.Cell>{user.cellphone}</Table.Cell>
-                                <Table.Cell>{user.phone}</Table.Cell>
-                                <Table.Cell>{new Date(user.bornDate).toISOString().split('T')[0]}</Table.Cell>
-                                <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
-                                {/*<Table.Cell>{user.image}</Table.Cell>*/}
-                            </Table.Row>),
-                        )}
-                    </Table.Body>
-                    <Table.Footer>
-                        <Table.Row>
-                            <Table.HeaderCell colSpan={8}>
-                                <Menu floated="left" pagination>
-                                    {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
-                                        <Icon name="right chevron"/>
-                                    </Menu.Item>}
-                                    {times(totalPages, n =>
-                                        (<Menu.Item as="a" key={n} active={n === page} onClick={this.setPage(n)}>
-                                            {n + 1}
-                                        </Menu.Item>),
-                                    )}
-                                    {page !== (totalPages - 1) && <Menu.Item as="a" icon onClick={this.incrementPage}>
-                                        <Icon name="left chevron"/>
-                                    </Menu.Item>}
-                                </Menu>
-                            </Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Footer>
-                </Table>
-                <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
-            </Page>
+                    <Table celled striped textAlign='right' selectable sortable>
+                        <Table.Header>
+                            <Table.Row>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.BORN_DATE_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.ACTIVE_HEADER}</Table.HeaderCell>
+                                {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {users.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(user =>
+                                (<Table.Row key={user.userId}>
+                                    <Table.Cell>
+                                        <Header as='h4' image>
+                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
+                                            <Header.Content>
+                                                <Link to={`${this.props.match.url}/users/${user.userId}`}>
+                                                    {user.fullname}
+                                                </Link>
+                                                {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
+                                    {/*<Table.Cell>{user.fullname}</Table.Cell>*/}
+                                    <Table.Cell>{user.password}</Table.Cell>
+                                    <Table.Cell>{user.email}</Table.Cell>
+                                    <Table.Cell>{user.mailbox}</Table.Cell>
+                                    <Table.Cell>{user.cellphone}</Table.Cell>
+                                    <Table.Cell>{user.phone}</Table.Cell>
+                                    <Table.Cell>{new Date(user.bornDate).toISOString().split('T')[0]}</Table.Cell>
+                                    <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
+                                    {/*<Table.Cell>{user.image}</Table.Cell>*/}
+                                </Table.Row>),
+                            )}
+                        </Table.Body>
+                        <Table.Footer>
+                            <Table.Row>
+                                <Table.HeaderCell colSpan={8}>
+                                    <Menu floated="left" pagination>
+                                        {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
+                                            <Icon name="right chevron"/>
+                                        </Menu.Item>}
+                                        {times(totalPages, n =>
+                                            (<Menu.Item as="a" key={n} active={n === page} onClick={this.setPage(n)}>
+                                                {n + 1}
+                                            </Menu.Item>),
+                                        )}
+                                        {page !== (totalPages - 1) &&
+                                        <Menu.Item as="a" icon onClick={this.incrementPage}>
+                                            <Icon name="left chevron"/>
+                                        </Menu.Item>}
+                                    </Menu>
+                                </Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Footer>
+                    </Table>
+                    <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                </Page>
+                <div>
+                    <Switch>
+                        <Route exec path={`${this.props.match.path}/users/:userId`}
+                               component={UserInfo}/>
+                        <Redirect to={`${this.props.match.path}`}/>
+                    </Switch>
+                </div>
+            </div>
         );
     }
 }

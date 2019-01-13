@@ -143,7 +143,7 @@ class LoginPage extends Component {
         return (
             <Grid>
                 <Helmet>
-                    <title>CMS | Login</title>
+                    <title>Meshekle | Login</title>
                 </Helmet>
 
                 <Grid.Column width={6}/>

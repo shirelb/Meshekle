@@ -94,7 +94,7 @@ class MainPage extends Component {
         return (
             <div>
                 <Helmet>
-                    <title>CMS</title>
+                    <title>Meshekle</title>
                 </Helmet>
 
                 <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
