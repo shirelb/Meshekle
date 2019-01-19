@@ -189,7 +189,6 @@ router.put('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType/
 
 
 //Add serviceProvider
-
 router.post('/add', function (req, res, next) {
     let isInputValid = isServiceProviderInputValid(req.body);
     if (isInputValid !== '')
@@ -330,7 +329,7 @@ router.post('/users/add', function (req, res, next) {
         .then(users => {
             if (users.length !== 0)
                 return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
-            const randomPassword = genereateRandomPassword();
+            const randomPassword = generateRandomPassword();
             Users.create({
                 userId: req.body.userId,
                 fullname: req.body.fullname,
@@ -559,7 +558,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
 });
 
 
-function genereateRandomPassword() {
+function generateRandomPassword() {
     let randomPassword = Math.random().toString(36).slice(-8);
     while (!checkIfPasswordLegal(randomPassword)) {
         randomPassword = Math.random().toString(36).slice(-8);

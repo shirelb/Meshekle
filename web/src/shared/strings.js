@@ -18,6 +18,7 @@ const mainPageStrings = {
     PHONE_BOOK_PAGE_TITLE: "משתמשים",
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
+    ROLES_HairDresser:"ספר/ית",
 };
 
 const phoneBookPageStrings = {

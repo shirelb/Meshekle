@@ -170,31 +170,6 @@ class AppointmentsManagementPage extends React.Component {
             slotInfo: slotInfo
         });
 
-       /* action: "click"
-        end: Tue Jan 15 2019 00:00:00 GMT+0200 (Israel Standard Time) {}
-        slots: [Tue Jan 15 2019 00:00:00 GMT+0200 (Israel Standard Time)]
-        start: Tue Jan 15 2019 00:00:00 GMT+0200 (Israel Standard Time) {}
-
-        slotInfo: {
-            start: Date,
-                end: Date,
-                slots: Array<Date>,
-                action: "select" | "click" | "doubleClick",
-                bounds: ?{ // For "select" action
-                x: number,
-                y: number,
-                top: number,
-                right: number,
-                left: number,
-                bottom: number,
-            },
-                box: ?{ // For "click" or "doubleClick" actions
-                clientX: number,
-                clientY: number,
-                x: number,
-                y: number,
-            },
-        }*/
     };
 
     render() {

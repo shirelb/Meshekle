@@ -1,5 +1,11 @@
 import axios from "axios";
 import {SERVER_URL} from "./constants";
+import store from "store";
+
+
+const serviceProviderHeaders = {
+    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+};
 
 var getUserByUserID = (userId, headers) => {
     return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
@@ -36,4 +42,27 @@ var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) 
         });
 };
 
-export default {getUserByUserID, getAppointmentByAppointmentID};
+var getUsers = () => {
+    return axios.get(`${SERVER_URL}/api/users`,
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            return response.data;
+        });
+};
+
+var getRolesOfServiceProvider = (serviceProviderId) => {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/roles/serviceProviderId/${serviceProviderId}`,
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            let roles = response.data;
+            console.log('roles ', roles);
+            return roles;
+        })
+        .catch((error) => {
+            console.log('error ', error);
+        });
+};
+
+export default {getUserByUserID, getAppointmentByAppointmentID, getUsers,getRolesOfServiceProvider};

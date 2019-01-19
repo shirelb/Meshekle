@@ -14,6 +14,7 @@ import axios from "axios";
 import {SERVER_URL} from "../../shared/constants";
 import helpers from "../../shared/helpers";
 import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
+import mappers from "../../shared/mappers";
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -28,7 +29,7 @@ const serviceProviderHeaders = {
 };
 
 const getServiceProviderPermissionsById = (serviceProviderId) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviderId/${serviceProviderId}/permissions`,
+    return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}/permissions`,
         {headers: serviceProviderHeaders}
     )
         .then((response) => {
@@ -41,26 +42,43 @@ const getServiceProviderPermissionsById = (serviceProviderId) => {
         });
 };
 
-const Home = ({userId, serviceProviderId}) => {
-    let userData = {fullname: 'Administrator'};
-    helpers.getUserByUserID(userId, serviceProviderHeaders)
-        .then(user => userData = user)
+
+
+
+class Home extends Component {
+// const Home = ({userId, serviceProviderId}) => {
+
+    componentDidMount() {
+    this.userFullname = '';
+    helpers.getUserByUserID(store.get('userId'), serviceProviderHeaders)
+        .then(user => {this.userFullname = user.fullname; this.forceUpdate()})
         .catch(error => console.log('error ', error));
-    let serviceProviderPermissions = '';
-    getServiceProviderPermissionsById(serviceProviderId)
-        .then(permissions => serviceProviderPermissions = permissions)
+    this.serviceProviderPermissions = '';
+    getServiceProviderPermissionsById(store.get('serviceProviderId'))
+        .then(permissions => {this.serviceProviderPermissions = permissions;this.forceUpdate()})
         .catch(error => console.log('error ', error));
-    return (
-        <div>
-            <p>
-                Hello and welcome {userData.fullname}
-            </p>
-            <p>
-                your permissions are {serviceProviderPermissions}
-            </p>
-        </div>
-    );
-};
+    this.serviceProviderRoles = '';
+    helpers.getRolesOfServiceProvider(store.get('serviceProviderId'))
+        .then(roles => {this.serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));this.forceUpdate()})
+        .catch(error => console.log('error ', error));
+    }
+
+    render() {
+        return (
+            <div>
+                <p>
+                    Hello and welcome {this.userFullname}
+                </p>
+                <p>
+                    your permissions are {this.serviceProviderPermissions}
+                </p>
+                <p>
+                    your roles are {this.serviceProviderRoles}
+                </p>
+            </div>
+        );
+    }
+}
 
 
 class MainPage extends Component {

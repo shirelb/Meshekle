@@ -1,27 +1,48 @@
 import React, {Component} from 'react';
-import {Button, Form, Input, Message, Radio, Select, TextArea} from 'semantic-ui-react';
+import {Dropdown, Form, Message, TextArea} from 'semantic-ui-react';
 import {post} from "axios";
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
+import helpers from "../shared/helpers";
+import './styles.css';
 
-const options = [
-    {key: 'f', text: 'Fan', value: 'Fan'},
-    {key: 'hd', text: 'Hair dye', value: 'HairDye'},
-    {key: 'hc', text: 'Hair cut', value: 'HairCut'},
+
+const subjectOptions = [
+    {key: 'f', text: 'פן', value: 'פן'},
+    {key: 'hd', text: 'צבע', value: 'צבע'},
+    {key: 'hc', text: 'תספורת', value: 'תספורת'},
 ];
+
+let userOptions = {};
+
+helpers.getUsers()
+    .then(users => {
+        console.log('users ', users);
+        userOptions = users.map(item => ({
+            key: item.userId,
+            text: item.fullname,
+            value: item.fullname
+        }));
+    });
+
 
 class AppointmentForm extends Component {
 
     constructor(props) {
         super(props);
 
-        const {slotInfo,appointment = {}} = props;
+        const {slotInfo, appointment = {}} = props;
 
         this.state = {
-            appointment: {},
-            date: slotInfo.start,
-            startTime: '10:00',
-            endTime: '11:00',
+            appointment: {
+                date: slotInfo.start,
+                startTime: '10:00',
+                endTime: '11:00',
+                subject: [],
+                clientName: '',
+            },
+            formError: false,
+            formComplete: false,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -39,202 +60,181 @@ class AppointmentForm extends Component {
         const {appointment} = this.state;
         const {handleSubmit} = this.props;
 
-        handleSubmit(appointment);
+        console.log(appointment);
+        console.log(appointment.clientName !== '');
+        console.log(appointment.subject.length > 0);
+        console.log(appointment.date !== '');
+        console.log(appointment.startTime !== '');
+        console.log(appointment.endTime !== '');
 
-        this.setState({appointment: {}});
+        if (appointment.clientName !== '' &&
+            appointment.subject.length > 0 &&
+            appointment.date !== '' &&
+            appointment.startTime !== '' &&
+            appointment.endTime !== '') {
+            this.setState({formComplete: true});
+            this.setState({
+                appointment: {
+                    ...appointment,
+                    clientId: (userOptions.filter(user => user.value === appointment.clientName)).key
+                }
+            });
+
+            handleSubmit(appointment);
+            this.setState({appointment: {}});
+        } else {
+            this.setState({formError: true});
+        }
     }
 
     handleChange(e, {name, value}) {
         const {appointment} = this.state;
 
+        this.setState({formError: false, formComplete: false});
         this.setState({appointment: {...appointment, [name]: value}});
     }
 
-    onChange = date => this.setState({ date });
-    onChangeTime = time => this.setState({ time });
+    handleClear = (e) => {
+        e.preventDefault();
+        this.setState({
+            appointment: {
+                date: '',
+                startTime: '',
+                endTime: '',
+                subject: [],
+                clientName: '',
+                formError: false,
+                formComplete: false,
+            },
+        });
+    };
+
+    onChangeDate = date => {
+        let updateAppointment = this.state.appointment;
+        updateAppointment.date = date;
+        this.setState({appointment: updateAppointment})
+    };
+
+    onChangeTime = (time, isStart) => {
+        let updateAppointment = this.state.appointment;
+        isStart ?
+            updateAppointment.startTime = time
+            :
+            updateAppointment.endTime = time;
+        this.setState({appointment: updateAppointment});
+    };
+
+    handleSearchChange = (e, {searchQuery}) => {
+        let updateAppointment = this.state.appointment;
+        updateAppointment.subject = searchQuery;
+        this.setState({appointment: updateAppointment})
+    };
 
 
     render() {
-        const {value, appointment} = this.state;
-        const {handleCancel, submitText = 'Create'} = this.props;
+        const {appointment, formError, formComplete} = this.state;
+        const {handleCancel, submitText = 'קבע'} = this.props;
 
         return (
-            <Form onSubmit={this.handleSubmit}>
+            <Form onSubmit={this.handleSubmit} error={formError}>
+                <Form.Field
+                    control={Dropdown}
+                    label='שם לקוח'
+                    placeholder='שם לקוח'
+                    fluid
+                    search
+                    selection
+                    autoComplete='on'
+                    options={userOptions}
+                    value={appointment.clientName}
+                    onChange={this.handleChange}
+                    name='clientName'
+                    required
+                    noResultsMessage='לא נמצאו התאמות'
+                    // width='10'
+                />
+                <Form.Field
+                    control={Dropdown}
+                    label='נושא'
+                    placeholder='נושא'
+                    fluid
+                    multiple
+                    selection
+                    options={subjectOptions}
+                    value={appointment.subject}
+                    onChange={this.handleChange}
+                    name='subject'
+                    required
+                    noResultsMessage='לא נמצאו התאמות'
+                    onSearchChange={this.handleSearchChange}
+                    // width='10'
+                />
+                <Form.Field
+                    control={TextArea}
+                    label='הערות'
+                    value={appointment.remarks}
+                    name="remarks"
+                    onChange={this.handleChange}
+                    // width='10'
+                />
+
                 <Form.Group widths='equal'>
-                    {/*<Form.Field inline>*/}
-                        {/*<label>First name</label>*/}
-                        {/*<Input placeholder='First name'/>*/}
-                    {/*</Form.Field>*/}
-                    <Form.Field control={Input} label='Client name' placeholder='First name' error/>
-                    <Form.Field control={Select} label='Type Of Treatment' options={options} placeholder='Type'
-                                error/>
-                </Form.Group>
-                {/*<Form.Group inline>*/}
-                    {/*<label>Quantity</label>*/}
-                    {/*<Form.Field*/}
-                        {/*control={Radio}*/}
-                        {/*label='One'*/}
-                        {/*value='1'*/}
-                        {/*checked={value === '1'}*/}
-                        {/*onChange={this.handleChange}*/}
-                    {/*/>*/}
-                    {/*<Form.Field*/}
-                        {/*control={Radio}*/}
-                        {/*label='Two'*/}
-                        {/*value='2'*/}
-                        {/*checked={value === '2'}*/}
-                        {/*onChange={this.handleChange}*/}
-                    {/*/>*/}
-                    {/*<Form.Field*/}
-                        {/*control={Radio}*/}
-                        {/*label='Three'*/}
-                        {/*value='3'*/}
-                        {/*checked={value === '3'}*/}
-                        {/*onChange={this.handleChange}*/}
-                    {/*/>*/}
-                {/*</Form.Group>*/}
-                {/*<Form.Group grouped>*/}
-                    {/*<label>HTML radios</label>*/}
-                    {/*<Form.Field label='This one' control='input' type='radio' name='htmlRadios'/>*/}
-                    {/*<Form.Field label='That one' control='input' type='radio' name='htmlRadios'/>*/}
-                {/*</Form.Group>*/}
-                <Form.Group grouped>
-                    <label>HTML checkboxes</label>
-                    <Form.Field label='This one' control='input' type='checkbox'/>
-                    <Form.Field label='That one' control='input' type='checkbox'/>
-                </Form.Group>
-                <Form.Field control={TextArea} label='About' placeholder='Tell us more about you...'/>
-                <Message success header='Form Completed' content="You're all signed up for the newsletter"/>
-                <Message
-                    warning
-                    header='Could you check something!'
-                    list={[
-                        'That e-mail has been subscribed, but you have not yet clicked the verification link in your e-mail.',
-                    ]}
-                />
-                <Message
-                    error
-                    header='Action Forbidden'
-                    content='You can only sign up for an account once with a given e-mail address.'
-                />
-
-                {/*<Form.Input*/}
-                    {/*label="Date"*/}
-                    {/*as={DateTimePicker}*/}
-                    {/*name="date"*/}
-                    {/*onChange={this.onChange}*/}
-                    {/*value={this.state.date}*/}
-                {/*/>*/}
-                {/*<DateTimePicker*/}
-                {/*onChange={this.onChange}*/}
-                {/*value={this.state.date}*/}
-                {/*locale={'he-IL'}*/}
-                {/*/>*/}
-                {/*</Form.Input>*/}
-
-                <Form.Group>
-                    <label>date and time</label>
-                    <Datetime
-                    /*<Form.Field*/
-                        /*label='date'*/
-                        /*as={Datetime}*/
-                        onChange={this.onChange}
-                        value={this.state.date}
+                    <Form.Field
+                        as={Datetime}
+                        label='תאריך'
+                        value={appointment.date}
                         locale={'he'}
                         timeFormat={false}
                         install
+                        // name="date"
+                        onChange={this.onChangeDate.bind(this)}
+                        required
+                        // width='10'
                     />
-                    <Datetime
-                    /*<Form.Field*/
-                        // label='start time'
-                        // as={Datetime}
-                        onChange={this.onChangeTime}
-                        value={this.state.startTime}
+                    <Form.Field
+                        as={Datetime}
+                        label='שעת התחלה'
+                        value={appointment.startTime}
                         locale={'he'}
                         dateFormat={false}
                         install
+                        // name="startTime"
+                        onChange={time => this.onChangeTime(time, true)}
+                        required
+                        // width='10'
                     />
-                    <Datetime
-                    /*<Form.Field*/
-                        // label='end time'
-                        // as={Datetime}
-                        onChange={this.onChangeTime}
-                        value={this.state.endTime}
+                    <Form.Field
+                        as={Datetime}
+                        label='שעת סיום'
+                        value={appointment.endTime}
                         locale={'he'}
                         dateFormat={false}
                         install
+                        // name="endTime"
+                        onChange={time => this.onChangeTime(time, false)}
+                        // onChange={this.handleChange}
+                        required
+                        // width='10'
                     />
-                    {/*<Form.Field*/}
-                        {/*label='time range'*/}
-                        {/*as={TimeRangePicker}*/}
-                        {/*onChange={this.onChangeTime}*/}
-                        {/*value={this.state.time}*/}
-                        {/*locale={'he-IL'}*/}
-                    {/*/>*/}
                 </Form.Group>
 
-                {/*<DatePicker*/}
-                    {/*onChange={this.onChange}*/}
-                    {/*value={this.state.date}*/}
-                    {/*locale={'he-IL'}*/}
-                {/*/>*/}
+                {formError ?
+                    <Message
+                        error
+                        header='פרטי תור חסרים'
+                        content='נא להשלים את השדות החסרים'
+                    />
+                    : null
+                }
+                {formComplete ?
+                    <Message success header='פרטי תור הושלמו' content="התור נקבע בהצלחה"/>
+                    : null
+                }
 
-                {/*<TimePicker*/}
-                    {/*onChange={this.onChange}*/}
-                    {/*value={this.state.time}*/}
-                {/*/>*/}
-
-                {/*<TimeRangePicker*/}
-                    {/*onChange={this.onChangeTime}*/}
-                    {/*value={this.state.time}*/}
-                    {/*locale={'he-IL'}*/}
-                {/*/>*/}
-
-                <Form.Input
-                    label="Name"
-                    type="text"
-                    name="name"
-                    value={appointment.name}
-                    onChange={this.handleChange}
-                />
-                <Form.Input
-                    label="Email"
-                    type="email"
-                    name="email"
-                    value={appointment.email}
-                    onChange={this.handleChange}
-                />
-                <Form.Input
-                    label="Phone"
-                    type="tel"
-                    name="phone"
-                    value={appointment.phone}
-                    onChange={this.handleChange}
-                />
-                <Form.Input
-                    label="Address"
-                    type="text"
-                    name="address"
-                    value={appointment.address}
-                    onChange={this.handleChange}
-                />
-                <Form.Input
-                    label="City"
-                    type="text"
-                    name="city"
-                    value={appointment.city}
-                    onChange={this.handleChange}
-                />
-                <Form.Input
-                    label="Zip Code"
-                    type="text"
-                    name="zip"
-                    value={appointment.zip}
-                    onChange={this.handleChange}
-                />
                 <Form.Group>
                     <Form.Button type="submit">{submitText}</Form.Button>
-                    <Form.Button onClick={handleCancel}>Cancel</Form.Button>
+                    <Form.Button onClick={handleCancel}>בטל</Form.Button>
+                    <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>
                 </Form.Group>
 
             </Form>
