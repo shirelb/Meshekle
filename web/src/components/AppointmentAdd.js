@@ -4,6 +4,7 @@ import {Helmet} from 'react-helmet';
 import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
 import store from "store";
+import moment from 'moment';
 import helpers from "../shared/helpers";
 import mappers from "../shared/mappers";
 import {SERVER_URL} from "../shared/constants";
@@ -25,27 +26,22 @@ class AppointmentAdd extends React.Component {
     }
 
     handleSubmit(appointment) {
-        let appointmentToSend = {
-            userId: appointment.clientId,
-            serviceProviderId: store.get('serviceProviderId'),
-            // role: 'Driver',
-            date: appointment.date,
-            startHour: appointment.startTime,
-            endHour: appointment.endTime,
-            notes: appointment.remarks,
-            subject: appointment.subject
-        };
-
-        let serviceProviderRoles;
         helpers.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
+                let serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
 
-                appointmentToSend.role = serviceProviderRoles[0];
-
-                axios.post(`${SERVER_URL}/api/users/appointments/set`,
+                axios.post(`${SERVER_URL}/api/serviceProviders/appointments/set`,
                     {
-                        data: appointmentToSend,
+                        userId: appointment.clientId,
+                        serviceProviderId: store.get('serviceProviderId'),
+                        role: serviceProviderRoles[0],
+                        date: moment.isMoment(appointment.date) ? appointment.date.format('YYYY-MM-DD') : appointment.date,
+                        startHour: moment.isMoment(appointment.startTime) ? appointment.startTime.format("HH:mm") : appointment.startTime,
+                        endHour: moment.isMoment(appointment.endTime) ? appointment.endTime.format("HH:mm") : appointment.endTime,
+                        notes: appointment.remarks ? appointment.remarks : '',
+                        subject: JSON.stringify(appointment.subject)
+                    },
+                    {
                         headers: this.serviceProviderHeaders
                     }
                 )
@@ -58,12 +54,7 @@ class AppointmentAdd extends React.Component {
             })
             .catch(error => console.log('error ', error));
 
-
-        /*post('/api/appointments', appointment)
-            .then(() => {
-                console.log('added:', appointment);
-            });*/
-        console.log('appoitment ', appointment)
+        this.props.history.goBack()
     }
 
     handleCancel(e) {

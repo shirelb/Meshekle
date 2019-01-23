@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Icon, Menu, Modal, Table} from 'semantic-ui-react';
+import {Button, Icon, Menu, Table} from 'semantic-ui-react';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
@@ -14,10 +14,8 @@ import Page from '../../components/Page';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
-import UserInfo from "../../components/UserInfo";
 import AppointmentInfo from "../../components/AppointmentInfo";
 import {Link, Redirect, Route, Switch} from "react-router-dom";
-import UserAdd from "../../components/UserAdd";
 import AppointmentAdd from "../../components/AppointmentAdd";
 
 
@@ -36,7 +34,7 @@ class AppointmentsManagementPage extends React.Component {
             eventModal: null,
             highlightTableRow: null,
             open: false,
-            openSetNewAppointment:false,
+            openSetNewAppointment: false,
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -56,10 +54,11 @@ class AppointmentsManagementPage extends React.Component {
         this.getServiceProviderAppointments();
     }
 
-    show = (dimmer,openModel) => this.setState({dimmer, openModel: true});
+    show = (dimmer, openModel) => this.setState({dimmer, openModel: true});
     close = (openModel) => this.setState({openModel: false});
 
     componentWillReceiveProps({location = {}}) {
+        console.log("componentWillReceiveProps !!!!!!!");
         if (location.pathname === '/appointments' && location.pathname !== this.props.location.pathname) {
             this.getServiceProviderAppointments();
         }
@@ -67,7 +66,12 @@ class AppointmentsManagementPage extends React.Component {
 
     getServiceProviderAppointments() {
         axios.get(`${SERVER_URL}/api/serviceProviders/appointments/serviceProviderId/${this.serviceProviderId}`,
-            {headers: this.serviceProviderHeaders}
+            {
+                headers: this.serviceProviderHeaders,
+                params: {
+                    status: 'set'
+                },
+            }
         )
             .then((response) => {
                 const appointments = response.data;
@@ -86,10 +90,10 @@ class AppointmentsManagementPage extends React.Component {
 
     createEvents() {
         let calendarEvents = [];
-        this.state.appointments.forEach((appointment) => {
+
+       axios.all(this.state.appointments.map((appointment, index) => {
             helpers.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
                 .then(user => {
-                    console.log('createEvents user ', user);
                     calendarEvents.push({
                         title: user.fullname,
                         subject: appointment.AppointmentDetail.subject,
@@ -99,8 +103,8 @@ class AppointmentsManagementPage extends React.Component {
                         resource: appointment
                     })
                 })
-        });
-        this.setState({calendarEvents: calendarEvents});
+        }))
+            .then(this.setState({calendarEvents: calendarEvents}));
     }
 
     setPage(page) {
@@ -127,20 +131,6 @@ class AppointmentsManagementPage extends React.Component {
         this.setState({
             appointments: appointments.filter(a => a.id !== appointmentId),
         });
-    }
-
-    getUserByUserID(userId) {
-        axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-            {headers: this.serviceProviderHeaders}
-        )
-            .then((response) => {
-                let user = response.data[0];
-                console.log('getUserByUserID ', userId, ' ', user);
-                this.props.history.push(`/users/${userId}`);
-            })
-            .catch((error) => {
-                console.log('getUserByUserID ', userId, ' ', error);
-            });
     }
 
     onSelectEvent = event => {
@@ -176,13 +166,12 @@ class AppointmentsManagementPage extends React.Component {
         const {appointments, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
-        // moment.locale("he", {
-        //     week: {
-        //         dow: 1 //Monday is the first day of the week.
-        //     }
-        // });
-        moment.locale('he');
-        // BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
+        moment.locale("he", {
+            week: {
+                dow: 1 //Monday is the first day of the week.
+            }
+        });
+        // moment.locale('he');
         const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
         const {calendarEvents} = this.state;
 
@@ -204,13 +193,15 @@ class AppointmentsManagementPage extends React.Component {
                     <BigCalendar
                         localizer={localizer}
                         events={calendarEvents}
-                        startAccessor="start"
-                        endAccessor="end"
+                        // startAccessor="start"
+                        // endAccessor="end"
                         selectable
                         onSelectEvent={this.onSelectEvent.bind(this)}
                         onSelectSlot={this.onSelectSlot.bind(this)}
                         popup
                         rtl
+                        step={30}
+                        timeslots={4}
                         messages={{
                             next: "הבא",
                             previous: "הקודם",
@@ -287,7 +278,7 @@ class AppointmentsManagementPage extends React.Component {
                     <Button as={Link} to={`${this.props.match.path}/set`}
                             positive>{strings.appointmentsPageStrings.ADD_APPOINTMENT}</Button>
 
-                   {/* <Modal dimmer={dimmer} open={openSetNewAppointment} onClose={this.close}>
+                    {/* <Modal dimmer={dimmer} open={openSetNewAppointment} onClose={this.close}>
                         <Modal.Header>Select a Photo</Modal.Header>
                         <Modal.Content>
                             <Image wrapped size='medium'
@@ -313,7 +304,7 @@ class AppointmentsManagementPage extends React.Component {
                         </Modal.Actions>
                     </Modal>*/}
 
-                   {/* <Modal dimmer={dimmer} open={open} onClose={this.close}>
+                    {/* <Modal dimmer={dimmer} open={open} onClose={this.close}>
                         <Modal.Header>Select a Photo</Modal.Header>
                         <Modal.Content>
                             <Image wrapped size='medium'

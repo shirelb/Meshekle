@@ -7,6 +7,7 @@ import {Table} from "semantic-ui-react/dist/commonjs/collections/Table";
 import strings from "../shared/strings";
 import getAppointmentByAppointmentID from "../shared/helpers";
 import store from "store";
+import {SERVER_URL} from "../shared/constants";
 
 
 class UserInfo extends React.Component {
@@ -32,10 +33,21 @@ class UserInfo extends React.Component {
     }
 
     handleDelete() {
-        axios.delete('/api/users/1')
-            .then(() => {
-                console.log('user deleted');
+        console.log('appointment handleDelete ', this.serviceProviderHeaders);
+        axios.put(`${SERVER_URL}/api/serviceProviders/appointments/cancel/appointmentId/${this.state.appointment.appointmentId}`,
+            {},
+            {
+                headers: this.serviceProviderHeaders
+            }
+        )
+            .then((response) => {
+                console.log('appointment handleDelete ', response.data);
+            })
+            .catch((error) => {
+                console.log('error ', error);
             });
+
+        this.props.history.goBack();
     }
 
     render() {
@@ -43,7 +55,7 @@ class UserInfo extends React.Component {
         console.log('resder apponmnt info appointment ', appointment);
 
         return (
-            <Modal open dimmer="blurring" closeIcon onClose={()=>this.props.history.goBack()}>
+            <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
                     <title>Meshekle | {event.title}</title>
                 </Helmet>
@@ -67,7 +79,7 @@ class UserInfo extends React.Component {
                 <Modal.Actions className='alignLeft'>
                     {/*<Button positive>Edit</Button>*/}
                     <Button negative onClick={this.handleDelete}>Delete</Button>
-                    <Button positive onClick={()=>this.props.history.goBack()}>OK</Button>
+                    <Button positive onClick={() => this.props.history.goBack()}>OK</Button>
                 </Modal.Actions>
             </Modal>
         );

@@ -13,7 +13,6 @@ var getUserByUserID = (userId, headers) => {
     )
         .then((response) => {
             let user = response.data[0];
-            console.log('getUserByUserID ', userId, ' ', user);
             return user;
         })
         .catch((error) => {

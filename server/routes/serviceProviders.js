@@ -3,8 +3,9 @@ var validiation = require('./shared/validations');
 const Sequelize = require('sequelize');
 var express = require('express');
 var router = express.Router();
-const {ServiceProviders, Users, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
+var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
 
@@ -442,10 +443,28 @@ router.put('/appointments/cancel/appointmentId/:appointmentId', function (req, r
             if (isUpdated[0] === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
 
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                "result": isUpdated[0]
-            });
+            Events.destroy({
+                where: {
+                    // userId: req.body.userId,
+                    eventType: "Appointments",
+                    eventId: req.params.appointmentId
+                }
+            })
+                .then((newEvent) => {
+                    res.status(200).send({
+                        "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+                        isUpdated,
+                        newEvent
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                });
+            // res.status(200).send({
+            //     "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+            //     "result": isUpdated[0]
+            // });
         })
         .catch(err => {
             console.log(err);
@@ -554,6 +573,49 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
         .catch(err => {
             console.log(err);
             res.status(500).send(err);
+        })
+});
+
+
+/* POST appointment set of user . */
+router.post('/appointments/set', function (req, res, next) {
+    helpers.createAppointmentSetId()
+        .then(appointmentSetId => {
+            helpers.createAppointmentDetails(appointmentSetId, req, res)
+                .then(newAppointmentDetails => {
+                    if (newAppointmentDetails) {
+                        ScheduledAppointments.create({
+                            appointmentId: appointmentSetId,
+                            startDateAndTime: new Date(req.body.date + "T" + req.body.startHour),
+                            endDateAndTime: new Date(req.body.date + "T" + req.body.endHour),
+                            remarks: req.body.notes,
+                            status: "set",
+                        })
+                            .then((newAppointment) => {
+                                Events.create({
+                                    userId: req.body.userId,
+                                    eventType: "Appointments",
+                                    eventId: newAppointment.appointmentId
+                                })
+                                    .then((newEvent) => {
+                                        res.status(200).send({
+                                            "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT,
+                                            newAppointmentDetails,
+                                            newAppointment,
+                                            newEvent
+                                        });
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).send(err);
+                                    });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                    }
+                })
         })
 });
 

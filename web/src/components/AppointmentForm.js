@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Dropdown, Form, Message, TextArea} from 'semantic-ui-react';
 import {post} from "axios";
+import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import helpers from "../shared/helpers";
@@ -35,9 +36,9 @@ class AppointmentForm extends Component {
 
         this.state = {
             appointment: {
-                date: slotInfo.start,
-                startTime: '10:00',
-                endTime: '11:00',
+                date: moment(slotInfo.start),
+                startTime: '',
+                endTime: '',
                 subject: [],
                 clientName: '',
             },
@@ -60,27 +61,17 @@ class AppointmentForm extends Component {
         const {appointment} = this.state;
         const {handleSubmit} = this.props;
 
-        console.log(appointment);
-        console.log(appointment.clientName !== '');
-        console.log(appointment.subject.length > 0);
-        console.log(appointment.date !== '');
-        console.log(appointment.startTime !== '');
-        console.log(appointment.endTime !== '');
-
         if (appointment.clientName !== '' &&
             appointment.subject.length > 0 &&
             appointment.date !== '' &&
             appointment.startTime !== '' &&
             appointment.endTime !== '') {
             this.setState({formComplete: true});
-            this.setState({
-                appointment: {
-                    ...appointment,
-                    clientId: (userOptions.filter(user => user.value === appointment.clientName)).key
-                }
-            });
+            let updateAppointment = appointment;
+            updateAppointment.clientId = (userOptions.filter(user => user.value === appointment.clientName))[0].key;
+            this.setState({appointment: updateAppointment});
 
-            handleSubmit(appointment);
+            handleSubmit(updateAppointment);
             this.setState({appointment: {}});
         } else {
             this.setState({formError: true});
