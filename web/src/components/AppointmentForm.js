@@ -170,6 +170,7 @@ class AppointmentForm extends Component {
                 />
 
                 <Form.Group widths='equal'>
+                    <label>תאריך</label>
                     <Form.Field
                         as={Datetime}
                         label='תאריך'
@@ -182,6 +183,7 @@ class AppointmentForm extends Component {
                         required
                         // width='10'
                     />
+                    <label>שעת התחלה</label>
                     <Form.Field
                         as={Datetime}
                         label='שעת התחלה'
@@ -194,6 +196,7 @@ class AppointmentForm extends Component {
                         required
                         // width='10'
                     />
+                    <label>שעת סיום</label>
                     <Form.Field
                         as={Datetime}
                         label='שעת סיום'

@@ -47,14 +47,13 @@ class AppointmentAdd extends React.Component {
                 )
                     .then((response) => {
                         console.log('add appointment ', response);
+                        this.props.history.goBack()
                     })
                     .catch((error) => {
                         console.log('add appointment ', error);
                     });
             })
             .catch(error => console.log('error ', error));
-
-        this.props.history.goBack()
     }
 
     handleCancel(e) {

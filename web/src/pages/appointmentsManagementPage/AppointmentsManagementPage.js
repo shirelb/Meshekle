@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Icon, Menu, Table} from 'semantic-ui-react';
+import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
@@ -17,6 +17,7 @@ import helpers from "../../shared/helpers";
 import AppointmentInfo from "../../components/AppointmentInfo";
 import {Link, Redirect, Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/AppointmentAdd";
+import {Grid} from "semantic-ui-react/dist/commonjs/collections/Grid";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -31,6 +32,7 @@ class AppointmentsManagementPage extends React.Component {
             page: 0,
             totalPages: 0,
             openPopup: false,
+            eventPopup: {},
             eventModal: null,
             highlightTableRow: null,
             open: false,
@@ -78,6 +80,20 @@ class AppointmentsManagementPage extends React.Component {
                 const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
                 console.log('appointments ', appointments);
 
+                appointments.map((appointment, index) => {
+                    helpers.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                        .then(user => {
+                            appointment.clientName = user.fullname;
+                            appointment.id = appointment.appointmentId;
+                            appointment.allDay = false;
+                            appointment.startDateAndTime = new Date(appointment.startDateAndTime);
+                            appointment.endDateAndTime = new Date(appointment.endDateAndTime);
+                            this.setState({
+                                appointments: appointments
+                            })
+                        });
+                });
+
                 this.setState({
                     appointments: appointments,
                     page: 0,
@@ -91,10 +107,11 @@ class AppointmentsManagementPage extends React.Component {
     createEvents() {
         let calendarEvents = [];
 
-       axios.all(this.state.appointments.map((appointment, index) => {
+        axios.all(this.state.appointments.map((appointment, index) => {
             helpers.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
                 .then(user => {
                     calendarEvents.push({
+                        id: appointment.appointmentId,
                         title: user.fullname,
                         subject: appointment.AppointmentDetail.subject,
                         start: appointment.startDateAndTime,
@@ -104,7 +121,11 @@ class AppointmentsManagementPage extends React.Component {
                     })
                 })
         }))
-            .then(this.setState({calendarEvents: calendarEvents}));
+            .then(() => {
+                console.log("in create events ", calendarEvents);
+                this.setState({calendarEvents: calendarEvents});
+                this.forceUpdate();
+            });
     }
 
     setPage(page) {
@@ -133,21 +154,29 @@ class AppointmentsManagementPage extends React.Component {
         });
     }
 
-    onSelectEvent = event => {
-        if (event.resource.appointmentId === this.state.highlightTableRow)
-            this.setState({highlightTableRow: null});
-        else
-            this.setState({highlightTableRow: event.resource.appointmentId});
+    onHoverEvent = event =>
+        //     this.setState({eventPopup: event, openPopup: true});
+        // };
+        // console.log('hoover ', event);
+        `title: ${event}`;
+    // };
 
+    onSelectEvent = event => {
         // this.setState({openPopup: true, eventPopup: event});
+        console.log('onSelectEvent=event  ', event);
+        if (event.appointmentId === this.state.highlightTableRow)
+            this.setState({highlightTableRow: null});
+        else {
+            this.setState({highlightTableRow: event.appointmentId});
+
+        }
         // console.log('onSelectEvent before state ', this.state);
         // this.show('blurring');
         // this.setState({eventModal: event});
-        console.log('onSelectEvent=event  ', event);
         // console.log('onSelectEvent after state ', this.state);
-        this.props.history.push(`${this.props.match.path}/${event.resource.appointmentId}`, {
-            event: event,
-            appointment: event.resource
+        this.props.history.push(`${this.props.match.path}/${event.appointmentId}`, {
+            // event: event,
+            appointment: event
         });
 
         // alert(event);
@@ -163,19 +192,20 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     render() {
+        const {t} = this.props;
         const {appointments, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
-        moment.locale("he", {
-            week: {
-                dow: 1 //Monday is the first day of the week.
-            }
-        });
-        // moment.locale('he');
+        // moment.locale("he", {
+        //     week: {
+        //         dow: 1 //Monday is the first day of the week.
+        //     }
+        // });
+        moment.locale('he');
         const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
         const {calendarEvents} = this.state;
 
-        const {open, dimmer, openSetNewAppointment} = this.state;
+        const {open, dimmer, openSetNewAppointment, openPopup, eventPopup} = this.state;
 
         return (
             /*<BigCalendar
@@ -185,43 +215,88 @@ class AppointmentsManagementPage extends React.Component {
                 endAccessor="end"
             />*/
             <div>
-                <Page children={appointments} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE} columns={1}>
+                {/*<Page children={appointments} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE} columns={1}>*/}
+                <div>
+                    <Grid columns={3} padded>
+                        <Grid.Row>
+                            {title && <Header as="h1" floated="right">{title}</Header>}
+                        </Grid.Row>
+                        <Grid.Column>
+                            {children}
+                        </Grid.Column>
+                        <Grid.Column>
+                            {children}
+                        </Grid.Column>
+                        <Grid.Column>
+                            {children}
+                        </Grid.Column>
+                    </Grid>
+                </div>
                     <Helmet>
-                        <title>Meshekle | Users</title>
+                        <title>Meshekle | Appointments</title>
                     </Helmet>
 
                     <BigCalendar
                         localizer={localizer}
-                        events={calendarEvents}
-                        // startAccessor="start"
-                        // endAccessor="end"
+                        events={appointments}
+                        titleAccessor='clientName'
+                        startAccessor="startDateAndTime"
+                        endAccessor="endDateAndTime"
+                        tooltipAccessor={this.onHoverEvent.bind(this)}
                         selectable
                         onSelectEvent={this.onSelectEvent.bind(this)}
                         onSelectSlot={this.onSelectSlot.bind(this)}
                         popup
                         rtl
-                        step={30}
-                        timeslots={4}
+                        // step={30}
+                        // timeslots={4}
                         messages={{
-                            next: "הבא",
-                            previous: "הקודם",
-                            today: "היום",
-                            month: 'חודשי',
+                            date: 'תאריך',
+                            time: 'זמן',
+                            event: 'תור',
+                            allDay: 'כל היום',
                             week: 'שבועי',
                             day: 'יומי',
-                            agenda: 'יומן'
+                            month: 'חודשי',
+                            previous: 'הקודם',
+                            next: 'הבא',
+                            yesterday: 'אתמול',
+                            tomorrow: 'מחר',
+                            today: 'היום',
+                            agenda: 'יומן',
                         }}
+                        culture="he-IL"
+                        // eventPropGetter={(event,start,end,isSelected)=>{
+                        //     return {
+                        //         style: {
+                        //             backgroundColor:'transparent',
+                        //             // color: Colors.primary,
+                        //             borderRadius:0,
+                        //             border: 'none',
+                        //             whiteSpace: 'pre-wrap',
+                        //             overflowY: 'auto'
+                        //         }
+                        //     }
+                        // }}
                     />
 
 
-                    {/*{this.state.openPopup &&
-                <Popup
-                    key={this.state.eventPopup.title}
-                    trigger={this.state.openPopup}
-                    header={this.state.eventPopup.title}
-                    content={this.state.eventPopup}
-                    hideOnScroll
-                />}*/}
+                    {/*// openPopup && eventPopup ?*/}
+                    {/*{if(eventPopup){*/}
+                    {/*<Popup
+                        // key={eventPopup.appointmentId}
+                        trigger={openPopup}
+                        // open={openPopup}
+                        header={eventPopup.clientName}
+                        content={eventPopup}
+                        // hideOnScroll
+                        // closeOnPortalMouseLeave
+                        // closeOnTriggerMouseLeave
+                        // defaultOpen={false}
+                    />*/}
+                    {/*: null*/}
+                    {/*}}*/}
+
 
                     <Table celled striped textAlign='right' selectable sortable>
                         <Table.Header>
@@ -330,6 +405,8 @@ class AppointmentsManagementPage extends React.Component {
                         </Modal.Actions>
                     </Modal>*/}
                 </Page>
+
+
                 <div>
                     <Switch>
                         <Route exec path={`${this.props.match.path}/set`}

@@ -10,11 +10,11 @@ import store from "store";
 import {SERVER_URL} from "../shared/constants";
 
 
-class UserInfo extends React.Component {
+class AppointmentInfo extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {event: this.props.location.state.event, appointment: this.props.location.state.appointment};
+        this.state = {appointment: this.props.location.state.appointment};
 
         this.handleDelete = this.handleDelete.bind(this);
         this.serviceProviderHeaders = {
@@ -51,21 +51,21 @@ class UserInfo extends React.Component {
     }
 
     render() {
-        const {event, appointment} = this.state;
+        const {appointment} = this.state;
         console.log('resder apponmnt info appointment ', appointment);
 
         return (
             <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | {event.title}</title>
+                    <title>Meshekle | {appointment.clientName}</title>
                 </Helmet>
 
-                <Modal.Header>{event.title}</Modal.Header>
+                <Modal.Header>{appointment.clientName}</Modal.Header>
                 <Modal.Content image>
                     {/*<Image wrapped size="small" src={`https://api.adorable.io/avatars/250/${user.email}`}/>*/}
                     <Modal.Description>
                         <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointment.appointmentId}</p>
-                        <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {event.title}</p>
+                        <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointment.clientName}</p>
                         <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointment.AppointmentDetail.serviceProviderId}</p>
                         <p>{strings.appointmentsPageStrings.ROLE}: {appointment.AppointmentDetail.role}</p>
                         <p>{strings.appointmentsPageStrings.SUBJECT}: {appointment.AppointmentDetail.subject}</p>
@@ -86,4 +86,4 @@ class UserInfo extends React.Component {
     }
 }
 
-export default UserInfo;
+export default AppointmentInfo;
