@@ -2,7 +2,7 @@ import React from 'react';
 import { post } from 'axios';
 import UserForm from './UserForm';
 import { Helmet } from 'react-helmet';
-import Page from './Page';
+import Page from '../Page';
 
 class UserAdd extends React.Component {
     constructor(props) {

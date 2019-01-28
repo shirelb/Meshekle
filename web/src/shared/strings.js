@@ -61,6 +61,7 @@ const appointmentsPageStrings = {
     START_TIME: "זמן התחלה",
     END_TIME: "זמן סיום",
     REMARKS: "הערות",
+    OPTIONAL_TIMES: "זמנים אופציונאליים",
 };
 
 

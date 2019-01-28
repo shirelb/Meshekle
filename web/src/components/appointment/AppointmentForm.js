@@ -4,8 +4,8 @@ import {post} from "axios";
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
-import helpers from "../shared/helpers";
-import './styles.css';
+import helpers from "../../shared/helpers";
+import '../styles.css';
 
 
 const subjectOptions = [
@@ -32,19 +32,41 @@ class AppointmentForm extends Component {
     constructor(props) {
         super(props);
 
-        const {slotInfo, appointment = {}} = props;
+        const {slotInfo, appointment} = props;
 
         this.state = {
-            appointment: {
-                date: moment(slotInfo.start),
-                startTime: '',
-                endTime: '',
-                subject: [],
-                clientName: '',
-            },
             formError: false,
             formComplete: false,
         };
+
+        if (slotInfo)
+            this.state = {
+                appointment: {
+                    date: slotInfo.start ? moment(slotInfo.start) : '',
+                    startTime: slotInfo.start ? moment(slotInfo.start).format("HH:mm") : '',
+                    endTime: slotInfo.end ? moment(slotInfo.end).format("HH:mm") : '',
+                    subject: [],
+                    clientName: '',
+                },
+            };
+        else {
+            console.log('sssss ',appointment);
+
+            this.state = {
+                appointment: {
+                    // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
+                    date: moment(appointment.startDateAndTime),
+                    startTime: moment(appointment.startDateAndTime).format("HH:mm"),
+                    endTime: moment(appointment.endDateAndTime).format("HH:mm"),
+                    subject: JSON.parse(appointment.AppointmentDetail.subject),
+                    clientName: appointment.clientName,
+                    remarks: appointment.remarks,
+                },
+            };
+
+            console.log('ssssddds ',this.state.appointment);
+
+        }
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -53,7 +75,17 @@ class AppointmentForm extends Component {
     componentWillReceiveProps(nextProps) {
         const {appointment} = nextProps;
 
-        this.setState({appointment});
+        this.state = {
+            appointment: {
+                // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
+                date: moment(appointment.startDateAndTime),
+                startTime: moment(appointment.startDateAndTime).format("HH:mm"),
+                endTime: moment(appointment.endDateAndTime).format("HH:mm"),
+                subject: JSON.parse(appointment.AppointmentDetail.subject),
+                clientName: appointment.clientName,
+                remarks: appointment.remarks,
+            },
+        };
     }
 
     handleSubmit(e) {
@@ -94,9 +126,10 @@ class AppointmentForm extends Component {
                 endTime: '',
                 subject: [],
                 clientName: '',
-                formError: false,
-                formComplete: false,
+                remarks:'',
             },
+            formError: false,
+            formComplete: false,
         });
     };
 
@@ -124,7 +157,9 @@ class AppointmentForm extends Component {
 
     render() {
         const {appointment, formError, formComplete} = this.state;
-        const {handleCancel, submitText = 'קבע'} = this.props;
+        const {handleCancel, submitText} = this.props;
+
+        console.log('sasaaads ',this.state.appointment);
 
         return (
             <Form onSubmit={this.handleSubmit} error={formError}>
@@ -226,8 +261,8 @@ class AppointmentForm extends Component {
                 }
 
                 <Form.Group>
-                    <Form.Button type="submit">{submitText}</Form.Button>
-                    <Form.Button onClick={handleCancel}>בטל</Form.Button>
+                    <Form.Button positive type="submit">{submitText}</Form.Button>
+                    <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>
                 </Form.Group>
 

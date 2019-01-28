@@ -11,7 +11,7 @@ import Page from '../../components/Page';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
-import UserInfo from "../../components/UserInfo";
+import UserInfo from "../../components/user/UserInfo";
 
 const TOTAL_PER_PAGE = 10;
 

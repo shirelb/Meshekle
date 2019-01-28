@@ -2,8 +2,14 @@ import React from 'react';
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
 import {Grid, Header, List} from 'semantic-ui-react';
+
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import HTML5Backend from 'react-dnd-html5-backend';
+import {DragDropContext} from 'react-dnd';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+
 import moment from 'moment';
 import 'moment/locale/he';
 import axios from 'axios';
@@ -12,12 +18,57 @@ import {Helmet} from 'react-helmet';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
-import AppointmentInfo from "../../components/AppointmentInfo";
+import AppointmentInfo from "../../components/appointment/AppointmentInfo";
+import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import {Redirect, Route, Switch} from "react-router-dom";
-import AppointmentAdd from "../../components/AppointmentAdd";
+import AppointmentAdd from "../../components/appointment/AppointmentAdd";
+import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 
 
 const TOTAL_PER_PAGE = 10;
+
+moment.locale('he');
+const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
+// BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
+// const DragAndDropCalendar = withDragAndDrop(BigCalendar, {backend: false});
+const DragAndDropCalendar = withDragAndDrop(BigCalendar);
+
+function Event({event}) {
+    return (
+        <span>
+      <strong>{event.clientName}</strong>
+            {event.desc && ':  ' + event.desc}
+    </span>
+    )
+}
+
+function EventAgenda({event}) {
+    return (
+        <span>
+      <em style={{color: 'magenta'}}>{event.clientName}</em>
+      <p>{event.desc}</p>
+    </span>
+    )
+}
+
+const customDayPropGetter = date => {
+    if (date.getDate() === 7 || date.getDate() === 15)
+        return {
+            className: 'special-day',
+            style: {
+                border: 'solid 3px ' + (date.getDate() === 7 ? '#faa' : '#afa'),
+            },
+        }
+    else return {}
+}
+
+const customSlotPropGetter = date => {
+    if (date.getDate() === 7 || date.getDate() === 15)
+        return {
+            className: 'special-day',
+        }
+    else return {}
+}
 
 class AppointmentsManagementPage extends React.Component {
     constructor(props) {
@@ -41,6 +92,9 @@ class AppointmentsManagementPage extends React.Component {
         this.decrementPage = this.decrementPage.bind(this);
         this.setPage = this.setPage.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
+
+        this.moveEvent = this.moveEvent.bind(this);
+
 
         this.serviceProviderHeaders = '';
     }
@@ -199,7 +253,7 @@ class AppointmentsManagementPage extends React.Component {
     }
 
     getAllDatesOfMonthByDay = (day) => {
-        let dayEnum=['Sunday','Monday','Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        let dayEnum = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let datesArray = [];
         let dateByDay = moment()
             .startOf('month')
@@ -269,7 +323,6 @@ class AppointmentsManagementPage extends React.Component {
         // this.setState({eventModal: event});
         // console.log('onSelectEvent after state ', this.state);
         this.props.history.push(`${this.props.match.path}/${event.appointmentId}`, {
-            // event: event,
             appointment: event
         });
 
@@ -285,6 +338,95 @@ class AppointmentsManagementPage extends React.Component {
 
     };
 
+    // moveEvent({event, start, end}) {
+    moveEvent({event, startDateAndTime, endDateAndTime, isAllDay: droppedOnAllDaySlot}) {
+
+        const events = this.state.appointments;
+
+        console.log('in moveEvent');
+
+        const idx = events.indexOf(event);
+        let allDay = event.allDay;
+
+        if (!event.allDay && droppedOnAllDaySlot) {
+            allDay = true
+        } else if (event.allDay && !droppedOnAllDaySlot) {
+            allDay = false
+        }
+
+        const updatedEvent = {...event, startDateAndTime, endDateAndTime, allDay};
+
+        const nextEvents = [...events];
+        nextEvents.splice(idx, 1, updatedEvent);
+
+        this.setState({
+            appointments: nextEvents,
+        })
+
+        /*const idx = events.indexOf(event);
+        let updatedEvent = {...event, start, end};
+        const nextEvents = [...events];
+        if (idx > -1) {
+            nextEvents.splice(idx, 1, updatedEvent);
+            UpdateEvents(event.id).update({start, end}).then(
+                this.setState({
+                    events: nextEvents,
+                })
+            ).catch(error => {
+                console.error('Update error', error);
+            });
+        }
+        else {
+            const newEventId = uuidV4();
+            updatedEvent = {...updatedEvent, id: newEventId, ownerId: this.props.uid};
+            console.log(updatedEvent);
+            nextEvents.push(updatedEvent);
+            UpdateEvents(newEventId).set(updatedEvent).then(
+                this.setState({
+                    events: nextEvents,
+                })
+            ).catch(error => {
+                console.error('Create New Event error', error);
+            });
+        }*/
+    }
+
+    // resizeEvent = (resizeType, {event, start, end}) => {
+    resizeEvent = ({appointment, startDateAndTime, endDateAndTime}) => {
+
+        const appointments = this.state.appointments;
+
+        console.log('in resizeEvent');
+
+        const nextEvents = appointments.map(existingAppointment => {
+            console.log('existingAppointment  ', existingAppointment);
+            if (existingAppointment.appointmentId === appointment.appointmentId) {
+                console.log('existingAppointment 33 ', existingAppointment);
+                return {...existingAppointment, startDateAndTime, endDateAndTime}
+            } else
+                return existingAppointment;
+        });
+
+        this.setState({
+            appointments: nextEvents,
+        })
+
+        /*const nextEvents = appointments.map(existingEvent => {
+            return existingEvent.id === appointment.id
+                ? {...existingEvent, start, end}
+                : existingEvent
+        });
+
+        UpdateEvents(appointment.id).update({start, end}).then(
+            this.setState({
+                appointments: nextEvents,
+            })
+        ).catch(error => {
+            console.error('Update error', error);
+        });*/
+    };
+
+
     render() {
         const {t} = this.props;
         const {appointments, page, totalPages} = this.state;
@@ -295,8 +437,8 @@ class AppointmentsManagementPage extends React.Component {
         //         dow: 1 //Monday is the first day of the week.
         //     }
         // });
-        moment.locale('he');
-        const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
+        // moment.locale('he');
+        // const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
         const {calendarEvents} = this.state;
 
         const {open, dimmer, openSetNewAppointment, openPopup, eventPopup} = this.state;
@@ -324,6 +466,9 @@ class AppointmentsManagementPage extends React.Component {
                                             <List.Item key={appointmentRequest.requestId}
                                                        onMouseEnter={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
                                                        onMouseLeave={this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
+                                                       onClick={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
+                                                           appointmentRequest: appointmentRequest
+                                                       })}
                                             >
                                                 {/*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*/}
                                                 <List.Content>
@@ -344,7 +489,8 @@ class AppointmentsManagementPage extends React.Component {
                                                                     <List.Content>
                                                                         <List.Description>{daysTimes.day}</List.Description>
                                                                         <List.Description>
-                                                                            {daysTimes.hours.map((time, k) =>
+                                                                            {Array.isArray(daysTimes.hours) &&
+                                                                            daysTimes.hours.map((time, k) =>
                                                                                 (
                                                                                     <List.Item key={k}>
                                                                                         <List.Content>
@@ -363,19 +509,13 @@ class AppointmentsManagementPage extends React.Component {
                                             </List.Item>
                                         ),
                                     )}
-                                    {/*<List.Item>
-                                        <Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />
-                                        <List.Content>
-                                            <List.Header>Helen</List.Header>
-                                        </List.Content>
-                                    </List.Item>*/}
                                 </List>
                             </Grid.Column>
                             <Grid.Column width={13}>
                                 <div style={{height: 600}}>
-                                    <BigCalendar
+                                    <DragAndDropCalendar
                                         localizer={localizer}
-                                        events={appointments}
+                                        events={Array.isArray(appointments) ? appointments : []}
                                         titleAccessor='clientName'
                                         startAccessor="startDateAndTime"
                                         endAccessor="endDateAndTime"
@@ -387,6 +527,10 @@ class AppointmentsManagementPage extends React.Component {
                                         rtl
                                         // step={30}
                                         // timeslots={4}
+                                        onEventDrop={this.moveEvent}
+                                        // draggableAccessor={event => true}
+                                        resizable
+                                        onEventResize={this.resizeEvent}
                                         messages={{
                                             date: 'תאריך',
                                             time: 'זמן',
@@ -403,6 +547,14 @@ class AppointmentsManagementPage extends React.Component {
                                             agenda: 'יומן',
                                         }}
                                         culture="he-IL"
+                                        dayPropGetter={customDayPropGetter}
+                                        slotPropGetter={customSlotPropGetter}
+                                        components={{
+                                            event: Event,
+                                            agenda: {
+                                                event: EventAgenda,
+                                            },
+                                        }}
                                         // eventPropGetter={(event,start,end,isSelected)=>{
                                         //     return {
                                         //         style: {
@@ -554,12 +706,14 @@ class AppointmentsManagementPage extends React.Component {
 
                 <div>
                     <Switch>
+                        <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
+                               component={AppointmentRequestInfo}/>
                         <Route exec path={`${this.props.match.path}/set`}
                                component={AppointmentAdd}/>
-                        <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
-                               component={AppointmentInfo}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId`}
                                component={AppointmentInfo}/>
+                        <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
+                               component={AppointmentEdit}/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
                 </div>
@@ -569,4 +723,4 @@ class AppointmentsManagementPage extends React.Component {
     }
 }
 
-export {AppointmentsManagementPage}
+export default DragDropContext(HTML5Backend)(AppointmentsManagementPage)

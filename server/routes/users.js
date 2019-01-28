@@ -655,7 +655,7 @@ router.get('/appointmentRequests/userId/:userId', function (req, res, next) {
             if (user.dataValues) {
                 let whereClause = {};
                 req.query.status ? whereClause.status = req.query.status : null;
-                req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+                req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
                 AppointmentRequests.findAll({
                     where: whereClause,
                     include: [

@@ -41,6 +41,26 @@ var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) 
         });
 };
 
+var getAppointmentRequestByAppointmentRequestID = (serviceProviderId, appointmentRequestId, headers) => {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/appointmentRequests/serviceProviderId/${serviceProviderId}`,
+        {
+            headers: headers,
+            params: {
+                appointmentRequestId: appointmentRequestId,
+            }
+        }
+    )
+        .then((response) => {
+            let appointmentRequest = response.data[0];
+            console.log('getAppointmentByAppointmentID ', appointmentRequestId, ' ', appointmentRequest);
+            return appointmentRequest;
+        })
+        .catch((error) => {
+            console.log('getAppointmentByAppointmentID ', appointmentRequestId, ' ', error);
+            return null;
+        });
+};
+
 var getUsers = () => {
     return axios.get(`${SERVER_URL}/api/users`,
         {headers: serviceProviderHeaders}
@@ -64,4 +84,10 @@ var getRolesOfServiceProvider = (serviceProviderId) => {
         });
 };
 
-export default {getUserByUserID, getAppointmentByAppointmentID, getUsers,getRolesOfServiceProvider};
+export default {
+    getUserByUserID,
+    getAppointmentByAppointmentID,
+    getUsers,
+    getRolesOfServiceProvider,
+    getAppointmentRequestByAppointmentRequestID
+};

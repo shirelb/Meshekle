@@ -1,3 +1,5 @@
+import {appointmentRequestStatusesMapper} from "./shared/constants";
+
 var authentications = require('./shared/authentications');
 var validiation = require('./shared/validations');
 const Sequelize = require('sequelize');
@@ -626,7 +628,7 @@ router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function
             return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
         let whereClause = {};
         req.query.status ? whereClause.status = req.query.status : null;
-        req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+        req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
         AppointmentRequests.findAll({
             where: whereClause,
             include: [
@@ -648,6 +650,29 @@ router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function
                 res.status(500).send(err);
             })
     });
+});
+
+// update appointmentRequest status to 'approved'/'rejected' by appointmentRequestId .
+router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequestId', function (req, res, next) {
+    AppointmentRequests.update(
+        {status: appointmentRequestStatusesMapper(req.query.status)},
+        {
+            where: {
+                requestId: req.params.appointmentRequestId
+            }
+        })
+        .then(isUpdated => {
+            if (isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
+            res.status(200).send({
+                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+                "result": isUpdated[0]
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
 });
 
 

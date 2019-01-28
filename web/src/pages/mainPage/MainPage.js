@@ -8,7 +8,7 @@ import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
 import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
-import {AppointmentsManagementPage} from '../appointmentsManagementPage/AppointmentsManagementPage'
+import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import axios from "axios";
 import {SERVER_URL} from "../../shared/constants";

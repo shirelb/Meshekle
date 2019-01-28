@@ -5,9 +5,9 @@ import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
 import store from "store";
 import moment from 'moment';
-import helpers from "../shared/helpers";
-import mappers from "../shared/mappers";
-import {SERVER_URL} from "../shared/constants";
+import helpers from "../../shared/helpers";
+import mappers from "../../shared/mappers";
+import {SERVER_URL} from "../../shared/constants";
 
 class AppointmentAdd extends React.Component {
     constructor(props) {
@@ -76,9 +76,11 @@ class AppointmentAdd extends React.Component {
                         <Header as="h1" floated="right">תור חדש</Header>
 
                         <AppointmentForm
+                            submitText="קבע"
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                             slotInfo={this.state.slotInfo}
+                            // appointment={}
                         />
                     </Grid.Column>
                 </Grid>
