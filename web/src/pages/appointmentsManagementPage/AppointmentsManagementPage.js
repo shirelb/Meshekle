@@ -1,23 +1,20 @@
 import React from 'react';
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
+import {Grid, Header, List} from 'semantic-ui-react';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
 import 'moment/locale/he';
 import axios from 'axios';
 import store from 'store';
-import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
-import Page from '../../components/Page';
 import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
 import helpers from "../../shared/helpers";
 import AppointmentInfo from "../../components/AppointmentInfo";
-import {Link, Redirect, Route, Switch} from "react-router-dom";
+import {Redirect, Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/AppointmentAdd";
-import {Grid} from "semantic-ui-react/dist/commonjs/collections/Grid";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -28,6 +25,7 @@ class AppointmentsManagementPage extends React.Component {
 
         this.state = {
             appointments: [],
+            appointmentRequests: [],
             calendarEvents: [],
             page: 0,
             totalPages: 0,
@@ -54,6 +52,51 @@ class AppointmentsManagementPage extends React.Component {
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
         this.getServiceProviderAppointments();
+        this.getServiceProviderAppointmentRequests();
+    }
+
+    getServiceProviderAppointmentRequests() {
+        axios.get(`${SERVER_URL}/api/serviceProviders/appointmentRequests/serviceProviderId/${this.serviceProviderId}`,
+            {
+                headers: this.serviceProviderHeaders,
+                params: {
+                    status: 'requested'
+                },
+            }
+        )
+            .then((response) => {
+                const appointmentRequests = response.data;
+                const totalPages = Math.ceil(appointmentRequests.length / TOTAL_PER_PAGE);
+                console.log('appointmentRequests ', appointmentRequests);
+
+                appointmentRequests.map((appointmentRequest, index) => {
+                    helpers.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                        .then(user => {
+                            appointmentRequest.clientName = user.fullname;
+                            appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
+                            // let optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
+                            // let formattedOptionalTimes=[];
+                            // optionalTimes.map(daysTimes => {
+                            //     formattedOptionalTimes.push(daysTimes.day);
+                            //     formattedOptionalTimes[daysTimes.day]=[];
+                            //     daysTimes.hours.map(time=>{
+                            //         formattedOptionalTimes[daysTimes.day].push({startHour:time.startHour,endHour:time.endHour})
+                            //     })
+                            // });
+                            // appointmentRequest.optionalTimes = formattedOptionalTimes;
+                            // console.log('ppp  ', appointmentRequest.optionalTimes.map(m=>m.day+' '+m.hours.map(k=>k.startHour+'-'+k.endHour)));
+                            this.setState({
+                                appointmentRequests: appointmentRequests
+                            })
+                        });
+                });
+
+                this.setState({
+                    appointmentRequests: appointmentRequests,
+                    page: 0,
+                    totalPages,
+                });
+            });
     }
 
     show = (dimmer, openModel) => this.setState({dimmer, openModel: true});
@@ -63,6 +106,7 @@ class AppointmentsManagementPage extends React.Component {
         console.log("componentWillReceiveProps !!!!!!!");
         if (location.pathname === '/appointments' && location.pathname !== this.props.location.pathname) {
             this.getServiceProviderAppointments();
+            this.getServiceProviderAppointmentRequests();
         }
     }
 
@@ -84,7 +128,7 @@ class AppointmentsManagementPage extends React.Component {
                     helpers.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
                         .then(user => {
                             appointment.clientName = user.fullname;
-                            appointment.id = appointment.appointmentId;
+                            // appointment.id = appointment.appointmentId;
                             appointment.allDay = false;
                             appointment.startDateAndTime = new Date(appointment.startDateAndTime);
                             appointment.endDateAndTime = new Date(appointment.endDateAndTime);
@@ -100,7 +144,7 @@ class AppointmentsManagementPage extends React.Component {
                     totalPages,
                 });
 
-                this.createEvents();
+                // this.createEvents();
             });
     }
 
@@ -154,6 +198,56 @@ class AppointmentsManagementPage extends React.Component {
         });
     }
 
+    getAllDatesOfMonthByDay = (day) => {
+        let dayEnum=['Sunday','Monday','Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        let datesArray = [];
+        let dateByDay = moment()
+            .startOf('month')
+            .day(dayEnum.indexOf(day));
+        if (dateByDay.date() > 7) dateByDay.add(7, 'd');
+        let month = dateByDay.month();
+        while (month === dateByDay.month()) {
+            datesArray.push(dateByDay.toDate());
+            dateByDay.add(7, 'd');
+        }
+        return datesArray;
+    };
+
+    hoverOnAppointmentRequest = (appointmentRequest) => {
+        let shadowAppointments = [];
+        if (appointmentRequest.optionalTimes)
+            appointmentRequest.optionalTimes.map(daysTimes => {
+                daysTimes.hours.map(time => {
+                    this.getAllDatesOfMonthByDay(daysTimes.day).map(date => {
+                        shadowAppointments.push(
+                            {
+                                appointmentRequestId: appointmentRequest.requestId,
+                                clientId: appointmentRequest.AppointmentDetail.clientId,
+                                clientName: appointmentRequest.clientName,
+                                role: appointmentRequest.AppointmentDetail.role,
+                                serviceProviderId: appointmentRequest.AppointmentDetail.serviceProviderId,
+                                subject: appointmentRequest.AppointmentDetail.subject,
+                                allDay: false,
+                                startDateAndTime: moment(date.toLocaleString().substring(0, 10) + ' ' + time.startHour).toDate(),
+                                endDateAndTime: moment(date.toLocaleString().substring(0, 10) + ' ' + time.endHour).toDate(),
+                                remarks: appointmentRequest.notes,
+                                status: "optional",
+                            }
+                        )
+                    });
+                })
+            });
+        shadowAppointments.push.apply(shadowAppointments, this.state.appointments);
+        if (Array.isArray(shadowAppointments)) {
+            this.setState({appointments: shadowAppointments});
+        }
+    };
+
+    hoverOffAppointmentRequest = (appointmentRequest) => {
+        let appointmentsWithoutOptional = this.state.appointments.filter(obj => obj.appointmentId !== appointmentRequest.appointmentRequestId || obj.status !== 'optional');
+        this.setState({appointments: appointmentsWithoutOptional});
+    };
+
     onHoverEvent = event =>
         //     this.setState({eventPopup: event, openPopup: true});
         // };
@@ -206,84 +300,135 @@ class AppointmentsManagementPage extends React.Component {
         const {calendarEvents} = this.state;
 
         const {open, dimmer, openSetNewAppointment, openPopup, eventPopup} = this.state;
+        // console.log("aaaa ", this.state.appointmentRequests[0] ?
+        //     this.state.appointmentRequests[0].optionalTimes.forEach(v=> console.log(v.day+v.hours))
+        //     : '');
 
         return (
-            /*<BigCalendar
-                localizer={localizer}
-                events={calendarEvents}
-                startAccessor="start"
-                endAccessor="end"
-            />*/
             <div>
                 {/*<Page children={appointments} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE} columns={1}>*/}
                 <div>
-                    <Grid columns={3} padded>
-                        <Grid.Row>
-                            {title && <Header as="h1" floated="right">{title}</Header>}
-                        </Grid.Row>
-                        <Grid.Column>
-                            {children}
-                        </Grid.Column>
-                        <Grid.Column>
-                            {children}
-                        </Grid.Column>
-                        <Grid.Column>
-                            {children}
-                        </Grid.Column>
-                    </Grid>
-                </div>
                     <Helmet>
                         <title>Meshekle | Appointments</title>
                     </Helmet>
+                    <Grid stretched padded>
+                        <Grid.Row>
+                            <Header as="h1" floated="right">{strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}</Header>
+                        </Grid.Row>
+                        <Grid.Row columns='equal'>
+                            <Grid.Column>
+                                בקשות תורים:
+                                <List animated selection divided verticalAlign='middle'>
+                                    {this.state.appointmentRequests.map((appointmentRequest, i) =>
+                                        (
+                                            <List.Item key={appointmentRequest.requestId}
+                                                       onMouseEnter={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
+                                                       onMouseLeave={this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
+                                            >
+                                                {/*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*/}
+                                                <List.Content>
+                                                    <List.Header>{appointmentRequest.clientName}</List.Header>
+                                                    {/*<List.Description*/}
+                                                    {/*as='a'>{appointmentRequest.AppointmentDetail.serviceProviderId}</List.Description>*/}
+                                                    {/*<List.Description*/}
+                                                    {/*as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>*/}
+                                                    <List.Description
+                                                        as='a'>{appointmentRequest.AppointmentDetail.subject}</List.Description>
+                                                    <List.Description
+                                                        as='a'>{appointmentRequest.notes}</List.Description>
+                                                    <List.Description>
+                                                        {Array.isArray(appointmentRequest.optionalTimes) &&
+                                                        appointmentRequest.optionalTimes.map((daysTimes, j) =>
+                                                            (
+                                                                <List.Item key={j}>
+                                                                    <List.Content>
+                                                                        <List.Description>{daysTimes.day}</List.Description>
+                                                                        <List.Description>
+                                                                            {daysTimes.hours.map((time, k) =>
+                                                                                (
+                                                                                    <List.Item key={k}>
+                                                                                        <List.Content>
+                                                                                            <List.Description>      {time.startHour}-{time.endHour}</List.Description>
+                                                                                        </List.Content>
+                                                                                    </List.Item>
+                                                                                ),
+                                                                            )}
+                                                                        </List.Description>
+                                                                    </List.Content>
+                                                                </List.Item>
+                                                            ),
+                                                        )}
+                                                    </List.Description>
+                                                </List.Content>
+                                            </List.Item>
+                                        ),
+                                    )}
+                                    {/*<List.Item>
+                                        <Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />
+                                        <List.Content>
+                                            <List.Header>Helen</List.Header>
+                                        </List.Content>
+                                    </List.Item>*/}
+                                </List>
+                            </Grid.Column>
+                            <Grid.Column width={13}>
+                                <div style={{height: 600}}>
+                                    <BigCalendar
+                                        localizer={localizer}
+                                        events={appointments}
+                                        titleAccessor='clientName'
+                                        startAccessor="startDateAndTime"
+                                        endAccessor="endDateAndTime"
+                                        tooltipAccessor={this.onHoverEvent.bind(this)}
+                                        selectable
+                                        onSelectEvent={this.onSelectEvent.bind(this)}
+                                        onSelectSlot={this.onSelectSlot.bind(this)}
+                                        popup
+                                        rtl
+                                        // step={30}
+                                        // timeslots={4}
+                                        messages={{
+                                            date: 'תאריך',
+                                            time: 'זמן',
+                                            event: 'תור',
+                                            allDay: 'כל היום',
+                                            week: 'שבועי',
+                                            day: 'יומי',
+                                            month: 'חודשי',
+                                            previous: 'הקודם',
+                                            next: 'הבא',
+                                            yesterday: 'אתמול',
+                                            tomorrow: 'מחר',
+                                            today: 'היום',
+                                            agenda: 'יומן',
+                                        }}
+                                        culture="he-IL"
+                                        // eventPropGetter={(event,start,end,isSelected)=>{
+                                        //     return {
+                                        //         style: {
+                                        //             backgroundColor:'transparent',
+                                        //             // color: Colors.primary,
+                                        //             borderRadius:0,
+                                        //             border: 'none',
+                                        //             whiteSpace: 'pre-wrap',
+                                        //             overflowY: 'auto'
+                                        //         }
+                                        //     }
+                                        // }}
+                                    />
+                                </div>
+                            </Grid.Column>
+                            {/*<Grid.Column>
 
-                    <BigCalendar
-                        localizer={localizer}
-                        events={appointments}
-                        titleAccessor='clientName'
-                        startAccessor="startDateAndTime"
-                        endAccessor="endDateAndTime"
-                        tooltipAccessor={this.onHoverEvent.bind(this)}
-                        selectable
-                        onSelectEvent={this.onSelectEvent.bind(this)}
-                        onSelectSlot={this.onSelectSlot.bind(this)}
-                        popup
-                        rtl
-                        // step={30}
-                        // timeslots={4}
-                        messages={{
-                            date: 'תאריך',
-                            time: 'זמן',
-                            event: 'תור',
-                            allDay: 'כל היום',
-                            week: 'שבועי',
-                            day: 'יומי',
-                            month: 'חודשי',
-                            previous: 'הקודם',
-                            next: 'הבא',
-                            yesterday: 'אתמול',
-                            tomorrow: 'מחר',
-                            today: 'היום',
-                            agenda: 'יומן',
-                        }}
-                        culture="he-IL"
-                        // eventPropGetter={(event,start,end,isSelected)=>{
-                        //     return {
-                        //         style: {
-                        //             backgroundColor:'transparent',
-                        //             // color: Colors.primary,
-                        //             borderRadius:0,
-                        //             border: 'none',
-                        //             whiteSpace: 'pre-wrap',
-                        //             overflowY: 'auto'
-                        //         }
-                        //     }
-                        // }}
-                    />
+                            </Grid.Column>*/}
+                        </Grid.Row>
+                    </Grid>
+                </div>
 
 
-                    {/*// openPopup && eventPopup ?*/}
-                    {/*{if(eventPopup){*/}
-                    {/*<Popup
+                {/*// openPopup && eventPopup ?*/}
+                {/*{if(eventPopup){*/}
+                {/*<Popup
                         // key={eventPopup.appointmentId}
                         trigger={openPopup}
                         // open={openPopup}
@@ -294,11 +439,11 @@ class AppointmentsManagementPage extends React.Component {
                         // closeOnTriggerMouseLeave
                         // defaultOpen={false}
                     />*/}
-                    {/*: null*/}
-                    {/*}}*/}
+                {/*: null*/}
+                {/*}}*/}
 
 
-                    <Table celled striped textAlign='right' selectable sortable>
+                {/*<Table celled striped textAlign='right' selectable sortable>
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell>{strings.appointmentsPageStrings.CLIENT_ID}</Table.HeaderCell>
@@ -352,8 +497,8 @@ class AppointmentsManagementPage extends React.Component {
 
                     <Button as={Link} to={`${this.props.match.path}/set`}
                             positive>{strings.appointmentsPageStrings.ADD_APPOINTMENT}</Button>
-
-                    {/* <Modal dimmer={dimmer} open={openSetNewAppointment} onClose={this.close}>
+*/}
+                {/* <Modal dimmer={dimmer} open={openSetNewAppointment} onClose={this.close}>
                         <Modal.Header>Select a Photo</Modal.Header>
                         <Modal.Content>
                             <Image wrapped size='medium'
@@ -379,7 +524,7 @@ class AppointmentsManagementPage extends React.Component {
                         </Modal.Actions>
                     </Modal>*/}
 
-                    {/* <Modal dimmer={dimmer} open={open} onClose={this.close}>
+                {/* <Modal dimmer={dimmer} open={open} onClose={this.close}>
                         <Modal.Header>Select a Photo</Modal.Header>
                         <Modal.Content>
                             <Image wrapped size='medium'
@@ -404,7 +549,7 @@ class AppointmentsManagementPage extends React.Component {
                             />
                         </Modal.Actions>
                     </Modal>*/}
-                </Page>
+                {/*</Page>*/}
 
 
                 <div>

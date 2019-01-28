@@ -1,3 +1,6 @@
+import {Table} from "semantic-ui-react/dist/commonjs/collections/Table";
+import React from "react";
+
 const loginPageStrings = {
     LOGIN: "התחבר",
     SUBMIT: "שלח",
@@ -15,13 +18,16 @@ const mainPageStrings = {
     LOGOUT: "התנתק",
     WELCOME: "ברוכים הבאים ",
     MAIN_PAGE_TITLE: "בית",
-    PHONE_BOOK_PAGE_TITLE: "משתמשים",
+    PHONE_BOOK_PAGE_TITLE: "ספר טלפונים",
+    PHONE_BOOK_PAGE_USERS_TITLE: "משתמשים",
+    PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
     ROLES_HairDresser:"ספר/ית",
 };
 
 const phoneBookPageStrings = {
+    ADD_SERVICE_PROVIDER: "נותן שירות חדש",
     ADD_USER: "משתמש חדש",
     EDIT_USER: "ערוך משתמש",
     USER_ID_HEADER: "ת.ז.",
@@ -35,6 +41,11 @@ const phoneBookPageStrings = {
     ACTIVE_HEADER: "קיים",
     ACTIVE_ANSWER_YES: "כן",
     ACTIVE_ANSWER_NO: "לא",
+    SERVICE_PROVIDER_ID_HEADER: "ת.ז. נותן שירות",
+    SERVICE_PROVIDER_ROLE_HEADER: "תפקיד",
+    SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. יוזר",
+    SERVICE_PROVIDER_OPERATION_TIME_HEADER: "זמני פעילות",
+    SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER: "דרך קביעת תורים",
 };
 
 const appointmentsPageStrings = {

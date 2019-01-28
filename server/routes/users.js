@@ -648,5 +648,36 @@ router.get('/events/userId/:userId', function (req, res, next) {
         })
 });
 
+/* GET all appointment requests of user . */
+router.get('/appointmentRequests/userId/:userId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            if (user.dataValues) {
+                let whereClause = {};
+                req.query.status ? whereClause.status = req.query.status : null;
+                req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+                AppointmentRequests.findAll({
+                    where: whereClause,
+                    include: [
+                        {
+                            model: AppointmentDetails,
+                            where: {
+                                clientId: req.params.userId,
+                            },
+                            required: true
+                        }
+                    ]
+                })
+                    .then(userAppointments => {
+                        console.log(userAppointments);
+                        res.status(200).send(userAppointments);
+                    })
+                    .catch(err => {
+                        res.status(500).send(err);
+                    })
+            }
+        })
+});
+
 
 module.exports = router;

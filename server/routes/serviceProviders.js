@@ -3,7 +3,7 @@ var validiation = require('./shared/validations');
 const Sequelize = require('sequelize');
 var express = require('express');
 var router = express.Router();
-const {ServiceProviders, Users, Events, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events,AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
@@ -617,6 +617,37 @@ router.post('/appointments/set', function (req, res, next) {
                     }
                 })
         })
+});
+
+/* GET all appointment requests of user . */
+router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
+        if (serviceProviders.length === 0)
+            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+        let whereClause = {};
+        req.query.status ? whereClause.status = req.query.status : null;
+        req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+        AppointmentRequests.findAll({
+            where: whereClause,
+            include: [
+                {
+                    model: AppointmentDetails,
+                    where: {
+                        serviceProviderId: req.params.serviceProviderId
+                    },
+                    required: true
+                }
+            ]
+        })
+            .then(schedAppointments => {
+                console.log(schedAppointments);
+                res.status(200).send(schedAppointments);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).send(err);
+            })
+    });
 });
 
 
