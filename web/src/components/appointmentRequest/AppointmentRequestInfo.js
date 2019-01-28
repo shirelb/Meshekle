@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles.css';
-import {Button, Modal,List,Table} from 'semantic-ui-react';
+import {Button, List, Modal} from 'semantic-ui-react';
 import axios from 'axios';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";

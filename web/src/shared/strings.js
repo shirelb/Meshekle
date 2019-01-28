@@ -1,6 +1,3 @@
-import {Table} from "semantic-ui-react/dist/commonjs/collections/Table";
-import React from "react";
-
 const loginPageStrings = {
     LOGIN: "התחבר",
     SUBMIT: "שלח",
@@ -23,7 +20,7 @@ const mainPageStrings = {
     PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
-    ROLES_HairDresser:"ספר/ית",
+    ROLES_HairDresser: "ספר/ית",
 };
 
 const phoneBookPageStrings = {

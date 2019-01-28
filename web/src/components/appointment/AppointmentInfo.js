@@ -1,10 +1,9 @@
 import React from 'react';
 import '../styles.css';
 import {Button, Modal} from 'semantic-ui-react';
-import {Switch,Redirect,Route} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import axios from 'axios';
 import {Helmet} from 'react-helmet';
-import {Table} from "semantic-ui-react/dist/commonjs/collections/Table";
 import strings from "../../shared/strings";
 import getAppointmentByAppointmentID from "../../shared/helpers";
 import store from "store";
@@ -95,28 +94,14 @@ class AppointmentInfo extends React.Component {
                         </Modal.Description>
                     </Modal.Content>
                     <Modal.Actions className='alignLeft'>
-                        {/*<Button
-                        positive
-                        as={Link}
-                        to={{
-                            pathname: `${this.props.match.url}/edit`,
-                            state: {appointment: this.state.appointment}
-                        }}>
-                        ערוך
-                    </Button>*/}
                         <Button positive onClick={this.handleEdit}>ערוך</Button>
                         <Button negative onClick={this.handleDelete}>מחק</Button>
                         {/*<Button positive onClick={() => this.props.history.goBack()}>השאר</Button>*/}
                     </Modal.Actions>
-                    {/*<Route exec path={`${this.props.match.url}/edit`}*/}
-                    {/*lcomponent={AppointmentEdit}/>*/}
                 </Modal>
-
-
+                
                 <div>
                     <Switch>
-                        {/*<Route exec path={`${this.props.match.path}`}*/}
-                        {/*component={AppointmentInfo}/>*/}
                         <Route exec path={`${this.props.match.url}/edit`}
                                component={AppointmentEdit}/>
                         <Redirect to={`${this.props.match.path}`}/>

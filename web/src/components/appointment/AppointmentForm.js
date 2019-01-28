@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Dropdown, Form, Message, TextArea} from 'semantic-ui-react';
-import {post} from "axios";
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
@@ -75,7 +74,7 @@ class AppointmentForm extends Component {
     componentWillReceiveProps(nextProps) {
         const {appointment} = nextProps;
 
-        this.state = {
+        this.setState({
             appointment: {
                 // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
                 date: moment(appointment.startDateAndTime),
@@ -85,7 +84,7 @@ class AppointmentForm extends Component {
                 clientName: appointment.clientName,
                 remarks: appointment.remarks,
             },
-        };
+        });
     }
 
     handleSubmit(e) {

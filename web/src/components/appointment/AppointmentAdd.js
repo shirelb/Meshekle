@@ -1,5 +1,5 @@
 import React from 'react';
-import axios, {post} from 'axios';
+import axios from 'axios';
 import {Helmet} from 'react-helmet';
 import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
