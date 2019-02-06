@@ -140,7 +140,7 @@ UsersChoresTypes.belongsTo(Users, {
 
 
 
-sequelize.sync({force: true})
+sequelize.sync({force: false})
     .then(() => {
         Users.create({
             userId: '1',
@@ -169,11 +169,6 @@ sequelize.sync({force: true})
             )
     });
 
-    
-    // Users.hasMany(UsersChores, {
-    //     foreignKey : 'userId',
-    //     targetKey:'userId'
-    // });
     
 module.exports = {
     sequelize,

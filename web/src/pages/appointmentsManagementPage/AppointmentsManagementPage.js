@@ -38,6 +38,7 @@ function Event({event}) {
         <span>
       <strong>{event.clientName}</strong>
             {event.desc && ':  ' + event.desc}
+            {/*{event.startDateAndTime && ':  ' + event.endDateAndTime}*/}
     </span>
     )
 }
@@ -50,6 +51,25 @@ function EventAgenda({event}) {
     </span>
     )
 }
+
+const customEventPropGetter = event =>{
+    let bgColor = event.appointmentRequestId || event.status === 'optional' ? '#b7d2ff' : '#4286f4';
+    let opacity = event.appointmentRequestId || event.status === 'optional' ? 0.8 : 1;
+
+    // console.log(date);
+    // var backgroundColor = '#' + event.hexColor;
+    var style = {
+        // backgroundColor: bgColor,
+        // borderRadius: '0px',
+        opacity: opacity,
+        // color: 'black',
+        // border: '0px',
+        display: 'block'
+    };
+    return {
+        style: style
+    };
+};
 
 const customDayPropGetter = date => {
     if (date.getDate() === 7 || date.getDate() === 15)
@@ -512,6 +532,7 @@ class AppointmentsManagementPage extends React.Component {
                                         culture="he-IL"
                                         dayPropGetter={customDayPropGetter}
                                         slotPropGetter={customSlotPropGetter}
+                                        eventPropGetter={customEventPropGetter}
                                         components={{
                                             event: Event,
                                             agenda: {

@@ -1,11 +1,9 @@
-import {appointmentRequestStatusesMapper} from "./shared/constants";
-
 var authentications = require('./shared/authentications');
 var validiation = require('./shared/validations');
 const Sequelize = require('sequelize');
 var express = require('express');
 var router = express.Router();
-const {ServiceProviders, Users, Events,AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
@@ -655,7 +653,7 @@ router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function
 // update appointmentRequest status to 'approved'/'rejected' by appointmentRequestId .
 router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequestId', function (req, res, next) {
     AppointmentRequests.update(
-        {status: appointmentRequestStatusesMapper(req.query.status)},
+        {status: constants.appointmentRequestStatusesMapper(req.query.status)},
         {
             where: {
                 requestId: req.params.appointmentRequestId
