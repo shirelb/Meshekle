@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactDOM from "react-dom";
+
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
 import {Grid, Header, List} from 'semantic-ui-react';
@@ -52,7 +54,7 @@ function EventAgenda({event}) {
     )
 }
 
-const customEventPropGetter = event =>{
+const customEventPropGetter = event => {
     let bgColor = event.appointmentRequestId || event.status === 'optional' ? '#b7d2ff' : '#4286f4';
     let opacity = event.appointmentRequestId || event.status === 'optional' ? 0.8 : 1;
 
@@ -112,6 +114,7 @@ class AppointmentsManagementPage extends React.Component {
         this.handleDelete = this.handleDelete.bind(this);
 
         this.moveEvent = this.moveEvent.bind(this);
+        this.resizeEvent = this.resizeEvent.bind(this);
 
 
         this.serviceProviderHeaders = '';
@@ -329,12 +332,8 @@ class AppointmentsManagementPage extends React.Component {
 
     };
 
-    // moveEvent({event, start, end}) {
-    moveEvent({event, startDateAndTime, endDateAndTime, isAllDay: droppedOnAllDaySlot}) {
-
+    moveEvent({event, start, end, isAllDay: droppedOnAllDaySlot}) {
         const events = this.state.appointments;
-
-        console.log('in moveEvent');
 
         const idx = events.indexOf(event);
         let allDay = event.allDay;
@@ -345,78 +344,46 @@ class AppointmentsManagementPage extends React.Component {
             allDay = false
         }
 
-        const updatedEvent = {...event, startDateAndTime, endDateAndTime, allDay};
+        const updatedEvent = {...event, startDateAndTime: start, endDateAndTime: end, allDay};
 
         const nextEvents = [...events];
         nextEvents.splice(idx, 1, updatedEvent);
 
-        this.setState({
-            appointments: nextEvents,
-        })
-
-        /*const idx = events.indexOf(event);
-        let updatedEvent = {...event, start, end};
-        const nextEvents = [...events];
-        if (idx > -1) {
-            nextEvents.splice(idx, 1, updatedEvent);
-            UpdateEvents(event.id).update({start, end}).then(
-                this.setState({
-                    events: nextEvents,
-                })
-            ).catch(error => {
-                console.error('Update error', error);
-            });
-        }
-        else {
-            const newEventId = uuidV4();
-            updatedEvent = {...updatedEvent, id: newEventId, ownerId: this.props.uid};
-            console.log(updatedEvent);
-            nextEvents.push(updatedEvent);
-            UpdateEvents(newEventId).set(updatedEvent).then(
-                this.setState({
-                    events: nextEvents,
-                })
-            ).catch(error => {
-                console.error('Create New Event error', error);
-            });
-        }*/
+        this.updateAppointment(event, nextEvents);
     }
 
-    // resizeEvent = (resizeType, {event, start, end}) => {
-    resizeEvent = ({appointment, startDateAndTime, endDateAndTime}) => {
-
+    resizeEvent({event, start, end}) {
         const appointments = this.state.appointments;
 
-        console.log('in resizeEvent');
-
         const nextEvents = appointments.map(existingAppointment => {
-            console.log('existingAppointment  ', existingAppointment);
-            if (existingAppointment.appointmentId === appointment.appointmentId) {
-                console.log('existingAppointment 33 ', existingAppointment);
-                return {...existingAppointment, startDateAndTime, endDateAndTime}
-            } else
-                return existingAppointment;
+            return existingAppointment.appointmentId === event.appointmentId
+                ? {...existingAppointment, startDateAndTime: start, endDateAndTime: end}
+                : existingAppointment
         });
 
-        this.setState({
-            appointments: nextEvents,
-        })
-
-        /*const nextEvents = appointments.map(existingEvent => {
-            return existingEvent.id === appointment.id
-                ? {...existingEvent, start, end}
-                : existingEvent
-        });
-
-        UpdateEvents(appointment.id).update({start, end}).then(
-            this.setState({
-                appointments: nextEvents,
-            })
-        ).catch(error => {
-            console.error('Update error', error);
-        });*/
+        this.updateAppointment(event, nextEvents);
     };
 
+    updateAppointment = (event, nextEvents) => {
+        axios.put(`${SERVER_URL}/api/serviceProviders/appointments/update/appointmentId/${event.appointmentId}`,
+            {
+                startDateAndTime: event.startDateAndTime,
+                endDateAndTime: event.endDateAndTime,
+            },
+            {
+                headers: this.serviceProviderHeaders,
+            }
+        )
+            .then((response) => {
+
+                this.setState({
+                    appointments: nextEvents,
+                })
+
+            }).catch(error => {
+            console.error('Create New Event error', error);
+        });
+    };
 
     render() {
         const {appointments, page, totalPages} = this.state;
@@ -436,7 +403,8 @@ class AppointmentsManagementPage extends React.Component {
                     </Helmet>
                     <Grid stretched padded>
                         <Grid.Row>
-                            <Header as="h1" floated="right">{strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}</Header>
+                            <Header as="h1"
+                                    floated="right">{strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}</Header>
                         </Grid.Row>
                         <Grid.Row columns='equal'>
                             <Grid.Column>
@@ -500,7 +468,7 @@ class AppointmentsManagementPage extends React.Component {
                                         titleAccessor='clientName'
                                         startAccessor="startDateAndTime"
                                         endAccessor="endDateAndTime"
-                                        tooltipAccessor={this.onHoverEvent.bind(this)}
+                                        // tooltipAccessor={this.onHoverEvent.bind(this)}
                                         selectable
                                         onSelectEvent={this.onSelectEvent.bind(this)}
                                         onSelectSlot={this.onSelectSlot.bind(this)}
@@ -509,7 +477,7 @@ class AppointmentsManagementPage extends React.Component {
                                         // step={30}
                                         // timeslots={4}
                                         onEventDrop={this.moveEvent}
-                                        // draggableAccessor={event => true}
+                                        draggableAccessor={event => true}
                                         resizable
                                         onEventResize={this.resizeEvent}
                                         view={this.state.calendarView}
@@ -539,6 +507,8 @@ class AppointmentsManagementPage extends React.Component {
                                                 event: EventAgenda,
                                             },
                                         }}
+                                        // min={am8}
+                                        // max={pm8}
                                         // eventPropGetter={(event,start,end,isSelected)=>{
                                         //     return {
                                         //         style: {

@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import {ScrollView, Text} from 'react-native';
 
-import AgendaCalendar from "../../components/agendaCalendar/AgendaCalendar";
-import Button from "../../components/submitButton/Button";
+import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
 import axios from "axios";

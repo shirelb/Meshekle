@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {Agenda, LocaleConfig} from 'react-native-calendars';
-import {localConfig} from './localConfig';
+import {Calendar, LocaleConfig} from 'react-native-calendars';
+import {localConfig} from '../localConfig';
 import axios from "axios";
-import {SERVER_URL} from "../../shared/constants";
+import {SERVER_URL} from "../../../shared/constants";
 import phoneStorage from "react-native-simple-store";
 
 
-export default class AgendaCalendar extends Component {
+export default class AppointmentsCalendar extends Component {
     constructor(props) {
         super(props);
 
@@ -30,16 +30,15 @@ export default class AgendaCalendar extends Component {
     componentDidMount() {
         phoneStorage.get('userData')
             .then(userData => {
-                console.log('agenda componentDidMount userData ', userData);
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
                 this.userId = userData.userId;
-                this.loadItems();
+                this.loadAppointments();
             });
     }
 
-    loadItems() {
+    loadAppointments() {
         let newItems = {};
         var promises = [];
         axios.get(`${SERVER_URL}/api/users/events/userId/${this.userId}`,
@@ -134,15 +133,17 @@ export default class AgendaCalendar extends Component {
         return (
             <View style={styles.dayMonthContainer}>
                 <Text style={styles.day}>{day ? day.day : null} </Text>
-                <Text style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].monthNamesShort[day.month - 1] : null} </Text>
-                <Text style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].dayNames[new Date(day.timestamp).getDay()] : null} </Text>
+                <Text
+                    style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].monthNamesShort[day.month - 1] : null} </Text>
+                <Text
+                    style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].dayNames[new Date(day.timestamp).getDay()] : null} </Text>
             </View>
         );
     }
 
     renderEmptyDate() {
         return (
-            <View style={styles.emptyDate}><Text>  </Text></View>
+            <View style={styles.emptyDate}><Text> </Text></View>
         );
     }
 
@@ -164,66 +165,40 @@ export default class AgendaCalendar extends Component {
 
         let currDay = new Date; // get current date
         let currDayStr = new Date().toUTCString(); // get current date
-        let first = currDay.getDate() - currDay.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 6; // last day is the first day + 6
-        let firstDay = new Date(currDay.setDate(first)).toUTCString();
-        let lastDay = new Date(currDay.setDate(last)).toUTCString();
 
         return (
-            <Agenda
-                items={this.state.items}
-                // loadItemsForMonth={this.loadItems.bind(this)}
-                selected={currDayStr}//{'2012-05-22'}
-                // minDate={firstDay}//{'2012-05-20'}
-                // maxDate={lastDay}//{'2012-05-27'}
-                // callback that fires when the calendar is opened or closed
-                // callback that gets called on day press
-                // onDayPress={this.onDayPress.bind(this)}
-                // callback that gets called when day changes while scrolling agenda list
-                // onDayChange={this.onDayChange.bind(this)}
-                renderItem={this.renderItem.bind(this)}
-                renderEmptyDate={this.renderEmptyDate.bind(this)}
-                renderDay={this.renderDay.bind(this)}
-                rowHasChanged={this.rowHasChanged.bind(this)}
-                hideKnob={true}
-                // markingType={'period'}
-                // markedDates={{
-                //     '2019-01-08': {textColor: '#666'},
-                //     '2019-01-09': {textColor: '#666'},
-                //     '2019-01-04': {startingDay: true, endingDay: true, color: 'blue'},
-                //     '2019-01-01': {startingDay: true, color: 'blue'},
-                //     '2019-01-02': {endingDay: true, color: 'gray'},
-                //     '2019-01-03': {startingDay: true, color: 'gray'},
-                //     '2019-01-05': {color: 'gray'},
-                //     '2019-01-06': {endingDay: true, color: 'gray'}
-                // }}
-                // monthFormat={'yyyy'}
-                // theme={{calendarBackground: 'red', agendaKnobColor: 'green'}}
-                // Specify theme properties to override specific styles for calendar parts. Default = {}
-                theme={{
-                    // backgroundColor: '#ffffff',
-                    // calendarBackground: '#ffffff',
-                    // textSectionTitleColor: '#b6c1cd',
-                    // selectedDayBackgroundColor: '#00adf5',
-                    // selectedDayTextColor: '#ffffff',
-                    // todayTextColor: '#00adf5',
-                    // dayTextColor: '#2d4150',
-                    // textDisabledColor: '#d9e1e8',
-                    // dotColor: '#00adf5',
-                    // selectedDotColor: '#ffffff',
-                    // arrowColor: 'orange',
-                    // monthTextColor: 'blue',
-                    // textDayFontFamily: 'monospace',
-                    // textMonthFontFamily: 'monospace',
-                    // textDayHeaderFontFamily: 'monospace',
-                    // textDayFontSize: 16,
-                    // textMonthFontSize: 16,
-                    // textDayHeaderFontSize: 16
-                    // agendaDayTextColor: 'yellow',
-                    // agendaDayNumColor: 'green',
-                    // agendaTodayColor: 'red',
-                    // agendaKnobColor: 'blue'
+            <Calendar
+                // Initially visible month. Default = Date()
+                current={'2012-03-01'}
+                // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
+                minDate={'2012-05-10'}
+                // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
+                maxDate={'2012-05-30'}
+                // Handler which gets executed on day press. Default = undefined
+                onDayPress={(day) => {
+                    console.log('selected day', day)
                 }}
+                // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
+                monthFormat={'yyyy MM'}
+                // Handler which gets executed when visible month changes in calendar. Default = undefined
+                onMonthChange={(month) => {
+                    console.log('month changed', month)
+                }}
+                // Hide month navigation arrows. Default = false
+                hideArrows={true}
+                // Replace default arrows with custom ones (direction can be 'left' or 'right')
+                renderArrow={(direction) => (<Arrow/>)}
+                // Do not show days of other months in month page. Default = false
+                hideExtraDays={true}
+                // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
+                // day from another month that is visible in calendar page. Default = false
+                disableMonthChange={true}
+                // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
+                firstDay={1}
+                // Hide day names. Default = false
+                hideDayNames={true}
+                // Show week numbers to the left. Default = false
+                showWeekNumbers={true}
             />
         );
     }
@@ -247,12 +222,12 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         borderBottomColor: 'grey',
     },
-    dayMonthContainer:{
+    dayMonthContainer: {
         height: 100,
         // borderTopWidth: 2,
         // borderTopColor: 'grey',
     },
-    day:{
+    day: {
         fontSize: 20,
         fontWeight: '300',
         // color: appStyle.agendaDayMonthColor,

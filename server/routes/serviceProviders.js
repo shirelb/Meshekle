@@ -673,6 +673,33 @@ router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequest
         })
 });
 
+// update appointment date or hours by appointmentId .
+router.put('/appointments/update/appointmentId/:appointmentId', function (req, res, next) {
+    ScheduledAppointments.update(
+        {
+            startDateAndTime: req.body.startDateAndTime,
+            endDateAndTime: req.body.endDateAndTime,
+        },
+        {
+            where: {
+                appointmentId: req.params.appointmentId
+            }
+        })
+        .then(isUpdated => {
+            if (isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
+
+            res.status(200).send({
+                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+                "result": isUpdated[0]
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
 
 function generateRandomPassword() {
     let randomPassword = Math.random().toString(36).slice(-8);
