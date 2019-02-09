@@ -1,17 +1,27 @@
 import React, {Component} from 'react';
 import {Modal, StyleSheet, Text, TouchableHighlight, View} from "react-native";
 import {CheckBox, FormInput, FormLabel, FormValidationMessage} from "react-native-elements";
-
+import {    SelectMultipleGroupButton} from "react-native-selectmultiple-button";
 
 export default class AppointmentRequestForm extends Component {
     constructor(props) {
         super(props);
+
+        this.subjects = [
+            { value: "פן" },
+            { value: "צבע" },
+            { value: "תספורת" },
+            { value: "החלקה" },
+            { value: "גוונים" }
+        ];
 
         this.state = {
             modalVisible: this.props.modalVisible,
             serviceProvider: this.props.serviceProvider,
             daysSelected: [],
             subjectSelected:[],
+            subjectText: "",
+            displaySubjectList: false,
             notes:'',
         };
     }
@@ -25,6 +35,12 @@ export default class AppointmentRequestForm extends Component {
 
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
+    }
+
+    groupButtonOnSelectedValuesChange(selectedValues) {
+        this.setState({
+            subjectSelected: selectedValues
+        });
     }
 
     render() {
@@ -56,6 +72,27 @@ export default class AppointmentRequestForm extends Component {
                                 checked={this.state.checked}
                             />
 
+                            <Text style={{ color: '#007AFF', marginLeft: 10 }}>
+                                נושא  {this.state.subjectSelected.join( ", ")}
+                            </Text>
+                            <SelectMultipleGroupButton
+                                containerViewStyle={{
+                                    justifyContent: "flex-start"
+                                }}
+                                highLightStyle={{
+                                    borderColor: "gray",
+                                    backgroundColor: "transparent",
+                                    textColor: "gray",
+                                    borderTintColor: '#007AFF',
+                                    backgroundTintColor: "transparent",
+                                    textTintColor: '#007AFF',
+                                }}
+                                onSelectedValuesChange={selectedValues =>
+                                    this.groupButtonOnSelectedValuesChange(selectedValues)
+                                }
+                                group={this.subjects}
+                            />
+
                             <TouchableHighlight
                                 onPress={() => {
                                     this.setModalVisible(!this.state.modalVisible);
@@ -71,4 +108,5 @@ export default class AppointmentRequestForm extends Component {
     }
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+});
