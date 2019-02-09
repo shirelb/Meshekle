@@ -14,9 +14,11 @@ export default class AppointmentRequest extends Component {
         this.state = {
             serviceProviders: [],
             formModal: false,
-            serviceProviderSelected:{},
+            serviceProviderSelected: {},
+            noServiceProviderFound: false,
         };
 
+        this.serviceProviders = [];
         this.requestAppointment = this.requestAppointment.bind(this);
     }
 
@@ -49,6 +51,8 @@ export default class AppointmentRequest extends Component {
                             this.setState({
                                 serviceProviders: serviceProviders,
                             });
+
+                            this.serviceProviders = serviceProviders;
                         })
                         .catch(error => {
                             console.log('error ', error)
@@ -58,8 +62,11 @@ export default class AppointmentRequest extends Component {
     };
 
     requestAppointment = (serviceProvider) => {
-        this.setState({formModal:true, serviceProviderSelected: serviceProvider})
-        // console.log('pressed on serviceProvider ', serviceProvider);
+        this.setState({
+            formModal: true,
+            serviceProviderSelected: serviceProvider
+        });
+        console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
     };
 
     renderSeparator = () => {
@@ -75,8 +82,41 @@ export default class AppointmentRequest extends Component {
         );
     };
 
+    updateSearch = search => {
+        console.log("in search ", search);
+        // this.setState({search});
+        let searchText = search.toLowerCase();
+        let serviceProviders = this.state.serviceProviders;
+        let filteredByNameOrRole = serviceProviders.filter((item) => {
+            return item.fullname.toLowerCase().match(searchText) || item.role.toLowerCase().match(searchText);
+        });
+        // let filteredByRole = serviceProviders.filter((item) => {
+        //     return item.role.toLowerCase().match(searchText)
+        // });
+        if (!searchText || searchText === '') {
+            this.setState({
+                serviceProviders: this.serviceProviders
+            })
+        } else if (!Array.isArray(filteredByNameOrRole) && !filteredByNameOrRole.length) {
+            // set no data flag to true so as to render flatlist conditionally
+            this.setState({
+                noServiceProviderFound: true
+            })
+        } else if (Array.isArray(filteredByNameOrRole)) {
+            this.setState({
+                noServiceProviderFound: false,
+                serviceProviders: filteredByNameOrRole
+            })
+        }
+    };
+
     renderHeader = () => {
-        return <SearchBar placeholder="Type Here..." lightTheme round/>;
+        return <SearchBar
+            placeholder="רשום פה..."
+            lightTheme
+            onChangeText={this.updateSearch.bind(this)}
+            // round
+        />;
     };
 
     renderRow = ({item}) => {
@@ -97,6 +137,7 @@ export default class AppointmentRequest extends Component {
         return (
             <View>
                 <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
+                    {this.state.noServiceProviderFound ? <Text>לא נמצאו תוצאות</Text> :
                     <FlatList
                         data={this.state.serviceProviders}
                         renderItem={this.renderRow}
@@ -104,6 +145,7 @@ export default class AppointmentRequest extends Component {
                         ItemSeparatorComponent={this.renderSeparator}
                         ListHeaderComponent={this.renderHeader}
                     />
+                    }
                 </List>
                 <AppointmentRequestForm
                     modalVisible={this.state.formModal}
