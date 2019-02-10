@@ -4,14 +4,17 @@ import 'semantic-ui-css/semantic.min.css';
 import {Icon, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
-import {Redirect} from 'react-router-dom';
+import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
 import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
-import {AppointmentsManagementPage} from '../appointmentsManagementPage/AppointmentsManagementPage'
+import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import axios from "axios";
 import {SERVER_URL} from "../../shared/constants";
+import helpers from "../../shared/helpers";
+import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
+import mappers from "../../shared/mappers";
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -25,22 +28,8 @@ const serviceProviderHeaders = {
     'Authorization': 'Bearer ' + store.get('serviceProviderToken')
 };
 
-const getUserById = (userId) => {
-    return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-        {headers: serviceProviderHeaders}
-    )
-        .then((response) => {
-            let user = response.data[0];
-            console.log('user ', user);
-            return user;
-        })
-        .catch((error) => {
-            console.log('error ', error);
-        });
-};
-
 const getServiceProviderPermissionsById = (serviceProviderId) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviderId/${serviceProviderId}/permissions`,
+    return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}/permissions`,
         {headers: serviceProviderHeaders}
     )
         .then((response) => {
@@ -53,22 +42,43 @@ const getServiceProviderPermissionsById = (serviceProviderId) => {
         });
 };
 
-const Home = ({history, userId, serviceProviderId}) => {
-    let userData={fullname:'Administrator'};
-    getUserById(userId)
-        .then(user => userData = user)
+
+
+
+class Home extends Component {
+// const Home = ({userId, serviceProviderId}) => {
+
+    componentDidMount() {
+    this.userFullname = '';
+    helpers.getUserByUserID(store.get('userId'), serviceProviderHeaders)
+        .then(user => {this.userFullname = user.fullname; this.forceUpdate()})
         .catch(error => console.log('error ', error));
-    let serviceProviderPermissions= '';
-    getServiceProviderPermissionsById(serviceProviderId)
-        .then(permissions => serviceProviderPermissions = permissions)
+    this.serviceProviderPermissions = '';
+    getServiceProviderPermissionsById(store.get('serviceProviderId'))
+        .then(permissions => {this.serviceProviderPermissions = permissions;this.forceUpdate()})
         .catch(error => console.log('error ', error));
-    return (
-        <div>
-            Hello and welcome {userData.fullname}
-            your permissions are {serviceProviderPermissions}
-        </div>
-    );
-};
+    this.serviceProviderRoles = '';
+    helpers.getRolesOfServiceProvider(store.get('serviceProviderId'))
+        .then(roles => {this.serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));this.forceUpdate()})
+        .catch(error => console.log('error ', error));
+    }
+
+    render() {
+        return (
+            <div>
+                <p>
+                    Hello and welcome {this.userFullname}
+                </p>
+                <p>
+                    your permissions are {this.serviceProviderPermissions}
+                </p>
+                <p>
+                    your roles are {this.serviceProviderRoles}
+                </p>
+            </div>
+        );
+    }
+}
 
 
 class MainPage extends Component {
@@ -77,14 +87,8 @@ class MainPage extends Component {
         super(props);
 
         this.state = {
-            renderComponent: 'home',
             isLoggedIn: true
         };
-
-        this.chosedComponent = <Home
-            history={this.props.history}
-            userId={store.get('userId')}
-            serviceProviderId={store.get('serviceProviderId')}/>;
     }
 
     componentDidMount() {
@@ -99,52 +103,28 @@ class MainPage extends Component {
             });
     }
 
-    renderedContent = (componentName) => {
-        switch (componentName) {
-            case 'phoneBook':
-                this.props.history.push('/phoneBook');
-                this.chosedComponent = <PhoneBookManagementPage history={this.props.history}/>;
-                break;
-            case 'appointments':
-                this.props.history.push('/appointments');
-                this.chosedComponent = <AppointmentsManagementPage history={this.props.history}/>;
-                break;
-            case 'chores':
-                this.props.history.push('/chores');
-                this.chosedComponent = <ChoresManagementPage history={this.props.history}/>;
-                break;
-            default:
-                this.props.history.push('/home');
-                this.chosedComponent = <Home
-                    history={this.props.history}
-                    userId={store.get('userId')}
-                    serviceProviderId={store.get('serviceProviderId')}/>;
-                break;
-        }
-        console.log(" this.chosedComponent ", this.chosedComponent);
-        this.forceUpdate();
-    };
-
     render() {
+        console.log('main page props ', this.props);
+
         if (!this.state.isLoggedIn)
             return <Redirect to="/login"/>;
 
         return (
             <div>
                 <Helmet>
-                    <title>CMS</title>
+                    <title>Meshekle</title>
                 </Helmet>
 
                 <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
-                    <Menu.Item name="phoneBook" onClick={() => this.renderedContent('phoneBook')}>
+                    <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
                         <Icon name="users"/>
                         {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
                     </Menu.Item>
-                    <Menu.Item name="appointments" onClick={() => this.renderedContent('appointments')}>
+                    <Menu.Item name="appointments" as={NavLink} to="/appointments">
                         <Icon name="handshake outline"/>
                         {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
                     </Menu.Item>
-                    <Menu.Item name="chores" onClick={() => this.renderedContent('chores')}>
+                    <Menu.Item name="chores" as={NavLink} to="/chores">
                         <Icon name="industry"/>
                         {strings.mainPageStrings.CHORES_PAGE_TITLE}
                     </Menu.Item>
@@ -154,7 +134,14 @@ class MainPage extends Component {
                     </Menu.Item>
                 </Sidebar>
                 <div className="mainBody">
-                    {this.chosedComponent}
+                    <Switch>
+                        <Route path={`/home`} render={() => <Home userId={store.get('userId')}
+                                                                  serviceProviderId={store.get('serviceProviderId')}/>}/>
+                        <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
+                        <Route path={`/appointments`} component={AppointmentsManagementPage}/>
+                        <Route path={`/chores`} component={ChoresManagementPage}/>
+                        <Redirect to={`/home`}/>
+                    </Switch>
                 </div>
             </div>
         )

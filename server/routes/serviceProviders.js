@@ -3,8 +3,9 @@ var validiation = require('./shared/validations');
 const Sequelize = require('sequelize');
 var express = require('express');
 var router = express.Router();
-const {ServiceProviders, Users, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
+var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
 
@@ -189,7 +190,6 @@ router.put('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType/
 
 
 //Add serviceProvider
-
 router.post('/add', function (req, res, next) {
     let isInputValid = isServiceProviderInputValid(req.body);
     if (isInputValid !== '')
@@ -225,7 +225,6 @@ router.post('/add', function (req, res, next) {
             res.status(500).send(err);
         })
 });
-
 
 
 // add role to a service provider
@@ -331,7 +330,7 @@ router.post('/users/add', function (req, res, next) {
         .then(users => {
             if (users.length !== 0)
                 return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
-            const randomPassword = genereateRandomPassword();
+            const randomPassword = generateRandomPassword();
             Users.create({
                 userId: req.body.userId,
                 fullname: req.body.fullname,
@@ -444,10 +443,28 @@ router.put('/appointments/cancel/appointmentId/:appointmentId', function (req, r
             if (isUpdated[0] === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
 
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                "result": isUpdated[0]
-            });
+            Events.destroy({
+                where: {
+                    // userId: req.body.userId,
+                    eventType: "Appointments",
+                    eventId: req.params.appointmentId
+                }
+            })
+                .then((newEvent) => {
+                    res.status(200).send({
+                        "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+                        isUpdated,
+                        newEvent
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                });
+            // res.status(200).send({
+            //     "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+            //     "result": isUpdated[0]
+            // });
         })
         .catch(err => {
             console.log(err);
@@ -461,30 +478,26 @@ router.get('/appointments/serviceProviderId/:serviceProviderId', function (req, 
     validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
         if (serviceProviders.length === 0)
             return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-        AppointmentDetails.findAll({
-            where: {
-                serviceProviderId: req.params.serviceProviderId
-            }
-        })
-            .then((appointmentsDetails) => {
-                const idsList = appointmentsDetails.map((app) => app.dataValues.appointmentId);
-                ScheduledAppointments.findAll({
+        let whereClause = {};
+        req.query.status ? whereClause.status = req.query.status : null;
+        req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+        ScheduledAppointments.findAll({
+            where: whereClause,
+            include: [
+                {
+                    model: AppointmentDetails,
                     where: {
-                        appointmentId: {
-                            [Op.in]: idsList
-                        }
-                    }
-                })
-                    .then(schedAppointments => {
-                        console.log(schedAppointments);
-                        res.status(200).send(schedAppointments);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    })
+                        serviceProviderId: req.params.serviceProviderId
+                    },
+                    required: true
+                }
+            ]
+        })
+            .then(schedAppointments => {
+                console.log(schedAppointments);
+                res.status(200).send(schedAppointments);
             })
-            .catch((err) => {
+            .catch(err => {
                 console.log(err);
                 res.status(500).send(err);
             })
@@ -564,7 +577,131 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
 });
 
 
-function genereateRandomPassword() {
+/* POST appointment set of user . */
+router.post('/appointments/set', function (req, res, next) {
+    helpers.createAppointmentSetId()
+        .then(appointmentSetId => {
+            helpers.createAppointmentDetails(appointmentSetId, req, res)
+                .then(newAppointmentDetails => {
+                    if (newAppointmentDetails) {
+                        ScheduledAppointments.create({
+                            appointmentId: appointmentSetId,
+                            startDateAndTime: new Date(req.body.date + "T" + req.body.startHour),
+                            endDateAndTime: new Date(req.body.date + "T" + req.body.endHour),
+                            remarks: req.body.notes,
+                            status: "set",
+                        })
+                            .then((newAppointment) => {
+                                Events.create({
+                                    userId: req.body.userId,
+                                    eventType: "Appointments",
+                                    eventId: newAppointment.appointmentId
+                                })
+                                    .then((newEvent) => {
+                                        res.status(200).send({
+                                            "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT,
+                                            newAppointmentDetails,
+                                            newAppointment,
+                                            newEvent
+                                        });
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        res.status(500).send(err);
+                                    });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                    }
+                })
+        })
+});
+
+/* GET all appointment requests of user . */
+router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
+        if (serviceProviders.length === 0)
+            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+        let whereClause = {};
+        req.query.status ? whereClause.status = req.query.status : null;
+        req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
+        AppointmentRequests.findAll({
+            where: whereClause,
+            include: [
+                {
+                    model: AppointmentDetails,
+                    where: {
+                        serviceProviderId: req.params.serviceProviderId
+                    },
+                    required: true
+                }
+            ]
+        })
+            .then(schedAppointments => {
+                console.log(schedAppointments);
+                res.status(200).send(schedAppointments);
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).send(err);
+            })
+    });
+});
+
+// update appointmentRequest status to 'approved'/'rejected' by appointmentRequestId .
+router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequestId', function (req, res, next) {
+    AppointmentRequests.update(
+        {status: constants.appointmentRequestStatusesMapper(req.query.status)},
+        {
+            where: {
+                requestId: req.params.appointmentRequestId
+            }
+        })
+        .then(isUpdated => {
+            if (isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
+            res.status(200).send({
+                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+                "result": isUpdated[0]
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+// update appointment date or hours by appointmentId .
+router.put('/appointments/update/appointmentId/:appointmentId', function (req, res, next) {
+    ScheduledAppointments.update(
+        {
+            startDateAndTime: req.body.startDateAndTime,
+            endDateAndTime: req.body.endDateAndTime,
+        },
+        {
+            where: {
+                appointmentId: req.params.appointmentId
+            }
+        })
+        .then(isUpdated => {
+            if (isUpdated[0] === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
+
+            res.status(200).send({
+                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
+                "result": isUpdated[0]
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+
+function generateRandomPassword() {
     let randomPassword = Math.random().toString(36).slice(-8);
     while (!checkIfPasswordLegal(randomPassword)) {
         randomPassword = Math.random().toString(36).slice(-8);

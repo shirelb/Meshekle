@@ -20,6 +20,7 @@ import VectorIcons from "react-native-vector-icons/Ionicons";
 import LoginScreen from './screens/loginScreen/LoginScreen';
 import MainScreen from './screens/mainScreen/MainScreen';
 import AppointmentsScreen from './screens/appointmentsScreen/AppointmentsScreen';
+import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest';
 import ChoresScreen from './screens/choresScreen/ChoresScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
@@ -40,6 +41,10 @@ const DrawerMenuNavigator = createDrawerNavigator(
         },
         AppointmentsScreen: {
             screen: AppointmentsScreen,
+            params: {},
+        },
+        AppointmentRequest: {
+            screen: AppointmentRequest,
             params: {},
         },
         ChoresScreen: {
@@ -91,9 +96,9 @@ const AppNavigator = createStackNavigator(
                 elevation: 0,
             },
             headerTintColor: '#fff',
-             headerTitleStyle: {
-                 fontWeight: 'bold',
-             },
+            headerTitleStyle: {
+                fontWeight: 'bold',
+            },
         })
     }
 );

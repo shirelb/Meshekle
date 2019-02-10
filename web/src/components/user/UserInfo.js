@@ -32,7 +32,7 @@ class UserInfo extends React.Component {
         return (
             <Modal open dimmer="blurring">
                 <Helmet>
-                    <title>CMS | {user.name}</title>
+                    <title>Meshekle | {user.name}</title>
                 </Helmet>
 
                 <Modal.Header>{user.name}</Modal.Header>

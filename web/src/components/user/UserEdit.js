@@ -2,7 +2,7 @@ import React from 'react';
 import { get, patch } from 'axios';
 import { Helmet } from 'react-helmet';
 import UserForm from './UserForm';
-import Page from './Page';
+import Page from '../Page';
 
 class UserEdit extends React.Component {
     constructor(props) {
@@ -42,7 +42,7 @@ class UserEdit extends React.Component {
         return (
             <Page title="Edit User" columns={3}>
                 <Helmet>
-                    <title>CMS | Edit {user.name}</title>
+                    <title>Meshekle | Edit {user.name}</title>
                 </Helmet>
 
                 <UserForm

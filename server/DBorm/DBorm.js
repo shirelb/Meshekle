@@ -170,11 +170,6 @@ sequelize.sync({force: true})
     });
 
     
-    // Users.hasMany(UsersChores, {
-    //     foreignKey : 'userId',
-    //     targetKey:'userId'
-    // });
-    
 module.exports = {
     sequelize,
     Users,

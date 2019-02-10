@@ -11,7 +11,19 @@ var loginPageMapper = function (value) {
 
 var mainScreenMapper = function (value) {
     switch(value) {
+        case "HairDresser":
+            return strings.mainPageStrings.ROLES_HairDresser;
+        default:
+            return strings.mainPageStrings.ROLES_HairDresser;
     }
 };
 
-export default {loginPageMapper,mainScreenMapper};
+var rolesMapper = function (value) {
+    switch(value) {
+        case "HairDresser":
+            return strings.mainPageStrings.ROLES_HairDresser;
+        default:
+            return strings.mainPageStrings.ROLES_HairDresser;
+    }
+};
+export default {loginPageMapper,mainScreenMapper,rolesMapper};

@@ -7,6 +7,7 @@ const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppoi
 var validations = require('./shared/validations');
 var constants = require('./shared/constants');
 var authentications = require('./shared/authentications');
+var helpers = require('./shared/helpers');
 
 /* POST login authenticate a user . */
 router.post('/login/authenticate', function (req, res) {
@@ -99,7 +100,7 @@ router.get('/userId/:userId', function (req, res, next) {
 router.post('/appointments/request', function (req, res, next) {
     createAppointmentRequestId()
         .then(appointmentRequestId => {
-            createAppointmentDetails(appointmentRequestId, req, res)
+            helpers.createAppointmentDetails(appointmentRequestId, req, res)
                 .then(newAppointmentDetails => {
                     if (newAppointmentDetails) {
                         AppointmentRequests.create({
@@ -125,9 +126,9 @@ router.post('/appointments/request', function (req, res, next) {
 
 /* POST appointment set of user . */
 router.post('/appointments/set', function (req, res, next) {
-    createAppointmentSetId()
+    helpers.createAppointmentSetId()
         .then(appointmentSetId => {
-            createAppointmentDetails(appointmentSetId, req, res)
+            helpers.createAppointmentDetails(appointmentSetId, req, res)
                 .then(newAppointmentDetails => {
                     if (newAppointmentDetails) {
                         ScheduledAppointments.create({
@@ -356,41 +357,6 @@ function createAppointmentRequestId() {
         })
         .catch(err => {
             console.log(err);
-        })
-}
-
-function createAppointmentSetId() {
-    return sequelize.query("SELECT * FROM ScheduledAppointments WHERE ( appointmentId % 2 ) == 0")
-        .then(appointmentsSet => {
-            let max = Math.max.apply(Math, appointmentsSet[0].map(function (o) {
-                return o.appointmentId;
-            }));
-            if (appointmentsSet[0].length === 0)
-                return 2;
-            else
-                return max + 2;
-        })
-        .catch(err => {
-            console.log(err);
-        })
-}
-
-function createAppointmentDetails(id, req, res) {
-    return AppointmentDetails.create({
-        appointmentId: id,
-        clientId: req.body.userId,
-        role: req.body.role,
-        serviceProviderId: req.body.serviceProviderId,
-        subject: req.body.subject
-    })
-        .then(newAppointmentDetails => {
-            return newAppointmentDetails;
-        })
-        .catch(err => {
-            return res.status(200).send({
-                "message": constants.usersRoute.USER_NOT_FOUND,
-                err
-            });
         })
 }
 
@@ -677,6 +643,37 @@ router.get('/events/userId/:userId', function (req, res, next) {
                             "message": constants.general.SOMETHING_WENT_WRONG,
                             err
                         });
+                    })
+            }
+        })
+});
+
+/* GET all appointment requests of user . */
+router.get('/appointmentRequests/userId/:userId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            if (user.dataValues) {
+                let whereClause = {};
+                req.query.status ? whereClause.status = req.query.status : null;
+                req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
+                AppointmentRequests.findAll({
+                    where: whereClause,
+                    include: [
+                        {
+                            model: AppointmentDetails,
+                            where: {
+                                clientId: req.params.userId,
+                            },
+                            required: true
+                        }
+                    ]
+                })
+                    .then(userAppointments => {
+                        console.log(userAppointments);
+                        res.status(200).send(userAppointments);
+                    })
+                    .catch(err => {
+                        res.status(500).send(err);
                     })
             }
         })
