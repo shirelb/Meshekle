@@ -1,29 +1,42 @@
 import React, {Component} from 'react';
-import {Modal, StyleSheet, Text, TouchableHighlight, View} from "react-native";
-import {CheckBox, FormInput, FormLabel, FormValidationMessage} from "react-native-elements";
-import {    SelectMultipleGroupButton} from "react-native-selectmultiple-button";
+import {Modal, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {CheckBox} from "react-native-elements";
+import {SelectMultipleGroupButton} from "react-native-selectmultiple-button";
+import DateTimePicker from 'react-native-modal-datetime-picker';
+import Button from "../../components/submitButton/Button";
+
 
 export default class AppointmentRequestForm extends Component {
     constructor(props) {
         super(props);
 
         this.subjects = [
-            { value: "פן" },
-            { value: "צבע" },
-            { value: "תספורת" },
-            { value: "החלקה" },
-            { value: "גוונים" }
+            {value: "פן"},
+            {value: "צבע"},
+            {value: "תספורת"},
+            {value: "החלקה"},
+            {value: "גוונים"}
         ];
 
         this.state = {
             modalVisible: this.props.modalVisible,
             serviceProvider: this.props.serviceProvider,
-            daysSelected: [],
-            subjectSelected:[],
+            daysAndHoursSelected: [],
+            subjectSelected: [],
             subjectText: "",
             displaySubjectList: false,
-            notes:'',
+            notes: '',
+            isDateTimePickerVisible: false,
+            isStartDateTimePickerVisible: false,
+            isEndDateTimePickerVisible: false,
+            dateClicked: '',
+            startTimeClicked: '',
+            endTimeClicked: '',
         };
+
+        this.handleDatePicked = this.handleDatePicked.bind(this);
+        this.handleStartTimePicked = this.handleStartTimePicked.bind(this);
+        this.handleEndTimePicked = this.handleEndTimePicked.bind(this);
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
@@ -43,6 +56,55 @@ export default class AppointmentRequestForm extends Component {
         });
     }
 
+    handleDatePicked = (date) => {
+        console.log('datetimes  ', this.state.daysAndHoursSelected);
+        console.log('A date has been picked: ', date);
+        if (!this.state.daysAndHoursSelected.filter(datetime => (datetime.date === date)))
+            this.setState({
+                daysAndHoursSelected: [...this.state.daysAndHoursSelected, date],
+            });
+        this.setState({
+            isDateTimePickerVisible: false,
+            isStartDateTimePickerVisible: true,
+            dateClicked: date,
+        });
+    };
+
+    handleStartTimePicked = (time) => {
+        console.log('A start time has been picked: ', time);
+        let datestimes = this.state.daysAndHoursSelected;
+        datestimes.forEach(dateTime => {
+            if (dateTime.date === this.state.dateClicked)
+                if(!dateTime.hours)
+                    dateTime.hours=[];
+                dateTime.hours.push({'startHour': time});
+        });
+
+        this.setState({
+            isStartDateTimePickerVisible: false,
+            isSEndDateTimePickerVisible: true,
+            daysAndHoursSelected: datestimes,
+            startTimeClicked: time,
+        });
+        // this.forceUpdate();
+    };
+
+    handleEndTimePicked = (time) => {
+        console.log('A endddd time has been picked: ', time);
+        let datestimes = this.state.daysAndHoursSelected;
+        datestimes.forEach(dateTime => {
+            if (dateTime.date === this.state.dateClicked)
+                datestimes.hours.forEach(startTime => {
+                    if (startTime.startHour === this.state.startTimeClicked)
+                        dateTime.hours.push({'endHour': time})
+                })
+        });
+        this.setState({
+            isSEndDateTimePickerVisible: false,
+            endTimeClicked: time,
+        });
+    };
+
     render() {
         return (
             <View style={{marginTop: 22}}>
@@ -51,7 +113,7 @@ export default class AppointmentRequestForm extends Component {
                     transparent={false}
                     visible={this.state.modalVisible}
                     onRequestClose={() => {
-                        Alert.alert('Modal has been closed.');
+                        console.log('Modal has been closed.');
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
@@ -63,7 +125,7 @@ export default class AppointmentRequestForm extends Component {
 
                             <CheckBox
                                 right
-                                title='ראשון'
+                                title='הוסף תאריך ושעות'
                                 iconRight
                                 iconType='material'
                                 checkedIcon='clear'
@@ -72,8 +134,41 @@ export default class AppointmentRequestForm extends Component {
                                 checked={this.state.checked}
                             />
 
-                            <Text style={{ color: '#007AFF', marginLeft: 10 }}>
-                                נושא  {this.state.subjectSelected.join( ", ")}
+                            <TouchableOpacity onPress={() => this.setState({isDateTimePickerVisible: true})}>
+                                <Text>בחר תאריך</Text>
+                            </TouchableOpacity>
+                            <DateTimePicker
+                                isVisible={this.state.isDateTimePickerVisible}
+                                onConfirm={this.handleDatePicked}
+                                onCancel={() => this.setState({isDateTimePickerVisible: false})}
+                                is24Hour={true}
+                                mode={'date'}
+                            />
+                            <TouchableOpacity onPress={() => this.setState({isStartDateTimePickerVisible: true})}>
+                                <Text>בחר שעת התחלה</Text>
+                            </TouchableOpacity>
+                            <DateTimePicker
+                                date={this.state.dateClicked}
+                                isVisible={this.state.isStartDateTimePickerVisible}
+                                onConfirm={this.handleStartTimePicked}
+                                onCancel={() => this.setState({isStartDateTimePickerVisible: false})}
+                                is24Hour={true}
+                                mode={'time'}
+                            />
+                            <TouchableOpacity onPress={() => this.setState({isEndDateTimePickerVisible: true})}>
+                                <Text>בחר שעת סיום</Text>
+                            </TouchableOpacity>
+                            <DateTimePicker
+                                date={this.state.dateClicked}
+                                isVisible={this.state.isEndDateTimePickerVisible}
+                                onConfirm={this.handleEndTimePicked}
+                                onCancel={() => this.setState({isEndDateTimePickerVisible: false})}
+                                is24Hour={true}
+                                mode={'time'}
+                            />
+
+                            <Text style={{marginLeft: 10}}>
+                                נושא {this.state.subjectSelected.join(", ")}
                             </Text>
                             <SelectMultipleGroupButton
                                 containerViewStyle={{
@@ -93,12 +188,19 @@ export default class AppointmentRequestForm extends Component {
                                 group={this.subjects}
                             />
 
-                            <TouchableHighlight
+                            {/*<TouchableHighlight
                                 onPress={() => {
                                     this.setModalVisible(!this.state.modalVisible);
                                 }}>
-                                <Text>Hide Modal</Text>
+                                <Text>שלח</Text>
                             </TouchableHighlight>
+*/}
+                            <Button
+                                label='שלח'
+                                onPress={() => {
+                                    this.setModalVisible(!this.state.modalVisible);
+                                }}
+                            />
                         </View>
                     </View>
                 </Modal>
@@ -108,5 +210,4 @@ export default class AppointmentRequestForm extends Component {
     }
 }
 
-const styles = StyleSheet.create({
-});
+const styles = StyleSheet.create({});
