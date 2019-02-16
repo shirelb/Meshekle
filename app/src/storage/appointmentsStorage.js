@@ -13,7 +13,7 @@ var getUserAppointments = function (userId, userHeaders) {
             return response;
         })
         .catch(error => {
-            console.log('load appointments error ', error)
+            console.log('get user appointments error ', error)
         });
 };
 
@@ -27,7 +27,7 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
             return response;
         })
         .catch(error => {
-            console.log('load appointments error ', error)
+            console.log('get user appointments by id error ', error)
         });
 };
 

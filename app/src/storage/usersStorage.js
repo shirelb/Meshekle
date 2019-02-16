@@ -9,7 +9,7 @@ var getUserEvents = function (userId, userHeaders) {
             return response;
         })
         .catch(error => {
-            console.log('load appointments error ', error)
+            console.log('get user events error ', error)
         });
 };
 
@@ -21,7 +21,24 @@ var getUserById = function (userId, userHeaders) {
             return response;
         })
         .catch(error => {
-            console.log('load appointments error ', error)
+            console.log('get user by id error ', error)
         });
 };
-export default {getUserEvents,getUserById};
+
+var userValidToken = function (token) {
+    return axios.post(`${SERVER_URL}/api/users/validToken`,
+        {
+            "token": token,
+        },
+    );
+}
+
+var userLogin = function (userId, password) {
+    return axios.post(`${SERVER_URL}/api/users/login/authenticate`,
+        {
+            "userId": userId,
+            "password": password
+        },
+    );
+}
+export default {getUserEvents, getUserById, userValidToken, userLogin};

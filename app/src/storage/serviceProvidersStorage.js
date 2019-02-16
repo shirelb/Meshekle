@@ -9,7 +9,7 @@ var getServiceProviders = function (userHeaders) {
             return response;
         })
         .catch(error => {
-            console.log('load appointments error ', error)
+            console.log('get serviceProviders error ', error)
         });
 };
 

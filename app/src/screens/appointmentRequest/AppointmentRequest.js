@@ -50,9 +50,6 @@ export default class AppointmentRequest extends Component {
 
                             this.serviceProviders = serviceProviders;
                         })
-                        .catch(error => {
-                            console.log('error ', error)
-                        });
                 })
             });
     };

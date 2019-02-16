@@ -90,9 +90,6 @@ export default class AgendaCalendar extends Component {
                         });
                 }
             })
-            .catch(error => {
-                console.log('load items error ', error)
-            });
     }
 
     onDayPress = (date) => {

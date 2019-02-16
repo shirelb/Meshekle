@@ -54,9 +54,6 @@ export default class AppointmentsCalendar extends Component {
 
                 console.log('user  333  markedDates ', markedDates);
             })
-            .catch(error => {
-                console.log('load appointments error ', error)
-            });
     }
 
     onDaySelect = (day) => {
