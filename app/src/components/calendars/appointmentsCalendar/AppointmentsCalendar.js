@@ -6,8 +6,9 @@ import axios from "axios";
 import moment from 'moment';
 import {SERVER_URL} from "../../../shared/constants";
 import phoneStorage from "react-native-simple-store";
-import {CheckBox, Icon, List, ListItem} from "react-native-elements";
+import {CheckBox, List, ListItem} from "react-native-elements";
 import Button from "../../../components/submitButton/Button";
+import appointmentsStorage from "../../../storage/appointmentsStorage";
 
 export default class AppointmentsCalendar extends Component {
     constructor(props) {
@@ -37,15 +38,7 @@ export default class AppointmentsCalendar extends Component {
     }
 
     loadAppointments() {
-        let newItems = {};
-        var promises = [];
-        axios.get(`${SERVER_URL}/api/users/appointments/userId/${this.userId}`,
-            {
-                headers: this.userHeaders,
-                params: {
-                    status: 'set'
-                },
-            })
+        appointmentsStorage.getAppointmentsOfUser(this.userId,this.userHeaders)
             .then(response => {
                 let markedDates = {};
 
@@ -173,8 +166,8 @@ export default class AppointmentsCalendar extends Component {
         return (
             <ListItem
                 roundAvatar
-                title={moment(item.startDateAndTime).format('HH:mm') +'-'+ moment(item.endDateAndTime).format('HH:mm')}
-                subtitle={item.AppointmentDetail.role +','+item.AppointmentDetail.serviceProviderId}
+                title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
+                subtitle={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
                 description={item.AppointmentDetail.subject}
                 // avatar={{uri:item.avatar_url}}
                 // onPress={() => this.requestAppointment(item)}
