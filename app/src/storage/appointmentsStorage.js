@@ -1,8 +1,7 @@
 import axios from "axios";
 import {SERVER_URL} from "../shared/constants";
-import moment from "../components/calendars/appointmentsCalendar/AppointmentsCalendar";
 
-var getAppointmentsOfUser = function (userId,userHeaders) {
+var getUserAppointments = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/users/appointments/userId/${userId}`,
         {
             headers: userHeaders,
@@ -18,4 +17,19 @@ var getAppointmentsOfUser = function (userId,userHeaders) {
         });
 };
 
-export default {getAppointmentsOfUser};
+var getUserAppointmentById = function (userId, userHeaders, eventId) {
+    return axios.get(`${SERVER_URL}/api/users/appointments/userId/${userId}`,
+        {
+            headers: userHeaders,
+            params: {status: 'set', appointmentId: eventId}
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('load appointments error ', error)
+        });
+};
+
+
+export default {getUserAppointments,getUserAppointmentById};

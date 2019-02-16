@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import {StyleSheet, Text, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types'
 import colors from "../../shared/colors";
 
 
 export default class Button extends Component {
     render() {
-        const { label, onPress } = this.props;
+        const {label, onPress} = this.props;
         return (
             <TouchableOpacity style={styles.container} onPress={onPress}>
                 <Text style={styles.text}>{label}</Text>
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     }
 });
 
-Button.propTypes={
+Button.propTypes = {
     label: PropTypes.string.isRequired,
     onPress: PropTypes.func.isRequired,
 };

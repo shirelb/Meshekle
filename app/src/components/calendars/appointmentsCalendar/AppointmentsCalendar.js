@@ -36,7 +36,7 @@ export default class AppointmentsCalendar extends Component {
     }
 
     loadAppointments() {
-        appointmentsStorage.getAppointmentsOfUser(this.userId,this.userHeaders)
+        appointmentsStorage.getUserAppointments(this.userId,this.userHeaders)
             .then(response => {
                 let markedDates = {};
 
