@@ -551,11 +551,6 @@ describe('chores route', function () {
                    //res.body.should.have.property('err');
                    res.body.should.have.property('message');
                    res.body.message.should.be.eql('no users for this choretype');
-                   //res.body.usersChoreType.should.be.a('array');
-                   //res.body.usersChoreType.length.should.be.eql(1);
-                   // res.body.usersChoreType[0].should.have.property('choreTypeName').eql(choreTypeTestSat.choreTypeName);
-                   // res.body.usersChoreType[0].User.should.have.property('mailbox').eql(userTest.mailbox);
-                   // console.log("\n\n\nres.body.usersChoreType[0].mailbox:"+res.body.usersChoreType[0].User.mailbox+"\n\n\n")
                        done();
                }, 5000);
            });
@@ -857,7 +852,7 @@ describe('chores route', function () {
                 });
         });
             
-            
+        
         it('it should not GET user chores of choreType and user in illegal month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+choreTypeTestFri.choreTypeName+'/month/k/year/2019/userId/'+userTest.userId+'')
@@ -873,7 +868,7 @@ describe('chores route', function () {
         });
             
 
-        it('it should GET user chores of choreType of not exist choretype ', (done) => {
+        it('it should not GET user chores of choreType of not exist choretype ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+'no_such_type'+'/month/12/year/2019/userId/'+userTest.userId+'')
             .end((err, res) => {
@@ -981,8 +976,7 @@ describe('chores route', function () {
                     done();
                 });
         });
-            
-            
+
         it('it should not GET user chores of choreType and user in illegal month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/month/t/year/2019')
@@ -1072,7 +1066,6 @@ describe('chores route', function () {
             
         });
     
-        
         it('it should GET all the user chores of in month of the userId ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+userTest.userId)
@@ -1124,7 +1117,7 @@ describe('chores route', function () {
                 });
         });
 
-        //throw exception but all the tests pass
+   
         it('it should not GET user chores for userId is not exist', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+'111111111')
@@ -1406,7 +1399,7 @@ describe('chores route', function () {
 
  
     //4 it
-    describe('/DELETE user from choreTypeName api28', () => {
+    describe('/DELETE choreType by choreTypeName api28', () => {
         before((done) => {
             setTimeout(function () {
             ChoreTypes.create(choreTypeTestSat);
@@ -1467,7 +1460,7 @@ describe('chores route', function () {
                 });
         });
 
-        it('it should not DELTE user from choreType that not exist', (done) => {
+        it('it should not DELETE user from choreType that not exist', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+'no such type'+'/delete')
             .end((err, res) => {
@@ -1502,7 +1495,7 @@ describe('chores route', function () {
     });
 
     //3 it
-    describe('/DELETE user from choreTypeName api29', () => {
+    describe('/DELETE userChore api29', () => {
         before((done) => {
             setTimeout(function () {
             ChoreTypes.create(choreTypeTestSat);
