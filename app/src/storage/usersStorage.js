@@ -13,4 +13,15 @@ var getUserEvents = function (userId, userHeaders) {
         });
 };
 
-export default {getUserEvents};
+var getUserById = function (userId, userHeaders) {
+    return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
+        {headers: userHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('load appointments error ', error)
+        });
+};
+export default {getUserEvents,getUserById};
