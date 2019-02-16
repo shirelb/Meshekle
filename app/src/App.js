@@ -38,7 +38,7 @@ const DrawerMenuNavigator = createDrawerNavigator(
         MainScreen: {
             screen: MainScreen,
             params: {
-                headerTitle: 'דף בית',
+                headerTitle: 'משקל\'ה',
             },
         },
         AppointmentsScreen: {

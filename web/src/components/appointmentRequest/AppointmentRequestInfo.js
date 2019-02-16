@@ -1,12 +1,10 @@
 import React from 'react';
 import '../styles.css';
 import {Button, List, Modal} from 'semantic-ui-react';
-import axios from 'axios';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
-import getAppointmentRequestByAppointmentRequestID from "../../shared/helpers";
 import store from "store";
-import {SERVER_URL} from "../../shared/constants";
+import appointmentsStorage from "../../storage/appointmentsStorage";
 
 
 class AppointmentRequestInfo extends React.Component {
@@ -27,7 +25,7 @@ class AppointmentRequestInfo extends React.Component {
         if (this.props.location.state.appointmentRequest)
             this.setState({appointmentRequest: this.props.location.state.appointmentRequest});
         else {
-            getAppointmentRequestByAppointmentRequestID(store.get('serviceProviderId'), this.props.match.params, this.serviceProviderHeaders)
+            appointmentsStorage.getAppointmentRequestByAppointmentRequestID(store.get('serviceProviderId'), this.props.match.params, this.serviceProviderHeaders)
                 .then(({data: appointmentRequest}) => {
                     this.setState({appointmentRequest});
                 });
@@ -37,20 +35,9 @@ class AppointmentRequestInfo extends React.Component {
 
     handleDelete() {
         console.log('appointmentRequest handleDelete ', this.serviceProviderHeaders);
-        axios.put(`${SERVER_URL}/api/serviceProviders/appointmentRequests/status/appointmentRequestId/${this.state.appointmentRequest.appointmentRequestId}`,
-            {},
-            {
-                headers: this.serviceProviderHeaders,
-                params: {
-                    status: 'reject'
-                },
-            }
-        )
+        appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest.appointmentRequestId, this.serviceProviderHeaders)
             .then((response) => {
                 console.log('appointmentRequest handleDelete ', response.data);
-            })
-            .catch((error) => {
-                console.log('error ', error);
             });
 
         this.props.history.goBack();

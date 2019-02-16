@@ -3,8 +3,8 @@ import {Dropdown, Form, Message, TextArea} from 'semantic-ui-react';
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
-import helpers from "../../shared/helpers";
 import '../styles.css';
+import usersStorage from "../../storage/usersStorage";
 
 
 const subjectOptions = [
@@ -15,8 +15,9 @@ const subjectOptions = [
 
 let userOptions = {};
 
-helpers.getUsers()
-    .then(users => {
+usersStorage.getUsers()
+    .then(response => {
+        const users = response.data;
         console.log('users ', users);
         userOptions = users.map(item => ({
             key: item.userId,
