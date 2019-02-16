@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import {Image, Text, View} from 'react-native';
-import axios from 'axios';
 import phoneStorage from 'react-native-simple-store';
 import styles from './Login.style';
-import {SERVER_URL} from '../../shared/constants'
 import Button from "../../components/submitButton/Button";
 import FormTextInput from "../../components/formTextInput/FormTextInput";
 import strings from "../../shared/strings";
 import mappers from "../../shared/mappers";
+import usersStorage from "../../storage/usersStorage";
 
 const imageLogo = require("../../images/logo4000.png");
 
@@ -63,23 +62,14 @@ export default class LoginScreen extends Component {
             console.log(errors);
             this.setState({err: errors});
         } else {
-            axios.post(`${SERVER_URL}/api/users/login/authenticate`,
-                {
-                    "userId": this.state.userId,
-                    "password": this.state.password
-                },
-            )
+            usersStorage.userLogin(this.state.userId, this.state.password)
                 .then((response) => {
                     console.log(response);
                     phoneStorage.update('userData', {
                         token: response.data.token
                     })
                         .then(
-                            axios.post(`${SERVER_URL}/api/users/validToken`,
-                                {
-                                    "token": response.data.token
-                                },
-                            )
+                            usersStorage.userValidToken(response.data.token)
                                 .then((validTokenResponse) => {
                                     phoneStorage.update('userData', {
                                         userId: validTokenResponse.data.payload.userId,
@@ -92,9 +82,7 @@ export default class LoginScreen extends Component {
                                             console.log('in login valid token ', err)
                                         });
                                 })
-
-
-                )
+                        )
                     // this.props.onLoginPress()
                     // this.props.navigation.navigate('MainScreen')
                     // this.props.navigation.navigate('App')

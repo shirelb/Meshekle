@@ -4,12 +4,11 @@ import 'semantic-ui-css/semantic.min.css';
 import {Form, Grid, Header, Message} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
-import axios from 'axios';
 import {Redirect} from 'react-router-dom';
 import isLoggedIn from '../../shared/isLoggedIn';
-import {SERVER_URL} from "../../shared/constants";
 import strings from '../../shared/strings'
 import mappers from '../../shared/mappers'
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 class LoginPage extends Component {
 
@@ -91,20 +90,11 @@ class LoginPage extends Component {
             this.setState({error: true});
             this.setState({err: errors});
         } else {
-            axios.post(`${SERVER_URL}/api/serviceProviders/login/authenticate`,
-                {
-                    "userId": this.state.userId,
-                    "password": this.state.password
-                },
-            )
+            serviceProvidersStorage.serviceProviderLogin(this.state.userId, this.state.password)
                 .then((response) => {
                     console.log(response);
                     store.set('serviceProviderToken', response.data.token);
-                    axios.post(`${SERVER_URL}/api/serviceProviders/validToken`,
-                        {
-                            "token": response.data.token
-                        },
-                    )
+                    serviceProvidersStorage.serviceProviderValidToken(response.data.token)
                         .then((validTokenResponse) => {
                             console.log(validTokenResponse);
                             store.set('serviceProviderId', validTokenResponse.data.payload.serviceProviderId);
@@ -117,7 +107,7 @@ class LoginPage extends Component {
                             let msg = mappers.loginPageMapper(error.response.data.message);
                             this.setState({err: [msg]});
                             this.setState({error: true});
-                    });
+                        });
                 })
 
                 .catch((error) => {

@@ -1,8 +1,7 @@
 import React from 'react';
 import {ActivityIndicator, StatusBar, StyleSheet, View,} from 'react-native';
 import phoneStorage from "react-native-simple-store";
-import axios from "axios";
-import {SERVER_URL} from "../../shared/constants";
+import usersStorage from "../../storage/usersStorage";
 
 export default class AuthLoadingScreen extends React.Component {
     constructor(props) {
@@ -17,11 +16,7 @@ export default class AuthLoadingScreen extends React.Component {
                 this.props.navigation.navigate('Auth');
             else {
                 try {
-                    var validTokenResponse = await axios.post(`${SERVER_URL}/api/users/validToken`,
-                        {
-                            "token": userData.token,
-                        },
-                    );
+                    var validTokenResponse = await usersStorage.userValidToken(userData.token);
                     console.log("validTokenResponse ", validTokenResponse);
                     validTokenResponse.status === 200 ?
                         phoneStorage.update('userData', {
@@ -36,13 +31,11 @@ export default class AuthLoadingScreen extends React.Component {
                             })
                         :
                         this.props.navigation.navigate('Auth');
-                }
-                catch (e) {
+                } catch (e) {
                     this.props.navigation.navigate('Auth');
                 }
             }
-        }
-        catch (e) {
+        } catch (e) {
             this.props.navigation.navigate('Auth');
         }
     };

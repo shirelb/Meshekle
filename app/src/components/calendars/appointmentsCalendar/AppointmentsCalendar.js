@@ -1,30 +1,27 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {localConfig} from '../localConfig';
-import axios from "axios";
-import {SERVER_URL} from "../../../shared/constants";
+import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
-
+import {CheckBox, List, ListItem} from "react-native-elements";
+import Button from "../../../components/submitButton/Button";
+import appointmentsStorage from "../../../storage/appointmentsStorage";
 
 export default class AppointmentsCalendar extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            items: {}
-            /* '2018-12-30': [{text: 'item 30 - any js object'}],
-             '2018-12-31': [{text: 'item 31 - any js object'}],
-             '2019-01-01': [{text: 'item 1 - any js object'}],
-             '2019-01-02': [{text: 'item 1 - any js object'}],
-             '2019-01-03': [{text: 'item 2 - any js object'}],
-             '2019-01-04': [{text: 'item 4 - any js object'}],
-             '2019-01-05': [{text: 'item 3 - any js object'}, {text: 'any js object'}],
-         },*/
+            markedDates: {},
+            selectedDate: '',
+            dateModalVisible: false,
         };
 
         this.userHeaders = {};
         this.userId = null;
+
+        this.onDayPress = this.onDayPress.bind(this);
     }
 
     componentDidMount() {
@@ -39,67 +36,54 @@ export default class AppointmentsCalendar extends Component {
     }
 
     loadAppointments() {
-        let newItems = {};
-        var promises = [];
-        axios.get(`${SERVER_URL}/api/users/events/userId/${this.userId}`,
-            {headers: this.userHeaders}
-        )
+        appointmentsStorage.getUserAppointments(this.userId,this.userHeaders)
             .then(response => {
-                let events = response.data;
-                if (events.length > 0) {
-                    events.forEach((event) => {
-                        switch (event.eventType) {
-                            case 'Appointments':
-                                promises.push(axios.get(`${SERVER_URL}/api/users/appointments/userId/${this.userId}`,
-                                    {
-                                        headers: this.userHeaders,
-                                        params: {status: 'set', appointmentId: event.eventId}
-                                    })
-                                );
-                                break;
-                            // TODO add case of chores here
-                        }
-                    });
+                let markedDates = {};
 
-                    axios.all(promises)
-                        .then((results) => {
-                            results.forEach((response, i) => {
-                                let item = {};
-                                switch (events[i].eventType) {
-                                    case 'Appointments':
-                                        let appointment = response.data[0];
-                                        item.itemId = appointment.appointmentId;
-                                        item.date = this.getDateStringFromDateAndTime(appointment.startDateAndTime);
-                                        item.startTime = this.getTimeStringFromDateAndTime(appointment.startDateAndTime);
-                                        item.endTime = this.getTimeStringFromDateAndTime(appointment.endDateAndTime);
-                                        item.role = appointment.AppointmentDetail.role;
-                                        item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
-                                        item.subject = appointment.AppointmentDetail.subject;
-                                        // TODO add request of get service provider by id to get his name.
-                                        if (newItems[item.date]) {
-                                            newItems[item.date].push(item);
-                                        } else {
-                                            newItems[item.date] = [item];
-                                        }
-                                        break;
-                                    // TODO add case of chores here
-                                }
-                            });
+                response.data.forEach(appointment => {
+                    const date = moment(appointment.startDateAndTime).format('YYYY-MM-DD');
+                    if (markedDates[date] === undefined || markedDates[date] === null) {
+                        markedDates[date] = {marked: true, selected: false, appointments: []};
+                    }
+                    markedDates[date].appointments.push(appointment);
+                });
 
-                            console.log('newItems ', newItems);
-                            this.setState({
-                                items: newItems
-                            });
-                        })
-                        .catch(err => {
-                            console.log('err ', err)
-                        });
-                }
+                this.setState({
+                    markedDates: markedDates
+                });
+
+                console.log('user  333  markedDates ', markedDates);
             })
-            .catch(error => {
-                console.log('load items error ', error)
-            });
     }
+
+    onDaySelect = (day) => {
+        console.log('this.state.selectedDate === \'\' ', this.state.selectedDate === '');
+        if (this.state.selectedDate !== '')
+            console.log('this.state.markedDates[selectedDate].appointments.length === 0 ', this.state.markedDates[this.state.selectedDate].appointments.length === 0);
+
+        console.log("in onDaySelect day ", day);
+        let updatedMarkedDates = this.state.markedDates;
+
+        if (this.state.selectedDate !== '') {
+            let lastMarkedDate = updatedMarkedDates[this.state.selectedDate];
+            lastMarkedDate.selected = false;
+            updatedMarkedDates[this.state.selectedDate] = lastMarkedDate;
+        }
+
+        const selectedDay = moment(day.dateString).format('YYYY-MM-DD');
+        if (updatedMarkedDates[selectedDay] === undefined)
+            updatedMarkedDates[selectedDay] = {marked: true, selected: false, appointments: []};
+        let newMarkedDate = updatedMarkedDates[selectedDay];
+        newMarkedDate.selected = true;
+        newMarkedDate.color = 'blue';
+        updatedMarkedDates[selectedDay] = newMarkedDate;
+
+        this.setState({
+            selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+            markedDates: updatedMarkedDates,
+            dateModalVisible: true,
+        });
+    };
 
     onDayPress = (date) => {
         console.log('in day press ');
@@ -160,6 +144,35 @@ export default class AppointmentsCalendar extends Component {
         return date.toISOString().split('T')[1].split('.')[0].slice(0, -3);
     };
 
+    renderSeparator = () => {
+        return (
+            <View
+                style={{
+                    height: 1,
+                    width: "86%",
+                    backgroundColor: "#CED0CE",
+                    marginLeft: "14%"
+                }}
+            />
+        );
+    };
+
+    renderRow = ({item}) => {
+        return (
+            <ListItem
+                roundAvatar
+                title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
+                subtitle={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
+                description={item.AppointmentDetail.subject}
+                // avatar={{uri:item.avatar_url}}
+                // onPress={() => this.requestAppointment(item)}
+                containerStyle={{borderBottomWidth: 0}}
+                // rightIcon={<Icon name={'chevron-left'}/>}
+                // hideIcon
+            />
+        )
+    };
+
     render() {
         LocaleConfig.defaultLocale = 'il';
 
@@ -167,44 +180,113 @@ export default class AppointmentsCalendar extends Component {
         let currDayStr = new Date().toUTCString(); // get current date
 
         return (
-            <Calendar
-                // Initially visible month. Default = Date()
-                current={'2012-03-01'}
-                // Minimum date that can be selected, dates before minDate will be grayed out. Default = undefined
-                minDate={'2012-05-10'}
-                // Maximum date that can be selected, dates after maxDate will be grayed out. Default = undefined
-                maxDate={'2012-05-30'}
-                // Handler which gets executed on day press. Default = undefined
-                onDayPress={(day) => {
-                    console.log('selected day', day)
-                }}
-                // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
-                monthFormat={'yyyy MM'}
-                // Handler which gets executed when visible month changes in calendar. Default = undefined
-                onMonthChange={(month) => {
-                    console.log('month changed', month)
-                }}
-                // Hide month navigation arrows. Default = false
-                hideArrows={true}
-                // Replace default arrows with custom ones (direction can be 'left' or 'right')
-                renderArrow={(direction) => (<Arrow/>)}
-                // Do not show days of other months in month page. Default = false
-                hideExtraDays={true}
-                // If hideArrows=false and hideExtraDays=false do not switch month when tapping on greyed out
-                // day from another month that is visible in calendar page. Default = false
-                disableMonthChange={true}
-                // If firstDay=1 week starts from Monday. Note that dayNames and dayNamesShort should still start from Sunday.
-                firstDay={1}
-                // Hide day names. Default = false
-                hideDayNames={true}
-                // Show week numbers to the left. Default = false
-                showWeekNumbers={true}
-            />
+            <View>
+                <Calendar
+                    markedDates={this.state.markedDates}
+                    onDayPress={this.onDaySelect}
+                    style={styles.calendar}
+                    // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
+                    // monthFormat={'yyyy MM'}
+                    // Handler which gets executed when visible month changes in calendar. Default = undefined
+                    // onMonthChange={(month) => {
+                    //     console.log('month changed', month)
+                    // }}
+                    // Replace default arrows with custom ones (direction can be 'left' or 'right')
+                    // renderArrow={(direction) => (<Arrow/>)}
+                    theme={{
+                        backgroundColor: '#ffffff',
+                        calendarBackground: '#ffffff',
+                        textSectionTitleColor: '#b6c1cd',
+                        selectedDayBackgroundColor: '#00adf5',
+                        selectedDayTextColor: '#ffffff',
+                        todayTextColor: '#00adf5',
+                        dayTextColor: '#2d4150',
+                        textDisabledColor: '#d9e1e8',
+                        dotColor: '#00adf5',
+                        selectedDotColor: '#ffffff',
+                        arrowColor: 'orange',
+                        monthTextColor: 'blue',
+                        textDayFontFamily: 'monospace',
+                        textMonthFontFamily: 'monospace',
+                        textDayHeaderFontFamily: 'monospace',
+                        textMonthFontWeight: 'bold',
+                        textDayFontSize: 16,
+                        textMonthFontSize: 16,
+                        textDayHeaderFontSize: 16
+                    }}
+                />
+                <Modal
+                    animationType="fade"
+                    transparent={false}
+                    visible={this.state.dateModalVisible}
+                    onRequestClose={() => {
+                        console.log('Modal has been closed.');
+                    }}>
+                    <View style={{marginTop: 22}}>
+                        <View>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    this.setState({dateModalVisible: false})
+                                }}>
+                                <Text>XXXXX</Text>
+                            </TouchableOpacity>
+
+                            <Text> {this.state.selectedDate} </Text>
+
+                            <CheckBox
+                                left
+                                title='הוסף תאריך ושעות'
+                                iconLeft
+                                iconType='material'
+                                checkedIcon='clear'
+                                uncheckedIcon='add'
+                                checkedColor='red'
+                                checked={this.state.checked}
+                                onPress={() => this.setState({checked: !this.state.checked})}
+                            />
+
+                            <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
+                                {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
+                                    <Text>אין תורים לתאריך זה</Text>
+                                    :
+                                    <FlatList
+                                        data={this.state.markedDates[this.state.selectedDate].appointments}
+                                        renderItem={this.renderRow}
+                                        keyExtractor={item => item.userId}
+                                        ItemSeparatorComponent={this.renderSeparator}
+                                    />
+                                }
+                            </List>
+
+                            <Button
+                                label='בקש תור'
+                                onPress={() => {
+                                    this.setModalVisible(!this.state.modalVisible);
+                                }}
+                            />
+                        </View>
+                    </View>
+                </Modal>
+            </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
+    calendar: {
+        borderTopWidth: 2,
+        marginTop: 10,
+        paddingTop: 10,
+        borderBottomWidth: 2,
+        borderColor: '#eee',
+        height: 350,
+    },
+    text: {
+        textAlign: 'center',
+        borderColor: '#bbb',
+        padding: 10,
+        backgroundColor: '#eee'
+    },
     item: {
         backgroundColor: 'white',
         flex: 1,

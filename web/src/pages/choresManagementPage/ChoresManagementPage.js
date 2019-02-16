@@ -2,13 +2,12 @@ import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import axios from 'axios';
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
-import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
+import usersStorage from "../../storage/usersStorage";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -46,9 +45,7 @@ class ChoresManagementPage extends React.Component {
     }
 
     getUsers() {
-        axios.get(`${SERVER_URL}/api/users`,
-            {headers: this.serviceProviderHeaders}
-        )
+        usersStorage.getUsers()
             .then((response) => {
 
                 const users = response.data;
@@ -89,17 +86,12 @@ class ChoresManagementPage extends React.Component {
     }
 
     getUserByUserID(userId) {
-        axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-            {headers: this.serviceProviderHeaders}
-        )
+        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
             .then((response) => {
-                let user=response.data[0];
+                let user = response.data[0];
                 console.log('getUserByUserID ', userId, ' ', user);
                 this.props.history.push(`/users/${userId}`);
             })
-            .catch((error) => {
-                console.log('getUserByUserID ', userId, ' ', error);
-            });
     }
 
 
@@ -133,7 +125,7 @@ class ChoresManagementPage extends React.Component {
                                 <Table.Cell>
                                     <Header as='h4' image>
                                         {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
-                                        <Header.Content as="a" onClick={this.getUserByUserID.bind(this,user.userId)}>
+                                        <Header.Content as="a" onClick={this.getUserByUserID.bind(this, user.userId)}>
                                             {user.fullname}
                                             {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                         </Header.Content>

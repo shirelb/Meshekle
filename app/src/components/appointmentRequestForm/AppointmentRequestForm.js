@@ -29,7 +29,7 @@ export default class AppointmentRequestForm extends Component {
             isDateTimePickerVisible: false,
             isStartDateTimePickerVisible: false,
             isEndDateTimePickerVisible: false,
-            dateClicked: '',
+            dateClicked: new Date(),
             startTimeClicked: '',
             endTimeClicked: '',
         };
@@ -86,7 +86,7 @@ export default class AppointmentRequestForm extends Component {
             daysAndHoursSelected: datestimes,
             startTimeClicked: time,
         });
-        // this.forceUpdate();
+        this.forceUpdate();
     };
 
     handleEndTimePicked = (time) => {
@@ -124,14 +124,15 @@ export default class AppointmentRequestForm extends Component {
                             {/*<FormValidationMessage>Error message</FormValidationMessage>*/}
 
                             <CheckBox
-                                right
+                                left
                                 title='הוסף תאריך ושעות'
-                                iconRight
+                                iconLeft
                                 iconType='material'
                                 checkedIcon='clear'
                                 uncheckedIcon='add'
                                 checkedColor='red'
                                 checked={this.state.checked}
+                                onPress={() => this.setState({checked: !this.state.checked})}
                             />
 
                             <TouchableOpacity onPress={() => this.setState({isDateTimePickerVisible: true})}>

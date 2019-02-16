@@ -2,13 +2,11 @@ import React from 'react';
 import '../styles.css';
 import {Button, Modal} from 'semantic-ui-react';
 import {Redirect, Route, Switch} from 'react-router-dom';
-import axios from 'axios';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
-import getAppointmentByAppointmentID from "../../shared/helpers";
 import store from "store";
-import {SERVER_URL} from "../../shared/constants";
 import AppointmentEdit from "./AppointmentEdit";
+import appointmentsStorage from "../../storage/appointmentsStorage";
 
 
 class AppointmentInfo extends React.Component {
@@ -31,7 +29,7 @@ class AppointmentInfo extends React.Component {
         if (this.props.location.state.appointment)
             this.setState({appointment: this.props.location.state.appointment});
         else
-            getAppointmentByAppointmentID(store.get('serviceProviderId'), this.props.match.params, this.serviceProviderHeaders)
+            appointmentsStorage.getAppointmentByAppointmentID(store.get('serviceProviderId'), this.props.match.params, this.serviceProviderHeaders)
                 .then(({data: appointment}) => {
                     this.setState({appointment});
                 });
@@ -39,17 +37,9 @@ class AppointmentInfo extends React.Component {
 
     handleDelete() {
         console.log('appointment handleDelete ', this.serviceProviderHeaders);
-        axios.put(`${SERVER_URL}/api/serviceProviders/appointments/cancel/appointmentId/${this.state.appointment.appointmentId}`,
-            {},
-            {
-                headers: this.serviceProviderHeaders
-            }
-        )
+        appointmentsStorage.cancelAppointmentById(this.state.appointment.appointmentId, this.serviceProviderHeaders)
             .then((response) => {
                 console.log('appointment handleDelete ', response.data);
-            })
-            .catch((error) => {
-                console.log('error ', error);
             });
 
         this.props.history.goBack();
@@ -99,7 +89,7 @@ class AppointmentInfo extends React.Component {
                         {/*<Button positive onClick={() => this.props.history.goBack()}>השאר</Button>*/}
                     </Modal.Actions>
                 </Modal>
-                
+
                 <div>
                     <Switch>
                         <Route exec path={`${this.props.match.url}/edit`}

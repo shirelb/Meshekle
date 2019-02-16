@@ -4,8 +4,6 @@ import {ScrollView, Text} from 'react-native';
 import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
-import axios from "axios";
-import {SERVER_URL} from "../../shared/constants";
 
 
 export default class MainScreen extends Component {
@@ -48,18 +46,6 @@ export default class MainScreen extends Component {
                 // this.props.navigation.navigate('MainScreen')
                 this.props.navigation.navigate('Auth')
             )
-    };
-
-    getUserEvents = () => {
-        console.log('getUserEvents this.state.userId ', this.state.userId);
-        console.log('getUserEvents this.userHeaders ', this.userHeaders);
-        axios.get(`${SERVER_URL}/api/users/events/userId/${this.state.userId}`, {headers: this.userHeaders})
-            .then(events => {
-                console.log('events ', events)
-            })
-            .catch(error => {
-                console.log('error ', error)
-            });
     };
 
     render() {

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from "react-dom";
 
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
@@ -14,17 +13,16 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 
 import moment from 'moment';
 import 'moment/locale/he';
-import axios from 'axios';
 import store from 'store';
 import {Helmet} from 'react-helmet';
-import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
-import helpers from "../../shared/helpers";
 import AppointmentInfo from "../../components/appointment/AppointmentInfo";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import {Redirect, Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
+import appointmentsStorage from "../../storage/appointmentsStorage";
+import usersStorage from "../../storage/usersStorage";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -131,21 +129,14 @@ class AppointmentsManagementPage extends React.Component {
     }
 
     getServiceProviderAppointmentRequests() {
-        axios.get(`${SERVER_URL}/api/serviceProviders/appointmentRequests/serviceProviderId/${this.serviceProviderId}`,
-            {
-                headers: this.serviceProviderHeaders,
-                params: {
-                    status: 'requested'
-                },
-            }
-        )
+        appointmentsStorage.getServiceProviderAppointmentRequests(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
                 const appointmentRequests = response.data;
                 const totalPages = Math.ceil(appointmentRequests.length / TOTAL_PER_PAGE);
                 console.log('appointmentRequests ', appointmentRequests);
 
                 appointmentRequests.map((appointmentRequest, index) => {
-                    helpers.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                    usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
                         .then(user => {
                             appointmentRequest.clientName = user.fullname;
                             appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
@@ -184,21 +175,14 @@ class AppointmentsManagementPage extends React.Component {
     }
 
     getServiceProviderAppointments() {
-        axios.get(`${SERVER_URL}/api/serviceProviders/appointments/serviceProviderId/${this.serviceProviderId}`,
-            {
-                headers: this.serviceProviderHeaders,
-                params: {
-                    status: 'set'
-                },
-            }
-        )
+        appointmentsStorage.getServiceProviderAppointments(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
                 const appointments = response.data;
                 const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
                 console.log('appointments ', appointments);
 
                 appointments.map((appointment, index) => {
-                    helpers.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                    usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
                         .then(user => {
                             appointment.clientName = user.fullname;
                             // appointment.id = appointment.appointmentId;
@@ -365,24 +349,14 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     updateAppointment = (event, nextEvents) => {
-        axios.put(`${SERVER_URL}/api/serviceProviders/appointments/update/appointmentId/${event.appointmentId}`,
-            {
-                startDateAndTime: event.startDateAndTime,
-                endDateAndTime: event.endDateAndTime,
-            },
-            {
-                headers: this.serviceProviderHeaders,
-            }
-        )
+        appointmentsStorage.updateAppointment(event, this.serviceProviderHeaders)
             .then((response) => {
 
                 this.setState({
                     appointments: nextEvents,
                 })
 
-            }).catch(error => {
-            console.error('Create New Event error', error);
-        });
+            })
     };
 
     render() {

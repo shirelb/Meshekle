@@ -10,11 +10,10 @@ import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
-import axios from "axios";
-import {SERVER_URL} from "../../shared/constants";
-import helpers from "../../shared/helpers";
 import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import usersStorage from "../../storage/usersStorage";
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -28,39 +27,29 @@ const serviceProviderHeaders = {
     'Authorization': 'Bearer ' + store.get('serviceProviderToken')
 };
 
-const getServiceProviderPermissionsById = (serviceProviderId) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}/permissions`,
-        {headers: serviceProviderHeaders}
-    )
-        .then((response) => {
-            let permissions = response.data;
-            console.log('permissions ', permissions);
-            return permissions;
-        })
-        .catch((error) => {
-            console.log('error ', error);
-        });
-};
-
-
-
 
 class Home extends Component {
 // const Home = ({userId, serviceProviderId}) => {
 
     componentDidMount() {
-    this.userFullname = '';
-    helpers.getUserByUserID(store.get('userId'), serviceProviderHeaders)
-        .then(user => {this.userFullname = user.fullname; this.forceUpdate()})
-        .catch(error => console.log('error ', error));
-    this.serviceProviderPermissions = '';
-    getServiceProviderPermissionsById(store.get('serviceProviderId'))
-        .then(permissions => {this.serviceProviderPermissions = permissions;this.forceUpdate()})
-        .catch(error => console.log('error ', error));
-    this.serviceProviderRoles = '';
-    helpers.getRolesOfServiceProvider(store.get('serviceProviderId'))
-        .then(roles => {this.serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));this.forceUpdate()})
-        .catch(error => console.log('error ', error));
+        this.userFullname = '';
+        usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
+            .then(user => {
+                this.userFullname = user.fullname;
+                this.forceUpdate()
+            })
+        this.serviceProviderPermissions = '';
+        serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
+            .then(permissions => {
+                this.serviceProviderPermissions = permissions;
+                this.forceUpdate()
+            })
+        this.serviceProviderRoles = '';
+        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
+            .then(roles => {
+                this.serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
+                this.forceUpdate()
+            })
     }
 
     render() {

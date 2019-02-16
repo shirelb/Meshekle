@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Agenda, LocaleConfig} from 'react-native-calendars';
 import {localConfig} from '../localConfig';
-import axios from "axios";
-import {SERVER_URL} from "../../../shared/constants";
 import phoneStorage from "react-native-simple-store";
+import usersStorage from "../../../storage/usersStorage";
+import appointmentsStorage from "../../../storage/appointmentsStorage";
 
 
 export default class AgendaCalendar extends Component {
@@ -42,27 +42,20 @@ export default class AgendaCalendar extends Component {
     loadItems() {
         let newItems = {};
         var promises = [];
-        axios.get(`${SERVER_URL}/api/users/events/userId/${this.userId}`,
-            {headers: this.userHeaders}
-        )
+        usersStorage.getUserEvents(this.userId,this.userHeaders)
             .then(response => {
                 let events = response.data;
                 if (events.length > 0) {
                     events.forEach((event) => {
                         switch (event.eventType) {
                             case 'Appointments':
-                                promises.push(axios.get(`${SERVER_URL}/api/users/appointments/userId/${this.userId}`,
-                                    {
-                                        headers: this.userHeaders,
-                                        params: {status: 'set', appointmentId: event.eventId}
-                                    })
-                                );
+                                promises.push(appointmentsStorage.getUserAppointmentById(this.userId,this.userHeaders,event.eventId));
                                 break;
                             // TODO add case of chores here
                         }
                     });
 
-                    axios.all(promises)
+                    Promise.all(promises)
                         .then((results) => {
                             results.forEach((response, i) => {
                                 let item = {};
@@ -97,9 +90,6 @@ export default class AgendaCalendar extends Component {
                         });
                 }
             })
-            .catch(error => {
-                console.log('load items error ', error)
-            });
     }
 
     onDayPress = (date) => {

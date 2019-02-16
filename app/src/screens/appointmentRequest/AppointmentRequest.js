@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
-import axios from "axios";
-import {SERVER_URL} from "../../shared/constants";
 import phoneStorage from "react-native-simple-store";
 import AppointmentRequestForm from "../../components/appointmentRequestForm/AppointmentRequestForm";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import usersStorage from "../../storage/usersStorage";
 
 
 export default class AppointmentRequest extends Component {
@@ -35,16 +35,12 @@ export default class AppointmentRequest extends Component {
     }
 
     loadServiceProviders() {
-        axios.get(`${SERVER_URL}/api/serviceProviders`,
-            {headers: this.userHeaders}
-        )
+        serviceProvidersStorage.getServiceProviders(this.userHeaders)
             .then((response) => {
                 let serviceProviders = response.data;
 
                 serviceProviders.forEach(provider => {
-                    axios.get(`${SERVER_URL}/api/users/userId/${provider.userId}`,
-                        {headers: this.userHeaders}
-                    )
+                    usersStorage.getUserById(provider.userId, this.userHeaders)
                         .then(user => {
                             provider.fullname = user.data[0].fullname;
 
@@ -54,9 +50,6 @@ export default class AppointmentRequest extends Component {
 
                             this.serviceProviders = serviceProviders;
                         })
-                        .catch(error => {
-                            console.log('error ', error)
-                        });
                 })
             });
     };
@@ -138,13 +131,13 @@ export default class AppointmentRequest extends Component {
             <View>
                 <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
                     {this.state.noServiceProviderFound ? <Text>לא נמצאו תוצאות</Text> :
-                    <FlatList
-                        data={this.state.serviceProviders}
-                        renderItem={this.renderRow}
-                        keyExtractor={item => item.userId}
-                        ItemSeparatorComponent={this.renderSeparator}
-                        ListHeaderComponent={this.renderHeader}
-                    />
+                        <FlatList
+                            data={this.state.serviceProviders}
+                            renderItem={this.renderRow}
+                            keyExtractor={item => item.userId}
+                            ItemSeparatorComponent={this.renderSeparator}
+                            ListHeaderComponent={this.renderHeader}
+                        />
                     }
                 </List>
                 <AppointmentRequestForm

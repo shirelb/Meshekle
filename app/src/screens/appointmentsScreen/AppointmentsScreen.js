@@ -11,7 +11,7 @@ export default class AppointmentsScreen extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <View>
                 <Text>
                     התורים שלי
                 </Text>
@@ -35,8 +35,8 @@ export default class AppointmentsScreen extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
+        // justifyContent: 'center',
+        // alignItems: 'center'
     }
 });
 

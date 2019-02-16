@@ -3,15 +3,14 @@ import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
 import {Link, Redirect, Route, Switch} from "react-router-dom";
-import axios from 'axios';
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
-import {SERVER_URL} from "../../shared/constants";
 import strings from "../../shared/strings";
-import helpers from "../../shared/helpers";
 import UserInfo from "../../components/user/UserInfo";
+import usersStorage from "../../storage/usersStorage";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -54,11 +53,9 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     getUsers() {
-        axios.get(`${SERVER_URL}/api/users`,
-            {headers: this.serviceProviderHeaders}
-        )
+        usersStorage.getUsers()
             .then((response) => {
-
+                console.log('response ', response);
                 const users = response.data;
                 const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 
@@ -71,9 +68,7 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     getServiceProviders() {
-        axios.get(`${SERVER_URL}/api/serviceProviders`,
-            {headers: this.serviceProviderHeaders}
-        )
+        serviceProvidersStorage.getServiceProviders()
             .then((response) => {
 
                 const serviceProviders = response.data;
@@ -115,10 +110,7 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     getUserByUserID(userId) {
-        helpers.getUserByUserID(userId, this.serviceProviderHeaders)
-        // axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-        //     {headers: this.serviceProviderHeaders}
-        // )
+        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
             .then((user) => {
                 // let user=response.data[0];
                 console.log('then getUserByUserID ', userId, ' ', user);
@@ -153,7 +145,7 @@ class PhoneBookManagementPage extends React.Component {
     render() {
         console.log('app props ', this.props);
 
-        const {users, pageUsers, totalPagesUsers,serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
+        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
 
         return (
@@ -211,7 +203,8 @@ class PhoneBookManagementPage extends React.Component {
                                             <Icon name="right chevron"/>
                                         </Menu.Item>}
                                         {times(totalPagesUsers, n =>
-                                            (<Menu.Item as="a" key={n} active={n === pageUsers} onClick={this.setPage(n)}>
+                                            (<Menu.Item as="a" key={n} active={n === pageUsers}
+                                                        onClick={this.setPage(n)}>
                                                 {n + 1}
                                             </Menu.Item>),
                                         )}
@@ -226,7 +219,8 @@ class PhoneBookManagementPage extends React.Component {
                     </Table>
                     <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
                 </Page>
-                <Page children={serviceProviders} title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}>
+                <Page children={serviceProviders}
+                      title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}>
                     <Helmet>
                         <title>Meshekle | ServiceProviders</title>
                     </Helmet>
@@ -251,7 +245,8 @@ class PhoneBookManagementPage extends React.Component {
                                         <Header as='h4' image>
                                             {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
-                                                <Link to={`${this.props.match.url}/serviceProviders/${serviceProvider.serviceProviderId}`}>
+                                                <Link
+                                                    to={`${this.props.match.url}/serviceProviders/${serviceProvider.serviceProviderId}`}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
@@ -273,11 +268,13 @@ class PhoneBookManagementPage extends React.Component {
                             <Table.Row>
                                 <Table.HeaderCell colSpan={8}>
                                     <Menu floated="left" pagination>
-                                        {pageServiceProviders !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
+                                        {pageServiceProviders !== 0 &&
+                                        <Menu.Item as="a" icon onClick={this.decrementPage}>
                                             <Icon name="right chevron"/>
                                         </Menu.Item>}
                                         {times(totalPagesServiceProviders, n =>
-                                            (<Menu.Item as="a" key={n} active={n === pageServiceProviders} onClick={this.setPage(n)}>
+                                            (<Menu.Item as="a" key={n} active={n === pageServiceProviders}
+                                                        onClick={this.setPage(n)}>
                                                 {n + 1}
                                             </Menu.Item>),
                                         )}

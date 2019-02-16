@@ -37,19 +37,27 @@ const DrawerMenuNavigator = createDrawerNavigator(
         // AppNavigator: AppNavigator,
         MainScreen: {
             screen: MainScreen,
-            params: {},
+            params: {
+                headerTitle: 'משקל\'ה',
+            },
         },
         AppointmentsScreen: {
             screen: AppointmentsScreen,
-            params: {},
+            params: {
+                headerTitle: 'התורים שלי',
+            },
         },
         AppointmentRequest: {
             screen: AppointmentRequest,
-            params: {},
+            params: {
+                headerTitle: 'בקשת תור',
+            },
         },
         ChoresScreen: {
             screen: ChoresScreen,
-            params: {},
+            params: {
+                headerTitle: 'התורנויות שלי',
+            },
         },
     },
     {
@@ -76,7 +84,7 @@ const AppNavigator = createStackNavigator(
         //     params: {},
         defaultNavigationOptions: ({navigation}) => ({
             // header: null,
-            // title: `Main`,
+            title: `${navigation.state.routes[navigation.state.index].params.headerTitle}`,
             headerLeft: (
                 <TouchableOpacity onPress={() => {
                     navigation.dispatch(DrawerActions.toggleDrawer())
@@ -88,6 +96,7 @@ const AppNavigator = createStackNavigator(
                     />
                 </TouchableOpacity>
             ),
+            // headerTitle:'דף בית',
             headerStyle: {
                 // paddingRight: 10,
                 // paddingLeft: 15,
@@ -95,7 +104,7 @@ const AppNavigator = createStackNavigator(
                 marginHorizontal: 20,
                 elevation: 0,
             },
-            headerTintColor: '#fff',
+            // headerTintColor: '#fff',
             headerTitleStyle: {
                 fontWeight: 'bold',
             },
@@ -134,6 +143,11 @@ const AppContainer = createAppContainer(
 );
 
 export default class App extends Component {
+    // constructor(props) {
+    //     super(props);
+    //     I18nManager.forceRTL(true);
+    // }
+
     state = {
         isLoggedIn: false,
         initialScreen: 'LoginScreen',
