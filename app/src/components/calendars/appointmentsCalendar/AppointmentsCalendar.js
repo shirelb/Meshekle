@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {localConfig} from '../localConfig';
 import moment from 'moment';
@@ -180,7 +180,7 @@ export default class AppointmentsCalendar extends Component {
         let currDayStr = new Date().toUTCString(); // get current date
 
         return (
-            <View>
+            <ScrollView>
                 <Calendar
                     markedDates={this.state.markedDates}
                     onDayPress={this.onDaySelect}
@@ -215,6 +215,43 @@ export default class AppointmentsCalendar extends Component {
                         textDayHeaderFontSize: 16
                     }}
                 />
+               {/* {this.state.selectedDate === '' ? null :
+                    <View>
+                    <Text> {this.state.selectedDate} </Text>
+
+                    <CheckBox
+                        left
+                        title='הוסף תאריך ושעות'
+                        iconLeft
+                        iconType='material'
+                        checkedIcon='clear'
+                        uncheckedIcon='add'
+                        checkedColor='red'
+                        checked={this.state.checked}
+                        onPress={() => this.setState({checked: !this.state.checked})}
+                    />
+
+                    <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
+                        {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
+                            <Text>אין תורים לתאריך זה</Text>
+                            :
+                            <FlatList
+                                data={this.state.markedDates[this.state.selectedDate].appointments}
+                                renderItem={this.renderRow}
+                                keyExtractor={item => item.userId}
+                                ItemSeparatorComponent={this.renderSeparator}
+                            />
+                        }
+                    </List>
+
+                    <Button
+                        label='בקש תור'
+                        onPress={() => {
+                            this.setModalVisible(!this.state.modalVisible);
+                        }}
+                    />
+                </View>
+                }*/}
                 <Modal
                     animationType="fade"
                     transparent={false}
@@ -267,7 +304,7 @@ export default class AppointmentsCalendar extends Component {
                         </View>
                     </View>
                 </Modal>
-            </View>
+            </ScrollView>
         );
     }
 }

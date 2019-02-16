@@ -12,10 +12,6 @@ export default class AppointmentsScreen extends Component {
     render() {
         return (
             <View>
-                <Text>
-                    התורים שלי
-                </Text>
-
                 <Button
                     title="בקש תור חדש"
                     onPress={this.onAppointmentRequestPress.bind(this)}
