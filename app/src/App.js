@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Dimensions, Platform, TouchableOpacity} from 'react-native';
+import {Dimensions, Platform, TouchableOpacity,I18nManager} from 'react-native';
 import {
     createAppContainer,
     createDrawerNavigator,
@@ -134,6 +134,11 @@ const AppContainer = createAppContainer(
 );
 
 export default class App extends Component {
+    // constructor(props) {
+    //     super(props);
+    //     I18nManager.forceRTL(true);
+    // }
+
     state = {
         isLoggedIn: false,
         initialScreen: 'LoginScreen',
