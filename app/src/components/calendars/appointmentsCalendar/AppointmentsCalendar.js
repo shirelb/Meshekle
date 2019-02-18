@@ -1,11 +1,14 @@
 import React, {Component} from 'react';
-import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View, ScrollView} from 'react-native';
+// import {FlatList, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {localConfig} from '../localConfig';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
-import {CheckBox, List, ListItem} from "react-native-elements";
-import Button from "../../../components/submitButton/Button";
+// import {CheckBox, List,ListItem} from "react-native-elements";
+import {CheckBox} from "react-native-elements";
+import {List} from 'react-native-paper';
+import Button from '../../submitButton/Button';
 import appointmentsStorage from "../../../storage/appointmentsStorage";
 
 export default class AppointmentsCalendar extends Component {
@@ -16,12 +19,16 @@ export default class AppointmentsCalendar extends Component {
             markedDates: {},
             selectedDate: '',
             dateModalVisible: false,
+            expanded:{}
         };
 
         this.userHeaders = {};
         this.userId = null;
 
         this.onDayPress = this.onDayPress.bind(this);
+        this.renderRow = this.renderRow.bind(this);
+        this.renderHeader = this.renderHeader.bind(this);
+        this.renderContent = this.renderContent.bind(this);
     }
 
     componentDidMount() {
@@ -36,7 +43,7 @@ export default class AppointmentsCalendar extends Component {
     }
 
     loadAppointments() {
-        appointmentsStorage.getUserAppointments(this.userId,this.userHeaders)
+        appointmentsStorage.getUserAppointments(this.userId, this.userHeaders)
             .then(response => {
                 let markedDates = {};
 
@@ -57,10 +64,6 @@ export default class AppointmentsCalendar extends Component {
     }
 
     onDaySelect = (day) => {
-        console.log('this.state.selectedDate === \'\' ', this.state.selectedDate === '');
-        if (this.state.selectedDate !== '')
-            console.log('this.state.markedDates[selectedDate].appointments.length === 0 ', this.state.markedDates[this.state.selectedDate].appointments.length === 0);
-
         console.log("in onDaySelect day ", day);
         let updatedMarkedDates = this.state.markedDates;
 
@@ -78,10 +81,16 @@ export default class AppointmentsCalendar extends Component {
         newMarkedDate.color = 'blue';
         updatedMarkedDates[selectedDay] = newMarkedDate;
 
+        let expanded={};
+        updatedMarkedDates[selectedDay].appointments.forEach(appointment =>{
+            expanded[appointment.appointmentId]=false;
+        });
+
         this.setState({
             selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
             markedDates: updatedMarkedDates,
             dateModalVisible: true,
+            expanded:expanded,
         });
     };
 
@@ -90,58 +99,6 @@ export default class AppointmentsCalendar extends Component {
         this.setState({
             date: new Date(date.year, date.month - 1, date.day),
         });
-    };
-
-    onDayChange = (date) => {
-        console.log('in day change ');
-        this.setState({
-            date: new Date(date.year, date.month - 1, date.day),
-        });
-    };
-
-
-    renderItem(item) {
-        return (
-            <View style={[styles.item, {height: item.height}]}>
-                <Text>{item.startTime} - {item.endTime}</Text>
-                <Text>{item.subject}</Text>
-                <Text>{item.serviceProviderId}</Text>
-                <Text>{item.role}</Text>
-            </View>
-        );
-    }
-
-    renderDay(day) {
-        // renderDay={(day, item) => (<Text>{day ? day.day : 'item'} {day ? day.month.toLocaleString() : 'item'} </Text>)}
-
-        return (
-            <View style={styles.dayMonthContainer}>
-                <Text style={styles.day}>{day ? day.day : null} </Text>
-                <Text
-                    style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].monthNamesShort[day.month - 1] : null} </Text>
-                <Text
-                    style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].dayNames[new Date(day.timestamp).getDay()] : null} </Text>
-            </View>
-        );
-    }
-
-    renderEmptyDate() {
-        return (
-            <View style={styles.emptyDate}><Text> </Text></View>
-        );
-    }
-
-    rowHasChanged(r1, r2) {
-        return r1.name !== r2.name;
-    }
-
-    getDateStringFromDateAndTime = (dateAndTime) => {
-        const date = new Date(dateAndTime);
-        return date.toISOString().split('T')[0];
-    };
-    getTimeStringFromDateAndTime = (dateAndTime) => {
-        const date = new Date(dateAndTime);
-        return date.toISOString().split('T')[1].split('.')[0].slice(0, -3);
     };
 
     renderSeparator = () => {
@@ -165,13 +122,63 @@ export default class AppointmentsCalendar extends Component {
                 subtitle={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
                 description={item.AppointmentDetail.subject}
                 // avatar={{uri:item.avatar_url}}
-                // onPress={() => this.requestAppointment(item)}
+                onPress={() => console.log('pressed!!')}
                 containerStyle={{borderBottomWidth: 0}}
                 // rightIcon={<Icon name={'chevron-left'}/>}
                 // hideIcon
             />
-        )
+            /*<View>
+                <Text>{moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}</Text>
+                <Text>{item.AppointmentDetail.role}</Text>
+                <Text>{item.AppointmentDetail.serviceProviderId}</Text>
+                <Text>{item.AppointmentDetail.subject}</Text>
+            </View>*/
+        );
     };
+
+    renderHeader = (item) => {
+        return (
+            <View style={{
+                paddingTop: 15,
+                paddingRight: 15,
+                paddingLeft: 15,
+                paddingBottom: 15,
+                borderBottomWidth: 1,
+                borderBottomColor: '#a9a9a9',
+                backgroundColor: '#f9f9f9',
+            }}>
+                <Text>{moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}</Text>
+                <Text>{item.AppointmentDetail.role}</Text>
+                <Text>{item.AppointmentDetail.serviceProviderId}</Text>
+                <Text>{item.AppointmentDetail.subject}</Text>
+            </View>
+        );
+    }
+
+    renderContent = (item) => {
+        return (
+            <View style={{
+                backgroundColor: '#31363D'
+            }}>
+                <Text style={{
+                    paddingTop: 15,
+                    paddingRight: 15,
+                    paddingBottom: 15,
+                    paddingLeft: 15,
+                    color: '#fff',
+                }}>
+                    This content is hidden in the accordion
+                </Text>
+                <Text>{moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}</Text>
+                <Text>{item.appointmentId}</Text>
+                <Text>{item.AppointmentDetail.role}</Text>
+                <Text>{item.AppointmentDetail.serviceProviderId}</Text>
+                <Text>{item.AppointmentDetail.subject}</Text>
+                <Text>{item.remarks}</Text>
+            </View>
+        );
+    }
+
 
     render() {
         LocaleConfig.defaultLocale = 'il';
@@ -215,43 +222,6 @@ export default class AppointmentsCalendar extends Component {
                         textDayHeaderFontSize: 16
                     }}
                 />
-               {/* {this.state.selectedDate === '' ? null :
-                    <View>
-                    <Text> {this.state.selectedDate} </Text>
-
-                    <CheckBox
-                        left
-                        title='הוסף תאריך ושעות'
-                        iconLeft
-                        iconType='material'
-                        checkedIcon='clear'
-                        uncheckedIcon='add'
-                        checkedColor='red'
-                        checked={this.state.checked}
-                        onPress={() => this.setState({checked: !this.state.checked})}
-                    />
-
-                    <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
-                        {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
-                            <Text>אין תורים לתאריך זה</Text>
-                            :
-                            <FlatList
-                                data={this.state.markedDates[this.state.selectedDate].appointments}
-                                renderItem={this.renderRow}
-                                keyExtractor={item => item.userId}
-                                ItemSeparatorComponent={this.renderSeparator}
-                            />
-                        }
-                    </List>
-
-                    <Button
-                        label='בקש תור'
-                        onPress={() => {
-                            this.setModalVisible(!this.state.modalVisible);
-                        }}
-                    />
-                </View>
-                }*/}
                 <Modal
                     animationType="fade"
                     transparent={false}
@@ -282,18 +252,47 @@ export default class AppointmentsCalendar extends Component {
                                 onPress={() => this.setState({checked: !this.state.checked})}
                             />
 
-                            <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
+                            <List.Section title={this.state.selectedDate}>
+                                {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
+                                    <Text>אין תורים לתאריך זה</Text>
+                                    :
+                                    this.state.markedDates[this.state.selectedDate].appointments.map(item => {
+                                        return <List.Accordion
+                                            key={item.appointmentId}
+                                            title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
+                                            description={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
+                                            left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
+                                            expanded={this.state.expanded[item.appointmentId]}
+                                            onPress={() => {
+                                                let expanded = this.state.expanded;
+                                                expanded[item.appointmentId]=!expanded[item.appointmentId];
+                                                this.setState({expanded: expanded})
+                                            }                                            }
+                                        >
+                                            <List.Item
+                                                title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
+                                                subtitle={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
+                                                description={item.AppointmentDetail.subject}
+                                                containerStyle={{borderBottomWidth: 0}}
+                                            />
+                                        </List.Accordion>
+                                    })
+                                }
+                            </List.Section>
+
+                            {/* <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
                                 {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
                                     <Text>אין תורים לתאריך זה</Text>
                                     :
                                     <FlatList
                                         data={this.state.markedDates[this.state.selectedDate].appointments}
                                         renderItem={this.renderRow}
-                                        keyExtractor={item => item.userId}
+                                        keyExtractor={item => String(item.appointmentId)}
                                         ItemSeparatorComponent={this.renderSeparator}
                                     />
                                 }
-                            </List>
+                            </List>*/
+                            }
 
                             <Button
                                 label='בקש תור'
