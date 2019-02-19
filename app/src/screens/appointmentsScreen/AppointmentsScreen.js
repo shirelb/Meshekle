@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Button} from 'react-native';
+import {Button, StyleSheet, View} from 'react-native';
 import AppointmentsCalendar from "../../components/calendars/appointmentsCalendar/AppointmentsCalendar";
 
 export default class AppointmentsScreen extends Component {
 
-    onAppointmentRequestPress = () => {
-        this.props.navigation.navigate('AppointmentRequest')
+    onAppointmentRequestPress = (selectedDate = '') => {
+        this.props.navigation.navigate('AppointmentRequest', {selectedDate: selectedDate})
     };
 
 
@@ -22,7 +22,9 @@ export default class AppointmentsScreen extends Component {
                     onPress={this.getUserEvents.bind(this)}
                 />*/}
 
-                <AppointmentsCalendar/>
+                <AppointmentsCalendar
+                    onAppointmentRequestPress={this.onAppointmentRequestPress}
+                />
             </View>
         );
     }

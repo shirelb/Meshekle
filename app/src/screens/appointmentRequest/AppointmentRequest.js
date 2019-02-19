@@ -143,6 +143,7 @@ export default class AppointmentRequest extends Component {
                 <AppointmentRequestForm
                     modalVisible={this.state.formModal}
                     serviceProvider={this.state.serviceProviderSelected}
+                    selectedDate={this.props.navigation.state.params.selectedDate}
                 />
             </View>
         );

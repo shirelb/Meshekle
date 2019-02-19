@@ -21,7 +21,10 @@ export default class AppointmentRequestForm extends Component {
         this.state = {
             modalVisible: this.props.modalVisible,
             serviceProvider: this.props.serviceProvider,
-            daysAndHoursSelected: [],
+            datesAndHoursSelected: this.props.selectedDate === '' ? [] : [{
+                date: this.props.selectedDate,
+                hours: [{startHour: "", endHour: ""}, {startHour: "", endHour: ""}]
+            }],
             subjectSelected: [],
             subjectText: "",
             displaySubjectList: false,
@@ -57,11 +60,11 @@ export default class AppointmentRequestForm extends Component {
     }
 
     handleDatePicked = (date) => {
-        console.log('datetimes  ', this.state.daysAndHoursSelected);
+        console.log('ddddatetimes  ', this.state.datesAndHoursSelected);
         console.log('A date has been picked: ', date);
-        if (!this.state.daysAndHoursSelected.filter(datetime => (datetime.date === date)))
+        if (!this.state.datesAndHoursSelected.filter(datetime => (datetime.date === date)))
             this.setState({
-                daysAndHoursSelected: [...this.state.daysAndHoursSelected, date],
+                datesAndHoursSelected: [...this.state.datesAndHoursSelected, date],
             });
         this.setState({
             isDateTimePickerVisible: false,
@@ -72,18 +75,18 @@ export default class AppointmentRequestForm extends Component {
 
     handleStartTimePicked = (time) => {
         console.log('A start time has been picked: ', time);
-        let datestimes = this.state.daysAndHoursSelected;
+        let datestimes = this.state.datesAndHoursSelected;
         datestimes.forEach(dateTime => {
             if (dateTime.date === this.state.dateClicked)
-                if(!dateTime.hours)
-                    dateTime.hours=[];
-                dateTime.hours.push({'startHour': time});
+                if (!dateTime.hours)
+                    dateTime.hours = [];
+            dateTime.hours.push({'startHour': time});
         });
 
         this.setState({
             isStartDateTimePickerVisible: false,
             isSEndDateTimePickerVisible: true,
-            daysAndHoursSelected: datestimes,
+            datesAndHoursSelected: datestimes,
             startTimeClicked: time,
         });
         this.forceUpdate();
@@ -91,7 +94,7 @@ export default class AppointmentRequestForm extends Component {
 
     handleEndTimePicked = (time) => {
         console.log('A endddd time has been picked: ', time);
-        let datestimes = this.state.daysAndHoursSelected;
+        let datestimes = this.state.datesAndHoursSelected;
         datestimes.forEach(dateTime => {
             if (dateTime.date === this.state.dateClicked)
                 datestimes.hours.forEach(startTime => {
