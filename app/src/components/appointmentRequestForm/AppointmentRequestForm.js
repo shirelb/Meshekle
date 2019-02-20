@@ -4,6 +4,8 @@ import {CheckBox} from "react-native-elements";
 import {SelectMultipleGroupButton} from "react-native-selectmultiple-button";
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Button from "../../components/submitButton/Button";
+import {List} from "react-native-paper";
+import moment from 'moment';
 
 
 export default class AppointmentRequestForm extends Component {
@@ -21,10 +23,12 @@ export default class AppointmentRequestForm extends Component {
         this.state = {
             modalVisible: this.props.modalVisible,
             serviceProvider: this.props.serviceProvider,
-            datesAndHoursSelected: this.props.selectedDate === '' ? [] : [{
-                date: this.props.selectedDate,
-                hours: [{startHour: "", endHour: ""}, {startHour: "", endHour: ""}]
+            datesAndHoursSelected: this.props.selectedDate === '' || typeof this.props.selectedDate !== "string" ? [] : [{
+                'date': this.props.selectedDate,
+                'hours': [{startHour: "", endHour: ""}, {startHour: "", endHour: ""}],
+                'expanded': false,
             }],
+            // expanded: this.props.selectedDate === '' || typeof this.props.selectedDate !== "string" ? [] : [{date:this.props.selectedDate : false}],
             subjectSelected: [],
             subjectText: "",
             displaySubjectList: false,
@@ -59,22 +63,36 @@ export default class AppointmentRequestForm extends Component {
         });
     }
 
-    handleDatePicked = (date) => {
-        console.log('ddddatetimes  ', this.state.datesAndHoursSelected);
+    handleDatePicked = (selectedDate) => {
+        const date = moment(selectedDate).format('YYYY-MM-DD');
         console.log('A date has been picked: ', date);
-        if (!this.state.datesAndHoursSelected.filter(datetime => (datetime.date === date)))
+        // console.log('this.state.expanded ', this.state.expanded);
+        let datestimes = this.state.datesAndHoursSelected;
+        let found = datestimes.some(function (el) {
+            return el.date === date;
+        });
+        if (!found) {
+            datestimes.push({'date': date, 'hours': [], 'expanded': false});
+            // let expanded = this.state.expanded;
+            // expanded.push({date: false});
             this.setState({
-                datesAndHoursSelected: [...this.state.datesAndHoursSelected, date],
+                datesAndHoursSelected: datestimes,
+                // expanded: expanded,
             });
+        }
         this.setState({
             isDateTimePickerVisible: false,
             isStartDateTimePickerVisible: true,
             dateClicked: date,
         });
+        console.log('ddddatetimes 1 ', this.state.datesAndHoursSelected);
+        // console.log('this.state.expanded 2  ', this.state.expanded);
     };
 
-    handleStartTimePicked = (time) => {
+    handleStartTimePicked = (selectedTime) => {
+        const time = moment(selectedTime).format('HH:mm');
         console.log('A start time has been picked: ', time);
+        console.log('typeof ', typeof this.state.datesAndHoursSelected);
         let datestimes = this.state.datesAndHoursSelected;
         datestimes.forEach(dateTime => {
             if (dateTime.date === this.state.dateClicked)
@@ -85,27 +103,33 @@ export default class AppointmentRequestForm extends Component {
 
         this.setState({
             isStartDateTimePickerVisible: false,
-            isSEndDateTimePickerVisible: true,
+            isEndDateTimePickerVisible: true,
             datesAndHoursSelected: datestimes,
             startTimeClicked: time,
         });
-        this.forceUpdate();
+        console.log('dsdddddatetimes 2 ', this.state.datesAndHoursSelected);
     };
 
-    handleEndTimePicked = (time) => {
+    handleEndTimePicked = (selectedTime) => {
+        const time = moment(selectedTime).format('HH:mm');
         console.log('A endddd time has been picked: ', time);
         let datestimes = this.state.datesAndHoursSelected;
         datestimes.forEach(dateTime => {
+            console.log('dateTime ', dateTime);
             if (dateTime.date === this.state.dateClicked)
-                datestimes.hours.forEach(startTime => {
-                    if (startTime.startHour === this.state.startTimeClicked)
-                        dateTime.hours.push({'endHour': time})
-                })
+                console.log('dateTime[hours] ', dateTime['hours']);
+            dateTime['hours'].forEach(times => {
+                console.log('timessssss ', times);
+                if (times.startHour === this.state.startTimeClicked)
+                    times['endHour'] = time;
+            })
         });
         this.setState({
-            isSEndDateTimePickerVisible: false,
+            isEndDateTimePickerVisible: false,
+            datesAndHoursSelected: datestimes,
             endTimeClicked: time,
         });
+        console.log('ddddddddatetimes 3 ', this.state.datesAndHoursSelected);
     };
 
     render() {
@@ -126,6 +150,45 @@ export default class AppointmentRequestForm extends Component {
                             {/*<FormInput onChangeText={someFunction}/>*/}
                             {/*<FormValidationMessage>Error message</FormValidationMessage>*/}
 
+                            <Text style={{marginLeft: 10}}>
+                                תאריכים ושעות אופציונאליים
+                            </Text>
+
+                            <List.Section title={this.state.selectedDate}>
+                                {Array.isArray(this.state.datesAndHoursSelected) &&
+                                this.state.datesAndHoursSelected.map((item, index) => {
+                                    return <List.Accordion
+                                        key={index}
+                                        // title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
+                                        title={item.date}
+                                        // description={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
+                                        // left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
+                                        // expanded={this.state.expanded[item.date]}
+                                        expanded={item.expanded}
+                                        onPress={() => {
+                                            // let expanded = this.state.expanded;
+                                            // expanded[item.date] = !expanded[item.date];
+                                            // this.setState({expanded: expanded})
+                                            let datesAndTimes = this.state.datesAndHoursSelected;
+                                            datesAndTimes[index].expanded = !datesAndTimes[index].expanded;
+                                            this.setState({datesAndHoursSelected: datesAndTimes})
+                                        }}
+                                    >
+                                        {Array.isArray(item['hours']) && item['hours'] ?
+                                            item['hours'].map((hour, j) => {
+                                                return <List.Item
+                                                    key={j}
+                                                    title={hour.startHour + '-' + hour.endHour}
+                                                    // description={item.remarks}
+                                                    containerStyle={{borderBottomWidth: 0}}
+                                                />
+                                            }) : null
+                                        }
+                                    </List.Accordion>
+                                })
+                                }
+                            </List.Section>
+
                             <CheckBox
                                 left
                                 title='הוסף תאריך ושעות'
@@ -133,42 +196,47 @@ export default class AppointmentRequestForm extends Component {
                                 iconType='material'
                                 checkedIcon='clear'
                                 uncheckedIcon='add'
-                                checkedColor='red'
-                                checked={this.state.checked}
-                                onPress={() => this.setState({checked: !this.state.checked})}
+                                // checkedColor='red'
+                                // checked={this.state.checked}
+                                // onPress={() => this.setState({checked: !this.state.checked})}
+                                onPress={() => this.setState({isStartDateTimePickerVisible: true})}
                             />
 
-                            <TouchableOpacity onPress={() => this.setState({isDateTimePickerVisible: true})}>
-                                <Text>בחר תאריך</Text>
-                            </TouchableOpacity>
+                            {/*<TouchableOpacity onPress={() => this.setState({isDateTimePickerVisible: true})}>*/}
+                                {/*<Text>בחר תאריך</Text>*/}
+                            {/*</TouchableOpacity>*/}
                             <DateTimePicker
                                 isVisible={this.state.isDateTimePickerVisible}
                                 onConfirm={this.handleDatePicked}
                                 onCancel={() => this.setState({isDateTimePickerVisible: false})}
                                 is24Hour={true}
                                 mode={'date'}
+                                // datePickerModeAndroid={'spinner'}
+                                title='תאריך'
                             />
-                            <TouchableOpacity onPress={() => this.setState({isStartDateTimePickerVisible: true})}>
+                            {/*<TouchableOpacity onPress={() => this.setState({isStartDateTimePickerVisible: true})}>
                                 <Text>בחר שעת התחלה</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity>*/}
                             <DateTimePicker
-                                date={this.state.dateClicked}
+                                date={new Date(this.state.dateClicked)}
                                 isVisible={this.state.isStartDateTimePickerVisible}
                                 onConfirm={this.handleStartTimePicked}
                                 onCancel={() => this.setState({isStartDateTimePickerVisible: false})}
                                 is24Hour={true}
                                 mode={'time'}
+                                title='זמן התחלה'
                             />
-                            <TouchableOpacity onPress={() => this.setState({isEndDateTimePickerVisible: true})}>
+                           {/* <TouchableOpacity onPress={() => this.setState({isEndDateTimePickerVisible: true})}>
                                 <Text>בחר שעת סיום</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity>*/}
                             <DateTimePicker
-                                date={this.state.dateClicked}
+                                date={new Date(this.state.dateClicked)}
                                 isVisible={this.state.isEndDateTimePickerVisible}
                                 onConfirm={this.handleEndTimePicked}
                                 onCancel={() => this.setState({isEndDateTimePickerVisible: false})}
                                 is24Hour={true}
                                 mode={'time'}
+                                title='זמן סיום'
                             />
 
                             <Text style={{marginLeft: 10}}>
@@ -201,6 +269,13 @@ export default class AppointmentRequestForm extends Component {
 */}
                             <Button
                                 label='שלח'
+                                onPress={() => {
+                                    this.setModalVisible(!this.state.modalVisible);
+                                }}
+                            />
+
+                            <Button
+                                label='חזור'
                                 onPress={() => {
                                     this.setModalVisible(!this.state.modalVisible);
                                 }}
