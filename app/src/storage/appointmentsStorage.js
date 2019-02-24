@@ -1,6 +1,22 @@
 import axios from "axios";
 import {SERVER_URL} from "../shared/constants";
 
+var getUserAppointmentRequests = function (userId, userHeaders) {
+    return axios.get(`${SERVER_URL}/api/users/appointmentRequests/userId/${userId}`,
+        {
+            headers: userHeaders,
+            params: {
+                status: 'requested'
+            },
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get user appointment requests error ', error)
+        });
+};
+
 var getUserAppointments = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/users/appointments/userId/${userId}`,
         {
@@ -31,7 +47,7 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
         });
 };
 
-var postUserAppointmentRequest = function (userId, serviceProvider,roles,appointmentRequest, userHeaders) {
+var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRequest, userHeaders) {
     return axios.post(`${SERVER_URL}/api/users/appointments/request`,
         {
             userId: userId,
@@ -53,4 +69,4 @@ var postUserAppointmentRequest = function (userId, serviceProvider,roles,appoint
 };
 
 
-export default {getUserAppointments, getUserAppointmentById,postUserAppointmentRequest};
+export default {getUserAppointments, getUserAppointmentById,postUserAppointmentRequest,getUserAppointmentRequests};

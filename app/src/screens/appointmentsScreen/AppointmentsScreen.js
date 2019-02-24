@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {Button, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import AppointmentsCalendar from "../../components/calendars/appointmentsCalendar/AppointmentsCalendar";
+import Button from "../../components/submitButton/Button"
 
 export default class AppointmentsScreen extends Component {
 
@@ -8,19 +9,23 @@ export default class AppointmentsScreen extends Component {
         this.props.navigation.navigate('AppointmentRequest', {selectedDate: selectedDate})
     };
 
+    onMyAppointmentRequestsPress = () => {
+        this.props.navigation.navigate('UserAppointmentRequests',{ onAppointmentRequestPress:this.onAppointmentRequestPress})
+    };
+
 
     render() {
         return (
             <View>
                 <Button
-                    title="בקש תור חדש"
-                    onPress={this.onAppointmentRequestPress.bind(this)}
+                    label="בקשות התורים שלי"
+                    onPress={this.onMyAppointmentRequestsPress.bind(this)}
                 />
 
-                {/* <Button
-                    label='get events'
-                    onPress={this.getUserEvents.bind(this)}
-                />*/}
+                <Button
+                    label="בקש תור חדש"
+                    onPress={this.onAppointmentRequestPress.bind(this)}
+                />
 
                 <AppointmentsCalendar
                     onAppointmentRequestPress={this.onAppointmentRequestPress}
@@ -35,6 +40,9 @@ const styles = StyleSheet.create({
         flex: 1,
         // justifyContent: 'center',
         // alignItems: 'center'
+    },
+    buttonStyle:{
+        marginTop: 50,
     }
 });
 

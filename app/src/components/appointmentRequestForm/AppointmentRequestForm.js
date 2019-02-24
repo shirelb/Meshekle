@@ -134,22 +134,12 @@ export default class AppointmentRequestForm extends Component {
                 notes: this.state.notes,
                 subject: this.state.subjectSelected,
             };
+
             appointmentsStorage.postUserAppointmentRequest(this.props.userId, this.props.serviceProvider, appointmentRequest, this.props.userHeaders)
                 .then(() => {
                     Alert.alert(
                         'התראה',
                         'הבקשה נשלחה בהצלחה',
-                        [
-                            // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-                            // {
-                            //     text: 'Cancel',
-                            //     onPress: () => console.log('Cancel Pressed'),
-                            //     style: 'cancel',
-                            // },
-                            // {text: 'OK', onPress: () => console.log('OK Pressed')},
-                            // {text: 'OK'},
-                        ],
-                        // {cancelable: false},
                     );
                 })
         }
@@ -157,7 +147,6 @@ export default class AppointmentRequestForm extends Component {
 
     render() {
         return (
-            /*<View style={{marginTop: 50}}>*/
             <Modal
                 animationType="slide"
                 transparent={false}
@@ -335,8 +324,6 @@ export default class AppointmentRequestForm extends Component {
                     </ScrollView>
                 </View>
             </Modal>
-
-            /*</View>*/
         );
     }
 }
@@ -346,6 +333,5 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#050505',
         fontWeight: 'bold',
-        // fontSize: 26
     }
 });
