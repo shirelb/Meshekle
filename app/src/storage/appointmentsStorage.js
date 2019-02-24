@@ -31,5 +31,26 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
         });
 };
 
+var postUserAppointmentRequest = function (userId, serviceProvider,roles,appointmentRequest, userHeaders) {
+    return axios.post(`${SERVER_URL}/api/users/appointments/request`,
+        {
+            userId: userId,
+            serviceProviderId: serviceProvider.serviceProviderId,
+            role: serviceProvider.role,
+            availableTime:appointmentRequest.availableTime,
+            notes: appointmentRequest.notes ? appointmentRequest.notes : '',
+            subject: JSON.stringify(appointmentRequest.subject)
+        },
+        {
+            headers: userHeaders,
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('post user appointment request error ', error)
+        });
+};
 
-export default {getUserAppointments,getUserAppointmentById};
+
+export default {getUserAppointments, getUserAppointmentById,postUserAppointmentRequest};
