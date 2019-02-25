@@ -1,3 +1,6 @@
+import {Text, View} from "react-native";
+import styles from "../screens/drawerMenu/DrawerMenu.style";
+
 const loginScreenStrings = {
     LOGIN: "התחבר",
     WELCOME_TO_LOGIN: "Welcome to the login screen!",
@@ -12,6 +15,14 @@ const loginScreenStrings = {
 
 const mainScreenStrings = {
     LOGOUT: "התנתק",
+    WELCOME: "ברוכים הבאים ",
 };
 
-export default {loginScreenStrings,mainScreenStrings};
+const drawerMenu = {
+    LOGOUT: "התנתק",
+    MAIN_SCREEN_NAME: "בית",
+    APPOINTMENTS_SCREEN_NAME: "תורים",
+    CHORES_SCREEN_NAME: "תורנויות",
+};
+
+export default {loginScreenStrings,mainScreenStrings,drawerMenu};

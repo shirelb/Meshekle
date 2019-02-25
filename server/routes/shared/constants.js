@@ -55,6 +55,23 @@ module.exports = {
         APPOINTMENT_CANCELLED: "cancelled",
         APPOINTMENT_SET: "set"
     },
+    appointmentRequestStatusesMapper: (status) => {
+        switch (status) {
+            case "requested":
+                return appointmentRequestStatuses.APPOINTMENT_REQUEST_REQUESTED;
+            case "approved":
+                return appointmentRequestStatuses.APPOINTMENT_REQUEST_APPROVED;
+            case "rejected":
+                return appointmentRequestStatuses.APPOINTMENT_REQUEST_REJECTED;
+            default:
+                return appointmentRequestStatuses.APPOINTMENT_REQUEST_REQUESTED;
+        }
+    },
+    appointmentRequestStatuses: {
+        APPOINTMENT_REQUEST_REQUESTED: "requested",
+        APPOINTMENT_REQUEST_APPROVED: "approved",
+        APPOINTMENT_REQUEST_REJECTED: "rejected",
+    },
     appointmentWayTypes:{
         SLOT_WAY_TYPE: "Slots",
         DIALOG_WAY_TYPE: "Dialog"

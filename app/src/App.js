@@ -7,11 +7,23 @@
  */
 
 import React, {Component} from 'react';
-import {Platform} from 'react-native';
-import {createAppContainer, createStackNavigator} from 'react-navigation';
+import {Dimensions, Platform, TouchableOpacity} from 'react-native';
+import {
+    createAppContainer,
+    createDrawerNavigator,
+    createStackNavigator,
+    createSwitchNavigator,
+    DrawerActions
+} from 'react-navigation';
+import VectorIcons from "react-native-vector-icons/Ionicons";
 
 import LoginScreen from './screens/loginScreen/LoginScreen';
 import MainScreen from './screens/mainScreen/MainScreen';
+import AppointmentsScreen from './screens/appointmentsScreen/AppointmentsScreen';
+import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest';
+import ChoresScreen from './screens/choresScreen/ChoresScreen';
+import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
+import DrawerMenu from './screens/drawerMenu/DrawerMenu';
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -20,7 +32,88 @@ const instructions = Platform.select({
         'Shake or press menu button for dev menu',
 });
 
+const DrawerMenuNavigator = createDrawerNavigator(
+    {
+        // AppNavigator: AppNavigator,
+        MainScreen: {
+            screen: MainScreen,
+            params: {
+                headerTitle: 'משקל\'ה',
+            },
+        },
+        AppointmentsScreen: {
+            screen: AppointmentsScreen,
+            params: {
+                headerTitle: 'התורים שלי',
+            },
+        },
+        AppointmentRequest: {
+            screen: AppointmentRequest,
+            params: {
+                headerTitle: 'בקשת תור',
+            },
+        },
+        ChoresScreen: {
+            screen: ChoresScreen,
+            params: {
+                headerTitle: 'התורנויות שלי',
+            },
+        },
+    },
+    {
+        initialRouteName: 'MainScreen',
+        contentComponent: DrawerMenu,
+        drawerWidth: Dimensions.get('window').width - 120,
+        drawerPosition: 'right',
+    }
+);
+
+
 const AppNavigator = createStackNavigator(
+    {
+        DrawerMenuNavigator: {
+            screen: DrawerMenuNavigator
+        },
+    },
+    /*{
+        headerMode: "none"
+    }*/
+    {
+        // MainScreen: {
+        //     screen: MainScreen,
+        //     params: {},
+        defaultNavigationOptions: ({navigation}) => ({
+            // header: null,
+            title: `${navigation.state.routes[navigation.state.index].params.headerTitle}`,
+            headerLeft: (
+                <TouchableOpacity onPress={() => {
+                    navigation.dispatch(DrawerActions.toggleDrawer())
+                }}>
+                    <VectorIcons
+                        name={Platform.OS === "ios" ? "ios-menu" : "md-menu"}
+                        // color="#ccc"
+                        size={40}
+                    />
+                </TouchableOpacity>
+            ),
+            // headerTitle:'דף בית',
+            headerStyle: {
+                // paddingRight: 10,
+                // paddingLeft: 15,
+                marginVertical: 10,
+                marginHorizontal: 20,
+                elevation: 0,
+            },
+            // headerTintColor: '#fff',
+            headerTitleStyle: {
+                fontWeight: 'bold',
+            },
+        })
+    }
+);
+
+
+const AuthNavigator = createStackNavigator(
     {
         LoginScreen: {
             screen: LoginScreen,
@@ -29,29 +122,37 @@ const AppNavigator = createStackNavigator(
                 header: null,
             }*/
         },
-        MainScreen: {
-            screen: MainScreen,
-            params: {},
-            /*navigationOptions: {
-                header: null,
-            }*/
-        }
     },
     {
-        // initialRouteName: 'Login',
-        headerMode: 'none',
-        /*contentOptions: {
-            activeTintColor: '#e91e63',
-        },*/
+        headerMode: 'none'
     }
 );
 
 
-const AppContainer = createAppContainer(AppNavigator);
+const AppContainer = createAppContainer(
+    createSwitchNavigator(
+        {
+            AuthLoading: AuthLoadingScreen,
+            App: AppNavigator,
+            Auth: AuthNavigator,
+        },
+        {
+            initialRouteName: 'AuthLoading',
+        }
+    )
+);
 
 export default class App extends Component {
+    // constructor(props) {
+    //     super(props);
+    //     I18nManager.forceRTL(true);
+    // }
+
     state = {
-        isLoggedIn: false
+        isLoggedIn: false,
+        initialScreen: 'LoginScreen',
+        userId: null,
+        userFullname: null
     };
 
     render() {
@@ -62,65 +163,10 @@ export default class App extends Component {
         screenProps={/!* this prop will get passed to the screen components as this.props.screenProps *!/}
         />*/
         );
-
-        /* store.get('userData')
-             .then(userData => {
-                 if (userData.token) {
-                     axios.post(`${SERVER_URL}/api/users/validToken`,
-                         {
-                             "token": userData.token,
-                         },
-                     )
-                         .then((response) => {
-                             console.log(response);
-                             store.save('userData', {
-                                 userId: response.data.payload.userId,
-                                 userFullname: response.data.payload.userId
-                             })
-                                 .then(() => {
-                                     this.setState({isLoggedIn: true});
-                                     return <MainScreen
-                                         onLogoutPress={() => this.setState({isLoggedIn: false})}
-                                     />
-                                 })
-                                 .catch((error) => {
-                                     console.log(error);
-                                     if (this.state.isLoggedIn)
-                                         return <MainScreen
-                                             onLogoutPress={() => this.setState({isLoggedIn: false})}
-                                         />;
-                                     else
-                                         return <LoginScreen
-                                             onLoginPress={() => this.setState({isLoggedIn: true})}
-                                         />;
-                                 });
-                         })
-                         .catch((error) => {
-                             console.log(error);
-                             if (this.state.isLoggedIn)
-                                 return <MainScreen
-                                     onLogoutPress={() => this.setState({isLoggedIn: false})}
-                                 />;
-                             else
-                                 return <LoginScreen
-                                     onLoginPress={() => this.setState({isLoggedIn: true})}
-                                 />;
-                         });
-                 } else {
-                     if (this.state.isLoggedIn)
-                         return <MainScreen
-                             onLogoutPress={() => this.setState({isLoggedIn: false})}
-                         />;
-                     else
-                         return <LoginScreen
-                             onLoginPress={() => this.setState({isLoggedIn: true})}
-                         />;
-                 }
-             });*/
     }
 }
-/*
 
+/*
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -138,5 +184,12 @@ const styles = StyleSheet.create({
         color: '#333333',
         marginBottom: 5,
     },
+    menuIcon: {
+        width: 35,
+        height: 5,
+        backgroundColor: black,
+        marginHorizontal: 0,
+        marginVertical: 6,
+    }
 });
 */

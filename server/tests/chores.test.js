@@ -34,7 +34,6 @@ var userTest = {
     email: "test@gmail.com",
     mailbox: 444,
     cellphone: "1234567896",
-    mobile: "1234567896",
     phone: "012365948",
     bornDate: "1992-05-20"
 }
@@ -48,7 +47,7 @@ var userTest2 = {
     cellphone: "1234567896",
     phone: "012365948",
     bornDate: "1992-05-20"
-}
+};
 
 var choreTypeTestFri = {
     choreTypeName: "friCoocking",
@@ -89,14 +88,10 @@ var choreIdPast = 0;
 describe('chores route', function () {
      this.timeout(20000);
 
-    // beforeEach((done) => {
-    //     setTimeout(function () {
-    //         done();
-    //     }, 5000);
-    // });
-    before(() => {
-        
-        return UsersChores.sync() // also tried with {force: true}
+    beforeEach((done) => {
+        setTimeout(function () {
+            done();
+        }, 500);
     });
 
     //2 it's

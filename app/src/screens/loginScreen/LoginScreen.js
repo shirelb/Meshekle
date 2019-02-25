@@ -1,14 +1,12 @@
 import React, {Component} from 'react';
 import {Image, Text, View} from 'react-native';
-import PropTypes from 'prop-types'
-import axios from 'axios';
-import store from 'react-native-simple-store';
-import styles from './LoginStyles';
-import {SERVER_URL} from '../../shared/constants'
+import phoneStorage from 'react-native-simple-store';
+import styles from './Login.style';
 import Button from "../../components/submitButton/Button";
 import FormTextInput from "../../components/formTextInput/FormTextInput";
 import strings from "../../shared/strings";
 import mappers from "../../shared/mappers";
+import usersStorage from "../../storage/usersStorage";
 
 const imageLogo = require("../../images/logo4000.png");
 
@@ -64,34 +62,43 @@ export default class LoginScreen extends Component {
             console.log(errors);
             this.setState({err: errors});
         } else {
-            axios.post(`${SERVER_URL}/api/users/login/authenticate`,
-                {
-                    "userId": this.state.userId,
-                    "password": this.state.password
-                },
-            )
+            usersStorage.userLogin(this.state.userId, this.state.password)
                 .then((response) => {
                     console.log(response);
-                    store.save('userData', {
+                    phoneStorage.update('userData', {
                         token: response.data.token
                     })
                         .then(
-                            // this.props.onLoginPress()
-                            this.props.navigation.navigate('MainScreen')
+                            usersStorage.userValidToken(response.data.token)
+                                .then((validTokenResponse) => {
+                                    phoneStorage.update('userData', {
+                                        userId: validTokenResponse.data.payload.userId,
+                                        userFullname: validTokenResponse.data.payload.userFullname,
+                                    })
+                                        .then(res => {
+                                            this.props.navigation.navigate('App');
+                                        })
+                                        .catch(err => {
+                                            console.log('in login valid token ', err)
+                                        });
+                                })
                         )
+                    // this.props.onLoginPress()
+                    // this.props.navigation.navigate('MainScreen')
+                    // this.props.navigation.navigate('App')
+
                 })
                 .catch((error) => {
-                    console.log(error);
-                    this.setState({err: []});
-                    this.setState({err: [mappers.loginScreenMapper(error.response.data.message)]});
+                    let msg = mappers.loginScreenMapper(error.response.data.message);
+                    this.setState({err: [msg]});
+                    // console.log('in auth msg: ',msg);
+                    // if (this.state.err.indexOf(msg) === -1) this.setState({err: [msg]});
                 });
         }
     };
 
 
     render() {
-        // const errors = this.state.err;
-
         return (
             <View style={styles.container}>
                 <Image source={imageLogo} style={styles.logo}/>

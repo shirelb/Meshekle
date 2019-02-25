@@ -1,42 +1,76 @@
 import React, {Component} from 'react';
 import {ScrollView, Text} from 'react-native';
-import AgendaCalendar from "../../components/agendaCalendar/AgendaCalendar";
-import Button from "../../components/submitButton/Button";
+
+import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
-import store from 'react-native-simple-store';
+import phoneStorage from 'react-native-simple-store';
 
 
 export default class MainScreen extends Component {
-    componentDidMount() {
-        store.get('userData')
-            .then(userData => {
-                const headers = {
-                    'Authorization': 'Bearer ' + userData.token
-                };
-            });
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            userId: null,
+            userFullname: null
+        };
+
+        this.userHeaders = {};
     }
 
 
-    render() {
-        console.log('in main screen ');
-        store.get('userData')
+    componentDidMount() {
+        phoneStorage.get('userData')
             .then(userData => {
-                console.log(userData.token)
-            });
+                this.userHeaders = {
+                    'Authorization': 'Bearer ' + userData.token
+                };
+                this.setState({
+                    userId: userData.userId,
+                    userFullname: userData.userFullname,
+                })
+            })
+            .catch(error => {
+                console.log('main componentDidMount ', error)
+            })
+    }
+
+    onLogoutPress = () => {
+        phoneStorage.update('userData', {
+            token: null,
+            userId: null,
+            userFullname: null
+        })
+            .then(
+                // this.props.onLoginPress()
+                // this.props.navigation.navigate('MainScreen')
+                this.props.navigation.navigate('Auth')
+            )
+    };
+
+    render() {
         return (
             <ScrollView style={{padding: 20}}>
-                <Text
-                    style={{fontSize: 27}}>
-                    {/*Welcome {userFullname}*/}
-                    Welcome
+                <Text>
+                    {strings.mainScreenStrings.WELCOME}
+                </Text>
+                <Text>
+                    {this.state.userFullname}
                 </Text>
 
-                <Button
+                {/*<Button
                     label={strings.mainScreenStrings.LOGOUT}
-                    onPress={() => this.props.navigation.navigate('LoginScreen')}
-                />
+                    onPress={this.onLogoutPress.bind(this)}
+                />*/}
 
-                <AgendaCalendar/>
+                {/* <Button
+                    label='get events'
+                    onPress={this.getUserEvents.bind(this)}
+                />*/}
+
+                <AgendaCalendar
+                    userId={this.state.userId}
+                />
             </ScrollView>
         )
     }
