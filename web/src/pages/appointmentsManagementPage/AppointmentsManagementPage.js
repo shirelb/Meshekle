@@ -230,43 +230,26 @@ class AppointmentsManagementPage extends React.Component {
         });
     }
 
-    getAllDatesOfMonthByDay = (day) => {
-        let dayEnum = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        let datesArray = [];
-        let dateByDay = moment()
-            .startOf('month')
-            .day(dayEnum.indexOf(day));
-        if (dateByDay.date() > 7) dateByDay.add(7, 'd');
-        let month = dateByDay.month();
-        while (month === dateByDay.month()) {
-            datesArray.push(dateByDay.toDate());
-            dateByDay.add(7, 'd');
-        }
-        return datesArray;
-    };
-
     hoverOnAppointmentRequest = (appointmentRequest) => {
         let shadowAppointments = [];
         if (appointmentRequest.optionalTimes)
-            appointmentRequest.optionalTimes.map(daysTimes => {
-                daysTimes.hours.map(time => {
-                    this.getAllDatesOfMonthByDay(daysTimes.day).map(date => {
-                        shadowAppointments.push(
-                            {
-                                appointmentRequestId: appointmentRequest.requestId,
-                                clientId: appointmentRequest.AppointmentDetail.clientId,
-                                clientName: appointmentRequest.clientName,
-                                role: appointmentRequest.AppointmentDetail.role,
-                                serviceProviderId: appointmentRequest.AppointmentDetail.serviceProviderId,
-                                subject: appointmentRequest.AppointmentDetail.subject,
-                                allDay: false,
-                                startDateAndTime: moment(moment(date).format("YYYY-MM-DD") + ' ' + time.startHour).toDate(),
-                                endDateAndTime: moment(moment(date).format("YYYY-MM-DD") + ' ' + time.endHour).toDate(),
-                                remarks: appointmentRequest.notes,
-                                status: "optional",
-                            }
-                        )
-                    });
+            appointmentRequest.optionalTimes.map(datesTimes => {
+                datesTimes.hours.map(time => {
+                    shadowAppointments.push(
+                        {
+                            appointmentRequestId: appointmentRequest.requestId,
+                            clientId: appointmentRequest.AppointmentDetail.clientId,
+                            clientName: appointmentRequest.clientName,
+                            role: appointmentRequest.AppointmentDetail.role,
+                            serviceProviderId: appointmentRequest.AppointmentDetail.serviceProviderId,
+                            subject: appointmentRequest.AppointmentDetail.subject,
+                            allDay: false,
+                            startDateAndTime: moment(moment(datesTimes.date).format("YYYY-MM-DD") + ' ' + time.startHour).toDate(),
+                            endDateAndTime: moment(moment(datesTimes.date).format("YYYY-MM-DD") + ' ' + time.endHour).toDate(),
+                            remarks: appointmentRequest.notes,
+                            status: "optional",
+                        }
+                    )
                 })
             });
         shadowAppointments.push.apply(shadowAppointments, this.state.appointments);
@@ -401,19 +384,19 @@ class AppointmentsManagementPage extends React.Component {
                                                     {/*<List.Description*/}
                                                     {/*as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>*/}
                                                     <List.Description
-                                                        as='a'>{appointmentRequest.AppointmentDetail.subject}</List.Description>
-                                                    <List.Description
-                                                        as='a'>{appointmentRequest.notes}</List.Description>
-                                                    <List.Description>
+                                                        as='a'>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</List.Description>
+                                                    {/*<List.Description*/}
+                                                        {/*as='a'>{appointmentRequest.notes}</List.Description>*/}
+                                                    {/*<List.Description>
                                                         {Array.isArray(appointmentRequest.optionalTimes) &&
-                                                        appointmentRequest.optionalTimes.map((daysTimes, j) =>
+                                                        appointmentRequest.optionalTimes.map((datesTimes, j) =>
                                                             (
                                                                 <List.Item key={j}>
                                                                     <List.Content>
-                                                                        <List.Description>{daysTimes.day}</List.Description>
+                                                                        <List.Description>{moment(datesTimes.date).format('DD.MM.YYYY')}:</List.Description>
                                                                         <List.Description>
-                                                                            {Array.isArray(daysTimes.hours) &&
-                                                                            daysTimes.hours.map((time, k) =>
+                                                                            {Array.isArray(datesTimes.hours) &&
+                                                                            datesTimes.hours.map((time, k) =>
                                                                                 (
                                                                                     <List.Item key={k}>
                                                                                         <List.Content>
@@ -427,7 +410,7 @@ class AppointmentsManagementPage extends React.Component {
                                                                 </List.Item>
                                                             ),
                                                         )}
-                                                    </List.Description>
+                                                    </List.Description>*/}
                                                 </List.Content>
                                             </List.Item>
                                         ),

@@ -139,7 +139,7 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
         {
             headers: headers,
             params: {
-                status: 'reject'
+                status: 'rejected'
             },
         }
     )
