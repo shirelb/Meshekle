@@ -2,7 +2,7 @@ import React from 'react';
 
 import './styles.css';
 import 'semantic-ui-css/semantic.min.css';
-import {Grid, Header, List} from 'semantic-ui-react';
+import {Card, Grid, Header, Icon, List} from 'semantic-ui-react';
 
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -23,6 +23,8 @@ import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
+import DraggableResource from "../../components/dragableResource/DragableResource";
+import AppointmentRequestListRender from "../../components/appointmentRequest/AppointmentRequestListRender";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -232,7 +234,7 @@ class AppointmentsManagementPage extends React.Component {
 
     hoverOnAppointmentRequest = (appointmentRequest) => {
         let shadowAppointments = [];
-        if (appointmentRequest.optionalTimes)
+        if (Array.isArray(appointmentRequest.optionalTimes)) {
             appointmentRequest.optionalTimes.map(datesTimes => {
                 datesTimes.hours.map(time => {
                     shadowAppointments.push(
@@ -252,15 +254,38 @@ class AppointmentsManagementPage extends React.Component {
                     )
                 })
             });
-        shadowAppointments.push.apply(shadowAppointments, this.state.appointments);
-        if (Array.isArray(shadowAppointments)) {
-            this.setState({appointments: shadowAppointments});
+            shadowAppointments.push.apply(shadowAppointments, this.state.appointments);
+            if (Array.isArray(shadowAppointments)) {
+                this.setState({appointments: shadowAppointments});
+            }
         }
     };
 
     hoverOffAppointmentRequest = (appointmentRequest) => {
         let appointmentsWithoutOptional = this.state.appointments.filter(obj => obj.appointmentId !== appointmentRequest.appointmentRequestId || obj.status !== 'optional');
         this.setState({appointments: appointmentsWithoutOptional});
+    };
+
+    onDragStartAppointmentRequest = appointmentRequest => event => {
+        // let fromBox = JSON.stringify({ id: appointmentRequest.id });
+        event.dataTransfer.setData("dragContent", JSON.stringify(appointmentRequest));
+    };
+
+    onDragOverAppointmentRequest = appointmentRequest => event => {
+        event.preventDefault(); // Necessary. Allows us to drop.
+        return false;
+    };
+
+    onDropAppointmentRequest = appointmentRequest => event => {
+        console.log("in onDropAppointmentRequest appointmentRequest ",appointmentRequest);
+
+        event.preventDefault();
+
+        // let fromBox = JSON.parse(event.dataTransfer.getData("dragContent"));
+        // let toBox = { id: data.id };
+
+        // this.swapBoxes(fromBox, toBox);
+        return false;
     };
 
     onHoverEvent = event =>
@@ -300,6 +325,7 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     moveEvent({event, start, end, isAllDay: droppedOnAllDaySlot}) {
+        console.log('in moveEvent ');
         const events = this.state.appointments;
 
         const idx = events.indexOf(event);
@@ -320,6 +346,7 @@ class AppointmentsManagementPage extends React.Component {
     }
 
     resizeEvent({event, start, end}) {
+        console.log('in resizeEvent ');
         const appointments = this.state.appointments;
 
         const nextEvents = appointments.map(existingAppointment => {
@@ -369,25 +396,38 @@ class AppointmentsManagementPage extends React.Component {
                                 <List animated selection divided verticalAlign='middle'>
                                     {this.state.appointmentRequests.map((appointmentRequest, i) =>
                                         (
-                                            <List.Item key={appointmentRequest.requestId}
-                                                       onMouseEnter={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
-                                                       onMouseLeave={this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
-                                                       onClick={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
-                                                           appointmentRequest: appointmentRequest
-                                                       })}
+                                            <List.Item
+                                                // as={DraggableResource}
+                                                key={appointmentRequest.requestId}
+                                                onMouseEnter={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
+                                                onMouseLeave={this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
+                                                // onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}
+                                                onClick={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
+                                                    appointmentRequest: appointmentRequest
+                                                })}
+                                                draggable="true"
+                                                onDragStart={this.onDragStartAppointmentRequest.bind(this, appointmentRequest) }
+                                                onDragOver={this.onDragOverAppointmentRequest.bind(this, appointmentRequest) }
+                                                onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest) }
+                                                // onClickResource={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
+                                                //     appointmentRequest: appointmentRequest
+                                                // })}
+                                                // resource={appointmentRequest}
+                                                // resourceRenderComponent={AppointmentRequestListRender}
+                                                // cardHeader={appointmentRequest.clientName}
+                                                // cardMeta={appointmentRequest.AppointmentDetail.role}
+                                                // cardDescription={JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}
                                             >
                                                 {/*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*/}
-                                                <List.Content>
-                                                    <List.Header>{appointmentRequest.clientName}</List.Header>
-                                                    {/*<List.Description*/}
-                                                    {/*as='a'>{appointmentRequest.AppointmentDetail.serviceProviderId}</List.Description>*/}
-                                                    {/*<List.Description*/}
-                                                    {/*as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>*/}
-                                                    <List.Description
-                                                        as='a'>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</List.Description>
-                                                    {/*<List.Description*/}
-                                                        {/*as='a'>{appointmentRequest.notes}</List.Description>*/}
-                                                    {/*<List.Description>
+                                                {/* <List.Content>
+                                                        <List.Header>{appointmentRequest.clientName}</List.Header>
+                                                        <List.Description
+                                                        as='a'>{appointmentRequest.AppointmentDetail.serviceProviderId}</List.Description>
+                                                        <List.Description
+                                                        as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>
+                                                        <List.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</List.Description>
+                                                        <List.Description>{appointmentRequest.notes}</List.Description>
+                                                        <List.Description>
                                                         {Array.isArray(appointmentRequest.optionalTimes) &&
                                                         appointmentRequest.optionalTimes.map((datesTimes, j) =>
                                                             (
@@ -410,7 +450,18 @@ class AppointmentsManagementPage extends React.Component {
                                                                 </List.Item>
                                                             ),
                                                         )}
-                                                    </List.Description>*/}
+                                                    </List.Description>
+                                                    </List.Content>*/}
+                                                <List.Content
+                                                    as={Card}
+                                                    centered
+                                                >
+                                                    <Icon name='clipboard' />
+                                                    <Card.Header>{appointmentRequest.clientName}</Card.Header>
+                                                    {/*<Card.Meta>{this.props.cardMeta?this.props.cardMeta:null}</Card.Meta>*/}
+                                                    <Card.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</Card.Description>
+                                                    {/*<Icon name='clipboard' />*/}
+                                                    {/*<ResourceRenderComponent resource={resource}/>*/}
                                                 </List.Content>
                                             </List.Item>
                                         ),
@@ -430,7 +481,7 @@ class AppointmentsManagementPage extends React.Component {
                                         onSelectEvent={this.onSelectEvent.bind(this)}
                                         onSelectSlot={this.onSelectSlot.bind(this)}
                                         popup
-                                        rtl
+                                        // rtl
                                         // step={30}
                                         // timeslots={4}
                                         onEventDrop={this.moveEvent}
