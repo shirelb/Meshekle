@@ -42,20 +42,18 @@ class AppointmentForm extends Component {
         if (slotInfo)
             this.state = {
                 appointment: {
-                    date: slotInfo.start ? moment(slotInfo.start) : '',
-                    startTime: slotInfo.start ? moment(slotInfo.start).format("HH:mm") : '',
-                    endTime: slotInfo.end ? moment(slotInfo.end).format("HH:mm") : '',
+                    date: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format('YYYY-MM-DD') : '',
+                    startTime: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format("HH:mm") : '',
+                    endTime: moment.isMoment(slotInfo.end) ? moment(slotInfo.end).format("HH:mm") : '',
                     subject: [],
                     clientName: '',
                 },
             };
         else {
-            console.log('sssss ',appointment);
-
             this.state = {
                 appointment: {
-                    // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                    date: moment(appointment.startDateAndTime),
+                    date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
+                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
                     subject: JSON.parse(appointment.AppointmentDetail.subject),
@@ -77,8 +75,8 @@ class AppointmentForm extends Component {
 
         this.setState({
             appointment: {
-                // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                date: moment(appointment.startDateAndTime),
+                date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
+                // date: moment(appointment.startDateAndTime),
                 startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                 endTime: moment(appointment.endDateAndTime).format("HH:mm"),
                 subject: JSON.parse(appointment.AppointmentDetail.subject),

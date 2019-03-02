@@ -8,7 +8,7 @@ import appointmentsStorage from "../../storage/appointmentsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 
-class UserEdit extends React.Component {
+class AppointmentEdit extends React.Component {
     constructor(props) {
         super(props);
 
@@ -16,6 +16,10 @@ class UserEdit extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+
+        this.serviceProviderHeaders = {
+            'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+        };
     }
 
     componentDidMount() {
@@ -29,12 +33,10 @@ class UserEdit extends React.Component {
     }
 
     handleSubmit(appointment) {
-        //todo complete this with axios put
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                let serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
-
-                appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), serviceProviderRoles, this.serviceProviderHeaders)
+                appointment.appointmentId = this.state.appointment.appointmentId;
+                appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
                     .then((response) => {
                         this.props.history.goBack()
                     })
@@ -81,4 +83,4 @@ class UserEdit extends React.Component {
     }
 }
 
-export default UserEdit;
+export default AppointmentEdit;

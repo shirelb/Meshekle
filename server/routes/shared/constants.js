@@ -41,6 +41,7 @@ module.exports = {
         USER_DEL_SUCC: "User successfully deleted!",
         SERVICE_PROVIDER_OPTIME_UPDATED_SUCC: "Service Provider operationTime updated successfully!",
         APPOINTMENT_STATUS_CACELLED: "Appointment status changed to cancelled successfully!",
+        APPOINTMENT_UPDATED: "Appointment updated successfully!",
         INVALID_INPUT: "Invalid input",
         INVALID_ROLE_INPUT: "Invalid role input",
         INVALID_APP_WAY_TYPE_INPUT: "Invalid appointment way type input",

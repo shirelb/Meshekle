@@ -660,7 +660,7 @@ router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequest
         },
         {
             where: {
-                requestId: typeof req.params.appointmentRequestId ==='string'? parseInt(req.params.appointmentRequestId):req.params.appointmentRequestId
+                requestId: typeof req.params.appointmentRequestId === 'string' ? parseInt(req.params.appointmentRequestId) : req.params.appointmentRequestId
             }
         })
         .then(isUpdated => {
@@ -677,12 +677,13 @@ router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequest
         })
 });
 
-// update appointment date or hours by appointmentId .
+// update appointment by appointmentId .
 router.put('/appointments/update/appointmentId/:appointmentId', function (req, res, next) {
     ScheduledAppointments.update(
         {
             startDateAndTime: req.body.startDateAndTime,
             endDateAndTime: req.body.endDateAndTime,
+            remarks: req.body.remarks,
         },
         {
             where: {
@@ -693,10 +694,26 @@ router.put('/appointments/update/appointmentId/:appointmentId', function (req, r
             if (isUpdated[0] === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
 
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                "result": isUpdated[0]
-            });
+            AppointmentDetails.update(
+                {
+                    subject: req.body.subject,
+                    clientId: req.body.clientId,
+                },
+                {
+                    where: {
+                        appointmentId: req.params.appointmentId
+                    }
+                })
+                .then(isUpdated => {
+                    res.status(200).send({
+                        "message": serviceProvidersRoute.APPOINTMENT_UPDATED,
+                        "result": isUpdated[0]
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
         })
         .catch(err => {
             console.log(err);
