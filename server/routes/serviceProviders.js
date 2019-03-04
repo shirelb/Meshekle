@@ -7,6 +7,7 @@ const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointmen
 const Op = Sequelize.Op;
 var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
+var validations = require('./shared/validations');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
 
 
@@ -81,6 +82,57 @@ router.get('/', function (req, res, next) {
         })
 });
 
+//Get service providers by serviceProviderId
+router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    ServiceProviders.findAll({
+        where: {
+            serviceProviderId: req.params.serviceProviderId
+        }
+    })
+        .then(serviceProviders => {
+            if (serviceProviders.length === 0) {
+                return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            console.log(serviceProviders);
+            res.status(200).send(serviceProviders);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+//Get service providers user details by serviceProviderId
+router.get('/userDetails/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    ServiceProviders.findAll({
+        where: {
+            serviceProviderId: req.params.serviceProviderId
+        }
+    })
+        .then(serviceProvider => {
+            if (serviceProvider.length === 0) {
+                return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            console.log(serviceProvider);
+            Users.findOne({
+                where: {
+                    userId: serviceProvider[0].userId
+                }
+            })
+                .then(user => {
+                    res.status(200).send(user);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
 //GET serviceProviders by full name
 router.get('/name/:name', function (req, res, next) {
     Users.findAll({
@@ -119,7 +171,6 @@ router.get('/name/:name', function (req, res, next) {
             res.status(500).send(err);
         })
 });
-
 
 //Get service providers by role
 router.get('/role/:role', function (req, res, next) {
@@ -162,30 +213,50 @@ router.get('/serviceProviderId/:serviceProviderId/appointmentWayType', function 
         })
 });
 
-// update the appointment way of service provider in role
-router.put('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType/set', function (req, res, next) {
-    if (!isAppWayTypeExists(req.body.appointmentWayType))
-        return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
-    ServiceProviders.update(
-        {appointmentWayType: req.body.appointmentWayType},
-        {
-            where: {
-                serviceProviderId: req.params.serviceProviderId,
-                role: req.params.role
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
+
+// update serviceProvider by serviceProviderId and role.
+router.put('/update/serviceProviderId/:serviceProviderId/role/:role', function (req, res, next) {
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
+        .then(response => {
+            if (response.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC,
-                "result": isUpdated[0]
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
+
+
+            if (!isRoleExists(req.params.role)) {
+                return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
+            }
+            let updateFields = {};
+            req.body.operationTime ? updateFields.operationTime = req.body.operationTime : null;
+            req.body.phoneNumber ? updateFields.phoneNumber = req.body.phoneNumber : null;
+            req.body.appointmentWayType ? updateFields.appointmentWayType = req.body.appointmentWayType : null;
+            if (req.body.appointmentWayType)
+                if (!isAppWayTypeExists(req.body.appointmentWayType))
+                    return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
+
+            req.body.subjects ? updateFields.subjects = req.body.subjects : null;
+            req.body.active ? updateFields.active = req.body.active : null;
+
+            ServiceProviders.update(
+                updateFields,
+                {
+                    where: {
+                        serviceProviderId: req.params.serviceProviderId,
+                        role: req.params.role
+                    }
+                })
+                .then(isUpdated => {
+                    if (isUpdated[0] === 0)
+                        return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+                    res.status(200).send({
+                        "message": serviceProvidersRoute.SERVICE_PROVIDER_UPDATE_SUCCESS,
+                        "result": isUpdated[0]
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
 });
 
 
@@ -372,33 +443,6 @@ router.delete('/users/userId/:userId/delete', function (req, res, next) {
                 return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
             }
             res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
-
-
-// Update the operation time of a service provider with role
-router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set', function (req, res, next) {
-    if (!isRoleExists(req.params.role))
-        return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
-    ServiceProviders.update(
-        {operationTime: req.body.operationTime},
-        {
-            where: {
-                serviceProviderId: req.params.serviceProviderId,
-                role: req.params.role
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
-                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-            res.status(200).send({
-                "message": serviceProvidersRoute.SERVICE_PROVIDER_OPTIME_UPDATED_SUCC,
-                "result": isUpdated[0]
-            });
         })
         .catch(err => {
             console.log(err);

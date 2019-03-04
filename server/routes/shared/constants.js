@@ -23,7 +23,7 @@ module.exports = {
         ALREADY_CANCELED_APPOINTMENT: "Appointment already canceled !",
         PASSED_APPOINTMENT: "Appointment already passed !",
         SUCCESSFUL_INCIDENT: "Incident successfully added!",
-
+        USER_UPDATE_SUCCESS:"User fields updated successfully!",
     },
     serviceProvidersRoute:{
         USER_NOT_FOUND: "User not found!",
@@ -32,6 +32,7 @@ module.exports = {
 
         AUTHENTICATION_FAIL: "Authentication failed due to incorrect parameters",
         SERVICE_PROVIDER_NOT_FOUND: "Service provider not found!",
+        SERVICE_PROVIDER_UPDATE_SUCCESS: "Service provider fields updated successfully!",
         APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC: "Appointment way of type updated successfully!",
         SERVICE_PROVIDER_ADDED_SUCC: "ServiceProvider successfully added!",
         SERVICE_PROVIDER_ROLE_ADDED_SUCC: "ServiceProvider role successfully added!",

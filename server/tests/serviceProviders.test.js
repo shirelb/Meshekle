@@ -353,15 +353,15 @@ describe('service providers route', function () {
         });
         it('it should update the appointmentWayType of the service provider in role', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/appointmentWayType/set')
+                .put('/api/serviceProviders/update/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE)
                 .set('Authorization', tokenTest)
                 .send({appointmentWayType: constants.appointmentWayTypes.SLOT_WAY_TYPE})
                 .end((err, res) => {
                     res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_UPDATE_SUCCESS);
                     res.body.result.should.be.eql(1);
                     validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
-                        serviceProviders[0].appointmentWayType.should.be.eql(constants.appointmentWayTypes.SLOT_WAY_TYPE);
+                        serviceProviders[0].dataValues.appointmentWayType.should.be.eql(constants.appointmentWayTypes.SLOT_WAY_TYPE);
                         done();
                     })
 
@@ -370,7 +370,7 @@ describe('service providers route', function () {
 
         it('it should send an error that the appoint way type doesnt exists', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/appointmentWayType/set')
+                .put('/api/serviceProviders/update/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE)
                 .set('Authorization', tokenTest)
                 .send({appointmentWayType: "invalid way type"})
                 .end((err, res) => {
@@ -382,7 +382,7 @@ describe('service providers route', function () {
 
         it('it should send an error that the service provider not found', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE + '/appointmentWayType/set')
+                .put('/api/serviceProviders/update/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE)
                 .set('Authorization', tokenTest)
                 .send({appointmentWayType: constants.appointmentWayTypes.SLOT_WAY_TYPE})
                 .end((err, res) => {
@@ -885,22 +885,22 @@ describe('service providers route', function () {
         });
         it('it should update the operation time of the service provider', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE + '/operationTime/set')
+                .put('/api/serviceProviders/update/serviceProviderId/123456789/role/' + constants.roles.DENTIST_ROLE)
                 .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
                     res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_OPTIME_UPDATED_SUCC);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_UPDATE_SUCCESS);
                     res.body.result.should.be.eql(1);
                     validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
-                        serviceProviders[0].operationTime.should.be.eql(operationTimeTest.operationTime);
+                        serviceProviders[0].dataValues.operationTime.should.be.eql(operationTimeTest.operationTime);
                         done();
                     });
                 });
         });
         it('it should send an error that the role doesnt exists', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456789/role/invalidRole/operationTime/set')
+                .put('/api/serviceProviders/update/serviceProviderId/123456789/role/invalidRole')
                 .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
@@ -911,7 +911,7 @@ describe('service providers route', function () {
         });
         it('it should send an error that the service provider doesnt exists', (done) => {
             chai.request(server)
-                .put('/api/serviceProviders/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE + '/operationTime/set')
+                .put('/api/serviceProviders/update/serviceProviderId/123456781/role/' + constants.roles.DENTIST_ROLE)
                 .set('Authorization', tokenTest)
                 .send(operationTimeTest)
                 .end((err, res) => {
