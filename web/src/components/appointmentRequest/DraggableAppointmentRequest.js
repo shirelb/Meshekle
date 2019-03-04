@@ -51,40 +51,19 @@ export default class DraggableAppointmentRequest extends React.Component {
     }
 
     render() {
-        return <div id='external-events' style={{marginTop:20}}>
-            <List animated selection divided verticalAlign='middle'
-                // id='external-events'
-                  ref={this.draggableList}>
+        return <div id='external-events' style={{marginTop: 20}}>
+            <List animated selection divided verticalAlign='middle'>
                 {this.props.appointmentRequests.map((appointmentRequestEvent, i) => {
                     let appointmentRequest = appointmentRequestEvent.appointmentRequest;
                     return (
                         <div className='fc-event' data-event={JSON.stringify(appointmentRequestEvent)}
                              key={appointmentRequest.requestId}>
                             <List.Item
-                                // as={DraggableResource}
                                 as={Card}
-                                // className='fc-event'
                                 key={appointmentRequest.requestId}
                                 onMouseOver={this.props.hoverOnAppointmentRequest(appointmentRequest)}
                                 onMouseLeave={this.props.hoverOffAppointmentRequest(appointmentRequest)}
-                                // onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}
-                                /*onClick={this.props.onClick.bind(this, appointmentRequest)}*/
-                                // onClick={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
-                                //     appointmentRequest: appointmentRequest
-                                // })}
                                 draggable={"true"}
-                                // onDragStart={this.onDragStartAppointmentRequest.bind(this, appointmentRequest)}
-                                // onDragOver={this.onDragOverAppointmentRequest.bind(this, appointmentRequest)}
-                                // onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}
-                                // onClickResource={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
-                                //     appointmentRequest: appointmentRequest
-                                // })}
-                                // resource={JSON.stringify(appointmentRequest)}
-
-                                // resourceRenderComponent={AppointmentRequestListRender}
-                                // cardHeader={appointmentRequest.clientName}
-                                // cardMeta={appointmentRequest.AppointmentDetail.role}
-                                // cardDescription={JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}
                             >
                                 {/*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*/}
                                 {/* <List.Content>
@@ -120,16 +99,12 @@ export default class DraggableAppointmentRequest extends React.Component {
                                     )}
                                     </List.Description>
                                     </List.Content>*/}
-                                <List.Content
-                                    as={Card}
-                                    centered
-                                >
-                                    <Icon name='info circle' onClick={this.props.onClick.bind(this, appointmentRequest)}/>
+                                <List.Content as={Card} centered>
+                                    <Icon name='info circle'
+                                          onClick={this.props.onClick.bind(this, appointmentRequest)}/>
                                     <Card.Header>{appointmentRequest.clientName}</Card.Header>
                                     {/*<Card.Meta>{this.props.cardMeta?this.props.cardMeta:null}</Card.Meta>*/}
                                     <Card.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</Card.Description>
-                                    {/*<Icon name='clipboard' />*/}
-                                    {/*<ResourceRenderComponent resource={resource}/>*/}
                                 </List.Content>
                             </List.Item>
                         </div>

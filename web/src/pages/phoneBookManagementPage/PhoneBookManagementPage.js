@@ -2,7 +2,7 @@ import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {BrowserRouter as Router,Link, Redirect, Route, Switch} from "react-router-dom";
+import {Link, Redirect, Route, Switch} from "react-router-dom";
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';

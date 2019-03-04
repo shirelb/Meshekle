@@ -40,14 +40,11 @@ class AppointmentAdd extends React.Component {
                     .then((response) => {
                         console.log(response);
 
-                        console.log('this.props ', this.props);
-                        console.log('this.state ', this.state);
                         if (appointmentRequestEvent)
                             this.props.approveAppointmentRequest(appointmentRequestEvent);
 
                         this.props.history.goBack()
                     })
-
 
             });
     }
@@ -61,7 +58,6 @@ class AppointmentAdd extends React.Component {
     render() {
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
-                {/*<Page title="Add Appointment" columns={3}>*/}
                 <Helmet>
                     <title>Meshekle | Add Appointment</title>
                 </Helmet>
@@ -81,7 +77,6 @@ class AppointmentAdd extends React.Component {
                         />
                     </Grid.Column>
                 </Grid>
-                {/*</Page>*/}
             </Modal>
         );
     }

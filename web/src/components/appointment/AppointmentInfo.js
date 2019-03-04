@@ -45,19 +45,13 @@ class AppointmentInfo extends React.Component {
     }
 
     handleEdit() {
-        // console.log('ppp  ', this.props.match.path);
         this.props.history.push(`${this.props.match.url}/edit`, {
-            // this.props.history.push(`/appointments/${this.state.appointment.appointmentId}/edit`, {
-            // this.props.history.push(`${this.props.match.path}/edit`, {
             appointment: this.state.appointment
         });
-        // return <Route exec path={`${this.props.match.path}/edit`}
-        //        component={AppointmentEdit}/>
     }
 
     render() {
         const {appointment} = this.state;
-        console.log('resder apponmnt info appointment ', appointment);
 
         return (
             <div>
@@ -90,13 +84,11 @@ class AppointmentInfo extends React.Component {
                 </Modal>
 
                 <div>
-                    {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.url}/edit`}
                                component={AppointmentEdit}/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
-                    {/*</Router>*/}
                 </div>
             </div>
         );

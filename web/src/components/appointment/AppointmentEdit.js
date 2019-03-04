@@ -3,7 +3,6 @@ import {Helmet} from 'react-helmet';
 import store from "store";
 import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
-import mappers from "../../shared/mappers";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
@@ -56,7 +55,6 @@ class AppointmentEdit extends React.Component {
 
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
-                {/*<Page title="ערוך תור" columns={3}>*/}
                 <Helmet>
                     <title>Meshekle | ערוך תור מס {appointment.appointmentId.toString()}</title>
                 </Helmet>
@@ -76,8 +74,6 @@ class AppointmentEdit extends React.Component {
 
                     </Grid.Column>
                 </Grid>
-
-                {/*</Page>*/}
             </Modal>
         );
     }

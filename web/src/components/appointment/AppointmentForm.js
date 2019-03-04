@@ -370,7 +370,6 @@ class AppointmentForm extends Component {
                                     />
                                 </Modal.Content>
                                 <Modal.Actions>
-                                    {/*<Button icon='check' color='black' content='All Done' onClick={this.close}/>*/}
                                     <Button
                                         positive
                                         // labelPosition='right'

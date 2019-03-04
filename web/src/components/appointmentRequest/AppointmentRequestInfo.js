@@ -21,8 +21,6 @@ class AppointmentRequestInfo extends React.Component {
     }
 
     componentDidMount() {
-        console.log('mvmvvm ', this.props.location.state.appointmentRequest);
-
         if (this.props.location.state.appointmentRequest)
             this.setState({appointmentRequest: this.props.location.state.appointmentRequest});
         else {
@@ -43,7 +41,6 @@ class AppointmentRequestInfo extends React.Component {
 
     render() {
         const {appointmentRequest} = this.state;
-        // console.log('resder apponmnt info appointmentRequest ', appointmentRequest);
 
         return (
             <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
@@ -92,7 +89,6 @@ class AppointmentRequestInfo extends React.Component {
                     </Modal.Description>
                 </Modal.Content>
                 <Modal.Actions className='alignLeft'>
-                    {/*<Button positive>Edit</Button>*/}
                     <Button negative onClick={this.handleDelete}>Delete</Button>
                     <Button positive onClick={() => this.props.history.goBack()}>OK</Button>
                 </Modal.Actions>
