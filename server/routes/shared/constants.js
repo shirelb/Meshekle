@@ -23,7 +23,7 @@ module.exports = {
         ALREADY_CANCELED_APPOINTMENT: "Appointment already canceled !",
         PASSED_APPOINTMENT: "Appointment already passed !",
         SUCCESSFUL_INCIDENT: "Incident successfully added!",
-
+        USER_UPDATE_SUCCESS:"User fields updated successfully!",
     },
     serviceProvidersRoute:{
         USER_NOT_FOUND: "User not found!",

@@ -96,6 +96,40 @@ router.get('/userId/:userId', function (req, res, next) {
         })
 });
 
+// update user by userId.
+router.put('/update/userId/:userId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            let updateFields = {};
+            req.body.fullname ? updateFields.fullname = req.body.fullname : null;
+            req.body.email ? updateFields.email = req.body.email : null;
+            req.body.mailbox ? updateFields.mailbox = req.body.mailbox : null;
+            req.body.cellphone ? updateFields.cellphone = req.body.cellphone : null;
+            req.body.phone ? updateFields.phone = req.body.phone : null;
+            req.body.bornDate ? updateFields.bornDate = req.body.bornDate : null;
+            req.body.active ? updateFields.active = req.body.active : null;
+
+            Users.update(
+                updateFields,
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(isUpdated => {
+                    res.status(200).send({
+                        "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                        "result": isUpdated[0]
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
+});
+
+
 /* POST appointment request of user . */
 router.post('/appointments/request', function (req, res, next) {
     createAppointmentRequestId()
