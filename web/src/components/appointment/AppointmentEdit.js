@@ -3,12 +3,11 @@ import {Helmet} from 'react-helmet';
 import store from "store";
 import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
-import mappers from "../../shared/mappers";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 
-class UserEdit extends React.Component {
+class AppointmentEdit extends React.Component {
     constructor(props) {
         super(props);
 
@@ -16,6 +15,10 @@ class UserEdit extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+
+        this.serviceProviderHeaders = {
+            'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+        };
     }
 
     componentDidMount() {
@@ -29,12 +32,10 @@ class UserEdit extends React.Component {
     }
 
     handleSubmit(appointment) {
-        //todo complete this with axios put
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                let serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
-
-                appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), serviceProviderRoles, this.serviceProviderHeaders)
+                appointment.appointmentId = this.state.appointment.appointmentId;
+                appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
                     .then((response) => {
                         this.props.history.goBack()
                     })
@@ -54,7 +55,6 @@ class UserEdit extends React.Component {
 
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
-                {/*<Page title="ערוך תור" columns={3}>*/}
                 <Helmet>
                     <title>Meshekle | ערוך תור מס {appointment.appointmentId.toString()}</title>
                 </Helmet>
@@ -74,11 +74,9 @@ class UserEdit extends React.Component {
 
                     </Grid.Column>
                 </Grid>
-
-                {/*</Page>*/}
             </Modal>
         );
     }
 }
 
-export default UserEdit;
+export default AppointmentEdit;

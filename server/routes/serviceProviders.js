@@ -621,42 +621,46 @@ router.post('/appointments/set', function (req, res, next) {
 
 /* GET all appointment requests of user . */
 router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
-        if (serviceProviders.length === 0)
-            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-        let whereClause = {};
-        req.query.status ? whereClause.status = req.query.status : null;
-        req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
-        AppointmentRequests.findAll({
-            where: whereClause,
-            include: [
-                {
-                    model: AppointmentDetails,
-                    where: {
-                        serviceProviderId: req.params.serviceProviderId
-                    },
-                    required: true
-                }
-            ]
-        })
-            .then(schedAppointments => {
-                console.log(schedAppointments);
-                res.status(200).send(schedAppointments);
+    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
+        .then(serviceProviders => {
+            if (serviceProviders.length === 0)
+                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            let whereClause = {};
+            req.query.status ? whereClause.status = req.query.status : null;
+            req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
+            AppointmentRequests.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: AppointmentDetails,
+                        where: {
+                            serviceProviderId: req.params.serviceProviderId
+                        },
+                        required: true
+                    }
+                ]
             })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send(err);
-            })
-    });
+                .then(schedAppointments => {
+                    console.log(schedAppointments);
+                    res.status(200).send(schedAppointments);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
 });
 
 // update appointmentRequest status to 'approved'/'rejected' by appointmentRequestId .
 router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequestId', function (req, res, next) {
     AppointmentRequests.update(
-        {status: constants.appointmentRequestStatusesMapper(req.query.status)},
+        {
+            // status: constants.appointmentRequestStatusesMapper(req.query.status)
+            status: req.query.status
+        },
         {
             where: {
-                requestId: req.params.appointmentRequestId
+                requestId: typeof req.params.appointmentRequestId === 'string' ? parseInt(req.params.appointmentRequestId) : req.params.appointmentRequestId
             }
         })
         .then(isUpdated => {
@@ -673,12 +677,13 @@ router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequest
         })
 });
 
-// update appointment date or hours by appointmentId .
+// update appointment by appointmentId .
 router.put('/appointments/update/appointmentId/:appointmentId', function (req, res, next) {
     ScheduledAppointments.update(
         {
             startDateAndTime: req.body.startDateAndTime,
             endDateAndTime: req.body.endDateAndTime,
+            remarks: req.body.remarks,
         },
         {
             where: {
@@ -689,10 +694,26 @@ router.put('/appointments/update/appointmentId/:appointmentId', function (req, r
             if (isUpdated[0] === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
 
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                "result": isUpdated[0]
-            });
+            AppointmentDetails.update(
+                {
+                    subject: req.body.subject,
+                    clientId: req.body.clientId,
+                },
+                {
+                    where: {
+                        appointmentId: req.params.appointmentId
+                    }
+                })
+                .then(isUpdated => {
+                    res.status(200).send({
+                        "message": serviceProvidersRoute.APPOINTMENT_UPDATED,
+                        "result": isUpdated[0]
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
         })
         .catch(err => {
             console.log(err);

@@ -290,6 +290,7 @@ class PhoneBookManagementPage extends React.Component {
                     <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
                 </Page>
                 <div>
+                    {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.path}/users/:userId`}
                                component={UserInfo}/>
@@ -297,6 +298,7 @@ class PhoneBookManagementPage extends React.Component {
                                component={UserInfo}/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
+                    {/*</Router>*/}
                 </div>
             </div>
         );

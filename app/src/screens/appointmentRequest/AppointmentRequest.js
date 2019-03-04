@@ -25,7 +25,7 @@ export default class AppointmentRequest extends Component {
     componentDidMount() {
         phoneStorage.get('userData')
             .then(userData => {
-                console.log('agenda componentDidMount userData ', userData);
+                // console.log('agenda componentDidMount userData ', userData);
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
@@ -59,7 +59,7 @@ export default class AppointmentRequest extends Component {
             formModal: true,
             serviceProviderSelected: serviceProvider
         });
-        console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
+        // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
     };
 
     renderSeparator = () => {
@@ -105,7 +105,7 @@ export default class AppointmentRequest extends Component {
 
     renderHeader = () => {
         return <SearchBar
-            placeholder="רשום פה..."
+            placeholder="חפש..."
             lightTheme
             onChangeText={this.updateSearch.bind(this)}
             // round
@@ -142,7 +142,10 @@ export default class AppointmentRequest extends Component {
                 </List>
                 <AppointmentRequestForm
                     modalVisible={this.state.formModal}
+                    userHeaders={this.userHeaders}
+                    userId={this.userId}
                     serviceProvider={this.state.serviceProviderSelected}
+                    selectedDate={this.props.navigation.state.params.selectedDate}
                 />
             </View>
         );

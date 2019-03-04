@@ -1,6 +1,6 @@
 import axios from "axios";
 import {SERVER_URL} from "../shared/constants";
-import moment from "../components/appointment/AppointmentAdd";
+import moment from "moment";
 
 var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) => {
     return axios.get(`${SERVER_URL}/api/serviceProviders/appointments/serviceProviderId/${serviceProviderId}`,
@@ -101,10 +101,14 @@ var setAppointment = (appointment, serviceProviderId, roles, headers) => {
 };
 
 var updateAppointment = (event, headers) => {
-    return  axios.put(`${SERVER_URL}/api/serviceProviders/appointments/update/appointmentId/${event.appointmentId}`,
+    return axios.put(`${SERVER_URL}/api/serviceProviders/appointments/update/appointmentId/${event.appointmentId}`,
         {
-            startDateAndTime: event.startDateAndTime,
-            endDateAndTime: event.endDateAndTime,
+            startDateAndTime: moment(event.date+ ' ' + event.startTime).toDate(),
+            endDateAndTime: moment(event.date+ ' ' + event.endTime).toDate(),
+            remarks: event.remarks,
+
+            subject: JSON.stringify(event.subject),
+            clientId: event.clientId,
         },
         {
             headers: headers,
@@ -139,7 +143,7 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
         {
             headers: headers,
             params: {
-                status: 'reject'
+                status: 'rejected'
             },
         }
     )
@@ -151,6 +155,24 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
         });
 };
 
+var approveAppointmentRequestById = (appointmentRequestId, headers) => {
+    return axios.put(`${SERVER_URL}/api/serviceProviders/appointmentRequests/status/appointmentRequestId/${appointmentRequestId}`,
+        {},
+        {
+            headers: headers,
+            params: {
+                status: 'approved'
+            },
+        }
+    )
+        .then((response) => {
+            return response
+        })
+        .catch((error) => {
+            console.log('approve appointment request error ', error);
+        });
+};
+
 
 export default {
     getAppointmentByAppointmentID,
@@ -158,6 +180,7 @@ export default {
     setAppointment,
     cancelAppointmentById,
     rejectAppointmentRequestById,
+    approveAppointmentRequestById,
     getServiceProviderAppointmentRequests,
     getServiceProviderAppointments,
     updateAppointment,

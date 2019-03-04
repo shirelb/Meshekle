@@ -14,14 +14,13 @@ class AppointmentRequestInfo extends React.Component {
         this.state = {appointmentRequest: this.props.location.state.appointmentRequest};
 
         this.handleDelete = this.handleDelete.bind(this);
+
         this.serviceProviderHeaders = {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
     }
 
     componentDidMount() {
-        console.log('mvmvvm ', this.props.location.state.appointmentRequest);
-
         if (this.props.location.state.appointmentRequest)
             this.setState({appointmentRequest: this.props.location.state.appointmentRequest});
         else {
@@ -29,23 +28,19 @@ class AppointmentRequestInfo extends React.Component {
                 .then(({data: appointmentRequest}) => {
                     this.setState({appointmentRequest});
                 });
-
         }
     }
 
     handleDelete() {
-        console.log('appointmentRequest handleDelete ', this.serviceProviderHeaders);
-        appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest.appointmentRequestId, this.serviceProviderHeaders)
+        appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest.requestId, this.serviceProviderHeaders)
             .then((response) => {
-                console.log('appointmentRequest handleDelete ', response.data);
+                console.log('appointmentRequest handleDelete ', response);
             });
-
         this.props.history.goBack();
     }
 
     render() {
         const {appointmentRequest} = this.state;
-        console.log('resder apponmnt info appointmentRequest ', appointmentRequest);
 
         return (
             <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
@@ -61,20 +56,21 @@ class AppointmentRequestInfo extends React.Component {
                         <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointmentRequest.clientName}</p>
                         <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointmentRequest.AppointmentDetail.serviceProviderId}</p>
                         <p>{strings.appointmentsPageStrings.ROLE}: {appointmentRequest.AppointmentDetail.role}</p>
-                        <p>{strings.appointmentsPageStrings.SUBJECT}: {appointmentRequest.AppointmentDetail.subject}</p>
+                        <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</p>
                         <p>{strings.appointmentsPageStrings.STATUS}: {appointmentRequest.status}</p>
                         <p>{strings.appointmentsPageStrings.REMARKS}: {appointmentRequest.notes}                         </p>
-                        <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}:
+                        <div>
+                            <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}: </p>
                             <List>
                                 {Array.isArray(appointmentRequest.optionalTimes) &&
-                                appointmentRequest.optionalTimes.map((daysTimes, j) =>
+                                appointmentRequest.optionalTimes.map((datesTimes, j) =>
                                     (
                                         <List.Item key={j}>
                                             <List.Content>
-                                                <List.Description>{daysTimes.day}</List.Description>
+                                                <List.Description>{datesTimes.date}</List.Description>
                                                 <List.Description>
-                                                    {Array.isArray(daysTimes.hours) &&
-                                                    daysTimes.hours.map((time, k) =>
+                                                    {Array.isArray(datesTimes.hours) &&
+                                                    datesTimes.hours.map((time, k) =>
                                                         (
                                                             <List.Item key={k}>
                                                                 <List.Content>
@@ -89,11 +85,10 @@ class AppointmentRequestInfo extends React.Component {
                                     ),
                                 )}
                             </List>
-                        </p>
+                        </div>
                     </Modal.Description>
                 </Modal.Content>
                 <Modal.Actions className='alignLeft'>
-                    {/*<Button positive>Edit</Button>*/}
                     <Button negative onClick={this.handleDelete}>Delete</Button>
                     <Button positive onClick={() => this.props.history.goBack()}>OK</Button>
                 </Modal.Actions>

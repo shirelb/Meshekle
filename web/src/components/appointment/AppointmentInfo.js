@@ -1,12 +1,13 @@
 import React from 'react';
 import '../styles.css';
-import {Button, Modal} from 'semantic-ui-react';
-import {Redirect, Route, Switch} from 'react-router-dom';
+import {Modal,Button} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import store from "store";
 import AppointmentEdit from "./AppointmentEdit";
 import appointmentsStorage from "../../storage/appointmentsStorage";
+import moment from 'moment';
+import {Redirect, Route, Switch} from "react-router-dom";
 
 
 class AppointmentInfo extends React.Component {
@@ -21,8 +22,6 @@ class AppointmentInfo extends React.Component {
         this.serviceProviderHeaders = {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
-
-        console.log('apponmnt info this.props ', this.props);
     }
 
     componentDidMount() {
@@ -46,19 +45,13 @@ class AppointmentInfo extends React.Component {
     }
 
     handleEdit() {
-        // console.log('ppp  ', this.props.match.path);
         this.props.history.push(`${this.props.match.url}/edit`, {
-            // this.props.history.push(`/appointments/${this.state.appointment.appointmentId}/edit`, {
-            // this.props.history.push(`${this.props.match.path}/edit`, {
             appointment: this.state.appointment
         });
-        // return <Route exec path={`${this.props.match.path}/edit`}
-        //        component={AppointmentEdit}/>
     }
 
     render() {
         const {appointment} = this.state;
-        console.log('resder apponmnt info appointment ', appointment);
 
         return (
             <div>
@@ -75,12 +68,12 @@ class AppointmentInfo extends React.Component {
                             <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointment.clientName}</p>
                             <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointment.AppointmentDetail.serviceProviderId}</p>
                             <p>{strings.appointmentsPageStrings.ROLE}: {appointment.AppointmentDetail.role}</p>
-                            <p>{strings.appointmentsPageStrings.SUBJECT}: {appointment.AppointmentDetail.subject}</p>
+                            <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointment.AppointmentDetail.subject).join(", ")}</p>
                             <p>{strings.appointmentsPageStrings.STATUS}: {appointment.status}</p>
-                            <p>{strings.appointmentsPageStrings.DATE}: {new Date(appointment.startDateAndTime).toISOString().split('T')[0]}                         </p>
-                            <p>{strings.appointmentsPageStrings.START_TIME}: {new Date(appointment.startDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}                         </p>
-                            <p>{strings.appointmentsPageStrings.END_TIME}: {new Date(appointment.endDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}                         </p>
-                            <p>{strings.appointmentsPageStrings.REMARKS}: {appointment.remarks}                         </p>
+                            <p>{strings.appointmentsPageStrings.DATE}: {moment(appointment.startDateAndTime).format('DD.MM.YYYY')}</p>
+                            <p>{strings.appointmentsPageStrings.START_TIME}: {moment(appointment.startDateAndTime).format("HH:mm")} </p>
+                            <p>{strings.appointmentsPageStrings.END_TIME}: {moment(appointment.endDateAndTime).format("HH:mm")}</p>
+                            <p>{strings.appointmentsPageStrings.REMARKS}: {appointment.remarks}</p>
                         </Modal.Description>
                     </Modal.Content>
                     <Modal.Actions className='alignLeft'>

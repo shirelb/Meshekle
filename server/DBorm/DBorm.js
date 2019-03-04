@@ -144,7 +144,7 @@ sequelize.sync({force: true})
     .then(() => {
         Users.create({
             userId: '1',
-            fullname: 'Administrator Administrator',
+            fullname: 'מנהל מערכת',
             password: 'Admin123',
             email: 'admin@gamil.com',
             mailbox: 1,
@@ -157,10 +157,11 @@ sequelize.sync({force: true})
                 ServiceProviders.create({
                     serviceProviderId: 1,
                     userId: user.userId,
-                    role: 'Admin',
+                    role: 'מנהל',
                     operationTime: 'all time',
                     phoneNumber: '0123456789',
                     appointmentWayType: 'all',
+                    subjects:'all',
                     active: true,
                 })
             })
