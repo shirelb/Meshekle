@@ -161,6 +161,7 @@ sequelize.sync({force: true})
                     operationTime: 'all time',
                     phoneNumber: '0123456789',
                     appointmentWayType: 'all',
+                    subjects:'all',
                     active: true,
                 })
             })
