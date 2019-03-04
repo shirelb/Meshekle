@@ -1,24 +1,39 @@
 import React from 'react';
-
 import './styles.css';
-import 'semantic-ui-css/semantic.min.css';
-import {Card, Grid, Header, Icon, List} from 'semantic-ui-react';
-import FullCalendar from 'fullcalendar-reactwrapper';
-import 'fullcalendar-reactwrapper/dist/css/fullcalendar.min.css';
-
 
 import moment from 'moment';
 import 'moment/locale/he';
+
+import {Grid, Header} from 'semantic-ui-react';
+import 'semantic-ui-css/semantic.min.css';
+import AppointmentCalendar from "../../components/calendars/AppointmentCalendar";
 import store from 'store';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import AppointmentInfo from "../../components/appointment/AppointmentInfo";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
-import {Redirect, Route, Switch} from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
+import DraggableAppointmentRequest from "../../components/appointmentRequest/DraggableAppointmentRequest";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
+import {Draggable} from '@fullcalendar/interaction';
+import "jquery-ui/ui/widgets/draggable";
+import "jquery-ui/ui/widgets/droppable";
+import "jquery-ui-dist/jquery-ui.min.css";
+import "jquery-ui-dist/jquery-ui.min";
+// import FullCalendar from 'sardius-fullcalendar-wrapper';
+// import 'sardius-fullcalendar-wrapper/dist/fullcalendar.min.css';
+// import 'sardius-fullcalendar-wrapper/node_modules/fullcalendar/dist/locales/he';
+// import dayGridPlugin from '@fullcalendar/';
+// import interactionPlugin, {Draggable} from 'sardius-fullcalendar-wrapper/node_modules/fullcalendar/dist/plugins/interaction';
+// import dayGridPlugin from '@fullcalendar/daygrid';
+
+// import FullCalendar from 'fullcalendar-reactwrapper';
+// import 'fullcalendar-reactwrapper/dist/css/fullcalendar.min.css';
+// import 'fullcalendar';
+// import 'fullcalendar/dist/locale/he.js';
 
 // import BigCalendar from 'react-big-calendar';
 // import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -30,24 +45,11 @@ import usersStorage from "../../storage/usersStorage";
 
 const TOTAL_PER_PAGE = 10;
 
-moment.locale('he');
+// moment.updateLocale('he');
 // const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
 // BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
 // const DragAndDropCalendar = withDragAndDrop(BigCalendar, {backend: false});
 // const DragAndDropCalendar = withDragAndDrop(BigCalendar);
-
-const events = [
-    {
-        title: 'All Day Event',
-        start: '2019-03-01',
-        appointment: 'apppppppp'
-    },
-    {
-        id: 999,
-        title: 'Repeating Event',
-        start: '2019-03-19T16:00:00',
-    },
-];
 
 function Event({event}) {
     return (
@@ -107,8 +109,13 @@ const customSlotPropGetter = date => {
 }
 
 class AppointmentsManagementPage extends React.Component {
+    draggableDiv = React.createRef();
+
     constructor(props) {
         super(props);
+
+        // this.fullCalendar = React.createRef();
+        this.draggableList = React.createRef();
 
         this.state = {
             appointments: [],
@@ -119,6 +126,7 @@ class AppointmentsManagementPage extends React.Component {
             openPopup: false,
             eventPopup: {},
             highlightTableRow: null,
+            appointmentRequestHoovering: {requestId: -1},
             // calendarView: BigCalendar.Views.MONTH,
         };
 
@@ -143,6 +151,27 @@ class AppointmentsManagementPage extends React.Component {
         this.getServiceProviderAppointmentRequests();
     }
 
+    /*componentDidUpdate() {
+        $('#external-events .fc-event').each(function () {
+            var eventObject = {
+                title: $.trim($(this).text()) // use the element's text as the event title
+            };
+
+            // store data so the calendar knows to render an event upon drop
+            $(this).data('event', {
+                title: $.trim($(this).text()), // use the element's text as the event title
+                stick: true // maintain when user navigates (see docs on the renderEvent method)
+            });
+
+            // make the event draggable using jQuery UI
+            $(this).draggable({
+                zIndex: 999,
+                revert: true,      // will cause the event to go back to its
+                revertDuration: 0  //  original position after the drag
+            });
+        });
+    }*/
+
     getServiceProviderAppointmentRequests() {
         appointmentsStorage.getServiceProviderAppointmentRequests(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
@@ -166,9 +195,21 @@ class AppointmentsManagementPage extends React.Component {
                             // });
                             // appointmentRequest.optionalTimes = formattedOptionalTimes;
                             // console.log('ppp  ', appointmentRequest.optionalTimes.map(m=>m.day+' '+m.hours.map(k=>k.startHour+'-'+k.endHour)));
+
+                            let appointmentRequestEvent = {
+                                id: appointmentRequest.requestId,
+                                title: appointmentRequest.clientName,
+                                allDay: false,
+                                start: null,
+                                end: null,
+                                appointmentRequest: appointmentRequest,
+                            };
+
+                            let appointmentRequestsEvents = this.state.appointmentRequests;
+                            appointmentRequestsEvents.push(appointmentRequestEvent);
                             this.setState({
-                                appointmentRequests: appointmentRequests
-                            })
+                                appointmentRequests: appointmentRequestsEvents
+                            });
                         });
                 });
 
@@ -183,6 +224,10 @@ class AppointmentsManagementPage extends React.Component {
 
     componentWillReceiveProps({location = {}}) {
         if (location.pathname === '/appointments' && location.pathname !== this.props.location.pathname) {
+            this.setState({
+                appointments: [],
+                appointmentRequests: [],
+            });
             this.getServiceProviderAppointments();
             this.getServiceProviderAppointmentRequests();
         }
@@ -254,6 +299,11 @@ class AppointmentsManagementPage extends React.Component {
     }
 
     hoverOnAppointmentRequest = (appointmentRequest) => {
+        console.log('in hoverOnAppointmentRequest appointmentRequest', appointmentRequest);
+        if (this.state.appointmentRequestHoovering.requestId === appointmentRequest.requestId)
+            return;
+
+        this.setState({appointmentRequestHoovering: appointmentRequest});
         let shadowAppointments = [];
         if (Array.isArray(appointmentRequest.optionalTimes)) {
             appointmentRequest.optionalTimes.map(datesTimes => {
@@ -279,11 +329,13 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     hoverOffAppointmentRequest = (appointmentRequest) => {
-        let appointmentsWithoutOptional = this.state.appointments.filter(obj => obj.id !== appointmentRequest.appointmentRequestId || obj.status !== 'optional');
+        console.log('in hoverOffAppointmentRequest appointmentRequest', appointmentRequest);
+
+        let appointmentsWithoutOptional = this.state.appointments.filter(obj => obj.id !== appointmentRequest.requestId || obj.status !== 'optional');
         this.setState({appointments: appointmentsWithoutOptional});
     };
 
-    onDragStartAppointmentRequest = appointmentRequest => event => {
+    /*onDragStartAppointmentRequest = appointmentRequest => event => {
         // let fromBox = JSON.stringify({ id: appointmentRequest.id });
         event.dataTransfer.setData("dragContent", JSON.stringify(appointmentRequest));
     };
@@ -304,6 +356,10 @@ class AppointmentsManagementPage extends React.Component {
         // this.swapBoxes(fromBox, toBox);
         return false;
     };
+
+    onExternalEventReceive = (event) => {
+        console.log('in onExternalEventReceive event ', event);
+    };*/
 
     onHoverEvent = event =>
         //     this.setState({eventPopup: event, openPopup: true});
@@ -333,13 +389,44 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     onSelectSlot = (start, end) => {
-        let slotInfo = {start: start, end: end}
+        let slotInfo = {start: start, end: end};
         console.log('onSelectSlot = slotInfo  ', slotInfo);
 
         this.props.history.push(`${this.props.match.path}/set`, {
-            slotInfo: slotInfo
+            slotInfo: slotInfo,
         });
 
+    };
+
+
+    approveAppointmentRequest = (appointmentRequestEventDropped) => {
+        var appointmentRequests = this.state.appointmentRequests;
+        appointmentsStorage.approveAppointmentRequestById(appointmentRequestEventDropped.appointmentRequest.requestId, this.serviceProviderHeaders)
+            .then(response => {
+                console.log('appointmentRequest approved ', response);
+
+                let updatedAppointmentsRequests = appointmentRequests.filter(function (obj) {
+                    return obj.appointmentRequest.requestId !== appointmentRequestEventDropped.appointmentRequest.requestId;
+                });
+                this.setState({appointmentRequests: updatedAppointmentsRequests})
+            });
+
+
+    };
+
+    onDropAppointmentRequest = (appointmentRequestEvent) => {
+        let appointmentRequestDropped = {
+            id: appointmentRequestEvent.id,
+            title: appointmentRequestEvent.title,
+            start: appointmentRequestEvent.start,
+            end: moment(appointmentRequestEvent.start).add(2, 'h'),
+            allDay: appointmentRequestEvent.allDay,
+            appointmentRequest: appointmentRequestEvent.appointmentRequest,
+        };
+        this.props.history.push(`${this.props.match.path}/set`, {
+            appointmentRequestDropped: appointmentRequestDropped,
+            // approveAppointmentRequest: (appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent),
+        });
     };
 
     updateAfterMoveOrResizeEvent(event) {
@@ -382,7 +469,7 @@ class AppointmentsManagementPage extends React.Component {
             appointmentId: appointment.appointmentId,
             date: moment(appointment.startDateAndTime).format('YYYY-MM-DD'),
             startTime: moment(appointment.startDateAndTime).format('HH:mm'),
-            endTime: moment(appointment.endDateAndTime).format('YYYY-MM-DD'),
+            endTime: moment(appointment.endDateAndTime).format('HH:mm'),
             remarks: appointment.remarks,
             subject: appointment.subject,
             clientId: appointment.clientId,
@@ -402,6 +489,7 @@ class AppointmentsManagementPage extends React.Component {
         const {appointments, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
+        // const pluginArr = [interactionPlugin];//, dayGridPlugin, timeGridPlugin ];
         // console.log('render appointments ',appointments);
         // moment.locale('he');
         // const localizer = BigCalendar.momentLocalizer(moment); // or globalizeLocalizer
@@ -422,163 +510,242 @@ class AppointmentsManagementPage extends React.Component {
                         </Grid.Row>
                         <Grid.Row columns='equal'>
                             <Grid.Column>
-                                בקשות תורים:
-                                <List animated selection divided verticalAlign='middle'>
-                                    {this.state.appointmentRequests.map((appointmentRequest, i) =>
-                                        (
-                                            <List.Item
-                                                // as={DraggableResource}
-                                                key={appointmentRequest.requestId}
-                                                onMouseEnter={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
-                                                onMouseLeave={this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
-                                                // onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}
-                                                onClick={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
-                                                    appointmentRequest: appointmentRequest
-                                                })}
-                                                draggable="true"
-                                                onDragStart={this.onDragStartAppointmentRequest.bind(this, appointmentRequest)}
-                                                onDragOver={this.onDragOverAppointmentRequest.bind(this, appointmentRequest)}
-                                                onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}
-                                                // onClickResource={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
-                                                //     appointmentRequest: appointmentRequest
-                                                // })}
-                                                // resource={appointmentRequest}
-                                                // resourceRenderComponent={AppointmentRequestListRender}
-                                                // cardHeader={appointmentRequest.clientName}
-                                                // cardMeta={appointmentRequest.AppointmentDetail.role}
-                                                // cardDescription={JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}
-                                            >
-                                                {/*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*/}
-                                                {/* <List.Content>
-                                                        <List.Header>{appointmentRequest.clientName}</List.Header>
-                                                        <List.Description
-                                                        as='a'>{appointmentRequest.AppointmentDetail.serviceProviderId}</List.Description>
-                                                        <List.Description
-                                                        as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>
-                                                        <List.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</List.Description>
-                                                        <List.Description>{appointmentRequest.notes}</List.Description>
-                                                        <List.Description>
-                                                        {Array.isArray(appointmentRequest.optionalTimes) &&
-                                                        appointmentRequest.optionalTimes.map((datesTimes, j) =>
-                                                            (
-                                                                <List.Item key={j}>
-                                                                    <List.Content>
-                                                                        <List.Description>{moment(datesTimes.date).format('DD.MM.YYYY')}:</List.Description>
-                                                                        <List.Description>
-                                                                            {Array.isArray(datesTimes.hours) &&
-                                                                            datesTimes.hours.map((time, k) =>
-                                                                                (
-                                                                                    <List.Item key={k}>
-                                                                                        <List.Content>
-                                                                                            <List.Description>      {time.startHour}-{time.endHour}</List.Description>
-                                                                                        </List.Content>
-                                                                                    </List.Item>
-                                                                                ),
-                                                                            )}
-                                                                        </List.Description>
-                                                                    </List.Content>
-                                                                </List.Item>
-                                                            ),
-                                                        )}
-                                                    </List.Description>
-                                                    </List.Content>*/}
-                                                <List.Content
-                                                    as={Card}
-                                                    centered
-                                                >
-                                                    <Icon name='clipboard'/>
-                                                    <Card.Header>{appointmentRequest.clientName}</Card.Header>
-                                                    {/*<Card.Meta>{this.props.cardMeta?this.props.cardMeta:null}</Card.Meta>*/}
-                                                    <Card.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</Card.Description>
-                                                    {/*<Icon name='clipboard' />*/}
-                                                    {/*<ResourceRenderComponent resource={resource}/>*/}
-                                                </List.Content>
-                                            </List.Item>
-                                        ),
-                                    )}
-                                </List>
+                                <Header as={'h3'} style={{'display':'contents'}}> בקשות תורים:</Header>
+                                {/*<Grid.Row height={2}> בקשות תורים:</Grid.Row>*/}
+                                {/*<List animated selection divided verticalAlign='middle' id='external-events'*/}
+                                {/*ref={this.draggableList}>*/}
+                                {/*{this.state.appointmentRequests.map((appointmentRequest, i) =>*/}
+                                {/*(*/}
+                                {/*<List.Item*/}
+                                {/*// as={DraggableResource}*/}
+                                {/*as={Card}*/}
+                                {/*className='fc-event'*/}
+                                {/*key={appointmentRequest.requestId}*/}
+                                {/*onMouseEnter={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*// onMouseOver={this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*onMouseLeave={this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*// onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*onClick={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {*/}
+                                {/*appointmentRequest: appointmentRequest*/}
+                                {/*})}*/}
+                                {/*// draggable={"true"}*/}
+                                {/*// onDragStart={this.onDragStartAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*// onDragOver={this.onDragOverAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*// onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}*/}
+                                {/*// onClickResource={() => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {*/}
+                                {/*//     appointmentRequest: appointmentRequest*/}
+                                {/*// })}*/}
+                                {/*// resource={JSON.stringify(appointmentRequest)}*/}
+                                {/*data-event={JSON.stringify(appointmentRequest)}*/}
+                                {/*// resourceRenderComponent={AppointmentRequestListRender}*/}
+                                {/*// cardHeader={appointmentRequest.clientName}*/}
+                                {/*// cardMeta={appointmentRequest.AppointmentDetail.role}*/}
+                                {/*// cardDescription={JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}*/}
+                                {/*>*/}
+                                {/*/!*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*!/*/}
+                                {/*/!* <List.Content>*/}
+                                {/*<List.Header>{appointmentRequest.clientName}</List.Header>*/}
+                                {/*<List.Description*/}
+                                {/*as='a'>{appointmentRequest.AppointmentDetail.serviceProviderId}</List.Description>*/}
+                                {/*<List.Description*/}
+                                {/*as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>*/}
+                                {/*<List.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</List.Description>*/}
+                                {/*<List.Description>{appointmentRequest.notes}</List.Description>*/}
+                                {/*<List.Description>*/}
+                                {/*{Array.isArray(appointmentRequest.optionalTimes) &&*/}
+                                {/*appointmentRequest.optionalTimes.map((datesTimes, j) =>*/}
+                                {/*(*/}
+                                {/*<List.Item key={j}>*/}
+                                {/*<List.Content>*/}
+                                {/*<List.Description>{moment(datesTimes.date).format('DD.MM.YYYY')}:</List.Description>*/}
+                                {/*<List.Description>*/}
+                                {/*{Array.isArray(datesTimes.hours) &&*/}
+                                {/*datesTimes.hours.map((time, k) =>*/}
+                                {/*(*/}
+                                {/*<List.Item key={k}>*/}
+                                {/*<List.Content>*/}
+                                {/*<List.Description>      {time.startHour}-{time.endHour}</List.Description>*/}
+                                {/*</List.Content>*/}
+                                {/*</List.Item>*/}
+                                {/*),*/}
+                                {/*)}*/}
+                                {/*</List.Description>*/}
+                                {/*</List.Content>*/}
+                                {/*</List.Item>*/}
+                                {/*),*/}
+                                {/*)}*/}
+                                {/*</List.Description>*/}
+                                {/*</List.Content>*!/*/}
+                                {/*<List.Content*/}
+                                {/*as={Card}*/}
+                                {/*centered*/}
+                                {/*>*/}
+                                {/*<Icon name='clipboard'/>*/}
+                                {/*<Card.Header>{appointmentRequest.clientName}</Card.Header>*/}
+                                {/*/!*<Card.Meta>{this.props.cardMeta?this.props.cardMeta:null}</Card.Meta>*!/*/}
+                                {/*<Card.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</Card.Description>*/}
+                                {/*/!*<Icon name='clipboard' />*!/*/}
+                                {/*/!*<ResourceRenderComponent resource={resource}/>*!/*/}
+                                {/*</List.Content>*/}
+                                {/*</List.Item>*/}
+                                {/*),*/}
+                                {/*)}*/}
+                                {/*</List>*/}
+                                {/*<Grid.Row>*/}
+                                {this.state.appointmentRequests.length === 0 ?
+                                    <Header as={'h4'}> אין לך בקשות לתורים </Header>
+                                    :
+                                    <DraggableAppointmentRequest
+                                        appointmentRequests={this.state.appointmentRequests}
+                                        hoverOnAppointmentRequest={(appointmentRequest) => this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
+                                        hoverOffAppointmentRequest={(appointmentRequest) => this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
+                                        // onDrop={this.onDropAppointmentRequest.bind(this, appointmentRequest)}
+                                        onClick={(appointmentRequest) => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
+                                            appointmentRequest: appointmentRequest
+                                        })}
+                                    />
+                                }
+                                {/*</Grid.Row>*/}
                             </Grid.Column>
                             <Grid.Column width={13}>
-                                <div style={{height: 600}}>
-                                    <FullCalendar
-                                        id="your-custom-ID"
+                                <div style={{height: 500}}>
+                                    <AppointmentCalendar
+                                        events={Array.isArray(appointments) ? appointments : []}
+
+                                        onSelectEvent={this.onSelectEvent.bind(this)}
+                                        onSelectSlot={this.onSelectSlot.bind(this)}
+                                        onDropAppointmentRequest={this.onDropAppointmentRequest.bind(this)}
+                                        approveAppointmentRequest={(appointmentRequestDropped) => this.approveAppointmentRequest.bind(this, appointmentRequestDropped)}
+                                        updateAfterMoveOrResizeEvent={this.updateAfterMoveOrResizeEvent}
+                                        draggableList={this.draggableList.current}
+                                    />
+                                    {/*<FullCalendar
+                                        ref={this.fullCalendar} // Add ref defined in constructor to FullCalendar
+                                        id="appointmentsFullCalendar"
+                                        // plugins={pluginArr}
                                         header={{
                                             // left: 'prev, next, today, myCustomButton',
-                                            left: 'prev, next today',
+                                            left: 'next,prev today',
                                             center: 'title',
                                             right: 'month,basicWeek,basicDay,agendaWeek,agendaDay,listWeek'
                                         }}
-                                        buttonText={{
-                                            date: 'תאריך',
-                                            time: 'זמן',
-                                            event: 'תור',
-                                            allDay: 'כל היום',
-                                            week: 'שבועי',
-                                            day: 'יומי',
-                                            month: 'חודשי',
-                                            previous: 'הקודם',
-                                            next: 'הבא',
-                                            yesterday: 'אתמול',
-                                            tomorrow: 'מחר',
-                                            today: 'היום',
-                                            agenda: 'סדר יום',
-                                            list: 'רשימה',
-                                        }}
+                                        // buttonText={{
+                                        //     date: 'תאריך',
+                                        //     time: 'זמן',
+                                        //     event: 'תור',
+                                        //     allDay: 'כל היום',
+                                        //     week: 'שבועי',
+                                        //     day: 'יומי',
+                                        //     month: 'חודשי',
+                                        //     previous: 'הקודם',
+                                        //     next: 'הבא',
+                                        //     yesterday: 'אתמול',
+                                        //     tomorrow: 'מחר',
+                                        //     today: 'היום',
+                                        //     agenda: 'סדר יום',
+                                        //     list: 'רשימה',
+                                        // }}
                                         buttonIcons={{
                                             prev: 'right-single-arrow',
                                             next: 'left-single-arrow',
                                             // prevYear: 'right-double-arrow',
                                             // nextYear: 'left-double-arrow'
                                         }}
-                                        allDayText={'כל היום'}
-                                        noEventsMessage={'אין לך תורים מתוכננים'}
-                                        // themeSystem={'bootstrap4'}
+                                        // themeSystem={'bootstrap'}
                                         // themeName={'Minty'}
+
                                         locale={'he'}
-                                        isRTL={true}
-                                        timeFormat={'HH:mm'}
+                                        closeText={"סגור"}
+                                        prevText={"&#x3C;הקודם"}
+                                        nextText={"הבא&#x3E;"}
+                                        currentText={"היום"}
+                                        buttonText={{
+                                            month: "חודשי",
+                                            // week: "שבועי",
+                                            // day: "יומי",
+                                            list: "סדר יום",
+                                            today: 'היום',
+                                            basicWeek: "שבועי",
+                                            basicDay: "יומי",
+                                            agendaWeek: "יומן שבועי",
+                                            agendaDay: "יומן יומי",
+                                        }}
+                                        allDayText={"כל היום"}
+                                        eventLimitText={"עוד"}
+                                        noEventsMessage={"אין לך תורים מתוכננים"}
+                                        weekNumberTitle={"שבוע"}
+                                        showMonthAfterYear={false}
+                                        yearSuffix={""}
+                                        dir={'rtl'}
+                                        // timeFormat={'HH:mm'}
+                                        // eventTimeFormat={'HH:mm'}
+
                                         displayEventTime={true}
                                         displayEventEnd={true}
                                         // defaultDate={'2017-09-12'}
                                         navLinks={true} // can click day/week names to navigate views
                                         editable={true}
+                                        eventResizableFromStart
 
                                         eventLimit={true} // allow "more" link when too many events
-                                        eventLimitText={'עוד'}
+                                        // eventLimitText={'עוד'}
                                         eventLimitClick={'popover'}
 
                                         events={Array.isArray(appointments) ? appointments : []}
                                         weekNumbers={false}
                                         slotEventOverlap={true} //maybe false?
-                                        listDayFormat={true}
-                                        listDayAltFormat={true}
+                                        // listDayFormat={true}
+                                        // listDayAltFormat={true}
                                         nowIndicator
-                                        now={moment()}
+                                        now={new Date()}
 
                                         eventClick={this.onSelectEvent.bind(this)}
                                         select={this.onSelectSlot.bind(this)}
                                         selectable={true}
-                                        selectHelper={true}
+                                        selectMirror={true}
                                         unselectAuto={true}
 
                                         droppable={true}
-                                        dragOpacity={.75}
+                                        // dragOpacity={.75}
                                         dragRevertDuration={500}
                                         dragScroll={true}
 
                                         // eventDragStart={}
                                         // eventDragStop={}
                                         eventDrop={this.updateAfterMoveOrResizeEvent}
-                                        // drop={}
+                                        /*drop: function (date, jsEvent, ui, resourceId) {
+                                    var memberName = $(this).data('event').title;
+                                    var memberID = $(this).attr('id').toString();
+                                    //Create Event - add to array
+                                    var newEvent = new Object();
+                                    newEvent = {
+                                    title: memberName,
+                                    id: memberID,
+                                    start: date.format(),
+                                    end: date.format(),
+                                    objectID: 0
+                                };
+                                    eventsAdded.push(newEvent);
+                                },*!/
+                                        drop={(info) => {
+                                            console.log('drop function');
+                                            // if so, remove the element from the "Draggable Events" list
+                                            info.draggedEl.parentNode.removeChild(info.draggedEl);
+                                        }}
+                                        // eventReceive={this.onExternalEventReceive.bind(this)}
+                                        eventReceive={(event) => {
+                                            console.log('eventReceive function');
+                                        }}
 
                                         eventResize={this.updateAfterMoveOrResizeEvent}
 
                                         // textColor='black'
-                                        timezone='local'
+                                        timezone={'local'}
 
                                         handleWindowResize={true}
                                         windowResizeDelay={200}
-                                    />
+
+                                    />*/}
                                     {/*<DragAndDropCalendar
                                         localizer={localizer}
                                         events={Array.isArray(appointments) ? appointments : []}
@@ -725,17 +892,29 @@ class AppointmentsManagementPage extends React.Component {
 
 
                 <div>
+                    {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
                                component={AppointmentRequestInfo}/>
-                        <Route exec path={`${this.props.match.path}/set`}
-                               component={AppointmentAdd}/>
+                        {/* <Route exec path={`${this.props.match.path}/set`}
+                            // approveAppointmentRequest={(appointmentRequestEvent)=> this.approveAppointmentRequest(appointmentRequestEvent)}
+                               component={AppointmentAdd}/>*/}
+                        <Route exec path={`${this.props.match.path}/set`} render={(props) => (
+                            <AppointmentAdd {...props}
+                                            approveAppointmentRequest={(appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent)}/>
+                        )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId`}
                                component={AppointmentInfo}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
                                component={AppointmentEdit}/>
-                        <Redirect to={`${this.props.match.path}`}/>
+
+                        {/*{
+                            (this.props.location.pathname === window.location.pathname) ?
+                            <Redirect to={`${this.props.match.path}`}/>
+                            : null}
+                        }*/}
                     </Switch>
+                    {/*</Router>*/}
                 </div>
             </div>
             // </Grid>*/
@@ -745,3 +924,4 @@ class AppointmentsManagementPage extends React.Component {
 
 // export default DragDropContext(HTML5Backend)(AppointmentsManagementPage)
 export default AppointmentsManagementPage
+

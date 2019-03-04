@@ -90,11 +90,13 @@ class AppointmentInfo extends React.Component {
                 </Modal>
 
                 <div>
+                    {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.url}/edit`}
                                component={AppointmentEdit}/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
+                    {/*</Router>*/}
                 </div>
             </div>
         );

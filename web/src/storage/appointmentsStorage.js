@@ -155,6 +155,24 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
         });
 };
 
+var approveAppointmentRequestById = (appointmentRequestId, headers) => {
+    return axios.put(`${SERVER_URL}/api/serviceProviders/appointmentRequests/status/appointmentRequestId/${appointmentRequestId}`,
+        {},
+        {
+            headers: headers,
+            params: {
+                status: 'approved'
+            },
+        }
+    )
+        .then((response) => {
+            return response
+        })
+        .catch((error) => {
+            console.log('approve appointment request error ', error);
+        });
+};
+
 
 export default {
     getAppointmentByAppointmentID,
@@ -162,6 +180,7 @@ export default {
     setAppointment,
     cancelAppointmentById,
     rejectAppointmentRequestById,
+    approveAppointmentRequestById,
     getServiceProviderAppointmentRequests,
     getServiceProviderAppointments,
     updateAppointment,

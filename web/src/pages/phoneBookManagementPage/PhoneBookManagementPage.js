@@ -2,7 +2,7 @@ import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {Link, Redirect, Route, Switch} from "react-router-dom";
+import {BrowserRouter as Router,Link, Redirect, Route, Switch} from "react-router-dom";
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
@@ -290,6 +290,7 @@ class PhoneBookManagementPage extends React.Component {
                     <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
                 </Page>
                 <div>
+                    {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.path}/users/:userId`}
                                component={UserInfo}/>
@@ -297,6 +298,7 @@ class PhoneBookManagementPage extends React.Component {
                                component={UserInfo}/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
+                    {/*</Router>*/}
                 </div>
             </div>
         );

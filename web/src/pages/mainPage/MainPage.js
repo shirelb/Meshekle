@@ -4,7 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import {Icon, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
-import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
+import {BrowserRouter as Router,NavLink, Redirect, Route, Switch} from 'react-router-dom';
 import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
@@ -123,6 +123,7 @@ class MainPage extends Component {
                     </Menu.Item>
                 </Sidebar>
                 <div className="mainBody">
+                    {/*<Router>*/}
                     <Switch>
                         <Route path={`/home`} render={() => <Home userId={store.get('userId')}
                                                                   serviceProviderId={store.get('serviceProviderId')}/>}/>
@@ -131,6 +132,7 @@ class MainPage extends Component {
                         <Route path={`/chores`} component={ChoresManagementPage}/>
                         <Redirect to={`/home`}/>
                     </Switch>
+                    {/*</Router>*/}
                 </div>
             </div>
         )
