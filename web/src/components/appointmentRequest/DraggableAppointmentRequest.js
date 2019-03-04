@@ -1,13 +1,8 @@
 import React from "react";
 import {Card, Icon, List} from 'semantic-ui-react';
 
-// import 'fullcalendar';
-// import 'fullcalendar/dist/fullcalendar.css'
-// import 'fullcalendar/dist/locale/he.js';
-// import 'moment/min/moment.min';
-
 import $ from 'jquery';
-// import 'jquery/dist/jquery.min';
+import 'jquery/dist/jquery.min';
 import "jquery-ui/ui/widgets/draggable";
 import "jquery-ui/ui/widgets/droppable";
 // import "jquery-ui-dist/jquery-ui.min.css";

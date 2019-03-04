@@ -7,7 +7,7 @@ import moment from 'moment';
 import 'moment/min/moment.min';
 
 import $ from 'jquery';
-// import 'jquery/dist/jquery.min';
+import 'jquery/dist/jquery.min';
 import "jquery-ui/ui/widgets/draggable";
 import "jquery-ui/ui/widgets/droppable";
 // import "jquery-ui-dist/jquery-ui.min.css";
