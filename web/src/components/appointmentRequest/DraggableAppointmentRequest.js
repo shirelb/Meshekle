@@ -1,28 +1,17 @@
 import React from "react";
 import {Card, Icon, List} from 'semantic-ui-react';
 
-import 'fullcalendar';
-import 'fullcalendar/dist/fullcalendar.css'
-import 'fullcalendar/dist/locale/he.js';
-import 'moment/min/moment.min';
+// import 'fullcalendar';
+// import 'fullcalendar/dist/fullcalendar.css'
+// import 'fullcalendar/dist/locale/he.js';
+// import 'moment/min/moment.min';
 
 import $ from 'jquery';
-import 'jquery/dist/jquery.min';
+// import 'jquery/dist/jquery.min';
 import "jquery-ui/ui/widgets/draggable";
 import "jquery-ui/ui/widgets/droppable";
-import "jquery-ui-dist/jquery-ui.min.css";
-import "jquery-ui-dist/jquery-ui.min";
-
-// import { Calendar } from "fullcalendar";
-// import {Calendar} from '@fullcalendar/core';
-// import interactionPlugin, {Draggable} from '@fullcalendar/interaction';
-// import dayGridPlugin from '@fullcalendar/daygrid';
-// import timeGridPlugin from '@fullcalendar/timegrid';
-// import listPlugin from '@fullcalendar/list';
-// import '@fullcalendar/core/main.css';
-// import '@fullcalendar/daygrid/main.css';
-// import '@fullcalendar/timegrid/main.css';
-// import '@fullcalendar/list/main.css';
+// import "jquery-ui-dist/jquery-ui.min.css";
+// import "jquery-ui-dist/jquery-ui.min";
 
 
 export default class DraggableAppointmentRequest extends React.Component {
