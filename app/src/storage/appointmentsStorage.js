@@ -2,7 +2,7 @@ import axios from "axios";
 import {SERVER_URL} from "../shared/constants";
 
 var getUserAppointmentRequests = function (userId, userHeaders) {
-    return axios.get(`${SERVER_URL}/api/users/appointmentRequests/userId/${userId}`,
+    return axios.get(`${SERVER_URL}/api/appointmentRequests/user/userId/${userId}`,
         {
             headers: userHeaders,
             params: {
@@ -18,7 +18,7 @@ var getUserAppointmentRequests = function (userId, userHeaders) {
 };
 
 var getUserAppointments = function (userId, userHeaders) {
-    return axios.get(`${SERVER_URL}/api/users/appointments/userId/${userId}`,
+    return axios.get(`${SERVER_URL}/api/appointments/user/userId/${userId}`,
         {
             headers: userHeaders,
             params: {
@@ -34,7 +34,7 @@ var getUserAppointments = function (userId, userHeaders) {
 };
 
 var getUserAppointmentById = function (userId, userHeaders, eventId) {
-    return axios.get(`${SERVER_URL}/api/users/appointments/userId/${userId}`,
+    return axios.get(`${SERVER_URL}/api/appointments/user/userId/${userId}`,
         {
             headers: userHeaders,
             params: {status: 'set', appointmentId: eventId}
@@ -48,7 +48,7 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
 };
 
 var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRequest, userHeaders) {
-    return axios.post(`${SERVER_URL}/api/users/appointments/request`,
+    return axios.post(`${SERVER_URL}/api/appointmentRequests/user/request`,
         {
             userId: userId,
             serviceProviderId: serviceProvider.serviceProviderId,

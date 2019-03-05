@@ -191,7 +191,7 @@ function createAppointmentRequestId() {
 
 /* GET all appointment requests of user . */
 router.get('/serviceProvider/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
         .then(serviceProviders => {
             if (serviceProviders.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -204,15 +204,15 @@ router.get('/serviceProvider/serviceProviderId/:serviceProviderId', function (re
                     {
                         model: AppointmentDetails,
                         where: {
-                            serviceProviderId: req.params.serviceProviderId
+                            serviceProviderId: typeof req.params.serviceProviderId==='string'? parseInt(req.params.serviceProviderId):req.params.serviceProviderId
                         },
                         required: true
                     }
                 ]
             })
-                .then(schedAppointments => {
-                    console.log(schedAppointments);
-                    res.status(200).send(schedAppointments);
+                .then(appointmentsRequests => {
+                    console.log(appointmentsRequests);
+                    res.status(200).send(appointmentsRequests);
                 })
                 .catch(err => {
                     console.log(err);

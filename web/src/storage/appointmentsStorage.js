@@ -3,7 +3,7 @@ import {SERVER_URL} from "../shared/constants";
 import moment from "moment";
 
 var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviders/appointments/serviceProviderId/${serviceProviderId}`,
+    return axios.get(`${SERVER_URL}/api/appointments/serviceProvider/serviceProviderId/${serviceProviderId}`,
         {
             headers: headers,
             params: {
@@ -23,7 +23,7 @@ var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) 
 };
 
 var getAppointmentRequestByAppointmentRequestID = (serviceProviderId, appointmentRequestId, headers) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviders/appointmentRequests/serviceProviderId/${serviceProviderId}`,
+    return axios.get(`${SERVER_URL}/api/appointmentRequests/serviceProvider/serviceProviderId/${serviceProviderId}`,
         {
             headers: headers,
             params: {
@@ -43,7 +43,7 @@ var getAppointmentRequestByAppointmentRequestID = (serviceProviderId, appointmen
 };
 
 var getServiceProviderAppointmentRequests = (serviceProviderId, headers) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviders/appointmentRequests/serviceProviderId/${serviceProviderId}`,
+    return axios.get(`${SERVER_URL}/api/appointmentRequests/serviceProvider/serviceProviderId/${serviceProviderId}`,
         {
             headers: headers,
             params: {
@@ -60,7 +60,7 @@ var getServiceProviderAppointmentRequests = (serviceProviderId, headers) => {
 };
 
 var getServiceProviderAppointments = (serviceProviderId, headers) => {
-    return axios.get(`${SERVER_URL}/api/serviceProviders/appointments/serviceProviderId/${serviceProviderId}`,
+    return axios.get(`${SERVER_URL}/api/appointments/serviceProvider/serviceProviderId/${serviceProviderId}`,
         {
             headers: headers,
             params: {
@@ -77,7 +77,7 @@ var getServiceProviderAppointments = (serviceProviderId, headers) => {
 };
 
 var setAppointment = (appointment, serviceProviderId, roles, headers) => {
-    return axios.post(`${SERVER_URL}/api/serviceProviders/appointments/set`,
+    return axios.post(`${SERVER_URL}/api/appointments/serviceProvider/set`,
         {
             userId: appointment.clientId,
             serviceProviderId: serviceProviderId,
@@ -101,7 +101,7 @@ var setAppointment = (appointment, serviceProviderId, roles, headers) => {
 };
 
 var updateAppointment = (event, headers) => {
-    return axios.put(`${SERVER_URL}/api/serviceProviders/appointments/update/appointmentId/${event.appointmentId}`,
+    return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/update/appointmentId/${event.appointmentId}`,
         {
             startDateAndTime: moment(event.date+ ' ' + event.startTime).toDate(),
             endDateAndTime: moment(event.date+ ' ' + event.endTime).toDate(),
@@ -123,7 +123,7 @@ var updateAppointment = (event, headers) => {
 };
 
 var cancelAppointmentById = (appointmentId, headers) => {
-    return axios.put(`${SERVER_URL}/api/serviceProviders/appointments/cancel/appointmentId/${appointmentId}`,
+    return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/cancel/appointmentId/${appointmentId}`,
         {},
         {
             headers: headers
@@ -138,7 +138,7 @@ var cancelAppointmentById = (appointmentId, headers) => {
 };
 
 var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
-    return axios.put(`${SERVER_URL}/api/serviceProviders/appointmentRequests/status/appointmentRequestId/${appointmentRequestId}`,
+    return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequestId}`,
         {},
         {
             headers: headers,
@@ -156,7 +156,7 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
 };
 
 var approveAppointmentRequestById = (appointmentRequestId, headers) => {
-    return axios.put(`${SERVER_URL}/api/serviceProviders/appointmentRequests/status/appointmentRequestId/${appointmentRequestId}`,
+    return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequestId}`,
         {},
         {
             headers: headers,
