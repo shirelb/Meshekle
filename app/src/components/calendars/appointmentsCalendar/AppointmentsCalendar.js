@@ -189,8 +189,8 @@ export default class AppointmentsCalendar extends Component {
 const styles = StyleSheet.create({
     calendar: {
         borderTopWidth: 2,
-        marginTop: 10,
-        paddingTop: 10,
+        // marginTop: 5,
+        paddingTop: 5,
         borderBottomWidth: 2,
         borderColor: '#eee',
         height: 350,

@@ -98,21 +98,6 @@ describe('service providers route', function () {
         appointmentWayType: constants.appointmentWayTypes.DIALOG_WAY_TYPE
     };
 
-    let schedAppointmentTest = {
-        appointmentId: '1',
-        startDateAndTime: '2018-12-12 11:00',
-        endDateAndTime: '2018-12-12 13:00',
-        remarks: 'blob',
-        status: constants.appointmentStatuses.APPOINTMENT_SET
-    };
-
-    let appointmentDetailTest = {
-        appointmentId: '1',
-        clientId: '111111111',
-        serviceProviderId: '123456789',
-        role: constants.roles.DENTIST_ROLE,
-        subject: 'blob'
-    };
 
     let roleModuleTest = {
         role: constants.roles.DENTIST_ROLE,
@@ -985,118 +970,6 @@ describe('service providers route', function () {
         });
     });
 
-    //Set cancelled status to appointment by appointmentID
-    describe('/Put cancelled status to appointment ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createSchedAppointment(schedAppointmentTest)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-
-        });
-        it('it should update the status of the appointment to cancelled', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/appointments/cancel/appointmentId/1')
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED);
-                    res.body.result.should.be.eql(1);
-                    validiation.getSchedAppointmentByIdPromise(1).then(schedAppointment => {
-                        schedAppointment[0].status.should.be.eql(constants.appointmentStatuses.APPOINTMENT_CANCELLED);
-                        done();
-                    });
-                });
-        });
-        it('it should send an error that the appointment doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/appointments/cancel/appointmentId/2')
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_NOT_FOUND);
-
-                    done();
-                });
-        });
-
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            deleteSchedAppointment(schedAppointmentTest)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-        });
-    });
-
-
-    //GET appointments details of serviceProvider
-    describe('/GET appointments details of serviceProvider', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createSchedAppointment(schedAppointmentTest)
-                                .then(
-                                    createAppointmentDetail(appointmentDetailTest)
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        )
-                );
-
-        });
-        it('it should GET all the appointmentsDetails of the serviceProvider', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/appointments/serviceProviderId/123456789')
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    done();
-                });
-        });
-        it('it should send an error that the service provider not found', (done) => {
-            chai.request(server)
-                .get('/api/serviceProviders/appointments/serviceProviderId/123456781')
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    deleteServiceProvider(serviceProviderTest)
-                        .then(
-                            deleteSchedAppointment(schedAppointmentTest)
-                                .then(
-                                    deleteAppointmentDetail(appointmentDetailTest)
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        )
-                );
-        });
-    });
-
 
     // Get roles of a service provider
     describe('/GET roles of serviceProvider ', () => {
@@ -1241,45 +1114,6 @@ function deleteServiceProvider(serviceProviderTest) {
         }
     });
 }
-
-function createSchedAppointment(schedAppointment) {
-    return ScheduledAppointments.create({
-        appointmentId: schedAppointment.appointmentId,
-        startDateAndTime: schedAppointment.startDateAndTime,
-        endDateAndTime: schedAppointment.endDateAndTime,
-        remarks: schedAppointment.remarks,
-        status: schedAppointment.status,
-    });
-}
-
-function deleteSchedAppointment(schedAppointment) {
-    return ScheduledAppointments.destroy({
-        where: {
-            appointmentId: schedAppointment.appointmentId
-        }
-    });
-}
-
-function createAppointmentDetail(appointmentDetail) {
-    return AppointmentDetails.create({
-        appointmentId: appointmentDetail.appointmentId,
-        clientId: appointmentDetail.clientId,
-        serviceProviderId: appointmentDetail.serviceProviderId,
-        role: appointmentDetail.role,
-        subject: appointmentDetail.subject,
-    });
-}
-
-function deleteAppointmentDetail(appointmentDetail) {
-    return AppointmentDetails.destroy({
-        where: {
-            appointmentId: appointmentDetail.appointmentId,
-            clientId: appointmentDetail.clientId,
-            serviceProviderId: appointmentDetail.serviceProviderId,
-        }
-    });
-}
-
 
 function createRoleModule(roleModule) {
     return RulesModules.create({
