@@ -1,13 +1,28 @@
 var authentications = require('./shared/authentications');
 var validiation = require('./shared/validations');
-const Sequelize = require('sequelize');
-var express = require('express');
-var router = express.Router();
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
-const Op = Sequelize.Op;
 var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
+var express = require('express');
+var router = express.Router();
+var nodemailer = require('nodemailer');
+
+
+const Sequelize = require('sequelize');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const Op = Sequelize.Op;
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'meshekle2019@gmail.com',
+        pass: 'geralemeshekle'
+    }
+});
+
+
+
+
 
 
 //Login from service provider by userId and password
@@ -213,6 +228,19 @@ router.post('/add', function (req, res, next) {
                         "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
                         "result": newServiceProvider.dataValues
                     });
+                    Users.findAll({
+                        where: {
+                            userId: newServiceProvider.userId,
+                        }
+                    })
+                        .then(users => {
+                            sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
                 })
                 .catch(err => {
                     console.log(err);
@@ -260,6 +288,19 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                     "message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC,
                     "result": updateServiceProvider.dataValues
                 });
+                Users.findAll({
+                    where: {
+                        userId: newServiceProvider.userId,
+                    }
+                })
+                    .then(users => {
+                        sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                            "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
             })
                 .catch(err => {
                     console.log(err);
@@ -346,6 +387,8 @@ router.post('/users/add', function (req, res, next) {
                         "message": serviceProvidersRoute.USER_ADDED_SUCC,
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
+                    sendMail(newUser.email,constants.mailMessages.ADD_USER_SUBJECT,
+                        "Hello " + newUser.fullname+",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -787,6 +830,26 @@ function validateBornDate(bornDateString) {
     let bornDate = new Date(bornDateString);
 
     return bornDate < today
+}
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+function sendMail(mailToSend,subject,text) {
+
+    var mailOptions = {
+        from: 'meshekle2019@gmail.com',
+        to: mailToSend,
+        subject: subject,
+        text: text
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
 }
 
 module.exports = router;

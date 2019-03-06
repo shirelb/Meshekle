@@ -1,15 +1,110 @@
-var expect = require('chai').expect;
-let chai = require('chai');
-let chaiHttp = require('chai-http');
-let should = chai.should();
-let server = require('../app');
-
-chai.use(chaiHttp);
-// const db = require('../DBorm/DBorm');
-const {sequelize, Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+process.dbMode='dev';
 var constants = require('../routes/shared/constants');
 var validiation = require('../routes/shared/validations');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
+let server = require('../app');
+
+let chai = require('chai');
+let chaiHttp = require('chai-http');
+let should = chai.should();
+var expect = chai.expect;
+
+chai.use(chaiHttp);
+const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+
+
+// const { expect } = require('chai');
+// const sinon = require('sinon');
+// const proxyquire = require('proxyquire');
+// const { makeMockModels } = require('sequelize-test-helpers');
+// const mockModels = makeMockModels({ ServiceProviders: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     Users: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     Events: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     AppointmentRequests: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     ScheduledAppointments: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     AppointmentDetails: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     RulesModules: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+//                                     Permissions: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
+// });
+// const save = proxyquire('../routes/serviceProviders', {
+//     '../DBorm/models': mockModels
+// });
+
+//const fakeUser = { update: sinon.stub() };
+
+
+
+//
+// describe('src/utils/save', () => {
+//
+//     const data = {
+//         firstname: 'Testy',
+//         lastname: 'McTestface',
+//         email: 'testy.mctestface@test.tes',
+//         token: 'some-token'
+//     };
+//     const resetStubs = () => {
+//         mockModels.ServiceProviders.forEach(function(element) {element.resetHistory();});
+//         mockModels.Users.forEach(function(element) {element.resetHistory();});
+//         mockModels.Events.forEach(function(element) {element.resetHistory();});
+//         mockModels.AppointmentRequests.forEach(function(element) {element.resetHistory();});
+//         mockModels.ScheduledAppointments.forEach(function(element) {element.resetHistory();});
+//         mockModels.AppointmentDetails.forEach(function(element) {element.resetHistory();});
+//         mockModels.RulesModules.forEach(function(element) {element.resetHistory();});
+//         mockModels.Permissions.forEach(function(element) {element.resetHistory();});
+//
+//     };
+//     let result;
+//     context('user does not exist', () => {
+//         before(async () => {
+//             mockModels.User.findOne.resolves(undefined);
+//             result = await save(data);
+//         });
+//         after(resetStubs);
+//         it('called User.findOne', () => {
+//             expect(mockModels.User.findOne).to.have.been.called;
+//         });
+//         it("didn't call user.update", () => {
+//             expect(fakeUser.update).not.to.have.been.called;
+//         });
+//         it('returned null', () => {
+//             expect(result).to.be.null;
+//         });
+//     });
+//     context('user exists', () => {
+//         before(async () => {
+//             fakeUser.update.resolves(fakeUser);
+//             mockModels.User.findOne.resolves(fakeUser);
+//             result = await save(data);
+//         });
+//         after(resetStubs);
+//         it('called User.findOne', () => {
+//             expect(mockModels.User.findOne).to.have.been.called;
+//         });
+//         it('called user.update', () => {
+//             expect(fakeUser.update).to.have.been.calledWith(
+//                 sinon.match(data));
+//         });
+//         it('returned the user', () => {
+//             expect(result).to.deep.equal(fakeUser);
+//         });
+//     });
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 describe('service providers route', function () {
@@ -38,7 +133,7 @@ describe('service providers route', function () {
         userId: "222222222",
         fullname: "roy elia",
         password: "123456789",
-        email: "test@gmail.com",
+        email: "amit@gmail.com",
         mailbox: 444,
         cellphone: "0777007024",
         phone: "012365948",
@@ -191,20 +286,17 @@ describe('service providers route', function () {
         });
     });
 
-
     //Get all the service providers
     describe('/GET serviceProviders', () => {
         before((done) => {
-            ServiceProviders.destroy({where: {}})
+            createUser(userTest)
                 .then(
-                    createUser(userTest)
+                    createServiceProvider(serviceProviderTest)
                         .then(
-                            createServiceProvider(serviceProviderTest)
-                                .then(
-                                    done()
-                                )
+                            done()
                         )
-                )
+                );
+
         });
         it('it should GET all the service providers', (done) => {
             chai.request(server)
