@@ -37,7 +37,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: './server/DBorm/sqlite.db'
+    storage: process.dbMode === "dev"?'./server/DBorm/sqliteTests.db':'./server/DBorm/sqlite.db'
 });
 
 sequelize

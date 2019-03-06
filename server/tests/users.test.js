@@ -1,3 +1,4 @@
+process.dbMode='dev';
 var expect = require('chai').expect;
 let chai = require('chai');
 let chaiHttp = require('chai-http');
