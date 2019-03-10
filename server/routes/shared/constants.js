@@ -3,6 +3,7 @@ module.exports = {
         SUPER_SECRET: "Kibutzation",
         SOMETHING_WENT_WRONG: "Something went wrong!",
         SUCCESSFUL_TOKEN: "Token generated successfully !",
+
     },
     usersRoute:{
         USER_NOT_FOUND: "userId doesn't exist!",
@@ -88,5 +89,11 @@ module.exports = {
         DENTIST_ROLE: "Dentist",
         HAIRDRESSER_ROLE: "HairDresser"
     },
-
+    mailMessages:{
+        ADD_USER_SUBJECT: "Welcome to Meshekle - There is your credentials",
+        ADD_SERVICE_PROVIDER_SUBJECT:"Your new role at Meshekle!",
+        BEFORE_CRED: "Welcome to Meshkele",
+        BEFORE_ROLE: "You have got a new role at Meshkele",
+        MAIL_END: "Have a nice day, Meshkele family"
+    },
 };
