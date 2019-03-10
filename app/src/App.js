@@ -21,6 +21,7 @@ import LoginScreen from './screens/loginScreen/LoginScreen';
 import MainScreen from './screens/mainScreen/MainScreen';
 import AppointmentsScreen from './screens/appointmentsScreen/AppointmentsScreen';
 import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest';
+import UserAppointmentRequests from './screens/userAppointmentRequests/UserAppointmentRequests';
 import ChoresScreen from './screens/choresScreen/ChoresScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
@@ -51,6 +52,12 @@ const DrawerMenuNavigator = createDrawerNavigator(
             screen: AppointmentRequest,
             params: {
                 headerTitle: 'בקשת תור',
+            },
+        },
+        UserAppointmentRequests: {
+            screen: UserAppointmentRequests,
+            params: {
+                headerTitle: 'בקשות התורים שלי',
             },
         },
         ChoresScreen: {
@@ -108,7 +115,7 @@ const AppNavigator = createStackNavigator(
             headerTitleStyle: {
                 fontWeight: 'bold',
             },
-        })
+        }),
     }
 );
 

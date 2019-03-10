@@ -21,10 +21,6 @@ var transporter = nodemailer.createTransport({
 });
 
 
-
-
-
-
 //Login from service provider by userId and password
 router.post('/login/authenticate', function (req, res, next) {
     Users.findAll({
@@ -95,6 +91,58 @@ router.get('/', function (req, res, next) {
             res.status(500).send(err);
         })
 });
+
+//Get service providers by serviceProviderId
+router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    ServiceProviders.findAll({
+        where: {
+            serviceProviderId: req.params.serviceProviderId
+        }
+    })
+        .then(serviceProviders => {
+            if (serviceProviders.length === 0) {
+                return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            console.log(serviceProviders);
+            res.status(200).send(serviceProviders);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+//Get service providers user details by serviceProviderId
+router.get('/userDetails/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    ServiceProviders.findAll({
+        where: {
+            serviceProviderId: req.params.serviceProviderId
+        }
+    })
+        .then(serviceProvider => {
+            if (serviceProvider.length === 0) {
+                return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            console.log(serviceProvider);
+            Users.findOne({
+                where: {
+                    userId: serviceProvider[0].userId
+                }
+            })
+                .then(user => {
+                    res.status(200).send(user);
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
 
 //GET serviceProviders by full name
 router.get('/name/:name', function (req, res, next) {
@@ -177,32 +225,50 @@ router.get('/serviceProviderId/:serviceProviderId/appointmentWayType', function 
         })
 });
 
-// update the appointment way of service provider in role
-router.put('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType/set', function (req, res, next) {
-    if (!isAppWayTypeExists(req.body.appointmentWayType))
-        return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
-    ServiceProviders.update(
-        {appointmentWayType: req.body.appointmentWayType},
-        {
-            where: {
-                serviceProviderId: req.params.serviceProviderId,
-                role: req.params.role
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
+// update serviceProvider by serviceProviderId and role.
+router.put('/update/serviceProviderId/:serviceProviderId/role/:role', function (req, res, next) {
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
+        .then(response => {
+            if (response.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_WAY_OF_TYPE_UPDATE_SUCC,
-                "result": isUpdated[0]
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
 
+
+            if (!isRoleExists(req.params.role)) {
+                return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
+            }
+            let updateFields = {};
+            req.body.operationTime ? updateFields.operationTime = req.body.operationTime : null;
+            req.body.phoneNumber ? updateFields.phoneNumber = req.body.phoneNumber : null;
+            req.body.appointmentWayType ? updateFields.appointmentWayType = req.body.appointmentWayType : null;
+            if (req.body.appointmentWayType)
+                if (!isAppWayTypeExists(req.body.appointmentWayType))
+                    return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
+
+            req.body.subjects ? updateFields.subjects = req.body.subjects : null;
+            req.body.active ? updateFields.active = req.body.active : null;
+
+            ServiceProviders.update(
+                updateFields,
+                {
+                    where: {
+                        serviceProviderId: req.params.serviceProviderId,
+                        role: req.params.role
+                    }
+                })
+                .then(isUpdated => {
+                    if (isUpdated[0] === 0)
+                        return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+                    res.status(200).send({
+                        "message": serviceProvidersRoute.SERVICE_PROVIDER_UPDATE_SUCCESS,
+                        "result": isUpdated[0]
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
+});
 
 //Add serviceProvider
 router.post('/add', function (req, res, next) {
@@ -422,34 +488,6 @@ router.delete('/users/userId/:userId/delete', function (req, res, next) {
         })
 });
 
-
-// Update the operation time of a service provider with role
-router.put('/serviceProviderId/:serviceProviderId/role/:role/operationTime/set', function (req, res, next) {
-    if (!isRoleExists(req.params.role))
-        return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
-    ServiceProviders.update(
-        {operationTime: req.body.operationTime},
-        {
-            where: {
-                serviceProviderId: req.params.serviceProviderId,
-                role: req.params.role
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
-                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-            res.status(200).send({
-                "message": serviceProvidersRoute.SERVICE_PROVIDER_OPTIME_UPDATED_SUCC,
-                "result": isUpdated[0]
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
-
-
 // GET operation time of service provider with role.
 router.get('/serviceProviderId/:serviceProviderId/role/:role/operationTime', function (req, res, next) {
     if (!isRoleExists(req.params.role))
@@ -472,82 +510,6 @@ router.get('/serviceProviderId/:serviceProviderId/role/:role/operationTime', fun
         })
 });
 
-
-// update appointment status to 'cancelled' by appointmentId .
-router.put('/appointments/cancel/appointmentId/:appointmentId', function (req, res, next) {
-    ScheduledAppointments.update(
-        {status: constants.appointmentStatuses.APPOINTMENT_CANCELLED},
-        {
-            where: {
-                appointmentId: req.params.appointmentId
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
-                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
-
-            Events.destroy({
-                where: {
-                    // userId: req.body.userId,
-                    eventType: "Appointments",
-                    eventId: req.params.appointmentId
-                }
-            })
-                .then((newEvent) => {
-                    res.status(200).send({
-                        "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                        isUpdated,
-                        newEvent
-                    });
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send(err);
-                });
-            // res.status(200).send({
-            //     "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-            //     "result": isUpdated[0]
-            // });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
-
-
-//GET all appointments by serviceProviderId .
-router.get('/appointments/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
-        if (serviceProviders.length === 0)
-            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-        let whereClause = {};
-        req.query.status ? whereClause.status = req.query.status : null;
-        req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
-        ScheduledAppointments.findAll({
-            where: whereClause,
-            include: [
-                {
-                    model: AppointmentDetails,
-                    where: {
-                        serviceProviderId: req.params.serviceProviderId
-                    },
-                    required: true
-                }
-            ]
-        })
-            .then(schedAppointments => {
-                console.log(schedAppointments);
-                res.status(200).send(schedAppointments);
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send(err);
-            })
-    });
-});
-
-
 // GET roles of service provider by service provider id. */
 router.get('/roles/serviceProviderId/:serviceProviderId', function (req, res, next) {
 
@@ -568,7 +530,6 @@ router.get('/roles/serviceProviderId/:serviceProviderId', function (req, res, ne
             res.status(500).send(err);
         })
 });
-
 
 /* GET permissions of service provider by service provider id. */
 router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, res, next) {
@@ -612,130 +573,6 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
                     console.log(err);
                     res.status(500).send(err);
                 })
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
-
-
-/* POST appointment set of user . */
-router.post('/appointments/set', function (req, res, next) {
-    helpers.createAppointmentSetId()
-        .then(appointmentSetId => {
-            helpers.createAppointmentDetails(appointmentSetId, req, res)
-                .then(newAppointmentDetails => {
-                    if (newAppointmentDetails) {
-                        ScheduledAppointments.create({
-                            appointmentId: appointmentSetId,
-                            startDateAndTime: new Date(req.body.date + "T" + req.body.startHour),
-                            endDateAndTime: new Date(req.body.date + "T" + req.body.endHour),
-                            remarks: req.body.notes,
-                            status: "set",
-                        })
-                            .then((newAppointment) => {
-                                Events.create({
-                                    userId: req.body.userId,
-                                    eventType: "Appointments",
-                                    eventId: newAppointment.appointmentId
-                                })
-                                    .then((newEvent) => {
-                                        res.status(200).send({
-                                            "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT,
-                                            newAppointmentDetails,
-                                            newAppointment,
-                                            newEvent
-                                        });
-                                    })
-                                    .catch(err => {
-                                        console.log(err);
-                                        res.status(500).send(err);
-                                    });
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).send(err);
-                            })
-                    }
-                })
-        })
-});
-
-/* GET all appointment requests of user . */
-router.get('/appointmentRequests/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    validiation.getServiceProvidersByServProIdPromise(req.params.serviceProviderId).then(serviceProviders => {
-        if (serviceProviders.length === 0)
-            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-        let whereClause = {};
-        req.query.status ? whereClause.status = req.query.status : null;
-        req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
-        AppointmentRequests.findAll({
-            where: whereClause,
-            include: [
-                {
-                    model: AppointmentDetails,
-                    where: {
-                        serviceProviderId: req.params.serviceProviderId
-                    },
-                    required: true
-                }
-            ]
-        })
-            .then(schedAppointments => {
-                console.log(schedAppointments);
-                res.status(200).send(schedAppointments);
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send(err);
-            })
-    });
-});
-
-// update appointmentRequest status to 'approved'/'rejected' by appointmentRequestId .
-router.put('/appointmentRequests/status/appointmentRequestId/:appointmentRequestId', function (req, res, next) {
-    AppointmentRequests.update(
-        {status: constants.appointmentRequestStatusesMapper(req.query.status)},
-        {
-            where: {
-                requestId: req.params.appointmentRequestId
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
-                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                "result": isUpdated[0]
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
-
-// update appointment date or hours by appointmentId .
-router.put('/appointments/update/appointmentId/:appointmentId', function (req, res, next) {
-    ScheduledAppointments.update(
-        {
-            startDateAndTime: req.body.startDateAndTime,
-            endDateAndTime: req.body.endDateAndTime,
-        },
-        {
-            where: {
-                appointmentId: req.params.appointmentId
-            }
-        })
-        .then(isUpdated => {
-            if (isUpdated[0] === 0)
-                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
-
-            res.status(200).send({
-                "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-                "result": isUpdated[0]
-            });
         })
         .catch(err => {
             console.log(err);
