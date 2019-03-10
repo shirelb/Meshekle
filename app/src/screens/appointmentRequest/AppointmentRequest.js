@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
-import AppointmentRequestForm from "../../components/appointmentRequestForm/AppointmentRequestForm";
+import AppointmentRequestForm from "../../components/appointmentRequest/AppointmentRequestForm";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 

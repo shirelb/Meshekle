@@ -3,7 +3,7 @@ import {Alert, Modal, ScrollView, StyleSheet, View} from "react-native";
 import {CheckBox, FormInput, FormLabel, FormValidationMessage, Text} from "react-native-elements";
 import {SelectMultipleGroupButton} from "react-native-selectmultiple-button";
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import Button from "../../components/submitButton/Button";
+import Button from "../submitButton/Button";
 import {List} from "react-native-paper";
 import moment from 'moment';
 import appointmentsStorage from "../../storage/appointmentsStorage";
@@ -52,6 +52,24 @@ export default class AppointmentRequestForm extends Component {
         this.setState({
             modalVisible: this.props.modalVisible,
             serviceProvider: this.props.serviceProvider,
+
+            datesAndHoursSelected: this.props.selectedDate === '' || typeof this.props.selectedDate !== "string" ? [] : [{
+                'date': this.props.selectedDate,
+                'hours': [{startHour: "", endHour: ""}, {startHour: "", endHour: ""}],
+                'expanded': false,
+            }],
+            subjectSelected: [],
+            subjectText: "",
+            displaySubjectList: false,
+            notes: '',
+            isDateTimePickerVisible: false,
+            isStartDateTimePickerVisible: false,
+            isEndDateTimePickerVisible: false,
+            dateClicked: new Date(),
+            startTimeClicked: '',
+            endTimeClicked: '',
+            errorMsg: '',
+            errorVisible: true
         })
     }
 

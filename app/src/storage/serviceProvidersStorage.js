@@ -13,5 +13,17 @@ var getServiceProviders = function (userHeaders) {
         });
 };
 
+var getServiceProviderUserDetails = function (serviceProviderId,userHeaders) {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/userDetails/serviceProviderId/${serviceProviderId}`,
+        {headers: userHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get serviceProvider user details error ', error)
+        });
+};
 
-export default {getServiceProviders};
+
+export default {getServiceProviders,getServiceProviderUserDetails};
