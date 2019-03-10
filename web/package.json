@@ -4,8 +4,19 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
+    "fullcalendar": "^3.10.0",
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "lodash.times": "^4.3.2",
+    "moment": "^2.24.0",
     "react": "^16.6.3",
-    "react-dom": "^16.6.3"
+    "react-datetime": "^2.16.3",
+    "react-dom": "^16.6.3",
+    "react-helmet": "^5.2.0",
+    "react-router-dom": "^4.3.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.84.0",
+    "store": "^2.0.12"
   },
   "devDependencies": {
     "react-scripts": "^2.1.1"

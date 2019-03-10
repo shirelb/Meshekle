@@ -1,3 +1,4 @@
+process.dbMode='prod';
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -12,6 +13,9 @@ var serviceProvidersRouter = require('./routes/serviceProviders');
 var managersRouter = require('./routes/managers');
 var permissionsRouter = require('./routes/permissions');
 var choresRouter = require('./routes/chores');
+var appointmentsRouter = require('./routes/appointments');
+var appointmentRequestsRouter = require('./routes/appointmentRequests');
+var incidentsRouter = require('./routes/incidents');
 
 var app = express();
 
@@ -34,6 +38,9 @@ app.use('/api/serviceProviders', serviceProvidersRouter);
 app.use('/api/managers', managersRouter);
 app.use('/api/permissions', permissionsRouter);
 app.use('/api/chores', choresRouter);
+app.use('/api/appointments', appointmentsRouter);
+app.use('/api/appointmentRequests', appointmentRequestsRouter);
+app.use('/api/incidents', incidentsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

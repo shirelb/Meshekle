@@ -1,140 +1,273 @@
+process.dbMode='dev';
 var expect = require('chai').expect;
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
 
 const db = require('../DBorm/DBorm');
-const Users = db.Users;
+const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
 
 let server = require('../app');
+
+var constants = require('../routes/shared/constants');
 
 chai.use(chaiHttp);
 
 
 describe('users route', function () {
-    before(() => {
-        return Users.sync() // also tried with {force: true}
-    });
+    this.timeout(20000);
 
-    beforeEach((done) => {
-        /*Book.remove({}, (err) => {
+    before((done) => {
+        setTimeout(function () {
             done();
-        });*/
-        done();
+        }, 5000);
     });
 
-    /*after(() => {
-        return Users.sync() // also tried with {force: true}
-    });
+    var tokenTest = null;
 
-    afterEach((done) => {
-        /!*Book.remove({}, (err) => {
-            done();
-        });*!/
-        done();
-    });*/
+    let userTest = {
+        userId: "436547125",
+        fullname: "test test",
+        password: "tset22",
+        email: "test@gmail.com",
+        mailbox: 444,
+        cellphone: "1234567896",
+        phone: "012365948",
+        bornDate: "1992-05-20"
+    };
+
+    let appointmentTest = {
+        userId: userTest.userId,
+        serviceProviderId: 123,
+        role: "Driver",
+        date: "2019-05-20",
+        startHour: "10:00",
+        endHour: "12:00",
+        notes: "this is a note"
+    };
+
+
+    describe('/POST login and authenticate a user', () => {
+        beforeEach((done) => {
+            setTimeout(function () {
+                createUser(userTest)
+                    .then(
+                        done()
+                    )
+            }, 5000);
+        });
+
+        it('it should Login, and check token', (done) => {
+            loginAuthenticateUser(userTest)
+                .then(token => {
+                    tokenTest = `Bearer ${token}`;
+                    done()
+                })
+        });
+
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    done()
+                )
+        })
+    });
 
     describe('/GET users', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    tokenTest === null ?
+                        loginAuthenticateUser(userTest)
+                            .then(token => {
+                                tokenTest = `Bearer ${token}`;
+                                done()
+                            })
+                        :
+                        done()
+                );
+        });
+
         it('it should GET all the users', (done) => {
             chai.request(server)
                 .get('/api/users')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
+                    res.body.length.should.be.eql(1);
                     done();
                 });
+        });
+
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    done()
+                );
         });
     });
 
-    describe('/POST users', () => {
-        it('it should not POST a user without username field', (done) => {
-            let userTest = {
-                firstName: "Dafna",
-                lastName: "Or",
-                password: "dafnaor11",
-                email: "dafnaor@gmail.com",
-                mailbox: 1222,
-                cellphone: "0545249499",
-                phone: "089873645"
-            };
-
-            chai.request(server)
-                .post('/api/users/add')
-                .send(userTest)
-                .end((err, res) => {
-                    res.should.have.status(500);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('errors');
-                    res.body.errors[0].path.should.equal('username');
-                    done();
-                });
+    describe('/GET users by name', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    tokenTest === null ?
+                        loginAuthenticateUser(userTest)
+                            .then(token => {
+                                tokenTest = `Bearer ${token}`;
+                                done()
+                            })
+                        :
+                        done()
+                );
         });
 
-        it('it should POST a user ', (done) => {
-            let userTest = {
-                username: "dafnao",
-                firstName: "Dafna",
-                lastName: "Or",
-                password: "dafnaor11",
-                email: "dafnaor@gmail.com",
-                mailbox: 1222,
-                cellphone: "0545249499",
-                phone: "089873645"
-            };
-
+        it('it should GET all the user with name test', (done) => {
             chai.request(server)
-                .post('/api/users/add')
-                .send(userTest)
+                .get('/api/users/name/test')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('message').eql('User successfully added!');
-                    res.body.newUser.should.have.property('username');
-                    res.body.newUser.should.have.property('firstName');
-                    res.body.newUser.should.have.property('lastName');
-                    res.body.newUser.should.have.property('password');
-                    res.body.newUser.should.have.property('email');
-                    res.body.newUser.should.have.property('mailbox');
-                    res.body.newUser.should.have.property('cellphone');
-                    res.body.newUser.should.have.property('phone');
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
                     done();
                 });
         });
+
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    done()
+                );
+        });
     });
 
-    /*it('should send back a JSON object with goodCall set to true', function () {
-        request(app)
-          .post('/v1/auth/signin')
-          .set('Content-Type', 'application/json')
-          .send({ email: 'email', password: 'password' })
-          .expect('Content-Type', /json/)
-          .expect(200, done);
-    });*!/
+    describe('/GET users by userId', () => {
+        before((done) => {
+            setTimeout(function () {
+                createUser(userTest)
+                    .then(
+                        tokenTest === null ?
+                            loginAuthenticateUser(userTest)
+                                .then(token => {
+                                    tokenTest = `Bearer ${token}`;
+                                    done()
+                                })
+                            :
+                            done()
+                    );
+            }, 5000);
+        });
 
-    it('Should respond in English as default', function () {
-        let newReq = req;
-        newReq.body.name = 'Jody';
+        it('it should GET all the user with userId 436547125', (done) => {
+            chai.request(server)
+                .get('/api/users/userId/' + userTest.userId)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
 
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hello, Jody');
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    setTimeout(function () {
+                        done();
+                    }, 1000)
+                    // done()
+                );
+        });
+
     });
 
-    it('Should return greeting for english, spanish, or german', function() {
-        let newReq = req;
-        newReq.body.name = 'Jody';
+    describe('/GET events of user', () => {
+        before((done) => {
+            setTimeout(function () {
+                createUser(userTest)
+                    .then(Events.create({
+                        userId: appointmentTest.userId,
+                        eventType: "Appointments",
+                        eventId: 1
+                    }))
+                    .then(
+                        tokenTest === null ?
+                            loginAuthenticateUser(userTest)
+                                .then(token => {
+                                    tokenTest = `Bearer ${token}`;
+                                    done()
+                                })
+                            :
+                            done()
+                    );
+            }, 5000);
+        });
 
-        newReq.body.language = 'en';
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hello, Jody');
+        it('it should GET all events of user ', (done) => {
+            chai.request(server)
+                .get('/api/users/events/userId/' + userTest.userId)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
 
-        newReq.body.language = 'es';
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hola, Jody');
+        after((done) => {
+            Events.destroy({where: {}})
+                .then(Users.destroy({where: {}}))
+                .then(done());
+        });
+    });
 
-        newReq.body.language = 'de';
-        hello(newReq, res);
-        expect(res.sendCalledWith).to.equal('Hallo, Jody');
-    });*/
+})
+;
 
-});
+function createUser(userTest) {
+    return Users.create({
+        userId: userTest.userId,
+        fullname: userTest.fullname,
+        password: userTest.password,
+        email: userTest.email,
+        mailbox: userTest.mailbox,
+        cellphone: userTest.cellphone,
+        phone: userTest.phone,
+        bornDate: new Date(userTest.bornDate),
+        active: true,
+    });
+}
+
+function deleteUser(userTest) {
+    return Users.destroy({
+        where: {
+            userId: userTest.userId
+        }
+    });
+}
+
+function loginAuthenticateUser(userTest) {
+    return chai.request(server)
+        .post('/api/users/login/authenticate')
+        .send({
+            "userId": userTest.userId,
+            "password": userTest.password
+        })
+        .then((res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success');
+            res.body.success.should.be.true;
+            res.body.should.have.property('message');
+            res.body.message.should.equal(constants.general.SUCCESSFUL_TOKEN,);
+            res.body.should.have.property('token');
+            return res.body.token;
+        })
+        .catch((err) => {
+            throw err;
+        });
+}

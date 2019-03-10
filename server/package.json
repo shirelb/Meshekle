@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "mocha ./tests/chores.test.js"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -15,9 +16,18 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.4.0",
     "mocha": "^5.2.0",
     "morgan": "~1.9.0",
+    "nodemailer": "^5.1.1",
+    "npm": "^6.5.0",
+    "selenium-webdriver": "^4.0.0-alpha.1",
     "sequelize": "^4.42.0",
+    "sinon": "^7.2.5",
     "sqlite3": "^4.0.4"
+  },
+  "devDependencies": {
+    "sequelize-mock": "^0.10.2",
+    "sequelize-test-helpers": "^1.0.10"
   }
 }

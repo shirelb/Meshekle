@@ -1,7 +1,7 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('ServiceProviders', {
         serviceProviderId:{
-            type: type.INTEGER,
+            type: type.STRING,
             primaryKey: true,
             allowNull: false,
             required: true
@@ -13,13 +13,13 @@ module.exports = (sequelize, type) => {
             required: true
         },
         userId: {
-            type: type.INTEGER,
+            type: type.STRING,
             allowNull: false,
             required: true
         },
         operationTime: {
             type: type.STRING,
-            allowNull: false,
+            allowNull: true,
             required: true
         },
         phoneNumber: {
@@ -28,8 +28,18 @@ module.exports = (sequelize, type) => {
         },
         appointmentWayType: {
             type: type.STRING,
-            allowNull: false,
+            allowNull: true,
             required: true
+        },
+        subjects: {
+            type: type.STRING,
+            allowNull: true,
+            required: true
+        },
+        active: {
+            type: type.BOOLEAN,
+            required: true,
+            defaultValue: false
         },
     });
 };
