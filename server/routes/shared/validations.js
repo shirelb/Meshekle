@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {ChoreTypes,ServiceProviders, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+const {ChoreTypes,ServiceProviders, sequelize, Users, Announcements, ScheduledAppointments} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 
 module.exports = {
@@ -62,6 +62,13 @@ module.exports = {
         return ServiceProviders.findAll({
             where: {
                 serviceProviderId: serviceProviderId
+            }
+        })
+    },
+    getAnnouncementByAnnounceIdPromise: function(announcementId) {
+        return Announcements.findAll({
+            where: {
+                announcementId: announcementId
             }
         })
     },

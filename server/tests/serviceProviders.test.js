@@ -13,99 +13,6 @@ chai.use(chaiHttp);
 const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 
 
-// const { expect } = require('chai');
-// const sinon = require('sinon');
-// const proxyquire = require('proxyquire');
-// const { makeMockModels } = require('sequelize-test-helpers');
-// const mockModels = makeMockModels({ ServiceProviders: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     Users: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     Events: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     AppointmentRequests: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     ScheduledAppointments: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     AppointmentDetails: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     RulesModules: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-//                                     Permissions: { findOne: sinon.stub(), findAll:sinon.stub(), update:sinon.stub(), create:sinon.stub(), destroy:sinon.stub() },
-// });
-// const save = proxyquire('../routes/serviceProviders', {
-//     '../DBorm/models': mockModels
-// });
-
-//const fakeUser = { update: sinon.stub() };
-
-
-
-//
-// describe('src/utils/save', () => {
-//
-//     const data = {
-//         firstname: 'Testy',
-//         lastname: 'McTestface',
-//         email: 'testy.mctestface@test.tes',
-//         token: 'some-token'
-//     };
-//     const resetStubs = () => {
-//         mockModels.ServiceProviders.forEach(function(element) {element.resetHistory();});
-//         mockModels.Users.forEach(function(element) {element.resetHistory();});
-//         mockModels.Events.forEach(function(element) {element.resetHistory();});
-//         mockModels.AppointmentRequests.forEach(function(element) {element.resetHistory();});
-//         mockModels.ScheduledAppointments.forEach(function(element) {element.resetHistory();});
-//         mockModels.AppointmentDetails.forEach(function(element) {element.resetHistory();});
-//         mockModels.RulesModules.forEach(function(element) {element.resetHistory();});
-//         mockModels.Permissions.forEach(function(element) {element.resetHistory();});
-//
-//     };
-//     let result;
-//     context('user does not exist', () => {
-//         before(async () => {
-//             mockModels.User.findOne.resolves(undefined);
-//             result = await save(data);
-//         });
-//         after(resetStubs);
-//         it('called User.findOne', () => {
-//             expect(mockModels.User.findOne).to.have.been.called;
-//         });
-//         it("didn't call user.update", () => {
-//             expect(fakeUser.update).not.to.have.been.called;
-//         });
-//         it('returned null', () => {
-//             expect(result).to.be.null;
-//         });
-//     });
-//     context('user exists', () => {
-//         before(async () => {
-//             fakeUser.update.resolves(fakeUser);
-//             mockModels.User.findOne.resolves(fakeUser);
-//             result = await save(data);
-//         });
-//         after(resetStubs);
-//         it('called User.findOne', () => {
-//             expect(mockModels.User.findOne).to.have.been.called;
-//         });
-//         it('called user.update', () => {
-//             expect(fakeUser.update).to.have.been.calledWith(
-//                 sinon.match(data));
-//         });
-//         it('returned the user', () => {
-//             expect(result).to.deep.equal(fakeUser);
-//         });
-//     });
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 describe('service providers route', function () {
     this.timeout(20000);
@@ -1168,16 +1075,7 @@ describe('service providers route', function () {
 
 
 function createUser(userTest) {
-    return Users.create({
-        userId: userTest.userId,
-        fullname: userTest.fullname,
-        password: userTest.password,
-        email: userTest.email,
-        mailbox: userTest.mailbox,
-        cellphone: userTest.cellphone,
-        phone: userTest.phone,
-        bornDate: new Date(userTest.bornDate),
-    });
+    return Users.create(userTest);
 }
 
 function deleteUser(userTest) {
@@ -1189,14 +1087,7 @@ function deleteUser(userTest) {
 }
 
 function createServiceProvider(serviceProviderTest) {
-    return ServiceProviders.create({
-        serviceProviderId: serviceProviderTest.serviceProviderId,
-        role: serviceProviderTest.role,
-        userId: serviceProviderTest.userId,
-        operationTime: serviceProviderTest.operationTime,
-        phoneNumber: serviceProviderTest.phoneNumber,
-        appointmentWayType: serviceProviderTest.appointmentWayType,
-    });
+    return ServiceProviders.create(serviceProviderTest);
 }
 
 function deleteServiceProvider(serviceProviderTest) {
@@ -1208,10 +1099,7 @@ function deleteServiceProvider(serviceProviderTest) {
 }
 
 function createRoleModule(roleModule) {
-    return RulesModules.create({
-        role: roleModule.role,
-        module: roleModule.module,
-    });
+    return RulesModules.create(roleModule);
 }
 
 function deleteRoleModule(roleModule) {
@@ -1224,11 +1112,7 @@ function deleteRoleModule(roleModule) {
 }
 
 function createPermission(permission) {
-    return Permissions.create({
-        module: permission.module,
-        operationName: permission.operationName,
-        api: permission.api,
-    });
+    return Permissions.create(permission);
 }
 
 function deletePermission(permission) {

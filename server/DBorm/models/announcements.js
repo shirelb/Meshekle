@@ -10,12 +10,20 @@ module.exports = (sequelize, type) => {
             type: type.INTEGER,
             required: true
         },
+        userId: {
+            type: type.INTEGER,
+            required: true
+        },
         categoryId: {
             type: type.INTEGER,
             required: true
         },
         creationTime: {
             type: type.DATE,
+            required: true
+        },
+        title: {
+            type: type.STRING,
             required: true
         },
         content: {
