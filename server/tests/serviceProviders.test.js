@@ -1,6 +1,6 @@
 process.dbMode='dev';
 var constants = require('../routes/shared/constants');
-var validiation = require('../routes/shared/validations');
+var validiations = require('../routes/shared/validations');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
 let server = require('../app');
 
@@ -197,7 +197,7 @@ describe('service providers route', function () {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
+                    res.body.length.should.be.eql(2);
                     done();
                 });
         });
@@ -235,7 +235,7 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
                     res.body.length.should.be.eql(1);
-                    validiation.getUsersByUserIdPromise(res.body[0].userId).then(users => {
+                    validiations.getUsersByUserIdPromise(res.body[0].userId).then(users => {
                             users[0].fullname.should.be.eql("Amit mazuz");
                             done();
                         }
@@ -344,7 +344,7 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_UPDATE_SUCCESS);
                     res.body.result.should.be.eql(1);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                    validiations.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
                         serviceProviders[0].dataValues.appointmentWayType.should.be.eql(constants.appointmentWayTypes.SLOT_WAY_TYPE);
                         done();
                     })
@@ -627,7 +627,7 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC);
                     res.body.result.should.be.eql(1);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                    validiations.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
                         serviceProviders.length.should.be.eql(0);
                         done();
                     });
@@ -687,7 +687,7 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_DEL_SUCC);
                     res.body.result.should.be.eql(2);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                    validiations.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
                         serviceProviders.length.should.be.eql(0);
                         done()
                     });
@@ -725,7 +725,7 @@ describe('service providers route', function () {
                     res.body.message.should.be.eql(serviceProvidersRoute.USER_ADDED_SUCC);
                     res.body.result.userId.should.be.eql(userTest.userId);
                     res.body.result.password.should.be.a('string');
-                    validiation.getUsersByUserIdPromise(userTest.userId).then(users => {
+                    validiations.getUsersByUserIdPromise(userTest.userId).then(users => {
                         users.length.should.be.eql(1);
                         deleteUser(userTest).then(
                             done()
@@ -837,7 +837,7 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.USER_DEL_SUCC);
                     res.body.result.should.be.eql(1);
-                    validiation.getUsersByUserIdPromise('111111111').then(users => {
+                    validiations.getUsersByUserIdPromise('111111111').then(users => {
                         users.length.should.be.eql(0);
                         done();
                     });
@@ -876,7 +876,7 @@ describe('service providers route', function () {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_UPDATE_SUCCESS);
                     res.body.result.should.be.eql(1);
-                    validiation.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
+                    validiations.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
                         serviceProviders[0].dataValues.operationTime.should.be.eql(operationTimeTest.operationTime);
                         done();
                     });

@@ -133,5 +133,6 @@ module.exports = {
         CATEGORY_ALREADY_EXISTS :"Category already exists!",
         CATEGORY_ADDED_SUCC :"Category added successfully!",
         CATEGORY_DELETED_SUCC :"Category deleted successfully!",
+        SUB_DELETED_SUCC :"Subscription deleted successfully!",
     },
 };
