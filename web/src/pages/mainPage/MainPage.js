@@ -4,7 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import {Icon, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
-import {BrowserRouter as Router,NavLink, Redirect, Route, Switch} from 'react-router-dom';
+import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
 import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
@@ -30,25 +30,35 @@ const serviceProviderHeaders = {
 
 class Home extends Component {
 // const Home = ({userId, serviceProviderId}) => {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            userFullname: "",
+            serviceProviderPermissions: "",
+            serviceProviderRoles: "",
+        };
+    }
+
 
     componentDidMount() {
-        this.userFullname = '';
         usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
             .then(user => {
-                this.userFullname = user.fullname;
-                this.forceUpdate()
+                this.setState({
+                    userFullname: user.fullname,
+                })
             })
-        this.serviceProviderPermissions = '';
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(permissions => {
-                this.serviceProviderPermissions = permissions;
-                this.forceUpdate()
+                this.setState({
+                    serviceProviderPermissions: permissions,
+                })
             })
-        this.serviceProviderRoles = '';
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                this.serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
-                this.forceUpdate()
+                this.setState({
+                    serviceProviderRoles:  roles.map(role => mappers.rolesMapper(role)),
+                })
             })
     }
 
@@ -56,13 +66,13 @@ class Home extends Component {
         return (
             <div>
                 <p>
-                    Hello and welcome {this.userFullname}
+                    Hello and welcome {this.state.userFullname}
                 </p>
                 <p>
-                    your permissions are {this.serviceProviderPermissions}
+                    your permissions are {this.state.serviceProviderPermissions}
                 </p>
                 <p>
-                    your roles are {this.serviceProviderRoles}
+                    your roles are {this.state.serviceProviderRoles}
                 </p>
             </div>
         );
@@ -105,6 +115,10 @@ class MainPage extends Component {
                 </Helmet>
 
                 <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
+                    <Menu.Item name="home" as={NavLink} to="/home">
+                        <Icon name="home"/>
+                        {strings.mainPageStrings.MAIN_PAGE_TITLE}
+                    </Menu.Item>
                     <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
                         <Icon name="users"/>
                         {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
