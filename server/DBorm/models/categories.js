@@ -6,6 +6,10 @@ module.exports = (sequelize, type) => {
             autoIncrement: true,
             required: true
         },
+        serviceProviderId: {
+            type: type.INTEGER,
+            required: true
+        },
         categoryName: {
             type: type.STRING,
             required: true
