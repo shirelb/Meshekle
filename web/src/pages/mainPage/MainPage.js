@@ -14,7 +14,7 @@ import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
-import {WEB_SOCKET} from "../../shared/constants";
+import {connectToServerSocket} from "../../shared/constants";
 
 
 const handleLogout = history => () => {
@@ -53,11 +53,7 @@ class Home extends Component {
                 this.forceUpdate()
             });
 
-        WEB_SOCKET.on('socketServerID', function (socketServerID) {
-            console.log('Connection to server established. SocketID is', socketServerID);
-            WEB_SOCKET.emit('storeWebClientInfo', {serviceProviderId: store.get('serviceProviderId')});
-            store.set('isSocketConnected', true);
-        });
+        connectToServerSocket(store.get('serviceProviderId'));
     }
 
     render() {

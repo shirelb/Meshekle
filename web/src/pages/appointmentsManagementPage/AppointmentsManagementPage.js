@@ -17,7 +17,7 @@ import AppointmentRequestInfo from "../../components/appointmentRequest/Appointm
 import DraggableAppointmentRequest from "../../components/appointmentRequest/DraggableAppointmentRequest";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
-import {WEB_SOCKET} from "../../shared/constants";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -55,13 +55,7 @@ class AppointmentsManagementPage extends React.Component {
         this.getServiceProviderAppointments();
         this.getServiceProviderAppointmentRequests();
 
-        // if(!store.get('isSocketConnected')){
-        WEB_SOCKET.on('socketServerID', function (socketServerID) {
-            console.log('Connection to server established. SocketID is', socketServerID);
-            WEB_SOCKET.emit('storeWebClientInfo', {serviceProviderId: store.get('serviceProviderId')});
-            store.set('isSocketConnected', true);
-        });
-        // }
+        connectToServerSocket(store.get('serviceProviderId'));
 
         WEB_SOCKET.on("getServiceProviderAppointmentRequests", this.getServiceProviderAppointmentRequests.bind(this));
     }
