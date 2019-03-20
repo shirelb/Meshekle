@@ -1,5 +1,5 @@
 var authentications = require('./shared/authentications');
-var validiation = require('./shared/validations');
+var validations = require('./shared/validations');
 var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
@@ -94,11 +94,7 @@ router.get('/', function (req, res, next) {
 
 //Get service providers by serviceProviderId
 router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    ServiceProviders.findAll({
-        where: {
-            serviceProviderId: req.params.serviceProviderId
-        }
-    })
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
         .then(serviceProviders => {
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -114,11 +110,7 @@ router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
 
 //Get service providers user details by serviceProviderId
 router.get('/userDetails/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    ServiceProviders.findAll({
-        where: {
-            serviceProviderId: req.params.serviceProviderId
-        }
-    })
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
         .then(serviceProvider => {
             if (serviceProvider.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -275,10 +267,10 @@ router.post('/add', function (req, res, next) {
     let isInputValid = isServiceProviderInputValid(req.body);
     if (isInputValid !== '')
         return res.status(400).send({"message": isInputValid});
-    validiation.getUsersByUserIdPromise(req.body.userId).then(users => {
+    validations.getUsersByUserIdPromise(req.body.userId).then(users => {
         if (users.length === 0)
             return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
-        validiation.getServiceProvidersByServProIdPromise(req.body.serviceProviderId).then(serviceProviders => {
+        validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId).then(serviceProviders => {
             if (serviceProviders.length !== 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
             ServiceProviders.create({
@@ -294,11 +286,7 @@ router.post('/add', function (req, res, next) {
                         "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
                         "result": newServiceProvider.dataValues
                     });
-                    Users.findAll({
-                        where: {
-                            userId: newServiceProvider.userId,
-                        }
-                    })
+                    validations.getUsersByUserIdPromise(newServiceProvider.userId)
                         .then(users => {
                             sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
                                 "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
@@ -325,12 +313,7 @@ router.post('/add', function (req, res, next) {
 router.put('/roles/addToServiceProvider', function (req, res, next) {
     if (!isRoleExists(req.body.role))
         return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
-    ServiceProviders.findAll(
-        {
-            where: {
-                serviceProviderId: req.body.serviceProviderId
-            }
-        })
+    validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId)
         .then(serviceProviders => {
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -354,11 +337,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                     "message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC,
                     "result": updateServiceProvider.dataValues
                 });
-                Users.findAll({
-                    where: {
-                        userId: newServiceProvider.userId,
-                    }
-                })
+                validations.getUsersByUserIdPromise(newServiceProvider.userId)
                     .then(users => {
                         sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
                             "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
@@ -433,7 +412,7 @@ router.post('/users/add', function (req, res, next) {
     let isInputValid = isUserInputValid(req.body);
     if (isInputValid !== '')
         return res.status(400).send({"message": isInputValid});
-    validiation.getUsersByUserIdPromise(req.body.userId)
+    validations.getUsersByUserIdPromise(req.body.userId)
         .then(users => {
             if (users.length !== 0)
                 return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
@@ -626,15 +605,6 @@ function isUserInputValid(userInput) {
 }
 
 
-// async function isServiceProviderInputCompitable(serviceProviderInput) {
-//     let bool=isUserIdExists(serviceProviderInput.userId);
-//     if(!bool)
-//         return serviceProvidersRoute.USER_NOT_FOUND;
-//     let bool1=isServiceProviderExists(serviceProviderInput.serviceProviderId);
-//     if(bool1)
-//         return serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS;
-//     return "";
-// }
 
 
 function isRoleExists(roleToCheck) {

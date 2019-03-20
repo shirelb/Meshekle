@@ -139,7 +139,7 @@ UsersChoresTypes.belongsTo(Users, {
 });
 
 
-//
+
 // sequelize.sync({force: true})
 //     .then(() => {
 //         Users.create({
