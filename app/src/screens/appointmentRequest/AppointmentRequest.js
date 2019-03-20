@@ -37,8 +37,8 @@ export default class AppointmentRequest extends Component {
 
     loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders(this.userHeaders)
-            .then((response) => {
-                let serviceProviders = response.data;
+            .then(serviceProviders => {
+                // let serviceProviders = response.data;
 
                 serviceProviders.forEach(provider => {
                     provider.role = mappers.serviceProviderRolesMapper(provider.role);

@@ -280,6 +280,7 @@ router.post('/add', function (req, res, next) {
                 operationTime: req.body.operationTime,
                 phoneNumber: req.body.phoneNumber,
                 appointmentWayType: req.body.appointmentWayType,
+                subjects: req.body.subjects,
             })
                 .then(newServiceProvider => {
                     res.status(200).send({
@@ -331,6 +332,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                     operationTime: req.body.operationTime,
                     phoneNumber: serProv.phoneNumber,
                     appointmentWayType: serProv.appointmentWayType,
+                    subjects: serProv.subjects,
                 }
             ).then(updateServiceProvider => {
                 res.status(200).send({
