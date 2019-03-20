@@ -21,6 +21,7 @@ const mainPageStrings = {
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
     ROLES_HairDresser: "מספרה",
+    ROLES_Admin: "מנהלה",
 };
 
 const phoneBookPageStrings = {

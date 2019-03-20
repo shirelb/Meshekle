@@ -13,8 +13,10 @@ var mainScreenMapper = function (value) {
     switch(value) {
         case "HairDresser":
             return strings.mainPageStrings.ROLES_HairDresser;
-        default:
+        case "Admin":
             return strings.mainPageStrings.ROLES_HairDresser;
+        default:
+            return value;
     }
 };
 

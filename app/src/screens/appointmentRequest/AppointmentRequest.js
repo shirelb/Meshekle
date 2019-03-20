@@ -5,6 +5,7 @@ import phoneStorage from "react-native-simple-store";
 import AppointmentRequestForm from "../../components/appointmentRequest/AppointmentRequestForm";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
+import mappers from "../../shared/mappers";
 
 
 export default class AppointmentRequest extends Component {
@@ -40,6 +41,8 @@ export default class AppointmentRequest extends Component {
                 let serviceProviders = response.data;
 
                 serviceProviders.forEach(provider => {
+                    provider.role = mappers.serviceProviderRolesMapper(provider.role);
+
                     usersStorage.getUserById(provider.userId, this.userHeaders)
                         .then(user => {
                             provider.fullname = user.data[0].fullname;
