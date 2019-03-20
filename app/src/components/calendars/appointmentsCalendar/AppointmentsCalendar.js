@@ -1,15 +1,13 @@
 import React, {Component} from 'react';
-// import {FlatList, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {Modal, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {localConfig} from '../localConfig';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
-// import {CheckBox, List,ListItem} from "react-native-elements";
-import {List} from 'react-native-paper';
-import Button from '../../submitButton/Button';
 import appointmentsStorage from "../../../storage/appointmentsStorage";
 import {APP_SOCKET} from "../../../shared/constants";
+import AppointmentsDayInfo from "../../appointments/AppointmentsDayInfo";
+import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
 
 export default class AppointmentsCalendar extends Component {
     constructor(props) {
@@ -59,7 +57,6 @@ export default class AppointmentsCalendar extends Component {
                 this.setState({
                     markedDates: markedDates
                 });
-
             })
     }
 
@@ -82,14 +79,19 @@ export default class AppointmentsCalendar extends Component {
 
         let expanded = {};
         updatedMarkedDates[selectedDay].appointments.forEach(appointment => {
-            expanded[appointment.appointmentId] = false;
-        });
+            serviceProvidersStorage.getServiceProviderUserDetails(appointment.AppointmentDetail.serviceProviderId, this.userHeaders)
+                .then(user => {
+                    appointment.serviceProviderFullname = user.data.fullname;
 
-        this.setState({
-            selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
-            markedDates: updatedMarkedDates,
-            dateModalVisible: true,
-            expanded: expanded,
+                    expanded[appointment.appointmentId] = false;
+
+                    this.setState({
+                        selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+                        markedDates: updatedMarkedDates,
+                        dateModalVisible: true,
+                        expanded: expanded,
+                    });
+                });
         });
     };
 
@@ -133,61 +135,14 @@ export default class AppointmentsCalendar extends Component {
                         textDayHeaderFontSize: 16
                     }}
                 />
-                <Modal
-                    animationType="fade"
-                    transparent={false}
-                    visible={this.state.dateModalVisible}
-                    onRequestClose={() => {
-                        this.setState({dateModalVisible: false})
-                    }}
-                    >
-                    <View style={{marginTop: 22}}>
-                        <View>
 
-                            <Button
-                                label='חזור'
-                                onPress={() => {
-                                    this.setState({dateModalVisible: false})
-                                }}
-                            />
-
-                            <Button
-                                label='בקש תור חדש'
-                                onPress={() => {
-                                    this.props.onAppointmentRequestPress(this.state.selectedDate);
-                                    this.setState({dateModalVisible: false});
-                                }}
-                            />
-
-                            <List.Section title={this.state.selectedDate}>
-                                {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
-                                    <Text>אין תורים לתאריך זה</Text>
-                                    :
-                                    this.state.markedDates[this.state.selectedDate].appointments.map(item => {
-                                        return <List.Accordion
-                                            key={item.appointmentId}
-                                            title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
-                                            description={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
-                                            left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
-                                            expanded={this.state.expanded[item.appointmentId]}
-                                            onPress={() => {
-                                                let expanded = this.state.expanded;
-                                                expanded[item.appointmentId] = !expanded[item.appointmentId];
-                                                this.setState({expanded: expanded})
-                                            }}
-                                        >
-                                            <List.Item
-                                                title={item.AppointmentDetail.subject}
-                                                description={item.remarks}
-                                                containerStyle={{borderBottomWidth: 0}}
-                                            />
-                                        </List.Accordion>
-                                    })
-                                }
-                            </List.Section>
-                        </View>
-                    </View>
-                </Modal>
+                <AppointmentsDayInfo
+                    dateModalVisible={this.state.dateModalVisible}
+                    selectedDate={this.state.selectedDate}
+                    onAppointmentRequestPress={this.props.onAppointmentRequestPress}
+                    markedDates={this.state.markedDates}
+                    expanded={this.state.expanded}
+                />
             </ScrollView>
         );
     }
