@@ -36,7 +36,7 @@ class AppointmentInfo extends React.Component {
 
     handleDelete() {
         console.log('appointment handleDelete ', this.serviceProviderHeaders);
-        appointmentsStorage.cancelAppointmentById(this.state.appointment.appointmentId, this.serviceProviderHeaders)
+        appointmentsStorage.cancelAppointmentById(this.state.appointment, this.serviceProviderHeaders)
             .then((response) => {
                 console.log('appointment handleDelete ', response.data);
             });

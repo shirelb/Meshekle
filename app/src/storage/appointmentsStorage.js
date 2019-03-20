@@ -1,5 +1,6 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, APP_SOCKET} from "../shared/constants";
+
 
 var getUserAppointmentRequests = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/appointmentRequests/user/userId/${userId}`,
@@ -47,13 +48,13 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
         });
 };
 
-var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRequest, userHeaders) {
+var postUserAppointmentRequest = function (userId, serviceProvider, appointmentRequest, userHeaders) {
     return axios.post(`${SERVER_URL}/api/appointmentRequests/user/request`,
         {
             userId: userId,
             serviceProviderId: serviceProvider.serviceProviderId,
             role: serviceProvider.role,
-            availableTime:appointmentRequest.availableTime,
+            availableTime: appointmentRequest.availableTime,
             notes: appointmentRequest.notes ? appointmentRequest.notes : '',
             subject: JSON.stringify(appointmentRequest.subject)
         },
@@ -61,6 +62,10 @@ var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRe
             headers: userHeaders,
         })
         .then(response => {
+            APP_SOCKET.emit('userPostAppointmentRequests', {
+                serviceProviderId: serviceProvider.serviceProviderId
+            });
+
             return response;
         })
         .catch(error => {
@@ -69,4 +74,4 @@ var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRe
 };
 
 
-export default {getUserAppointments, getUserAppointmentById,postUserAppointmentRequest,getUserAppointmentRequests};
+export default {getUserAppointments, getUserAppointmentById, postUserAppointmentRequest, getUserAppointmentRequests};

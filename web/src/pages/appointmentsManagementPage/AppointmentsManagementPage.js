@@ -17,6 +17,7 @@ import AppointmentRequestInfo from "../../components/appointmentRequest/Appointm
 import DraggableAppointmentRequest from "../../components/appointmentRequest/DraggableAppointmentRequest";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
+import {WEB_SOCKET} from "../../shared/constants";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -53,6 +54,20 @@ class AppointmentsManagementPage extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
         this.getServiceProviderAppointments();
         this.getServiceProviderAppointmentRequests();
+
+        // if(!store.get('isSocketConnected')){
+        WEB_SOCKET.on('socketServerID', function (socketServerID) {
+            console.log('Connection to server established. SocketID is', socketServerID);
+            WEB_SOCKET.emit('storeWebClientInfo', {serviceProviderId: store.get('serviceProviderId')});
+            store.set('isSocketConnected', true);
+        });
+        // }
+
+        WEB_SOCKET.on("getServiceProviderAppointmentRequests", this.getServiceProviderAppointmentRequests.bind(this));
+    }
+
+    componentWillUnmount() {
+        WEB_SOCKET.off("getServiceProviderAppointmentRequests");
     }
 
     getServiceProviderAppointmentRequests() {
@@ -79,10 +94,12 @@ class AppointmentsManagementPage extends React.Component {
                             };
 
                             let appointmentRequestsEvents = this.state.appointmentRequests;
-                            appointmentRequestsEvents.push(appointmentRequestEvent);
-                            this.setState({
-                                appointmentRequests: appointmentRequestsEvents
-                            });
+                            if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
+                                appointmentRequestsEvents.push(appointmentRequestEvent);
+                                this.setState({
+                                    appointmentRequests: appointmentRequestsEvents
+                                });
+                            }
                         });
                 });
 
@@ -228,7 +245,7 @@ class AppointmentsManagementPage extends React.Component {
 
     approveAppointmentRequest = (appointmentRequestEventDropped) => {
         var appointmentRequests = this.state.appointmentRequests;
-        appointmentsStorage.approveAppointmentRequestById(appointmentRequestEventDropped.appointmentRequest.requestId, this.serviceProviderHeaders)
+        appointmentsStorage.approveAppointmentRequestById(appointmentRequestEventDropped.appointmentRequest, this.serviceProviderHeaders)
             .then(response => {
                 console.log('appointmentRequest approved ', response);
 
@@ -292,6 +309,7 @@ class AppointmentsManagementPage extends React.Component {
     render() {
         const {appointments, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
+
 
         return (
             <div>

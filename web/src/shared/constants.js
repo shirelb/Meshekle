@@ -5,5 +5,11 @@ export const SERVER_URL = __DEV__ ?
     "https://my-production-url.com";
 */
 
-export const SERVER_URL = "http://172.20.10.2:4000";
+// import socketIOClient from "socket.io-client";
+import openSocket from "socket.io-client";
 
+const SERVER_URL = "http://192.168.0.104:4000";
+
+const WEB_SOCKET = openSocket(SERVER_URL);
+
+export {SERVER_URL, WEB_SOCKET}

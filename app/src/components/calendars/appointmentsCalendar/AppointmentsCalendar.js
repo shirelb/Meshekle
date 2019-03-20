@@ -9,6 +9,7 @@ import phoneStorage from "react-native-simple-store";
 import {List} from 'react-native-paper';
 import Button from '../../submitButton/Button';
 import appointmentsStorage from "../../../storage/appointmentsStorage";
+import {APP_SOCKET} from "../../../shared/constants";
 
 export default class AppointmentsCalendar extends Component {
     constructor(props) {
@@ -34,6 +35,12 @@ export default class AppointmentsCalendar extends Component {
                 this.userId = userData.userId;
                 this.loadAppointments();
             });
+
+        APP_SOCKET.on("getUserAppointments", this.loadAppointments.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUserAppointments‚");
     }
 
     loadAppointments() {

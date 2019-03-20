@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import {ScrollView, Text} from 'react-native';
-
 import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
+import {APP_SOCKET} from "../../shared/constants";
+
+window.navigator.userAgent = "react-native";
 
 
 export default class MainScreen extends Component {
@@ -25,10 +27,17 @@ export default class MainScreen extends Component {
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
+
                 this.setState({
                     userId: userData.userId,
                     userFullname: userData.userFullname,
-                })
+                });
+
+                console.log('APP_SOCKET main page');
+                APP_SOCKET.on('socketServerID', function (socketServerID) {
+                    console.log('Connection to server established. SocketID is', socketServerID);
+                    APP_SOCKET.emit('storeAppClientInfo', {userId: userData.userId});
+                });
             })
             .catch(error => {
                 console.log('main componentDidMount ', error)
