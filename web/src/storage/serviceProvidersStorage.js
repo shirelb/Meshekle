@@ -64,11 +64,92 @@ var getServiceProviderPermissionsById = (serviceProviderId) => {
 };
 
 
+var getServiceProviderAppointmentWayTypeById = (serviceProviderId,role) => {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}/role/${role}/appointmentWayType`,
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            let appointmentWayType = response.data[0].appointmentWayType;
+            console.log('appointmentWayType ', appointmentWayType);
+            return appointmentWayType;
+        })
+        .catch((error) => {
+            console.log('getServiceProviderAppointmentWayTypeById error ', error);
+        });
+};
+
+
+var updateServiceProviderById = (serviceProviderId, serviceProviderRole, updateOperationTime = null, updatePhoneNumber = null, updateAppointmentWayType = null, updateSubjects = null, updateActive = null) => {
+    let data = {};
+    if (updateOperationTime !== null)
+        data.operationTime = updateOperationTime;
+    if (updatePhoneNumber !== null)
+        data.phoneNumber = updatePhoneNumber;
+    if (updateAppointmentWayType !== null)
+        data.appointmentWayType = updateAppointmentWayType;
+    if (updateSubjects !== null)
+        data.subjects = updateSubjects;
+    if (updateActive !== null)
+        data.active = updateActive;
+
+    return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProviderId}/role/${serviceProviderRole}`,
+        data,
+        {
+            headers: serviceProviderHeaders
+        }
+    )
+        .then((response) => {
+            return response;
+        })
+        .catch((error) => {
+            console.log('getServiceProviderAppointmentWayTypeById error ', error);
+        });
+};
+
+var addRoleToServiceProviderById = (serviceProviderId, roleToAdd) => {
+    return axios.put(`${SERVER_URL}/api/serviceProviders/roles/addToServiceProvider`,
+        {
+            serviceProviderId: serviceProviderId,
+            role: roleToAdd
+        },
+        {
+            headers: serviceProviderHeaders
+        }
+    )
+        .then((response) => {
+            return response;
+        })
+        .catch((error) => {
+            console.log('addRoleToServiceProviderById error ', error);
+        });
+};
+
+var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
+    return axios.put(`${SERVER_URL}/api/serviceProviders/roles/removeFromServiceProvider`,
+        {
+            serviceProviderId: serviceProviderId,
+            role: roleToRemove
+        },
+        {
+            headers: serviceProviderHeaders
+        }
+    )
+        .then((response) => {
+            return response;
+        })
+        .catch((error) => {
+            console.log('removeRoleFromServiceProviderById error ', error);
+        });
+};
+
 export default {
     getServiceProviders,
     getRolesOfServiceProvider,
     serviceProviderLogin,
     serviceProviderValidToken,
     getServiceProviderPermissionsById,
-
+    getServiceProviderAppointmentWayTypeById,
+    updateServiceProviderById,
+    addRoleToServiceProviderById,
+    removeRoleFromServiceProviderById,
 };

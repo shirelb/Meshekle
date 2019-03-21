@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Icon, Menu, Sidebar} from 'semantic-ui-react';
+import {Form, Icon, Menu, Radio, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
 import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
@@ -9,6 +9,7 @@ import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
+import SettingsPage from '../settingsPage/SettingsPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
@@ -37,6 +38,7 @@ class Home extends Component {
             userFullname: "",
             serviceProviderPermissions: "",
             serviceProviderRoles: "",
+            serviceProviderAppointmentWayType: "",
         };
     }
 
@@ -57,22 +59,30 @@ class Home extends Component {
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
                 this.setState({
-                    serviceProviderRoles:  roles.map(role => mappers.rolesMapper(role)),
+                    serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
                 })
             })
+        serviceProvidersStorage.getServiceProviderAppointmentWayTypeById(store.get('serviceProviderId'))
+            .then(appointmentWayType => {
+                this.setState({
+                    serviceProviderAppointmentWayType: appointmentWayType,
+                })
+            })
+
     }
+
 
     render() {
         return (
             <div>
                 <p>
-                    Hello and welcome {this.state.userFullname}
+                    ברוכים הבאים {this.state.userFullname}
                 </p>
                 <p>
-                    your permissions are {this.state.serviceProviderPermissions}
+                    ההרשאות שלך הן: {this.state.serviceProviderPermissions}
                 </p>
                 <p>
-                    your roles are {this.state.serviceProviderRoles}
+                    התפקידים עליהם את/ה אחראיים הם: {this.state.serviceProviderRoles}
                 </p>
             </div>
         );
@@ -119,6 +129,10 @@ class MainPage extends Component {
                         <Icon name="home"/>
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
+                    <Menu.Item name="settings" as={NavLink} to="/settings">
+                        <Icon name="settings"/>
+                        {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
+                    </Menu.Item>
                     <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
                         <Icon name="users"/>
                         {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
@@ -141,6 +155,7 @@ class MainPage extends Component {
                     <Switch>
                         <Route path={`/home`} render={() => <Home userId={store.get('userId')}
                                                                   serviceProviderId={store.get('serviceProviderId')}/>}/>
+                        <Route path={`/settings`} component={SettingsPage}/>
                         <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                         <Route path={`/chores`} component={ChoresManagementPage}/>

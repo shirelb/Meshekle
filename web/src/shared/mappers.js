@@ -1,7 +1,7 @@
 import strings from "./strings";
 
 var loginPageMapper = function (value) {
-    switch(value) {
+    switch (value) {
         case "userId doesn't exist!":
             return strings.loginPageStrings.NO_SUCH_USER;
         default:
@@ -10,7 +10,7 @@ var loginPageMapper = function (value) {
 };
 
 var mainScreenMapper = function (value) {
-    switch(value) {
+    switch (value) {
         case "HairDresser":
             return strings.mainPageStrings.ROLES_HairDresser;
         default:
@@ -19,11 +19,15 @@ var mainScreenMapper = function (value) {
 };
 
 var rolesMapper = function (value) {
-    switch(value) {
+    switch (value) {
         case "HairDresser":
             return strings.mainPageStrings.ROLES_HairDresser;
+        case "Dentist":
+            return strings.mainPageStrings.ROLES_Dentist;
+        case "Admin":
+            return strings.mainPageStrings.ROLES_Admin;
         default:
-            return strings.mainPageStrings.ROLES_HairDresser;
+            return strings.mainPageStrings.ROLES_Undefined;
     }
 };
-export default {loginPageMapper,mainScreenMapper,rolesMapper};
+export default {loginPageMapper, mainScreenMapper, rolesMapper};
