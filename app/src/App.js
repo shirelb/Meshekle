@@ -33,6 +33,12 @@ const instructions = Platform.select({
         'Shake or press menu button for dev menu',
 });
 
+console.ignoredYellowBox = ['Remote debugger'];
+import { YellowBox } from 'react-native';
+YellowBox.ignoreWarnings([
+    'Unrecognized WebSocket connection option(s) `agent`, `perMessageDeflate`, `pfx`, `key`, `passphrase`, `cert`, `ca`, `ciphers`, `rejectUnauthorized`. Did you mean to put these under `headers`?'
+]);
+
 const DrawerMenuNavigator = createDrawerNavigator(
     {
         // AppNavigator: AppNavigator,

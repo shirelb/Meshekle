@@ -4,7 +4,7 @@ import 'semantic-ui-css/semantic.min.css';
 import {Icon, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
-import {BrowserRouter as Router,NavLink, Redirect, Route, Switch} from 'react-router-dom';
+import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
 import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
@@ -14,6 +14,8 @@ import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
+import {connectToServerSocket} from "../../shared/constants";
+
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -37,19 +39,21 @@ class Home extends Component {
             .then(user => {
                 this.userFullname = user.fullname;
                 this.forceUpdate()
-            })
+            });
         this.serviceProviderPermissions = '';
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(permissions => {
                 this.serviceProviderPermissions = permissions;
                 this.forceUpdate()
-            })
+            });
         this.serviceProviderRoles = '';
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
                 this.serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
                 this.forceUpdate()
-            })
+            });
+
+        connectToServerSocket(store.get('serviceProviderId'));
     }
 
     render() {
