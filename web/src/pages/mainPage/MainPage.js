@@ -15,6 +15,8 @@ import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
+import {connectToServerSocket} from "../../shared/constants";
+
 
 const handleLogout = history => () => {
     store.remove('serviceProviderToken');
@@ -69,8 +71,8 @@ class Home extends Component {
                 })
             })
 
+        connectToServerSocket(store.get('serviceProviderId'));
     }
-
 
     render() {
         return (

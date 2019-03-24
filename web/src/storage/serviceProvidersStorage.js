@@ -11,7 +11,7 @@ var getServiceProviders = function () {
         {headers: serviceProviderHeaders}
     )
         .then(response => {
-            return response;
+            return response.data.filter(serviceProvider => serviceProvider.serviceProviderId !== 1 && serviceProvider.serviceProviderId !== "1");
         })
         .catch(error => {
             console.log('get serviceProviders error ', error)
@@ -57,6 +57,18 @@ var getServiceProviderPermissionsById = (serviceProviderId) => {
             let permissions = response.data;
             console.log('permissions ', permissions);
             return permissions;
+        })
+        .catch((error) => {
+            console.log('error ', error);
+        });
+};
+
+var getServiceProviderById = (serviceProviderId) => {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}`,
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            return response.data;
         })
         .catch((error) => {
             console.log('error ', error);
@@ -148,6 +160,7 @@ export default {
     serviceProviderLogin,
     serviceProviderValidToken,
     getServiceProviderPermissionsById,
+    getServiceProviderById,
     getServiceProviderAppointmentWayTypeById,
     updateServiceProviderById,
     addRoleToServiceProviderById,

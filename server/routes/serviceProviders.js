@@ -94,11 +94,7 @@ router.get('/', function (req, res, next) {
 
 //Get service providers by serviceProviderId
 router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    ServiceProviders.findAll({
-        where: {
-            serviceProviderId: req.params.serviceProviderId
-        }
-    })
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
         .then(serviceProviders => {
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -114,11 +110,7 @@ router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
 
 //Get service providers user details by serviceProviderId
 router.get('/userDetails/serviceProviderId/:serviceProviderId', function (req, res, next) {
-    ServiceProviders.findAll({
-        where: {
-            serviceProviderId: req.params.serviceProviderId
-        }
-    })
+    validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
         .then(serviceProvider => {
             if (serviceProvider.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -293,17 +285,14 @@ router.post('/add', function (req, res, next) {
                 operationTime: req.body.operationTime,
                 phoneNumber: req.body.phoneNumber,
                 appointmentWayType: req.body.appointmentWayType,
+                subjects: req.body.subjects,
             })
                 .then(newServiceProvider => {
                     res.status(200).send({
                         "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
                         "result": newServiceProvider.dataValues
                     });
-                    Users.findAll({
-                        where: {
-                            userId: newServiceProvider.userId,
-                        }
-                    })
+                    validations.getUsersByUserIdPromise(newServiceProvider.userId)
                         .then(users => {
                             sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
                                 "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
@@ -330,12 +319,7 @@ router.post('/add', function (req, res, next) {
 router.put('/roles/addToServiceProvider', function (req, res, next) {
     if (!isRoleExists(req.body.role))
         return res.status(400).send({"message": serviceProvidersRoute.INVALID_ROLE_INPUT});
-    ServiceProviders.findAll(
-        {
-            where: {
-                serviceProviderId: req.body.serviceProviderId
-            }
-        })
+    validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId)
         .then(serviceProviders => {
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
@@ -353,17 +337,14 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                     operationTime: req.body.operationTime,
                     phoneNumber: serProv.phoneNumber,
                     appointmentWayType: serProv.appointmentWayType,
+                    subjects: serProv.subjects,
                 }
             ).then(updateServiceProvider => {
                 res.status(200).send({
                     "message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC,
                     "result": updateServiceProvider.dataValues
                 });
-                Users.findAll({
-                    where: {
-                        userId: newServiceProvider.userId,
-                    }
-                })
+                validations.getUsersByUserIdPromise(newServiceProvider.userId)
                     .then(users => {
                         sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
                             "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
@@ -631,15 +612,6 @@ function isUserInputValid(userInput) {
 }
 
 
-// async function isServiceProviderInputCompitable(serviceProviderInput) {
-//     let bool=isUserIdExists(serviceProviderInput.userId);
-//     if(!bool)
-//         return serviceProvidersRoute.USER_NOT_FOUND;
-//     let bool1=isServiceProviderExists(serviceProviderInput.serviceProviderId);
-//     if(bool1)
-//         return serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS;
-//     return "";
-// }
 
 
 function isRoleExists(roleToCheck) {

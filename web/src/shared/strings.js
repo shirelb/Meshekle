@@ -21,10 +21,11 @@ const mainPageStrings = {
     PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
-    ROLES_HairDresser: "ספר/ית",
+    ROLES_HairDresser: "מספרה",
+    ROLES_Admin: "מנהלה",
     ROLES_Dentist: "רופא/ת שיניים",
-    ROLES_Admin: "מנהל/ת",
     ROLES_Undefined: "לא נמצאו תפקידים מתאימים",
+
 };
 
 const phoneBookPageStrings = {
