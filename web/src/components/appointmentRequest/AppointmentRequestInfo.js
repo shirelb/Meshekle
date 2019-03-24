@@ -32,7 +32,7 @@ class AppointmentRequestInfo extends React.Component {
     }
 
     handleDelete() {
-        appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest.requestId, this.serviceProviderHeaders)
+        appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest, this.serviceProviderHeaders)
             .then((response) => {
                 console.log('appointmentRequest handleDelete ', response);
             });

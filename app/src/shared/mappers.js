@@ -14,4 +14,15 @@ var mainScreenMapper = function (value) {
     }
 };
 
-export default {loginScreenMapper,mainScreenMapper};
+var serviceProviderRolesMapper = function (value) {
+    switch(value) {
+        case "HairDresser":
+            return "מספרה";
+        case "Admin":
+            return "מנהלה";
+        default:
+            return value;
+    }
+};
+
+export default {loginScreenMapper,mainScreenMapper,serviceProviderRolesMapper};

@@ -13,13 +13,15 @@ export default class AppointmentRequestForm extends Component {
     constructor(props) {
         super(props);
 
-        this.subjects = [
+        /*this.subjects = [
             {value: "פן"},
             {value: "צבע"},
             {value: "תספורת"},
             {value: "החלקה"},
             {value: "גוונים"}
-        ];
+        ];*/
+
+        this.subjects = [];
 
         this.state = {
             modalVisible: this.props.modalVisible,
@@ -50,11 +52,11 @@ export default class AppointmentRequestForm extends Component {
 
     componentWillReceiveProps(nextProps, nextContext) {
         this.setState({
-            modalVisible: this.props.modalVisible,
-            serviceProvider: this.props.serviceProvider,
+            modalVisible: nextProps.modalVisible,
+            serviceProvider: nextProps.serviceProvider,
 
-            datesAndHoursSelected: this.props.selectedDate === '' || typeof this.props.selectedDate !== "string" ? [] : [{
-                'date': this.props.selectedDate,
+            datesAndHoursSelected: nextProps.selectedDate === '' || typeof nextProps.selectedDate !== "string" ? [] : [{
+                'date': nextProps.selectedDate,
                 'hours': [{startHour: "", endHour: ""}, {startHour: "", endHour: ""}],
                 'expanded': false,
             }],
@@ -70,7 +72,14 @@ export default class AppointmentRequestForm extends Component {
             endTimeClicked: '',
             errorMsg: '',
             errorVisible: true
-        })
+        });
+
+        this.subjects = [];
+        nextProps.serviceProvider.subjects ?
+            JSON.parse(nextProps.serviceProvider.subjects).map(subject => {
+                this.subjects.push({value: subject})
+            })
+            : null;
     }
 
     setModalVisible(visible) {

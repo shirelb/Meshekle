@@ -41,4 +41,6 @@ var userLogin = function (userId, password) {
         },
     );
 }
+
+
 export default {getUserEvents, getUserById, userValidToken, userLogin};

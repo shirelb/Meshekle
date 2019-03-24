@@ -69,9 +69,9 @@ class PhoneBookManagementPage extends React.Component {
 
     getServiceProviders() {
         serviceProvidersStorage.getServiceProviders()
-            .then((response) => {
+            .then(serviceProviders => {
 
-                const serviceProviders = response.data;
+                // const serviceProviders = response.data;
                 const totalPagesServiceProviders = Math.ceil(serviceProviders.length / TOTAL_PER_PAGE);
 
                 this.setState({
