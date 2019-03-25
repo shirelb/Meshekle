@@ -65,37 +65,47 @@ class AppointmentsManagementPage extends React.Component {
     }
 
     getServiceProviderAppointmentRequests() {
+        this.setState({
+            appointmentRequests: [],
+        });
+
         appointmentsStorage.getServiceProviderAppointmentRequests(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
                 const appointmentRequests = response.data;
                 const totalPages = Math.ceil(appointmentRequests.length / TOTAL_PER_PAGE);
 
-                appointmentRequests.map((appointmentRequest, index) => {
-                    usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                        .then(user => {
-                            appointmentRequest.clientName = user.fullname;
-                            appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
+                if (appointmentRequests.length === 0) {
+                    this.setState({
+                        appointmentRequests: appointmentRequests,
+                    });
+                } else
+                    appointmentRequests.map((appointmentRequest, index) => {
+                        usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                            .then(user => {
+                                appointmentRequest.clientName = user.fullname;
+                                appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
 
-                            let appointmentRequestEvent = {
-                                id: appointmentRequest.requestId,
-                                title: appointmentRequest.clientName,
-                                allDay: false,
-                                start: null,
-                                end: null,
-                                appointmentRequest: appointmentRequest,
-                                // color:'#b7d2ff',
-                                backgroundColor: '#45b0d9',
-                            };
+                                let appointmentRequestEvent = {
+                                    id: appointmentRequest.requestId,
+                                    title: appointmentRequest.clientName,
+                                    allDay: false,
+                                    start: null,
+                                    end: null,
+                                    appointmentRequest: appointmentRequest,
+                                    // color:'#b7d2ff',
+                                    backgroundColor: '#45b0d9',
+                                };
 
-                            let appointmentRequestsEvents = this.state.appointmentRequests;
-                            if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
-                                appointmentRequestsEvents.push(appointmentRequestEvent);
-                                this.setState({
-                                    appointmentRequests: appointmentRequestsEvents
-                                });
-                            }
-                        });
-                });
+                                let appointmentRequestsEvents = this.state.appointmentRequests;
+                                if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
+                                    appointmentRequestsEvents.push(appointmentRequestEvent);
+                                    this.setState({
+                                        appointmentRequests: appointmentRequestsEvents
+                                    });
+                                }
+
+                            });
+                    });
 
                 this.setState({
                     page: 0,
@@ -124,26 +134,31 @@ class AppointmentsManagementPage extends React.Component {
                 const appointments = response.data;
                 const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
 
-                appointments.map((appointment, index) => {
-                    usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                        .then(user => {
-                            let appointmentEvent = {};
-                            appointment.clientName = user.fullname;
+                if (appointments.length === 0) {
+                    this.setState({
+                        appointments: appointments,
+                    });
+                } else
+                    appointments.map((appointment, index) => {
+                        usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                            .then(user => {
+                                let appointmentEvent = {};
+                                appointment.clientName = user.fullname;
 
-                            appointmentEvent.id = appointment.appointmentId;
-                            appointmentEvent.title = user.fullname;
-                            appointmentEvent.allDay = false;
-                            appointmentEvent.start = moment(appointment.startDateAndTime);
-                            appointmentEvent.end = moment(appointment.endDateAndTime);
-                            appointmentEvent.appointment = appointment;
+                                appointmentEvent.id = appointment.appointmentId;
+                                appointmentEvent.title = user.fullname;
+                                appointmentEvent.allDay = false;
+                                appointmentEvent.start = moment(appointment.startDateAndTime);
+                                appointmentEvent.end = moment(appointment.endDateAndTime);
+                                appointmentEvent.appointment = appointment;
 
-                            let appointmentsEvents = this.state.appointments;
-                            appointmentsEvents.push(appointmentEvent);
-                            this.setState({
-                                appointments: appointmentsEvents
+                                let appointmentsEvents = this.state.appointments;
+                                appointmentsEvents.push(appointmentEvent);
+                                this.setState({
+                                    appointments: appointmentsEvents
+                                });
                             });
-                        });
-                });
+                    });
 
                 this.setState({
                     page: 0,

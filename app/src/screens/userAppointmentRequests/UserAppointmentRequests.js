@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import {Button, ScrollView, StyleSheet, Text} from 'react-native';
+import {Button, RefreshControl, ScrollView, StyleSheet, Text} from 'react-native';
 import {List} from "react-native-paper";
 import phoneStorage from "react-native-simple-store";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 import {APP_SOCKET} from "../../shared/constants";
-import {SearchBar} from "react-native-elements";
+import {Icon, SearchBar} from "react-native-elements";
 
 
 export default class UserAppointmentRequests extends Component {
@@ -20,6 +20,7 @@ export default class UserAppointmentRequests extends Component {
             infoModal: false,
             appointmentRequestDetails: {},
             noAppointmentRequestsFound: false,
+            refreshing: false,
         };
 
     }
@@ -42,9 +43,9 @@ export default class UserAppointmentRequests extends Component {
         APP_SOCKET.off("getUserAppointmentRequests");
     }
 
-/*    componentWillReceiveProps(nextProps, nextContext) {
-        this.loadMyAppointmentsRequests();
-    }*/
+    /*    componentWillReceiveProps(nextProps, nextContext) {
+            this.loadMyAppointmentsRequests();
+        }*/
 
     loadMyAppointmentsRequests() {
         appointmentsStorage.getUserAppointmentRequests(this.userId, this.userHeaders)
@@ -58,8 +59,7 @@ export default class UserAppointmentRequests extends Component {
                         userAppointmentRequests: userAppointmentRequests,
                     });
                     this.userAppointmentRequests = userAppointmentRequests
-                }
-                else
+                } else
                     userAppointmentRequests.forEach(appointmentRequest => {
                         serviceProvidersStorage.getServiceProviderUserDetails(appointmentRequest.AppointmentDetail.serviceProviderId, this.userHeaders)
                             .then(user => {
@@ -72,7 +72,9 @@ export default class UserAppointmentRequests extends Component {
 
                                 this.userAppointmentRequests = userAppointmentRequests
                             })
-                    })
+                    });
+
+                this.setState({refreshing: false});
             })
             .catch(err => console.log("loadMyAppointmentsRequests error ", err))
     };
@@ -118,12 +120,28 @@ export default class UserAppointmentRequests extends Component {
         }
     };
 
+    cancelAppointmentRequest = (appointmentRequest) => {
+        appointmentsStorage.cancelAppointmentRequestById(appointmentRequest, this.userHeaders)
+            .then(response => {
+                console.log("user cancelAppointmentRequest ", response);
+                this.loadMyAppointmentsRequests();
+            })
+    };
+
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadMyAppointmentsRequests();
+    };
 
     render() {
-        // console.log('props ',this.props);
-
         return (
-            <ScrollView>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}
+                />
+            }>
                 <Button
                     title="בקש תור חדש"
                     onPress={() => {
@@ -170,6 +188,10 @@ export default class UserAppointmentRequests extends Component {
                                     // description={item.notes + ' \n ' + item.optionalTimes.toString()}
                                     containerStyle={{borderBottomWidth: 0}}
                                     // onPress={() => console.log("item was presssed!!  ", item)}
+                                    right={props => <Icon {...props}
+                                                          name="delete-forever"
+                                                          color={'red'}
+                                                          onPress={() => this.cancelAppointmentRequest(item)}/>}
                                 />
                                 <List.Item
                                     // key={item.requestId+'1'}
@@ -181,33 +203,6 @@ export default class UserAppointmentRequests extends Component {
                                         this.setState({appointmentRequestDetails: item, infoModal: true})
                                     }}
                                 />
-                                {/*<List.Item
-                                // key={item.requestId+'2'}
-                                title={item.notes === "" ? "אין הערות" : "הערות:" + item.notes}
-                                // description={item.notes + ' \n ' + item.optionalTimes.toString()}
-                                containerStyle={{borderBottomWidth: 0}}
-                                onPress={() => console.log("item was presssed!!  ", item)}
-                            />
-                            <List.Item
-                                // key={item.requestId+'3'}
-                                title={JSON.parse(item.optionalTimes).map(function (elem) {
-                                    return elem.date + ": " + elem.hours.map(function (h) {
-                                        return h.startHour + '-' + h.endHour
-                                    }).join(', ');
-                                }).join("; ")}
-                                // description={item.notes + ' \n ' + }
-                                containerStyle={{borderBottomWidth: 0}}
-                                onPress={() => console.log("item was presssed!!  ", JSON.parse(item.optionalTimes).join(": "))}
-                            />*/}
-                                {/*<List.Item
-                                // key={item.requestId+'3'}
-                                // title={"לפרטים נוספים"}
-                                description={"לפרטים נוספים הקש כאן"}
-                                containerStyle={{borderBottomWidth: 0}}
-                                onPress={() => {
-                                    this.setState({appointmentRequestSelected: item, infoModal: true})
-                                }}
-                            />*/}
                             </List.Accordion>
                         })
                         }

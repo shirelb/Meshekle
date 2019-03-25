@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL, APP_SOCKET} from "../shared/constants";
+import {APP_SOCKET, SERVER_URL} from "../shared/constants";
 
 
 var getUserAppointmentRequests = function (userId, userHeaders) {
@@ -73,5 +73,36 @@ var postUserAppointmentRequest = function (userId, serviceProvider, appointmentR
         });
 };
 
+var cancelAppointmentRequestById = (appointmentRequest, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointmentRequests/user/reject`,
+        {
+            userId: appointmentRequest.AppointmentDetail.clientId,
+            appointmentRequestId: appointmentRequest.requestId,
+        },
+        {
+            headers: headers,
+            params: {
+                status: 'rejected'
+            },
+        }
+    )
+        .then((response) => {
+            APP_SOCKET.emit('userCancelAppointmentRequests', {
+                serviceProviderId: appointmentRequest.AppointmentDetail.serviceProviderId,
+            });
 
-export default {getUserAppointments, getUserAppointmentById, postUserAppointmentRequest, getUserAppointmentRequests};
+            return response
+        })
+        .catch((error) => {
+            console.log('reject appointment request error ', error);
+        });
+};
+
+
+export default {
+    getUserAppointments,
+    getUserAppointmentById,
+    postUserAppointmentRequest,
+    getUserAppointmentRequests,
+    cancelAppointmentRequestById
+};
