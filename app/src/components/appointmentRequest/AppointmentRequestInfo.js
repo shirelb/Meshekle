@@ -3,6 +3,8 @@ import {Modal, ScrollView, StyleSheet, View} from "react-native";
 import {FormLabel, Text} from "react-native-elements";
 import Button from "../submitButton/Button";
 import {List} from "react-native-paper";
+import mappers from "../../shared/mappers";
+import colors from "../../shared/colors";
 
 
 export default class AppointmentRequestInfo extends Component {
@@ -59,6 +61,11 @@ export default class AppointmentRequestInfo extends Component {
                             {appointmentRequest.AppointmentDetail.role}
                         </Text>
 
+                        <FormLabel> סטאטוס</FormLabel>
+                        <Text style={{marginLeft: 10}}>
+                            {mappers.appointmentRequestStatusMapper(appointmentRequest.status)}
+                        </Text>
+
                         <FormLabel>נושא</FormLabel>
                         <Text style={{marginLeft: 10}}>
                             {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}
@@ -107,6 +114,14 @@ export default class AppointmentRequestInfo extends Component {
                         </Text>
 
                         <View style={{marginTop: 20}}>
+                            <Button
+                                label='מחק'
+                                onPress={() => {
+                                    this.setModalVisible(!this.state.modalVisible);
+                                    this.props.cancelAppointmentRequest(appointmentRequest)
+                                }}
+                                color={colors.TORCH_RED}
+                            />
                             <Button
                                 label='חזור'
                                 onPress={() => {

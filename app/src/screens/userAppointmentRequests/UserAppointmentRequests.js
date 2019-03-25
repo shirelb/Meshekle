@@ -7,6 +7,7 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 import {APP_SOCKET} from "../../shared/constants";
 import {Icon, SearchBar} from "react-native-elements";
+import mappers from "../../shared/mappers";
 
 
 export default class UserAppointmentRequests extends Component {
@@ -184,7 +185,7 @@ export default class UserAppointmentRequests extends Component {
                             >
                                 <List.Item
                                     // key={item.requestId+'0'}
-                                    title={"סטאטוס: " + item.status}
+                                    title={"סטאטוס: " + mappers.appointmentRequestStatusMapper(item.status)}
                                     // description={item.notes + ' \n ' + item.optionalTimes.toString()}
                                     containerStyle={{borderBottomWidth: 0}}
                                     // onPress={() => console.log("item was presssed!!  ", item)}
@@ -213,6 +214,7 @@ export default class UserAppointmentRequests extends Component {
                     <AppointmentRequestInfo
                         appointmentRequest={this.state.appointmentRequestDetails}
                         modalVisible={this.state.infoModal}
+                        cancelAppointmentRequest = {this.cancelAppointmentRequest}
                     />
                     : null
                 }
