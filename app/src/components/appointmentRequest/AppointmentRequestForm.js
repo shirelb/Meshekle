@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Alert, Modal, ScrollView, StyleSheet, View} from "react-native";
-import {CheckBox, FormInput, FormLabel, FormValidationMessage, Text} from "react-native-elements";
+import {CheckBox, FormInput, FormLabel, FormValidationMessage, Icon, Text} from "react-native-elements";
 import {SelectMultipleGroupButton} from "react-native-selectmultiple-button";
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Button from "../submitButton/Button";
@@ -13,14 +13,6 @@ export default class AppointmentRequestForm extends Component {
     constructor(props) {
         super(props);
 
-        /*this.subjects = [
-            {value: "פן"},
-            {value: "צבע"},
-            {value: "תספורת"},
-            {value: "החלקה"},
-            {value: "גוונים"}
-        ];*/
-
         this.subjects = [];
 
         this.state = {
@@ -30,7 +22,6 @@ export default class AppointmentRequestForm extends Component {
                 'hours': [{startHour: "", endHour: ""}, {startHour: "", endHour: ""}],
                 'expanded': false,
             }],
-            // expanded: this.props.selectedDate === '' || typeof this.props.selectedDate !== "string" ? [] : [{date:this.props.selectedDate : false}],
             subjectSelected: [],
             subjectText: "",
             displaySubjectList: false,
@@ -143,6 +134,13 @@ export default class AppointmentRequestForm extends Component {
                         times['endHour'] = time;
                 })
         });
+
+        datestimes.forEach(dateTime => {
+            dateTime['hours'] = dateTime['hours'].filter(function (times) {
+                return times.startHour && times.endHour;
+            });
+        });
+
         this.setState({
             isEndDateTimePickerVisible: false,
             datesAndHoursSelected: datestimes,
@@ -151,11 +149,12 @@ export default class AppointmentRequestForm extends Component {
     };
 
     sendAppointmentRequest() {
-        this.setModalVisible(!this.state.modalVisible);
         if (this.state.datesAndHoursSelected.length === 0 ||
             this.state.subjectSelected.length === 0) {
             this.setState({errorMsg: 'ישנו מידע חסר, השלם שדות חובה (שדות עם *)', errorVisible: true})
         } else {
+            this.setModalVisible(!this.state.modalVisible);
+
             let appointmentRequest = {
                 availableTime: this.state.datesAndHoursSelected,
                 notes: this.state.notes,
@@ -171,6 +170,19 @@ export default class AppointmentRequestForm extends Component {
                 })
         }
     }
+
+    deleteHoursSelected = (item, hourIndex, dateIndex) => {
+        let updateDatesAndHoursSelected = this.state.datesAndHoursSelected;
+        updateDatesAndHoursSelected[dateIndex].hours.splice(hourIndex, 1);
+
+        if (updateDatesAndHoursSelected[dateIndex].hours.length === 0)
+            updateDatesAndHoursSelected.splice(dateIndex, 1);
+
+        this.setState({
+            datesAndHoursSelected: updateDatesAndHoursSelected,
+        })
+    };
+
 
     render() {
         return (
@@ -230,7 +242,10 @@ export default class AppointmentRequestForm extends Component {
                                                 title={hour.startHour + '-' + hour.endHour}
                                                 // description={item.remarks}
                                                 containerStyle={{borderBottomWidth: 0}}
-                                                onPress={() => console.log("item was presssed!!  ", item)}
+                                                right={props => <Icon {...props}
+                                                                      name="delete-forever"
+                                                                      color={'red'}
+                                                                      onPress={() => this.deleteHoursSelected(item, j, index)}/>}
                                             />
                                         }) : null
                                     }
