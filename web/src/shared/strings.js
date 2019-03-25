@@ -15,6 +15,7 @@ const mainPageStrings = {
     LOGOUT: "התנתק",
     WELCOME: "ברוכים הבאים ",
     MAIN_PAGE_TITLE: "בית",
+    SETTINGS_PAGE_TITLE: "הגדרות",
     PHONE_BOOK_PAGE_TITLE: "ספר טלפונים",
     PHONE_BOOK_PAGE_USERS_TITLE: "משתמשים",
     PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
@@ -22,6 +23,9 @@ const mainPageStrings = {
     CHORES_PAGE_TITLE: "תורנויות",
     ROLES_HairDresser: "מספרה",
     ROLES_Admin: "מנהלה",
+    ROLES_Dentist: "רופא/ת שיניים",
+    ROLES_Undefined: "לא נמצאו תפקידים מתאימים",
+
 };
 
 const phoneBookPageStrings = {
@@ -63,4 +67,25 @@ const appointmentsPageStrings = {
 };
 
 
-export default {loginPageStrings, mainPageStrings, phoneBookPageStrings, appointmentsPageStrings};
+const roles = {
+    HairDresser: "ספר/ית",
+    Dentist: "רופא/ת שיניים",
+    Admin: "מנהל/ת",
+};
+
+
+const appointmentsWayType = {
+    Dialog: "דיון",
+    Slots: "שורה נעלמת",
+    Fault: "פתיחת תקלה",
+    Admin: "הכל",
+};
+
+export default {
+    loginPageStrings,
+    mainPageStrings,
+    phoneBookPageStrings,
+    appointmentsPageStrings,
+    roles,
+    appointmentsWayType,
+};

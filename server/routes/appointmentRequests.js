@@ -78,7 +78,7 @@ router.get('/user/userId/:userId', function (req, res, next) {
 });
 
 /* POST appointment requests user approve . */
-router.post('/user/approve', function (req, res, next) {
+router.put('/user/approve', function (req, res, next) {
     AppointmentRequests.findOne({
         where: {
             requestId: req.body.appointmentRequestId,
@@ -139,7 +139,7 @@ router.post('/user/approve', function (req, res, next) {
 });
 
 /* POST appointment requests user reject . */
-router.post('/user/reject', function (req, res, next) {
+router.put('/user/reject', function (req, res, next) {
     AppointmentRequests.findOne({
         where: {
             requestId: req.body.appointmentRequestId,

@@ -60,7 +60,7 @@ io.on("connection", socket => {
     });
 
     var pushToWebClient = function (data, socketEventName) {
-        let serviceProviderSocket = serviceProviderClients.filter(item => item.serviceProviderId === data.serviceProviderId);
+        let serviceProviderSocket = serviceProviderClients.filter(item => item.serviceProviderId === data.serviceProviderId || item.serviceProviderId === data.serviceProviderId.toString());
         if (serviceProviderSocket.length === 1)
             try {
                 io.sockets.connected[serviceProviderSocket[0].socketId].emit(socketEventName);

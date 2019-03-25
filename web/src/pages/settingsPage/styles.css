@@ -1,0 +1,13 @@
+body{
+    direction: rtl;
+}
+
+.mainBody {
+    margin-right: 200px;
+    min-width: 550px;
+    max-width: 1200px;
+}
+
+#roleCheckbox{
+
+}

@@ -77,7 +77,8 @@ module.exports = {
     },
     appointmentWayTypes:{
         SLOT_WAY_TYPE: "Slots",
-        DIALOG_WAY_TYPE: "Dialog"
+        DIALOG_WAY_TYPE: "Dialog",
+        FAULT_WAY_TYPE: "Fault",
     },
     permissionsOpNames:{
 
@@ -87,7 +88,8 @@ module.exports = {
     },
     roles:{
         DENTIST_ROLE: "Dentist",
-        HAIRDRESSER_ROLE: "HairDresser"
+        HAIRDRESSER_ROLE: "HairDresser",
+        ADMIN_ROLE: "Admin",
     },
     statueses:{
         ON_AIR_STATUS:"On air",

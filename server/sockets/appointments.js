@@ -5,6 +5,11 @@ module.exports = function (socket,pushToWebClient,pushToAppClient) {
         pushToWebClient(data, 'getServiceProviderAppointmentRequests');
     });
 
+    socket.on('userCancelAppointmentRequests', (data) => {
+        console.log('socket userPostAppointmentRequests data ', data);
+        pushToWebClient(data, 'getServiceProviderAppointmentRequests');
+    });
+
     socket.on('serviceProviderPostAppointment', (data) => {
         console.log('socket serviceProviderPostAppointment data ', data);
         pushToAppClient(data, 'getUserAppointments');
