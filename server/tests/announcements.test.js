@@ -920,6 +920,72 @@ describe('service providers route', function () {
     });
 
 
+    // GET all requests that relevant for a specific service provider
+    describe('/ GET all requests that relevant for a specific service provider\n', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createCategory(categoryTest1)
+                                .then(
+                                    createAnnouncement(announcementTest1)
+                                        .then(
+                                            createAnnouncement(announcementTest2)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+
+                        )
+                );
+
+        });
+        it('it should GET all requests that relevant for a specific service provider\n ', (done) => {
+            chai.request(server)
+                .get('/api/announcements/requests/serviceProviderId/123456789')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+        it('it should GET a service provider not found error', (done) => {
+            chai.request(server)
+                .get('/api/announcements/requests/serviceProviderId/123')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteCategory(categoryTest1)
+                                .then(
+                                    deleteAnnouncements(announcementTest1)
+                                        .then(
+                                            deleteAnnouncements(announcementTest2)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+
+                        )
+                );
+
+        });
+    });
+
+
 
 
 

@@ -192,12 +192,12 @@ router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
             }
             Announcements.findAll({
                 where: {
-                    serviceProviderId: req.params.serviceProviderId
+                    serviceProviderId: parseInt(req.params.serviceProviderId)
                 }
             })
-                .then(Announcements => {
-                    console.log(Announcements);
-                    res.status(200).send(Announcements);
+                .then(announcements => {
+                    console.log(announcements);
+                    res.status(200).send(announcements);
                 })
                 .catch(err => {
                     console.log(err);
@@ -322,6 +322,48 @@ router.get('/subscription/categoryId/:categoryId', function (req, res, next) {
 });
 
 
+// GET all requests that relevant for a specific service provider
+router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    validations.getServiceProvidersByServProIdPromise(parseInt(req.params.serviceProviderId))
+        .then(serviceProvider => {
+            if (serviceProvider.length === 0) {
+                return res.status(400).send({"message": announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            Categories.findAll({
+                where: {
+                    serviceProviderId: parseInt(req.params.serviceProviderId)
+                }
+            })
+                .then(categories => {
+                    var categoriesIDs = categories.map((cat) => cat.dataValues.categoryId);
+
+                    Announcements.findAll({
+                        where: {
+                            categoryId: {
+                                [Op.in]: categoriesIDs
+                            },
+                            status: constants.statueses.REQUEST_STATUS
+                        }
+                    })
+                        .then(announcements => {
+                            console.log(announcements);
+                            res.status(200).send(announcements);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
 
 
 // DELETE announcement by announcementId.

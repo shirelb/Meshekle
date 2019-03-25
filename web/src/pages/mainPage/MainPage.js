@@ -10,6 +10,8 @@ import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
+import {AnnouncementsManagementPage} from '../announcementsManagementPage/AnnouncementsManagementPage'
+
 import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
@@ -117,6 +119,10 @@ class MainPage extends Component {
                         <Icon name="industry"/>
                         {strings.mainPageStrings.CHORES_PAGE_TITLE}
                     </Menu.Item>
+                    <Menu.Item name="announcements" as={NavLink} to="/announcements">
+                        <Icon name="announcement"/>
+                        {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
+                    </Menu.Item>
                     <Menu.Item name="logout" onClick={handleLogout(this.props.history)}>
                         <Icon name="power"/>
                         {strings.mainPageStrings.LOGOUT}
@@ -130,6 +136,7 @@ class MainPage extends Component {
                         <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                         <Route path={`/chores`} component={ChoresManagementPage}/>
+                        <Route path={`/announcements`} component={AnnouncementsManagementPage}/>
                         <Redirect to={`/home`}/>
                     </Switch>
                     {/*</Router>*/}

@@ -20,6 +20,7 @@ const mainPageStrings = {
     PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
+    ANNOUNCEMENTS_PAGE_TITLE: "לוח מודעות",
     ROLES_HairDresser: "ספר/ית",
 };
 
@@ -61,5 +62,16 @@ const appointmentsPageStrings = {
     OPTIONAL_TIMES: "זמנים אופציונאליים",
 };
 
+const announcementsPageStrings = {
+    ANNOUNCE_REQ_TITLE_TABLE: "מודעות המחכות לאישור",
+    ANNOUNCE_TITLE_TABLE: "מודעות באחריותך",
+    ANNOUNCE_NUMBER:"מספר מודעה",
+    ANNOUNCE_CATEGORY:"קטגוריה",
+    ANNOUNCE_TITLE:"נושא",
+    ANNOUNCE_CONTENT:"תוכן",
+    ANNOUNCE_EXPR_DATE:"תאריך תפוגה",
+    OPERATION_OPTIONS:"אפשרויות",
+    ADD_ANNOUNCEMENT:"פרסם מודעה חדשה"
+};
 
-export default {loginPageStrings, mainPageStrings, phoneBookPageStrings, appointmentsPageStrings};
+export default {loginPageStrings, mainPageStrings, phoneBookPageStrings, appointmentsPageStrings,announcementsPageStrings};
