@@ -40,7 +40,6 @@ class Home extends Component {
             userFullname: "",
             serviceProviderPermissions: "",
             serviceProviderRoles: "",
-            serviceProviderAppointmentWayType: "",
         };
     }
 
@@ -62,12 +61,6 @@ class Home extends Component {
             .then(roles => {
                 this.setState({
                     serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
-                })
-            })
-        serviceProvidersStorage.getServiceProviderAppointmentWayTypeById(store.get('serviceProviderId'))
-            .then(appointmentWayType => {
-                this.setState({
-                    serviceProviderAppointmentWayType: appointmentWayType,
                 })
             })
 

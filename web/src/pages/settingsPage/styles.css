@@ -11,3 +11,11 @@ body{
 #roleCheckbox{
 
 }
+
+.radio-block{
+    display: flex;
+    align-items: center;
+}
+.radio-label{
+    margin-right: 10px;
+}
