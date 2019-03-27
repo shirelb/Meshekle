@@ -26,14 +26,14 @@ class SettingsPage extends Component {
         };
     }
 
-    componentDidMount() {
-        this.serviceProviderId = store.get('serviceProviderId');
 
+    getRolesOfServiceProviderAndCreateDropdown() {
         serviceProvidersStorage.getRolesOfServiceProvider(this.serviceProviderId)
             .then(roles => {
                 this.setState({
                     serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
                 });
+
                 console.log("serviceProviderRoles dddd ", this.state.serviceProviderRoles);
 
                 roles.forEach((role, index) => {
@@ -47,7 +47,17 @@ class SettingsPage extends Component {
 
                 console.log("dropdownRoles dddd ", this.state.dropdownRoles);
             });
+    }
 
+    componentDidMount() {
+        this.serviceProviderId = store.get('serviceProviderId');
+
+        this.getRolesOfServiceProviderAndCreateDropdown();
+
+        serviceProvidersStorage.getServiceProviderById(this.serviceProviderId)
+            .then(response => {
+                this.setState({serviceProviderList: response})
+            })
 
     }
 
@@ -61,7 +71,9 @@ class SettingsPage extends Component {
 
     selectRoleToChangeSettings = (e, {value}) => {
         console.log('selectRoleToChangeSettings value ', value);
+
         this.setState({roleSelected: value});
+
         serviceProvidersStorage.getServiceProviderAppointmentWayTypeById(this.serviceProviderId, value)
             .then(appointmentWayType => {
                 console.log("getServiceProviderAppointmentWayTypeById appointmentWayType ", appointmentWayType);
@@ -81,7 +93,7 @@ class SettingsPage extends Component {
     removeRoleFromeServiceProvider = (role) => {
         serviceProvidersStorage.removeRoleFromServiceProviderById(this.serviceProviderId, role)
             .then(response => {
-                console.log("addRoleToServiceProviderById response ", response);
+                console.log("removeRoleFromServiceProviderById response ", response);
             })
     }
 
@@ -93,12 +105,7 @@ class SettingsPage extends Component {
             :
             this.removeRoleFromeServiceProvider(data.name);
 
-        serviceProvidersStorage.getRolesOfServiceProvider(this.serviceProviderId)
-            .then(roles => {
-                this.setState({
-                    serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
-                })
-            })
+        this.getRolesOfServiceProviderAndCreateDropdown();
     }
 
     render() {
@@ -146,7 +153,6 @@ class SettingsPage extends Component {
                                 control={Dropdown}
                                 // label='ענף'
                                 placeholder='ענף'
-                                fluid
                                 search
                                 selection
                                 autoComplete='on'
@@ -156,7 +162,6 @@ class SettingsPage extends Component {
                                 name='serviceProviderRole'
                                 required
                                 noResultsMessage='לא נמצאו ענפים'
-                                // width='10'
                             />
                         </Form>
                     </Grid.Row>
@@ -187,17 +192,18 @@ class SettingsPage extends Component {
                                 Object.keys(strings.appointmentsWayType).map((item, index) => {
                                     return <Form.Field key={index}>
                                         <Radio
-                                            // label='דיון'
+                                            className="radio-block"
+                                            label={strings.appointmentsWayType[item]}
                                             name='radioGroup'
                                             value={item}
-                                            checked={this.state.appointmentWayType === {item}}
+                                            checked={this.state.appointmentWayType === {item}.item}
                                             onChange={this.handleChange}
                                         />
-                                        <label>{strings.appointmentsWayType[item]}</label>
+                                        <label className="radio-label">{strings.appointmentsWayType[item]}</label>
                                     </Form.Field>
                                 })
                             }
-                            <Form.Field>
+                            {/*<Form.Field>
                                 <Radio
                                     // label='דיון'
                                     name='radioGroup'
@@ -236,7 +242,7 @@ class SettingsPage extends Component {
                                     onChange={this.handleChange}
                                 />
                                 <label>הכל</label>
-                            </Form.Field>
+                            </Form.Field>*/}
                         </Form>
                     </Grid.Row>
                 </Grid>
@@ -246,5 +252,4 @@ class SettingsPage extends Component {
 }
 
 export default SettingsPage;
-
 

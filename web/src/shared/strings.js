@@ -23,7 +23,7 @@ const mainPageStrings = {
     CHORES_PAGE_TITLE: "תורנויות",
     ROLES_HairDresser: "מספרה",
     ROLES_Admin: "מנהלה",
-    ROLES_Dentist: "רופא/ת שיניים",
+    ROLES_Dentist: "רפואת שיניים",
     ROLES_Undefined: "לא נמצאו תפקידים מתאימים",
 
 };
@@ -68,9 +68,9 @@ const appointmentsPageStrings = {
 
 
 const roles = {
-    HairDresser: "ספר/ית",
-    Dentist: "רופא/ת שיניים",
-    Admin: "מנהל/ת",
+    HairDresser: "מספרה",
+    Admin: "מנהלה",
+    Dentist: "רפואת שיניים",
 };
 
 
