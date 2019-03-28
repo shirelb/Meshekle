@@ -25,6 +25,18 @@ var getUserById = function (userId, userHeaders) {
         });
 };
 
+var getUsers = function (userHeaders) {
+    return axios.get(`${SERVER_URL}/api/users`,
+        {headers: userHeaders}
+    )
+        .then(response => {
+            return response.data.filter(user => user.userId !== 1 && user.userId !== "1");
+        })
+        .catch(error => {
+            console.log('get user by id error ', error)
+        });
+};
+
 var userValidToken = function (token) {
     return axios.post(`${SERVER_URL}/api/users/validToken`,
         {
@@ -43,4 +55,4 @@ var userLogin = function (userId, password) {
 }
 
 
-export default {getUserEvents, getUserById, userValidToken, userLogin};
+export default {getUserEvents, getUserById, userValidToken, userLogin, getUsers};
