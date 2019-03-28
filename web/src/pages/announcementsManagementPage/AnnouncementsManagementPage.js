@@ -77,8 +77,8 @@ class AnnouncementsManagementPage extends React.Component {
                     pageAnnouncementsRequests: 0,
                     totalPagesAnnouncementsRequests: totalPagesAnnouncementsRequests,
                 });
-                this.refs.reqSearchInput.value = "";
-                this.refs.annSearchInput.value = "";
+                if(this.refs.reqSearchInput) this.refs.reqSearchInput.value = "";
+                if(this.refs.annSearchInput) this.refs.annSearchInput.value = "";
             });
     }
 
@@ -273,7 +273,7 @@ class AnnouncementsManagementPage extends React.Component {
                                     <Table.Cell>{announcementReq.title}</Table.Cell>
                                     <Table.Cell>{announcementReq.content}</Table.Cell>
                                     <Table.Cell>{announcementReq.expirationTime.substring(0,announcementReq.expirationTime.indexOf('T'))}</Table.Cell>
-                                    <Table.Cell>{announcementReq.dateOfEvent.substring(0,announcementReq.dateOfEvent.indexOf('T'))}</Table.Cell>
+                                    <Table.Cell>{announcementReq.dateOfEvent?announcementReq.dateOfEvent.substring(0,announcementReq.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell>
                                         <button className="ui icon button" onClick={()=>this.handleApproveButton(announcementReq.announcementId)}>
                                             <i className="check icon"></i>
@@ -342,7 +342,7 @@ class AnnouncementsManagementPage extends React.Component {
                                     <Table.Cell>{announcement.title}</Table.Cell>
                                     <Table.Cell>{announcement.content}</Table.Cell>
                                     <Table.Cell>{announcement.expirationTime.substring(0,announcement.expirationTime.indexOf('T'))}</Table.Cell>
-                                    <Table.Cell>{announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T'))}</Table.Cell>
+                                    <Table.Cell>{announcement.dateOfEvent?announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell>{announcement.status}</Table.Cell>
                                     <Table.Cell><button className="ui icon button" onClick={()=>this.handleUpdate(announcement)}>
                                         <i className="edit icon"></i>
