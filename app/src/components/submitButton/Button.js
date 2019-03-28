@@ -8,7 +8,10 @@ export default class Button extends Component {
     render() {
         const {label, onPress} = this.props;
         return (
-            <TouchableOpacity style={styles.container} onPress={onPress}>
+            <TouchableOpacity style={Object.assign({},
+                styles.container,
+                {backgroundColor: this.props.color ? this.props.color : colors.DODGER_BLUE})}
+                              onPress={onPress}>
                 <Text style={styles.text}>{label}</Text>
             </TouchableOpacity>
         );
@@ -20,13 +23,15 @@ const styles = StyleSheet.create({
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: colors.DODGER_BLUE,
         marginBottom: 12,
         paddingVertical: 12,
         borderRadius: 4,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: "rgba(255,255,255,0.7)"
     },
+    // containerBGcolor: {
+    //     backgroundColor: colors.DODGER_BLUE,
+    // },
     text: {
         color: colors.WHITE,
         textAlign: "center",

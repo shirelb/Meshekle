@@ -1,6 +1,7 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL,WEB_SOCKET} from "../shared/constants";
 import moment from "moment";
+
 
 var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) => {
     return axios.get(`${SERVER_URL}/api/appointments/serviceProvider/serviceProviderId/${serviceProviderId}`,
@@ -93,6 +94,10 @@ var setAppointment = (appointment, serviceProviderId, roles, headers) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderPostAppointment', {
+                userId: appointment.clientId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -115,6 +120,10 @@ var updateAppointment = (event, headers) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderUpdateAppointment', {
+                userId: event.clientId
+            });
+
             return response;
         })
         .catch((error) => {
@@ -122,14 +131,18 @@ var updateAppointment = (event, headers) => {
         });
 };
 
-var cancelAppointmentById = (appointmentId, headers) => {
-    return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/cancel/appointmentId/${appointmentId}`,
+var cancelAppointmentById = (appointment, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/cancel/appointmentId/${appointment.appointmentId}`,
         {},
         {
             headers: headers
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderCancelAppointment', {
+                userId: appointment.AppointmentDetail.clientId,
+            });
+
             return response
         })
         .catch((error) => {
@@ -137,8 +150,8 @@ var cancelAppointmentById = (appointmentId, headers) => {
         });
 };
 
-var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
-    return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequestId}`,
+var rejectAppointmentRequestById = (appointmentRequest, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequest.requestId}`,
         {},
         {
             headers: headers,
@@ -148,6 +161,10 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderRejectAppointmentRequest', {
+                userId: appointmentRequest.AppointmentDetail.clientId,
+            });
+
             return response
         })
         .catch((error) => {
@@ -155,8 +172,8 @@ var rejectAppointmentRequestById = (appointmentRequestId, headers) => {
         });
 };
 
-var approveAppointmentRequestById = (appointmentRequestId, headers) => {
-    return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequestId}`,
+var approveAppointmentRequestById = (appointmentRequest, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequest.requestId}`,
         {},
         {
             headers: headers,
@@ -166,6 +183,10 @@ var approveAppointmentRequestById = (appointmentRequestId, headers) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderApproveAppointmentRequest', {
+                userId: appointmentRequest.AppointmentDetail.clientId,
+            });
+
             return response
         })
         .catch((error) => {

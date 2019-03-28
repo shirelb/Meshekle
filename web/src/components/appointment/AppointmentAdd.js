@@ -34,7 +34,8 @@ class AppointmentAdd extends React.Component {
         var appointmentRequestEvent=this.state.appointmentRequestEvent;
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                let serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
+                // let serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
+                let serviceProviderRoles = roles;
 
                 appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), serviceProviderRoles, this.serviceProviderHeaders)
                     .then((response) => {

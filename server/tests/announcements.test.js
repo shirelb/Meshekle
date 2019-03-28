@@ -12,7 +12,7 @@ var expect = chai.expect;
 chai.use(chaiHttp);
 const {Users, ServiceProviders, Announcements,AnnouncementSubscriptions,Categories} = require('../DBorm/DBorm');
 
-describe('service providers route', function () {
+describe('announcements route', function () {
     this.timeout(20000);
 
     before((done) => {

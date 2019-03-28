@@ -1,5 +1,6 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {APP_SOCKET, SERVER_URL} from "../shared/constants";
+
 
 var getUserAppointmentRequests = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/appointmentRequests/user/userId/${userId}`,
@@ -47,13 +48,13 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
         });
 };
 
-var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRequest, userHeaders) {
+var postUserAppointmentRequest = function (userId, serviceProvider, appointmentRequest, userHeaders) {
     return axios.post(`${SERVER_URL}/api/appointmentRequests/user/request`,
         {
             userId: userId,
             serviceProviderId: serviceProvider.serviceProviderId,
             role: serviceProvider.role,
-            availableTime:appointmentRequest.availableTime,
+            availableTime: appointmentRequest.availableTime,
             notes: appointmentRequest.notes ? appointmentRequest.notes : '',
             subject: JSON.stringify(appointmentRequest.subject)
         },
@@ -61,6 +62,10 @@ var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRe
             headers: userHeaders,
         })
         .then(response => {
+            APP_SOCKET.emit('userPostAppointmentRequests', {
+                serviceProviderId: serviceProvider.serviceProviderId
+            });
+
             return response;
         })
         .catch(error => {
@@ -68,5 +73,36 @@ var postUserAppointmentRequest = function (userId, serviceProvider,appointmentRe
         });
 };
 
+var cancelAppointmentRequestById = (appointmentRequest, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointmentRequests/user/reject`,
+        {
+            userId: appointmentRequest.AppointmentDetail.clientId,
+            appointmentRequestId: appointmentRequest.requestId,
+        },
+        {
+            headers: headers,
+            params: {
+                status: 'rejected'
+            },
+        }
+    )
+        .then((response) => {
+            APP_SOCKET.emit('userCancelAppointmentRequests', {
+                serviceProviderId: appointmentRequest.AppointmentDetail.serviceProviderId,
+            });
 
-export default {getUserAppointments, getUserAppointmentById,postUserAppointmentRequest,getUserAppointmentRequests};
+            return response
+        })
+        .catch((error) => {
+            console.log('reject appointment request error ', error);
+        });
+};
+
+
+export default {
+    getUserAppointments,
+    getUserAppointmentById,
+    postUserAppointmentRequest,
+    getUserAppointmentRequests,
+    cancelAppointmentRequestById
+};

@@ -5,13 +5,15 @@ import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import '../styles.css';
 import usersStorage from "../../storage/usersStorage";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import store from "store";
 
 
-const subjectOptions = [
+/*const this.subjectOptions = [
     {key: 'f', text: 'פן', value: 'פן'},
     {key: 'hd', text: 'צבע', value: 'צבע'},
     {key: 'hc', text: 'תספורת', value: 'תספורת'},
-];
+];*/
 
 let userOptions = {};
 
@@ -39,6 +41,8 @@ class AppointmentForm extends Component {
             formComplete: false,
             isAlertModal: false,
         };
+
+        this.subjectOptions=[];
 
         if (slotInfo) {
             console.log('slotInfo ', slotInfo);
@@ -82,6 +86,15 @@ class AppointmentForm extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
+            .then(serviceProvider => {
+                JSON.parse(serviceProvider[0].subjects).map((subject,index)=>{
+                    this.subjectOptions.push({key: index, text: subject, value: subject});
+                })
+            });
     }
 
     componentWillReceiveProps(nextProps) {
@@ -251,9 +264,10 @@ class AppointmentForm extends Component {
                     label='נושא'
                     placeholder='נושא'
                     fluid
+                    search
                     multiple
                     selection
-                    options={subjectOptions}
+                    options={this.subjectOptions}
                     value={appointment.subject}
                     onChange={this.handleChange}
                     name='subject'
