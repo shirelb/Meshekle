@@ -22,7 +22,6 @@ const mainPageStrings = {
     APPOINTMENTS_PAGE_TITLE: "תורים",
     CHORES_PAGE_TITLE: "תורנויות",
     ANNOUNCEMENTS_PAGE_TITLE: "לוח מודעות",
-    ROLES_HairDresser: "ספר/ית",
     ROLES_HairDresser: "מספרה",
     ROLES_Admin: "מנהלה",
     ROLES_Dentist: "רפואת שיניים",
