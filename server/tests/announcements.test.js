@@ -920,6 +920,72 @@ describe('announcements route', function () {
     });
 
 
+    // GET all requests that relevant for a specific service provider
+    describe('/ GET all requests that relevant for a specific service provider\n', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createCategory(categoryTest1)
+                                .then(
+                                    createAnnouncement(announcementTest1)
+                                        .then(
+                                            createAnnouncement(announcementTest2)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+
+                        )
+                );
+
+        });
+        it('it should GET all requests that relevant for a specific service provider\n ', (done) => {
+            chai.request(server)
+                .get('/api/announcements/requests/serviceProviderId/123456789')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+        it('it should GET a service provider not found error', (done) => {
+            chai.request(server)
+                .get('/api/announcements/requests/serviceProviderId/123')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteCategory(categoryTest1)
+                                .then(
+                                    deleteAnnouncements(announcementTest1)
+                                        .then(
+                                            deleteAnnouncements(announcementTest2)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+
+                        )
+                );
+
+        });
+    });
+
+
 
 
 
@@ -1050,80 +1116,17 @@ describe('announcements route', function () {
                 });
         });
 
-        after((done) => {
-            deleteAnnouncements(announcementTest1)
-                .then(
-                    deleteCategory(categoryTest1)
-                        .then(
-                            deleteServiceProvider(serviceProviderTest)
-                                .then(
-                                    deleteUser(userTest)
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        )
-                )
-        });
-    });
-
-
-
-// UPDATE announcement status by announcementId.
-    describe('/Update status to announcement ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createCategory(categoryTest1)
-                                .then(
-                                    createAnnouncement(announcementTest1)
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        )
-                );
-
-        });
-        it('it should update the announcement status', (done) => {
-            chai.request(server)
-                .put('/api/announcements/update/announcementId/1/status/'+constants.statueses.ON_AIR_STATUS)
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(announcementsRoute.ANNOUNCEMENT_STATUS_UPDATE_SUCCESS);
-                    res.body.result.should.be.eql(1);
-                    validiation.getAnnouncementByAnnounceIdPromise('1').then(announcements => {
-                        announcements[0].dataValues.status.should.be.eql(constants.statueses.ON_AIR_STATUS);
-                        done();
-                    });
-                });
-        });
-
         it('it should send an error that the status does not exists', (done) => {
             chai.request(server)
-                .put('/api/announcements/update/announcementId/1/status/notExistsStatus')
+                .put('/api/announcements/update/announcementId/1')
                 .set('Authorization', tokenTest)
+                .send({status:'notExistsStatus'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(announcementsRoute.STATUS_DOESNT_EXISTS);
                     done();
                 });
         });
-
-        it('it should send an error that the announcement not found', (done) => {
-            chai.request(server)
-                .put('/api/announcements/update/announcementId/10/status/'+constants.statueses.ON_AIR_STATUS)
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(announcementsRoute.ANNOUNCEMENT_NOT_FOUND);
-                    done();
-                });
-        });
-
         after((done) => {
             deleteAnnouncements(announcementTest1)
                 .then(
@@ -1140,8 +1143,6 @@ describe('announcements route', function () {
                 )
         });
     });
-
-
 
 
 //Add announcement
