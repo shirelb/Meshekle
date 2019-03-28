@@ -388,7 +388,6 @@ router.put('/delete/announcementId/:announcementId', function (req, res, next) {
 
 
 
-
 // update announcement by announcementId.
 router.put('/update/announcementId/:announcementId', function (req, res, next) {
     validations.getAnnouncementByAnnounceIdPromise(req.params.announcementId)
@@ -401,10 +400,17 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
         req.body.userId ? updateFields.userId = req.body.userId : null;
         req.body.categoryId ? updateFields.categoryId = req.body.categoryId : null;
         req.body.content ? updateFields.content = req.body.content : null;
+        req.body.title ? updateFields.title = req.body.title : null;
         req.body.image ? updateFields.image = req.body.image : null;
         req.body.dateOfEvent ? updateFields.dateOfEvent = req.body.dateOfEvent : null;
 
-        if (req.body.expirationTime)
+        if(req.body.status)
+            if (!isStatusExists(req.body.status))
+                return res.status(400).send({"message": announcementsRoute.STATUS_DOESNT_EXISTS});
+            else
+                updateFields.status = req.body.status;
+
+            if (req.body.expirationTime)
             if (!validateExpirationTime(req.body.expirationTime))
                 return res.status(400).send({"message": announcementsRoute.INVALID_EXP_TIME_INPUT});
             else
@@ -433,40 +439,6 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
 });
 
 
-// update announcement status by announcementId.
-router.put('/update/announcementId/:announcementId/status/:status', function (req, res, next) {
-    validations.getAnnouncementByAnnounceIdPromise(req.params.announcementId)
-    .then(response => {
-            if (response.length === 0)
-                return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
-
-            if (!isStatusExists(req.params.status))
-                return res.status(400).send({"message": announcementsRoute.STATUS_DOESNT_EXISTS});
-
-            Announcements.update(
-                {status:req.params.status},
-                {
-                    where: {
-                        announcementId: req.params.announcementId
-                    }
-                })
-                .then(isUpdated => {
-                    if (isUpdated[0] === 0)
-                        return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
-                    res.status(200).send({
-                        "message": announcementsRoute.ANNOUNCEMENT_STATUS_UPDATE_SUCCESS,
-                        "result": isUpdated[0]
-                    });
-                })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send(err);
-                })
-        });
-});
-
-
-
 //Add announcement
 router.post('/add', function (req, res, next) {
     let isInputValid = isAnnouncementInputValid(req.body);
@@ -477,6 +449,7 @@ router.post('/add', function (req, res, next) {
         userId: req.body.userId,
         categoryId: req.body.categoryId,
         creationTime: req.body.creationTime,
+        title: req.body.title,
         content: req.body.content,
         expirationTime: req.body.expirationTime,
         image: req.body.image,

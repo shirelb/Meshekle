@@ -1116,80 +1116,17 @@ describe('service providers route', function () {
                 });
         });
 
-        after((done) => {
-            deleteAnnouncements(announcementTest1)
-                .then(
-                    deleteCategory(categoryTest1)
-                        .then(
-                            deleteServiceProvider(serviceProviderTest)
-                                .then(
-                                    deleteUser(userTest)
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        )
-                )
-        });
-    });
-
-
-
-// UPDATE announcement status by announcementId.
-    describe('/Update status to announcement ', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createCategory(categoryTest1)
-                                .then(
-                                    createAnnouncement(announcementTest1)
-                                        .then(
-                                            done()
-                                        )
-                                )
-                        )
-                );
-
-        });
-        it('it should update the announcement status', (done) => {
-            chai.request(server)
-                .put('/api/announcements/update/announcementId/1/status/'+constants.statueses.ON_AIR_STATUS)
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(announcementsRoute.ANNOUNCEMENT_STATUS_UPDATE_SUCCESS);
-                    res.body.result.should.be.eql(1);
-                    validiation.getAnnouncementByAnnounceIdPromise('1').then(announcements => {
-                        announcements[0].dataValues.status.should.be.eql(constants.statueses.ON_AIR_STATUS);
-                        done();
-                    });
-                });
-        });
-
         it('it should send an error that the status does not exists', (done) => {
             chai.request(server)
-                .put('/api/announcements/update/announcementId/1/status/notExistsStatus')
+                .put('/api/announcements/update/announcementId/1')
                 .set('Authorization', tokenTest)
+                .send({status:'notExistsStatus'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(announcementsRoute.STATUS_DOESNT_EXISTS);
                     done();
                 });
         });
-
-        it('it should send an error that the announcement not found', (done) => {
-            chai.request(server)
-                .put('/api/announcements/update/announcementId/10/status/'+constants.statueses.ON_AIR_STATUS)
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(announcementsRoute.ANNOUNCEMENT_NOT_FOUND);
-                    done();
-                });
-        });
-
         after((done) => {
             deleteAnnouncements(announcementTest1)
                 .then(
@@ -1206,8 +1143,6 @@ describe('service providers route', function () {
                 )
         });
     });
-
-
 
 
 //Add announcement

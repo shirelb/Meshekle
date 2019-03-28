@@ -69,9 +69,11 @@ const announcementsPageStrings = {
     ANNOUNCE_CATEGORY:"קטגוריה",
     ANNOUNCE_TITLE:"נושא",
     ANNOUNCE_CONTENT:"תוכן",
+    ANNOUNCE_STATUS:"סטטוס",
+    ANNOUNCE_DATE_OF_EVENT:"תאריך אירוע",
     ANNOUNCE_EXPR_DATE:"תאריך תפוגה",
     OPERATION_OPTIONS:"אפשרויות",
-    ADD_ANNOUNCEMENT:"פרסם מודעה חדשה"
+    ADD_ANNOUNCEMENT:"פרסם מודעה חדשה",
 };
 
 export default {loginPageStrings, mainPageStrings, phoneBookPageStrings, appointmentsPageStrings,announcementsPageStrings};

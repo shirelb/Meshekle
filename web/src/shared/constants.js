@@ -5,5 +5,5 @@ export const SERVER_URL = __DEV__ ?
     "https://my-production-url.com";
 */
 
-export const SERVER_URL = "http://192.168.0.14:4000";
+export const SERVER_URL = "http://132.73.206.100:4000";
 

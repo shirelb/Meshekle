@@ -19,8 +19,10 @@ class AnnouncementForm extends Component {
     constructor(props) {
         super(props);
 
-       // const {announcement} = props;
-
+        let {announcement} = props;
+        if(!announcement){
+            announcement = {};
+        }
         this.state = {
             formError: false,
             formComplete: false,
@@ -28,11 +30,11 @@ class AnnouncementForm extends Component {
         };
 
         this.state = {announcement:{
-                title:'',
-                content:'',
-                categoryName:'',
-                expirationTime:'',
-                dateOfEvent:'',
+                title: announcement.title ? announcement.title : '',
+                content:announcement.content ? announcement.content : '',
+                categoryName:announcement.categoryName ? announcement.categoryName : '',
+                expirationTime:announcement.expirationTime ? announcement.expirationTime : '',
+                dateOfEvent:announcement.dateOfEvent ? announcement.dateOfEvent : '',
             }};
 
         console.log('constructor  state', this.state);
@@ -48,11 +50,8 @@ class AnnouncementForm extends Component {
         const {announcement} = this.state;
         const {handleSubmit} = this.props;
 
-        if (announcement.title.length >0 &&
-            announcement.content.length > 0 &&
-            announcement.categoryName !== '' &&
-            announcement.expirationTime !== '' &&
-            announcement.dateOfEvent !== '') {
+        if (announcement.categoryName !== '' &&
+            announcement.expirationTime !== '' ) {
 
             this.setState({formComplete: true});
             let updatedAnnouncement = announcement;
@@ -121,7 +120,7 @@ class AnnouncementForm extends Component {
                     value={announcement.title}
                     name="title"
                     onChange={this.handleChange}
-                    // width='10'
+                    required
                 />
                 <Form.Field
                     control={TextArea}
@@ -129,7 +128,7 @@ class AnnouncementForm extends Component {
                     value={announcement.content}
                     name="content"
                     onChange={this.handleChange}
-                    // width='10'
+                    required
                 />
                 <Form.Field
                     control={Dropdown}
@@ -156,10 +155,8 @@ class AnnouncementForm extends Component {
                         locale={'he'}
                         timeFormat={false}
                         install
-                        // name="date"
                         onChange={this.onChangeExprTime.bind(this)}
                         required
-                        // width='10'
                     />
                 </Form.Group>
                 <Form.Group widths='equal'>
@@ -171,10 +168,7 @@ class AnnouncementForm extends Component {
                         locale={'he'}
                         timeFormat={false}
                         install
-                        // name="date"
                         onChange={this.onChangeDateOfEvent.bind(this)}
-                        optional
-                        // width='10'
                     />
                 </Form.Group>
 

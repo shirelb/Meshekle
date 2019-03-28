@@ -55,4 +55,24 @@ var addAnnouncement = (announcement,headers) => {
         });
 };
 
-export default {getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement};
+var updateAnnouncement = (announcement,headers) => {
+    return axios.put(`${SERVER_URL}/api/announcements/update/announcementId/${announcement.announcementId}`,
+        announcement,
+        {headers: headers}
+    )
+        .then((response) => {
+            return response;
+        });
+};
+
+var removeAnnouncement = (announcementId,headers) => {
+    return axios.put(`${SERVER_URL}/api/announcements/delete/announcementId/${announcementId}`,
+        [],
+        {headers: headers}
+    )
+        .then((response) => {
+            return response;
+        });
+};
+
+export default {getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement, updateAnnouncement, removeAnnouncement};

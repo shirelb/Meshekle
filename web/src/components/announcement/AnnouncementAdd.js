@@ -14,6 +14,7 @@ class AnnouncementAdd extends React.Component {
         super(props);
         this.serviceProviderId = this.props.location.state.serviceProviderId;
         this.userId = this.props.location.state.userId;
+        this.isUpdate = this.props.location.state.isUpdate;
         this.state = {categories: []};
 
 
@@ -36,21 +37,41 @@ class AnnouncementAdd extends React.Component {
     };
 
     handleSubmit(announcement) {
-        var newAnnouncement = announcement;
-        newAnnouncement.serviceProviderId = store.get('serviceProviderId');
-        newAnnouncement.userId = store.get('userId');
-        newAnnouncement.creationTime = this.formatDate(new Date());
-        newAnnouncement.expirationTime=this.formatDate(newAnnouncement.expirationTime);
-        newAnnouncement.dateOfEvent=this.formatDate(newAnnouncement.dateOfEvent);
 
-        newAnnouncement.status = "On air";
-        announcementsStorage.addAnnouncement(newAnnouncement, this.serviceProviderHeaders)
-            .then((response) => {
-                console.log(response);
+        const {getAnnouncements} = this.props;
+        if(!this.isUpdate) {
+            var newAnnouncement = announcement;
+            newAnnouncement.serviceProviderId = store.get('serviceProviderId');
+            newAnnouncement.userId = store.get('userId');
+            newAnnouncement.creationTime = this.formatDate(new Date());
+            newAnnouncement.expirationTime = this.formatDate(newAnnouncement.expirationTime);
+            newAnnouncement.dateOfEvent = this.formatDate(newAnnouncement.dateOfEvent);
 
-                this.props.history.goBack();
-                //this.props.history.reload()
-            });
+            newAnnouncement.status = "On air";
+            announcementsStorage.addAnnouncement(newAnnouncement, this.serviceProviderHeaders)
+                .then((response) => {
+                    console.log(response);
+
+                    getAnnouncements();
+                    this.props.history.goBack();
+                    //this.props.history.reload()
+                });
+        }
+        else{
+            var newAnnouncement = announcement;
+            newAnnouncement.expirationTime = this.formatDate(newAnnouncement.expirationTime);
+            newAnnouncement.dateOfEvent = this.formatDate(newAnnouncement.dateOfEvent);
+            newAnnouncement.announcementId = this.isUpdate.announcementId;
+
+            announcementsStorage.updateAnnouncement(newAnnouncement, this.serviceProviderHeaders)
+                .then((response) => {
+                    console.log(response);
+
+                    getAnnouncements();
+                    this.props.history.goBack();
+                    //this.props.history.reload()
+                });
+        }
     }
 
     handleCancel(e) {
@@ -87,7 +108,7 @@ class AnnouncementAdd extends React.Component {
                         <Header as="h1" floated="right">מודעה חדשה</Header>
                         <AnnouncementForm
                             submitText="קבע"
-                            //announcement = {}
+                            announcement = {this.isUpdate?this.isUpdate:null}
                             categories = {categories}
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
