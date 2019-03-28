@@ -161,7 +161,7 @@ if(process.dbMode === "dev"){
                         operationTime: 'all time',
                         phoneNumber: '0123456789',
                         appointmentWayType: 'all',
-                        subjects:'all',
+                        subjects:"[\"הכל\"]",
                         active: true,
                     })
                 })
