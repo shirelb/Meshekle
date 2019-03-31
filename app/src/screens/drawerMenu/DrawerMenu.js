@@ -67,7 +67,7 @@ export default class DrawerMenu extends Component {
                         // key={i}
                         title={strings.drawerMenu.APPOINTMENTS_SCREEN_NAME}
                         // subtitle="test"
-                        leftIcon={{name: 'home'}}
+                        leftIcon={{name: 'insert-invitation'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
                         badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
@@ -78,7 +78,18 @@ export default class DrawerMenu extends Component {
                         // key={i}
                         title={strings.drawerMenu.CHORES_SCREEN_NAME}
                         // subtitle="test"
-                        leftIcon={{name: 'home'}}
+                        leftIcon={{name: 'transfer-within-a-station'}}
+                        rightIcon={<Icon name={'chevron-left'}/>}
+                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                    />
+                    <ListItem
+                        // roundAvatar
+                        onPress={this.navigateToScreen('PhoneBookScreen')}
+                        // avatar={l.avatar_url}
+                        // key={i}
+                        title={strings.drawerMenu.PhoneBook_SCREEN_NAME}
+                        // subtitle="test"
+                        leftIcon={{name: 'contacts'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
                         badge={{value: 3, textStyle: {color: 'orange'}}}
                     />

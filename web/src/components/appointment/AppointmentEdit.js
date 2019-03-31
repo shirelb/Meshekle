@@ -37,7 +37,8 @@ class AppointmentEdit extends React.Component {
                 appointment.appointmentId = this.state.appointment.appointmentId;
                 appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
                     .then((response) => {
-                        this.props.history.goBack()
+                        this.props.history.goBack();
+                        this.props.history.goBack();
                     })
             })
     }
@@ -47,7 +48,7 @@ class AppointmentEdit extends React.Component {
 
         console.log('you have canceled');
 
-        this.props.history.push(`${this.props.match.path}`);
+        this.props.history.goBack();
     }
 
     render() {

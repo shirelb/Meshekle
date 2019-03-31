@@ -115,15 +115,15 @@ class AppointmentForm extends Component {
         }
         if (appointmentRequestEvent) {
             this.setState({
-               /* appointment: {
-                    date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
-                    startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
-                    endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
-                    subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
-                    clientName: appointmentRequestEvent.appointmentRequest.clientName,
-                    remarks: appointmentRequestEvent.appointmentRequest.notes,
-                },*/
+                /* appointment: {
+                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
+                     // date: moment(appointment.startDateAndTime),
+                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
+                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
+                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
+                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
+                     remarks: appointmentRequestEvent.appointmentRequest.notes,
+                 },*/
                 appointmentRequestEvent: appointmentRequestEvent,
             })
         }
@@ -390,7 +390,8 @@ class AppointmentForm extends Component {
                                         content='כן אני בטוח'
                                         onClick={this.handleSubmit}
                                     />
-                                    <Button content='לא אני רוצה לשנות' onClick={()=>this.setState({isAlertModal: false})}/>
+                                    <Button content='לא אני רוצה לשנות'
+                                            onClick={() => this.setState({isAlertModal: false})}/>
                                 </Modal.Actions>
                             </Modal>
                         </div>
@@ -411,7 +412,7 @@ class AppointmentForm extends Component {
                     : null
                 }
 
-                <Form.Group style={{marginTop:20}}>
+                <Form.Group style={{marginTop: 20}}>
                     <Form.Button positive type="submit">{submitText}</Form.Button>
                     <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>

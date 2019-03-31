@@ -20,6 +20,7 @@ const drawerMenu = {
     MAIN_SCREEN_NAME: "בית",
     APPOINTMENTS_SCREEN_NAME: "תורים",
     CHORES_SCREEN_NAME: "תורנויות",
+    PhoneBook_SCREEN_NAME: "ספר טלפונים",
 };
 
 export default {loginScreenStrings,mainScreenStrings,drawerMenu};

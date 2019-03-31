@@ -23,6 +23,7 @@ import AppointmentsScreen from './screens/appointmentsScreen/AppointmentsScreen'
 import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest';
 import UserAppointmentRequests from './screens/userAppointmentRequests/UserAppointmentRequests';
 import ChoresScreen from './screens/choresScreen/ChoresScreen';
+import PhoneBookScreen from './screens/phoneBookScreen/PhoneBookScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
 
@@ -70,6 +71,12 @@ const DrawerMenuNavigator = createDrawerNavigator(
             screen: ChoresScreen,
             params: {
                 headerTitle: 'התורנויות שלי',
+            },
+        },
+        PhoneBookScreen: {
+            screen: PhoneBookScreen,
+            params: {
+                headerTitle: 'ספר טלפונים',
             },
         },
     },
