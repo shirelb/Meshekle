@@ -119,7 +119,7 @@ router.put('/update/userId/:userId', function (req, res, next) {
             req.body.cellphone ? updateFields.cellphone = req.body.cellphone : null;
             req.body.phone ? updateFields.phone = req.body.phone : null;
             req.body.bornDate ? updateFields.bornDate = req.body.bornDate : null;
-            req.body.active ? updateFields.active = req.body.active : null;
+            typeof req.body.active === 'boolean' ? updateFields.active = req.body.active : null;
 
             Users.update(
                 updateFields,

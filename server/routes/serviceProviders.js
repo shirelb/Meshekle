@@ -238,7 +238,7 @@ router.put('/update/serviceProviderId/:serviceProviderId/role/:role', function (
                     return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
 
             req.body.subjects ? updateFields.subjects = req.body.subjects : null;
-            req.body.active ? updateFields.active = req.body.active : null;
+            typeof req.body.active === 'boolean' ? updateFields.active = req.body.active : null;
 
             ServiceProviders.update(
                 updateFields,
@@ -294,8 +294,8 @@ router.post('/add', function (req, res, next) {
                     });
                     validations.getUsersByUserIdPromise(newServiceProvider.userId)
                         .then(users => {
-                            sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                         })
                         .catch(err => {
                             console.log(err);
@@ -346,8 +346,8 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                 });
                 validations.getUsersByUserIdPromise(newServiceProvider.userId)
                     .then(users => {
-                        sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                        sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                            "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);
@@ -439,8 +439,8 @@ router.post('/users/add', function (req, res, next) {
                         "message": serviceProvidersRoute.USER_ADDED_SUCC,
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
-                    sendMail(newUser.email,constants.mailMessages.ADD_USER_SUBJECT,
-                        "Hello " + newUser.fullname+",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
+                    sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                        "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -612,8 +612,6 @@ function isUserInputValid(userInput) {
 }
 
 
-
-
 function isRoleExists(roleToCheck) {
     let roles = takeValues(constants.roles);
     return roles.includes(roleToCheck)
@@ -648,7 +646,7 @@ function validateBornDate(bornDateString) {
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-function sendMail(mailToSend,subject,text) {
+function sendMail(mailToSend, subject, text) {
 
     var mailOptions = {
         from: 'meshekle2019@gmail.com',
@@ -657,7 +655,7 @@ function sendMail(mailToSend,subject,text) {
         text: text
     };
 
-    transporter.sendMail(mailOptions, function(error, info){
+    transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.log(error);
         } else {

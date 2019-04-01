@@ -18,8 +18,7 @@ import store from "store";
 let userOptions = {};
 
 usersStorage.getUsers()
-    .then(response => {
-        const users = response.data;
+    .then(users => {
         console.log('users ', users);
         userOptions = users.map(item => ({
             key: item.userId,

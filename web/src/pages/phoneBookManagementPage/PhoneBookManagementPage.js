@@ -4,13 +4,21 @@ import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
 import {Link, Redirect, Route, Switch} from "react-router-dom";
 import store from 'store';
+import moment from 'moment';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
 import strings from "../../shared/strings";
 import UserInfo from "../../components/user/UserInfo";
+import UserAdd from "../../components/user/UserAdd";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
+import AppointmentAdd from "../../components/appointment/AppointmentAdd";
+import AppointmentInfo from "../../components/appointment/AppointmentInfo";
+import AppointmentEdit from "../../components/appointment/AppointmentEdit";
+import UserEdit from "../../components/user/UserEdit";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -41,22 +49,22 @@ class PhoneBookManagementPage extends React.Component {
         };
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
-        this.getUsers();
-        this.getServiceProviders();
+        this.loadUsers();
+        this.loadServiceProviders();
     }
 
     componentWillReceiveProps({location = {}}) {
-        if (location.pathname === '/chores' && location.pathname !== this.props.location.pathname) {
-            this.getUsers();
-            this.getServiceProviders();
+        if (location.pathname === '/phoneBook' && location.pathname !== this.props.location.pathname) {
+            this.loadUsers();
+            this.loadServiceProviders();
         }
     }
 
-    getUsers() {
+    loadUsers() {
         usersStorage.getUsers()
             .then((response) => {
                 console.log('response ', response);
-                const users = response.data;
+                const users = response;
                 const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 
                 this.setState({
@@ -67,7 +75,7 @@ class PhoneBookManagementPage extends React.Component {
             });
     }
 
-    getServiceProviders() {
+    loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders()
             .then(serviceProviders => {
 
@@ -109,38 +117,6 @@ class PhoneBookManagementPage extends React.Component {
         });
     }
 
-    getUserByUserID(userId) {
-        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
-            .then((user) => {
-                // let user=response.data[0];
-                console.log('then getUserByUserID ', userId, ' ', user);
-                console.log('then getUserByUserID props', this.props);
-                this.props.history.push({
-                    pathname: `/users/${userId}`,
-                    // search: '?query=abc',
-                    state: {userData: user}
-                })
-                // this.props.history.push(`/users/${userId}`);
-                // return <UserInfo/>
-                // return <Route
-                //     path={`${this.props.match.path}/:${userId}`}
-                //     render={() => {
-                //         return <UserInfo
-                //             user={
-                //                 this.state.users.filter(
-                //                     user => user.id === userId
-                //                 )[0]
-                //             }
-                //         />
-                //     }
-                //     }
-                // />
-            })
-            .catch((error) => {
-                console.log('error getUserByUserID ', userId, ' ', error);
-            });
-    }
-
 
     render() {
         console.log('app props ', this.props);
@@ -152,14 +128,14 @@ class PhoneBookManagementPage extends React.Component {
             <div>
                 <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_USERS_TITLE}>
                     <Helmet>
-                        <title>Meshekle | Users</title>
+                        <title>Meshekle | Phone Book</title>
                     </Helmet>
 
                     <Table celled striped textAlign='right' selectable sortable>
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>
+                                {/*<Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>*/}
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
@@ -176,20 +152,22 @@ class PhoneBookManagementPage extends React.Component {
                                         <Header as='h4' image>
                                             {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
-                                                <Link to={`${this.props.match.url}/users/${user.userId}`}>
+                                                <Link to={{
+                                                    pathname: `${this.props.match.url}/user/${user.userId}`,
+                                                    state: {user: user}
+                                                }}>
                                                     {user.fullname}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    {/*<Table.Cell>{user.fullname}</Table.Cell>*/}
-                                    <Table.Cell>{user.password}</Table.Cell>
+                                    {/*<Table.Cell>{user.password}</Table.Cell>*/}
                                     <Table.Cell>{user.email}</Table.Cell>
                                     <Table.Cell>{user.mailbox}</Table.Cell>
                                     <Table.Cell>{user.cellphone}</Table.Cell>
                                     <Table.Cell>{user.phone}</Table.Cell>
-                                    <Table.Cell>{new Date(user.bornDate).toISOString().split('T')[0]}</Table.Cell>
+                                    <Table.Cell>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
                                     <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                     {/*<Table.Cell>{user.image}</Table.Cell>*/}
                                 </Table.Row>),
@@ -217,8 +195,11 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                    <Link to={{pathname: `${this.props.match.url}/user/add`}}>
+                        <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                    </Link>
                 </Page>
+
                 <Page children={serviceProviders}
                       title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}>
                     <Helmet>
@@ -289,14 +270,22 @@ class PhoneBookManagementPage extends React.Component {
                     </Table>
                     <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
                 </Page>
+
                 <div>
                     {/*<Router>*/}
                     <Switch>
-                        <Route exec path={`${this.props.match.path}/users/:userId`}
+                        <Route exec path={`${this.props.match.path}/user/add`}
+                               component={UserAdd}/>
+                        <Route exec path={`${this.props.match.path}/user/:userId`}
                                component={UserInfo}/>
-                        <Route exec path={`${this.props.match.path}/serviceProviders/:serviceProviderId`}
+                        <Route exec path={`${this.props.match.path}/user/:userId/edit`}
+                               component={UserEdit}/>
+
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
                                component={UserInfo}/>
-                        <Redirect to={`${this.props.match.path}`}/>
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
+                               component={UserInfo}/>
+                        {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
                     {/*</Router>*/}
                 </div>

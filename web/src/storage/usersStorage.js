@@ -15,7 +15,7 @@ var getUserByUserID = (userId, headers) => {
             return user;
         })
         .catch((error) => {
-            console.log('getUserByUserID ', userId, ' ', error);
+            console.log('getUserByUserID ', userId, ' error ', error);
             return null;
         });
 };
@@ -25,9 +25,71 @@ var getUsers = () => {
         {headers: serviceProviderHeaders}
     )
         .then((response) => {
+            return response.data.filter(user => user.userId !== 1 && user.userId !== "1");
+        })
+        .catch((error) => {
+            console.log('getUsers error ', error);
+            return null;
+        });
+};
+
+var deleteUserByUserID = (userId, headers) => {
+    return axios.delete(`${SERVER_URL}/api/serviceProviders/users/userId/${userId}/delete`,
+        {headers: headers}
+    )
+        .then((response) => {
             return response;
+        })
+        .catch((error) => {
+            console.log('deleteUserByUserID ', userId, ' error ', error);
+            return null;
+        });
+};
+
+var createUser = (newUser, serviceProviderHeaders) => {
+    return axios.post(`${SERVER_URL}/api/serviceProviders/users/add`,
+        {
+            userId: newUser.userId,
+            fullname: newUser.fullname,
+            email: newUser.email,
+            mailbox: newUser.mailbox,
+            cellphone: newUser.cellphone,
+            phone: newUser.phone,
+            bornDate: newUser.bornDate,
+        },
+        {headers: serviceProviderHeaders}
+    )
+        .then((response) => {
+            return response;
+        })
+        .catch((error) => {
+            console.log('createUser error ', error);
+            return null;
+        });
+};
+
+var updateUserById = function (updatedUser, serviceProviderHeaders) {
+    return axios.put(`${SERVER_URL}/api/users/update/userId/${updatedUser.userId}`,
+        {
+            fullname: updatedUser.fullname ? updatedUser.fullname : null,
+            password: updatedUser.password ? updatedUser.password : null,
+            email: updatedUser.email ? updatedUser.email : null,
+            mailbox: updatedUser.mailbox ? updatedUser.mailbox : null,
+            cellphone: updatedUser.cellphone ? updatedUser.cellphone : null,
+            phone: updatedUser.phone ? updatedUser.phone : null,
+            bornDate: updatedUser.bornDate ? updatedUser.bornDate : null,
+            active: typeof updatedUser.active === 'boolean' ? updatedUser.active : null,
+        },
+        {headers: serviceProviderHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('updateUserById error ', error)
+            return null;
         });
 };
 
 
-export default {getUserByUserID, getUsers};
+export default {getUserByUserID, getUsers, deleteUserByUserID, createUser, updateUserById};
