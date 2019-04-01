@@ -17,10 +17,11 @@ import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
-import {connectToServerSocket} from "../../shared/constants";
+import {WEB_SOCKET, connectToServerSocket} from "../../shared/constants";
 
 
 const handleLogout = history => () => {
+    WEB_SOCKET.emit('disconnectWebClient', {serviceProviderId: store.get('serviceProviderId')});
     store.remove('serviceProviderToken');
     store.remove('serviceProviderId');
     store.remove('userId');
