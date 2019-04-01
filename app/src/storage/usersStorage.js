@@ -43,7 +43,7 @@ var userValidToken = function (token) {
             "token": token,
         },
     );
-}
+};
 
 var userLogin = function (userId, password) {
     return axios.post(`${SERVER_URL}/api/users/login/authenticate`,
@@ -52,7 +52,30 @@ var userLogin = function (userId, password) {
             "password": password
         },
     );
-}
+};
 
 
-export default {getUserEvents, getUserById, userValidToken, userLogin, getUsers};
+var updateUserById = function (updatedUser, userHeaders) {
+    return axios.put(`${SERVER_URL}/api/users/update/userId/${updatedUser.userId}`,
+        {
+            fullname: updatedUser.fullname ? updatedUser.fullname : null,
+            password: updatedUser.password ? updatedUser.password : null,
+            email: updatedUser.email ? updatedUser.email : null,
+            mailbox: updatedUser.mailbox ? updatedUser.mailbox : null,
+            cellphone: updatedUser.cellphone ? updatedUser.cellphone : null,
+            phone: updatedUser.phone ? updatedUser.phone : null,
+            bornDate: updatedUser.bornDate ? updatedUser.bornDate : null,
+            active: updatedUser.active ? updatedUser.active : null,
+        },
+        {headers: userHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get user by id error ', error)
+        });
+};
+
+
+export default {getUserEvents, getUserById, userValidToken, userLogin, getUsers, updateUserById};

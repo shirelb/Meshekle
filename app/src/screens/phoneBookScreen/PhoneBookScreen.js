@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
-import AppointmentRequestForm from "../../components/appointmentRequest/AppointmentRequestForm";
+import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import mappers from "../../shared/mappers";
@@ -15,7 +15,7 @@ export default class PhoneBookScreen extends Component {
         this.state = {
             users: [],
             serviceProviders: [],
-            formModal: false,
+            infoModal: false,
             userSelected: {},
             noUserFound: false,
         };
@@ -33,7 +33,6 @@ export default class PhoneBookScreen extends Component {
                     'Authorization': 'Bearer ' + userData.token
                 };
                 this.userId = userData.userId;
-                this.loadServiceProviders();
                 this.loadUsers();
             });
     }
@@ -43,31 +42,12 @@ export default class PhoneBookScreen extends Component {
             .then(users => {
                 console.log("phonebook users ", users);
 
-                serviceProvidersStorage.getServiceProviders(this.userHeaders)
-                    .then(serviceProviders => {
-                        // let serviceProviders = response.data;
+                this.setState({
+                    users: users,
+                });
 
-                        users.forEach(user => {
-                            let serviceProvidersRelated = serviceProviders.filter(provider => provider.userId === user.userId);
+                this.users = users;
 
-                            if (serviceProvidersRelated.length > 0) {
-                                user.serviceProvidersRelated = {};
-                                user.serviceProvidersRelated.serviceProviders = serviceProvidersRelated;
-                                let roles = [];
-                                serviceProvidersRelated.forEach(provider => {
-                                    roles.push(mappers.serviceProviderRolesMapper(provider.role));
-                                });
-                                user.serviceProvidersRelated.roles = roles;
-                            }
-                        });
-
-                        this.setState({
-                            serviceProviders: serviceProviders,
-                            users: users,
-                        });
-
-                        this.users = users;
-                    })
             })
     };
 
@@ -86,7 +66,7 @@ export default class PhoneBookScreen extends Component {
 
     openUserInfo = (user) => {
         this.setState({
-            formModal: true,
+            infoModal: true,
             userSelected: user
         });
     };
@@ -105,17 +85,18 @@ export default class PhoneBookScreen extends Component {
     };
 
     updateSearch = search => {
-        console.log("in search ", search);
-        // this.setState({search});
-        let searchText = search.toLowerCase();
+        // console.log("in search ", search);
         let users = this.state.users;
         let filteredByNameOrRole = users.filter((item) => {
-            return item.fullname.toLowerCase().match(searchText) || item.role.toLowerCase().match(searchText);
+            let roleFound=false;
+            item.ServiceProviders.forEach(provider => {
+                if(mappers.serviceProviderRolesMapper(provider.role).includes(search)) {
+                    roleFound = true;
+                }
+            });
+            return item.fullname.includes(search) ||roleFound;
         });
-        // let filteredByRole = users.filter((item) => {
-        //     return item.role.toLowerCase().match(searchText)
-        // });
-        if (!searchText || searchText === '') {
+        if (!search || search === '') {
             this.setState({
                 users: this.users
             })
@@ -142,11 +123,16 @@ export default class PhoneBookScreen extends Component {
     };
 
     renderRow = ({item}) => {
+        let roles = [];
+        item.ServiceProviders.forEach(provider => {
+            roles.push(mappers.serviceProviderRolesMapper(provider.role));
+        });
+
         return (
             <ListItem
                 roundAvatar
                 title={item.fullname}
-                subtitle={item.serviceProvidersRelated ? item.serviceProvidersRelated.roles.join(", ") : null}
+                subtitle={roles.join(", ")}
                 // avatar={{uri:item.avatar_url}}
                 onPress={() => this.openUserInfo(item)}
                 containerStyle={{borderBottomWidth: 0}}
@@ -169,13 +155,11 @@ export default class PhoneBookScreen extends Component {
                         />
                     }
                 </List>
-                {/*<AppointmentRequestForm
-                    modalVisible={this.state.formModal}
-                    userHeaders={this.userHeaders}
-                    userId={this.userId}
-                    serviceProvider={this.state.serviceProviderSelected}
-                    selectedDate={this.props.navigation.state.params.selectedDate}
-                />*/}
+                <UserProfileInfo
+                    modalVisible={this.state.infoModal}
+                    user={this.state.userSelected}
+                    openedFrom={"PhoneBookScreen"}
+                />
             </View>
         );
     }

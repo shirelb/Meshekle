@@ -3,7 +3,7 @@ import {ScrollView, Text} from 'react-native';
 import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
-import {APP_SOCKET} from "../../shared/constants";
+import {connectToServerSocket} from "../../shared/constants";
 
 window.navigator.userAgent = "react-native";
 
@@ -34,28 +34,12 @@ export default class MainScreen extends Component {
                 });
 
                 console.log('APP_SOCKET main page');
-                APP_SOCKET.on('socketServerID', function (socketServerID) {
-                    console.log('Connection to server established. SocketID is', socketServerID);
-                    APP_SOCKET.emit('storeAppClientInfo', {userId: userData.userId});
-                });
+                connectToServerSocket(userData.userId);
             })
             .catch(error => {
                 console.log('main componentDidMount ', error)
             })
     }
-
-    onLogoutPress = () => {
-        phoneStorage.update('userData', {
-            token: null,
-            userId: null,
-            userFullname: null
-        })
-            .then(
-                // this.props.onLoginPress()
-                // this.props.navigation.navigate('MainScreen')
-                this.props.navigation.navigate('Auth')
-            )
-    };
 
     render() {
         return (
@@ -66,16 +50,6 @@ export default class MainScreen extends Component {
                 <Text>
                     {this.state.userFullname}
                 </Text>
-
-                {/*<Button
-                    label={strings.mainScreenStrings.LOGOUT}
-                    onPress={this.onLogoutPress.bind(this)}
-                />*/}
-
-                {/* <Button
-                    label='get events'
-                    onPress={this.getUserEvents.bind(this)}
-                />*/}
 
                 <AgendaCalendar
                     userId={this.state.userId}
