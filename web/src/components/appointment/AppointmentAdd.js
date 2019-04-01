@@ -57,6 +57,7 @@ class AppointmentAdd extends React.Component {
     }
 
     render() {
+
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
@@ -73,7 +74,7 @@ class AppointmentAdd extends React.Component {
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                             slotInfo={this.state.slotInfo}
-                            // appointment={}
+                            // announcement={}
                             appointmentRequestEvent={this.state.appointmentRequestEvent}
                         />
                     </Grid.Column>
