@@ -1,4 +1,4 @@
-process.dbMode='dev';
+process.dbMode = 'dev';
 var constants = require('../routes/shared/constants');
 var validiations = require('../routes/shared/validations');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
@@ -11,7 +11,6 @@ var expect = chai.expect;
 
 chai.use(chaiHttp);
 const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
-
 
 
 describe('service providers route', function () {
@@ -181,14 +180,15 @@ describe('service providers route', function () {
     //Get all the service providers
     describe('/GET serviceProviders', () => {
         before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-
+            setTimeout(function () {
+                createUser(userTest)
+                    .then(
+                        createServiceProvider(serviceProviderTest)
+                            .then(
+                                done()
+                            )
+                    );
+            }, 5000);
         });
         it('it should GET all the service providers', (done) => {
             chai.request(server)
@@ -401,7 +401,7 @@ describe('service providers route', function () {
         });
         it('it should GET the appointmentWayType by service provider id', (done) => {
             chai.request(server)
-                .get('/api/serviceProviders/serviceProviderId/123456789/appointmentWayType')
+                .get(`/api/serviceProviders/serviceProviderId/123456789/role/${constants.roles.DENTIST_ROLE}/appointmentWayType`)
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -411,7 +411,7 @@ describe('service providers route', function () {
         });
         it('it should send error that the service provider not found', (done) => {
             chai.request(server)
-                .get('/api/serviceProviders/serviceProviderId/123456781/appointmentWayType')
+                .get(`/api/serviceProviders/serviceProviderId/123456781/role/${constants.roles.DENTIST_ROLE}/appointmentWayType`)
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
