@@ -4,6 +4,7 @@ var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
+var moment = require('moment');
 var router = express.Router();
 var nodemailer = require('nodemailer');
 
@@ -623,13 +624,14 @@ function isAppWayTypeExists(wayType) {
 }
 
 function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    // var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    var re = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
     return re.test(String(email).toLowerCase());
 }
 
 //userInput.cellphone.match(/^[0-9]+$/) === null
 function validateBornDate(bornDateString) {
-    let splitted = bornDateString.split('-');
+    let splitted = moment(bornDateString).format("YYYY-MM-DD").split('-');
     if (splitted.length !== 3)
         return false;
     if (splitted[0].length !== 4 && splitted[0].match(/^[0-9]+$/) === null)

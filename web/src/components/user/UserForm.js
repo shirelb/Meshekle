@@ -43,7 +43,7 @@ class UserForm extends React.Component {
                     phone: '',
                     bornDate: null,
                     active: true,
-                    image: null,
+                    image: "",
                 },
             };
         }
@@ -72,21 +72,114 @@ class UserForm extends React.Component {
                 },
             })
         }
-
     }
+
+    handleFocus = () => {
+        this.setState({
+            formError: false,
+            formErrorMassage: "",
+            fieldUserIdError: false,
+            fieldFullnameError: false,
+            fieldEmailError: false,
+            fieldMailboxError: false,
+            fieldCellphoneError: false,
+            fieldPhoneError: false,
+            fieldBornDateError: false,
+            fieldActiveError: false,
+            // fieldImageError:false,
+        })
+    }
+
+    isFormValid = (user) => {
+        if (user.userId === '' || !(/^\d*$/.test(user.userId))) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "ת.ז. צריך להכיל רק ספרות",
+                fieldUserIdError: true
+            });
+            return false;
+        }
+
+        if (user.fullname === '' || !(/^([^0-9]*)$/.test(user.fullname))) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "שמך צריך להכיל רק אותיות",
+                fieldFullnameError: true
+            });
+            return false;
+        }
+
+        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email)) ) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "אימייל לא וואלידי",
+                fieldEmailError: true
+            });
+            return false;
+        }
+
+        if (user.mailbox === 0 || !(/^\d*$/.test(user.mailbox))) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "תיבת דואר צריך להכיל רק ספרות",
+                fieldMailboxError: true
+            });
+            return false;
+        }
+
+        if (user.cellphone === '' || !(/^\d*$/.test(user.cellphone))) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "הפלאפון לא וואלידי",
+                fieldCellphoneError: true
+            });
+            return false;
+        }
+
+        if (!(/^\d*$/.test(user.phone))) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "הטלפון לא וואלידי",
+                fieldPhoneError: true
+            });
+            return false;
+        }
+
+        if (user.bornDate === null) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "תאריך לידה לא מולא",
+                fieldBornDateError: true
+            });
+            return false;
+        }
+
+        if (user.active === null) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "האם המשתמש פעיל?",
+                fieldActiveError: true
+            });
+            return false;
+        }
+
+        // user.image: null
+        return true;
+    };
+
 
     handleSubmit(e) {
         e.preventDefault();
         const {user} = this.state;
         const {handleSubmit} = this.props;
 
-        if (user.clientName !== '') { //TODO complete submit validation
+        if (this.isFormValid(user)) {
             this.setState({formComplete: true});
 
             handleSubmit(user);
             this.setState({user: {}});
-        } else
-            this.setState({formError: true});
+        }
+
     }
 
     handleChange(e, {name, value}) {
@@ -109,7 +202,7 @@ class UserForm extends React.Component {
                 phone: '',
                 bornDate: null,
                 active: true,
-                image: null,
+                image: "",
             },
             formError: false,
             formComplete: false,
@@ -137,73 +230,88 @@ class UserForm extends React.Component {
             <Form onSubmit={this.handleSubmit} error={formError}>
                 <Form.Group widths='equal'>
                     <Form.Input
+                        error={this.state.fieldUserIdError}
                         required
                         label="ת.ז."
                         type="text"
                         name="userId"
                         value={userId}
                         onChange={this.handleChange}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
+                        error={this.state.fieldFullnameError}
                         required
                         label="שם מלא"
                         type="text"
                         name="fullname"
                         value={fullname}
                         onChange={this.handleChange}
+                        onFocus={this.handleFocus}
                     />
                     {/*{password !== '' ?
                         <Form.Input
+                        error=this.state.field
                             required
                             label="סיסמא"
                             type="password"
                             name="password"
                             value={password}
                             onChange={this.handleChange}
+                                                    onFocus={this.handleFocus}
                         /> : null
                     }*/}
                 </Form.Group>
 
                 <Form.Group widths='equal'>
                     <Form.Input
+                        error={this.state.fieldEmailError}
                         required
                         label="אימייל"
                         type="email"
                         name="email"
                         value={email}
                         onChange={this.handleChange}
+                                                onFocus={this.handleFocus}
                     />
                     <Form.Input
+                        error={this.state.fieldMailboxError}
                         required
                         label="תיבת דואר"
                         type="number"
                         name="mailbox"
                         value={mailbox}
                         onChange={this.handleChange}
+                                                onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
                 <Form.Group widths='equal'>
                     <Form.Input
+                        error={this.state.fieldCellphoneError}
                         required
                         label="פלאפון"
                         type="tel"
                         name="cellphone"
                         value={cellphone}
                         onChange={this.handleChange}
+                                                onFocus={this.handleFocus}
                     />
                     <Form.Input
+                        error={this.state.fieldPhoneError}
                         required
                         label="טלפון"
                         type="tel"
                         name="phone"
                         value={phone}
                         onChange={this.handleChange}
+                                                onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
                 <Form.Group>
                     <Form.Input
+                        error={this.state.fieldBornDateError}
                         required
                         label="תאריך לידה"
                         // type="date"
@@ -216,16 +324,20 @@ class UserForm extends React.Component {
                             install
                             value={bornDate}
                             onChange={this.onChangeDate.bind(this)}
+                            onFocus={this.handleFocus}
                         />
                     </Form.Input>
                     <Form.Input
+                        // error={this.state.field}
                         label="תמונה"
                         type="image"
                         name="image"
                         value={image}
                         onChange={this.handleChange}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
+                        error={this.state.fieldActiveError}
                         required
                         label="קיים"
                         // type="checkbox"
@@ -236,6 +348,7 @@ class UserForm extends React.Component {
                             toggle
                             checked={active}
                             onChange={this.onChangeActive.bind(this)}
+                            onFocus={this.handleFocus}
                         />
                     </Form.Input>
                 </Form.Group>
@@ -245,7 +358,7 @@ class UserForm extends React.Component {
                     <Message
                         error
                         header='פרטי משתמש חסרים'
-                        content='נא להשלים את השדות החסרים'
+                        content={this.state.formErrorMassage === "" ? 'נא להשלים את השדות החסרים' : this.state.formErrorMassage}
                     />
                     : null
                 }

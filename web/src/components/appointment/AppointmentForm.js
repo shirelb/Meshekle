@@ -20,11 +20,12 @@ let userOptions = {};
 usersStorage.getUsers()
     .then(users => {
         console.log('users ', users);
-        userOptions = users.map(item => ({
-            key: item.userId,
-            text: item.fullname,
-            value: item.fullname
-        }));
+        if (Array.isArray(users))
+            userOptions = users.map(item => ({
+                key: item.userId,
+                text: item.fullname,
+                value: item.fullname
+            }));
     });
 
 
@@ -41,7 +42,7 @@ class AppointmentForm extends Component {
             isAlertModal: false,
         };
 
-        this.subjectOptions=[];
+        this.subjectOptions = [];
 
         if (slotInfo) {
             console.log('slotInfo ', slotInfo);
@@ -90,7 +91,7 @@ class AppointmentForm extends Component {
     componentDidMount() {
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProvider => {
-                JSON.parse(serviceProvider[0].subjects).map((subject,index)=>{
+                JSON.parse(serviceProvider[0].subjects).map((subject, index) => {
                     this.subjectOptions.push({key: index, text: subject, value: subject});
                 })
             });
