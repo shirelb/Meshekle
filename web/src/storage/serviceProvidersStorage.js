@@ -100,7 +100,7 @@ var updateServiceProviderById = (serviceProviderId, serviceProviderRole, updateO
     if (updateAppointmentWayType !== null)
         data.appointmentWayType = updateAppointmentWayType;
     if (updateSubjects !== null)
-        data.subjects = updateSubjects;
+        data.subjects = JSON.stringify(updateSubjects);
     if (updateActive !== null)
         data.active = updateActive;
 

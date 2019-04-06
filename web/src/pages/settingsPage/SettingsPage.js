@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Checkbox, Dropdown, Form, Grid, Header, List, Radio} from 'semantic-ui-react';
+import {Button, Checkbox, Dropdown, Form, Grid, Header, Icon, Input, List, Radio, Table} from 'semantic-ui-react';
 import store from 'store';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import strings from "../../shared/strings";
@@ -17,12 +17,16 @@ class SettingsPage extends Component {
             serviceProviderRoles: [],
             dropdownRoles: [],
             roleSelected: "",
+            serviceProviderSelected: {},
 
             operationTime: "",
             phoneNumber: "",
             appointmentWayType: "",
             subjects: "",
             active: "",
+
+            editIconVisible: true,
+            approveIconVisible: false,
         };
     }
 
@@ -56,7 +60,9 @@ class SettingsPage extends Component {
 
         serviceProvidersStorage.getServiceProviderById(this.serviceProviderId)
             .then(response => {
-                this.setState({serviceProviderList: response})
+                this.setState({serviceProviderList: response});
+
+                console.log("serviceProviderList ", response);
             })
 
     }
@@ -72,7 +78,12 @@ class SettingsPage extends Component {
     selectRoleToChangeSettings = (e, {value}) => {
         console.log('selectRoleToChangeSettings value ', value);
 
-        this.setState({roleSelected: value});
+        this.setState({
+            roleSelected: value,
+            serviceProviderSelected: this.state.serviceProviderList.filter(provider => provider.role === value)[0],
+        });
+
+        console.log("serviceProviderSelected ", this.state.serviceProviderList.filter(provider => provider.role === value)[0])
 
         serviceProvidersStorage.getServiceProviderAppointmentWayTypeById(this.serviceProviderId, value)
             .then(appointmentWayType => {
@@ -106,6 +117,69 @@ class SettingsPage extends Component {
             this.removeRoleFromeServiceProvider(data.name);
 
         this.getRolesOfServiceProviderAndCreateDropdown();
+    }
+
+    /* updateServiceProviderSubjects = (updateSubjects) => {
+         this.state.serviceProviderSelected.subjects
+     }*/
+
+    addSubject = () => {
+        let updateSubjects = JSON.parse(this.state.serviceProviderSelected.subjects);
+        updateSubjects.push(this.state.newSubject);
+
+        serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
+            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
+            .then(response => {
+                console.log("addSubject response ", response)
+                this.setState({
+                    newSubject: "",
+                    serviceProviderSelected: {
+                        ...this.state.serviceProviderSelected,
+                        subjects: JSON.stringify(updateSubjects)
+                    },
+                });
+
+            })
+    }
+
+    removeSubject = (subject) => {
+        let updateSubjects = JSON.parse(this.state.serviceProviderSelected.subjects);
+        updateSubjects.pop(subject);
+
+        serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
+            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
+            .then(response => {
+                console.log("addSubject response ", response)
+                this.setState({
+                    newSubject: "",
+                    serviceProviderSelected: {
+                        ...this.state.serviceProviderSelected,
+                        subjects: JSON.stringify(updateSubjects)
+                    },
+                });
+
+            })
+    }
+
+    editSubject = (index, subject) => {
+        let updateSubjects = JSON.parse(this.state.serviceProviderSelected.subjects);
+        updateSubjects[index] = subject;
+
+        serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
+            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
+            .then(response => {
+                console.log("addSubject response ", response)
+                this.setState({
+                    newSubject: "",
+                    editIconVisible: true,
+                    approveIconVisible: false,
+                    serviceProviderSelected: {
+                        ...this.state.serviceProviderSelected,
+                        subjects: JSON.stringify(updateSubjects)
+                    },
+                });
+
+            })
     }
 
     render() {
@@ -165,86 +239,103 @@ class SettingsPage extends Component {
                             />
                         </Form>
                     </Grid.Row>
-                    <Grid.Row>
-                        <Form>
-                            {/* <Form.Field
-                        control={Dropdown}
-                        label='נושא'
-                        placeholder='נושא'
-                        fluid
-                        multiple
-                        selection
-                        options={subjectOptions}
-                        value={appointment.subject}
-                        onChange={this.handleChange}
-                        name='subjects'
-                        required
-                        noResultsMessage='לא נמצאו התאמות'
-                        onSearchChange={this.handleSearchChange}
-                        // width='10'
-                    />*/}
+                    {this.state.roleSelected ?
+                        <Grid.Row>
+                            <Form>
 
+                                <Form.Field>
+                                    <b> דרך הצגת התורים היא:
+                                        {strings.appointmentsWayType[this.state.appointmentWayType]}</b>
+                                </Form.Field>
+                                <Grid>
+                                    {
+                                        Object.keys(strings.appointmentsWayType).map((item, index) => {
+                                            return <Form.Group widths='equal' key={index}>
+                                                <Form.Field>
+                                                    <Radio
+                                                        className="radio-block"
+                                                        // label={strings.appointmentsWayType[item]}
+                                                        name='radioGroup'
+                                                        value={item}
+                                                        checked={this.state.appointmentWayType === {item}.item}
+                                                        onChange={this.handleChange}
+                                                    />
+                                                </Form.Field>
+                                                <Form.Field>
+                                                    <label
+                                                        className="radio-label">{strings.appointmentsWayType[item]}</label>
+                                                </Form.Field>
+                                            </Form.Group>
+                                        })
+                                    }
+                                </Grid>
 
-                            <Form.Field>
-                                דרך הצגת התורים היא: <b>{this.state.appointmentWayType}</b>
-                            </Form.Field>
-                            {
-                                Object.keys(strings.appointmentsWayType).map((item, index) => {
-                                    return <Form.Field key={index}>
-                                        <Radio
-                                            className="radio-block"
-                                            label={strings.appointmentsWayType[item]}
-                                            name='radioGroup'
-                                            value={item}
-                                            checked={this.state.appointmentWayType === {item}.item}
-                                            onChange={this.handleChange}
-                                        />
-                                        <label className="radio-label">{strings.appointmentsWayType[item]}</label>
-                                    </Form.Field>
-                                })
-                            }
-                            {/*<Form.Field>
-                                <Radio
-                                    // label='דיון'
-                                    name='radioGroup'
-                                    value='Dialog'
-                                    checked={this.state.appointmentWayType === 'Dialog'}
+                                {/* <Form.Field
+                                    control={Dropdown}
+                                    label='נושא'
+                                    placeholder='נושא'
+                                    fluid
+                                    multiple
+                                    selection
+                                    options={subjectOptions}
+                                    value={appointment.subject}
                                     onChange={this.handleChange}
+                                    name='subjects'
+                                    required
+                                    noResultsMessage='לא נמצאו התאמות'
+                                    onSearchChange={this.handleSearchChange}
+                                    // width='10'
+                                />*/}
+                                <Form.Field>
+                                    <b> הנושאים שלך הם:</b>
+                                </Form.Field>
+                                <Input
+                                    focus
+                                    placeholder='הוסף נושא חדש...'
+                                    onChange={(event, data) => this.setState({newSubject: data.value})}
                                 />
-                                <label>דיון</label>
-                            </Form.Field>
-                            <Form.Field>
-                                <Radio
-                                    // label='שורה נעלמת'
-                                    name='radioGroup'
-                                    value='Slots'
-                                    checked={this.state.appointmentWayType === 'Slots'}
-                                    onChange={this.handleChange}
-                                />
-                                <label>שורה נעלמת</label>
-                            </Form.Field>
-                            <Form.Field>
-                                <Radio
-                                    // label='פתיחת תקלה'
-                                    name='radioGroup'
-                                    value='fault'
-                                    checked={this.state.appointmentWayType === 'fault'}
-                                    onChange={this.handleChange}
-                                />
-                                <label>פתיחת תקלה</label>
-                            </Form.Field>
-                            <Form.Field>
-                                <Radio
-                                    // label='הכל'
-                                    name='radioGroup'
-                                    value='all'
-                                    checked={this.state.appointmentWayType === 'all'}
-                                    onChange={this.handleChange}
-                                />
-                                <label>הכל</label>
-                            </Form.Field>*/}
-                        </Form>
-                    </Grid.Row>
+                                <Button icon onClick={this.addSubject.bind(this)}>
+                                    <Icon link name='plus'/>
+                                </Button>
+                                <Table style={{width: 250}} columns={3} relaxed singleLine size={'large'}
+                                       textAlign={"right"} basic='very' striped padded={"very"}>
+                                    {
+                                        JSON.parse(this.state.serviceProviderSelected.subjects).map((subject, index) => {
+                                            {
+                                            }
+                                            return <Table.Row key={index} className={"subjectListItem"}>
+                                                {this.state.editIconVisible ?
+                                                    {subject} :
+                                                    <Input
+                                                        focus
+                                                        placeholder={subject}
+                                                        onChange={(event, data) => this.setState({editedSubject: data.value})}
+                                                    />
+                                                }
+                                                <Icon link name='delete'
+                                                      className={"subjectListIcon"}
+                                                      onClick={this.removeSubject.bind(this, subject)}/>
+                                                {this.state.editIconVisible ?
+                                                    <Icon link name='edit'
+                                                          className={"subjectListIcon"}
+                                                          onClick={this.setState({
+                                                              editIconVisible: false,
+                                                              approveIconVisible: true
+                                                          })}/>
+                                                    :
+                                                    <Icon link name='check'
+                                                          className={"subjectListIcon"}
+                                                          onClick={this.editSubject.bind(this, index, this.state.editedSubject)}/>
+                                                }
+                                            </Table.Row>
+                                        })
+                                    }
+                                </Table>
+
+                            </Form>
+                        </Grid.Row> :
+                        null
+                    }
                 </Grid>
             </div>
         );
