@@ -1,4 +1,4 @@
-body{
+body {
     direction: rtl;
 }
 
@@ -8,14 +8,25 @@ body{
     max-width: 1200px;
 }
 
-#roleCheckbox{
+#roleCheckbox {
 
 }
 
-.radio-block{
+.radio-block {
     display: flex;
     align-items: center;
 }
-.radio-label{
+
+.radio-label {
     margin-right: 10px;
+}
+
+.subjectListIcon {
+    float: left;
+    margin-right: 20px !important;
+}
+
+.subjectListItem {
+    width: fit-content;
+    margin-right: 20px !important;
 }
