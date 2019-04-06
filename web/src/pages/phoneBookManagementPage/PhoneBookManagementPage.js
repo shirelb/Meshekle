@@ -1,8 +1,8 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {Link, Redirect, Route, Switch} from "react-router-dom";
+import {Accordion, Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
+import {Link, Route, Switch} from "react-router-dom";
 import store from 'store';
 import moment from 'moment';
 import times from 'lodash.times';
@@ -13,12 +13,11 @@ import UserInfo from "../../components/user/UserInfo";
 import UserAdd from "../../components/user/UserAdd";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
-import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
-import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
-import AppointmentAdd from "../../components/appointment/AppointmentAdd";
-import AppointmentInfo from "../../components/appointment/AppointmentInfo";
-import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import UserEdit from "../../components/user/UserEdit";
+import ServiceProviderAdd from "../../components/serviceProvider/ServiceProviderAdd";
+import ServiceProviderInfo from "../../components/serviceProvider/ServiceProviderInfo";
+import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
+import mappers from "../../shared/mappers";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -33,6 +32,8 @@ class PhoneBookManagementPage extends React.Component {
             serviceProviders: [],
             pageServiceProviders: 0,
             totalPagesServiceProviders: 0,
+
+            activeIndex: -1,
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -117,11 +118,18 @@ class PhoneBookManagementPage extends React.Component {
         });
     }
 
+    handleClick = (e, titleProps) => {
+        const {index} = titleProps;
+        const {activeIndex} = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
+
+        this.setState({activeIndex: newIndex})
+    };
 
     render() {
-        console.log('app props ', this.props);
+        // console.log('app props ', this.props);
 
-        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
+        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
 
         return (
@@ -226,8 +234,10 @@ class PhoneBookManagementPage extends React.Component {
                                         <Header as='h4' image>
                                             {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
-                                                <Link
-                                                    to={`${this.props.match.url}/serviceProviders/${serviceProvider.serviceProviderId}`}>
+                                                <Link to={{
+                                                    pathname: `${this.props.match.url}/serviceProvider/${serviceProvider.serviceProviderId}`,
+                                                    state: {serviceProvider: serviceProvider}
+                                                }}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
@@ -235,11 +245,34 @@ class PhoneBookManagementPage extends React.Component {
                                         </Header>
                                     </Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.fullname}</Table.Cell>*/}
-                                    <Table.Cell>{serviceProvider.role}</Table.Cell>
+                                    <Table.Cell>{mappers.rolesMapper(serviceProvider.role)}</Table.Cell>
                                     <Table.Cell>{serviceProvider.userId}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.operationTime}</Table.Cell>
+                                    <Table.Cell>
+                                        {
+                                            JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
+                                                return <Accordion key={index}>
+                                                    <Accordion.Title
+                                                        active={activeIndex === (serviceProvider.serviceProviderId + "-" + index)}
+                                                        index={serviceProvider.serviceProviderId + "-" + index}
+                                                        onClick={this.handleClick}>
+                                                        <Icon name='dropdown'/>
+                                                        {mappers.daysMapper(dayTime.day)}
+                                                    </Accordion.Title>
+                                                    {
+                                                        dayTime.hours.map((hour, j) => {
+                                                            return <Accordion.Content
+                                                                active={activeIndex === (serviceProvider.serviceProviderId + "-" + index)}
+                                                                key={j}>
+                                                                {hour.startHour} - {hour.endHour}
+                                                            </Accordion.Content>
+                                                        })
+                                                    }
+                                                </Accordion>
+                                            })
+                                        }
+                                    </Table.Cell>
                                     <Table.Cell>{serviceProvider.phoneNumber}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.appointmentWayType}</Table.Cell>
+                                    <Table.Cell>{strings.appointmentsWayType[serviceProvider.appointmentWayType]}</Table.Cell>
                                     <Table.Cell>{serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.image}</Table.Cell>*/}
                                 </Table.Row>),
@@ -281,10 +314,12 @@ class PhoneBookManagementPage extends React.Component {
                         <Route exec path={`${this.props.match.path}/user/:userId/edit`}
                                component={UserEdit}/>
 
+                        <Route exec path={`${this.props.match.path}/serviceProvider/add`}
+                               component={ServiceProviderAdd}/>
                         <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
-                               component={UserInfo}/>
-                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
-                               component={UserInfo}/>
+                               component={ServiceProviderInfo}/>
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId/edit`}
+                               component={ServiceProviderEdit}/>
                         {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
                     {/*</Router>*/}

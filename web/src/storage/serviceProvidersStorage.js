@@ -76,7 +76,7 @@ var getServiceProviderById = (serviceProviderId) => {
 };
 
 
-var getServiceProviderAppointmentWayTypeById = (serviceProviderId,role) => {
+var getServiceProviderAppointmentWayTypeById = (serviceProviderId, role) => {
     return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}/role/${role}/appointmentWayType`,
         {headers: serviceProviderHeaders}
     )
@@ -154,6 +154,34 @@ var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
         });
 };
 
+var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteType) => {
+    if (deleteType === 'shallowDelete')
+        return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProviderId}/role/${serviceProviderRole}`,
+            {active: false},
+            {
+                headers: serviceProviderHeaders
+            }
+        )
+            .then((response) => {
+                return response;
+            })
+            .catch((error) => {
+                console.log('deleteServiceProviderById error ', error);
+            });
+    if (deleteType === 'deepDelete')
+        return axios.delete(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}`,
+            {headers: serviceProviderHeaders}
+        )
+            .then((response) => {
+                let permissions = response.data;
+                console.log('permissions ', permissions);
+                return permissions;
+            })
+            .catch((error) => {
+                console.log('error ', error);
+            });
+};
+
 export default {
     getServiceProviders,
     getRolesOfServiceProvider,
@@ -165,4 +193,5 @@ export default {
     updateServiceProviderById,
     addRoleToServiceProviderById,
     removeRoleFromServiceProviderById,
+    deleteServiceProviderById,
 };
