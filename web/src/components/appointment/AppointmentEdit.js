@@ -63,7 +63,7 @@ class AppointmentEdit extends React.Component {
                 <Grid padded>
                     <Grid.Column>
 
-                        <Header as="h1" floated="right">תור חדש</Header>
+                        <Header as="h1" floated="right">ערוך תור</Header>
 
                         <AppointmentForm
                             submitText="עדכן"

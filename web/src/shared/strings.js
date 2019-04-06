@@ -41,12 +41,12 @@ const phoneBookPageStrings = {
     CELLPHONE_HEADER: "פלאפון",
     PHONE_HEADER: "טלפון",
     BORN_DATE_HEADER: "תאריך לידה",
-    ACTIVE_HEADER: "קיים",
+    ACTIVE_HEADER: "פעיל",
     ACTIVE_ANSWER_YES: "כן",
     ACTIVE_ANSWER_NO: "לא",
-    SERVICE_PROVIDER_ID_HEADER: "ת.ז. נותן שירות",
+    SERVICE_PROVIDER_ID_HEADER: "מ.מ. נותן שירות",
     SERVICE_PROVIDER_ROLE_HEADER: "תפקיד",
-    SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. יוזר",
+    SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. משתמש",
     SERVICE_PROVIDER_OPERATION_TIME_HEADER: "זמני פעילות",
     SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER: "דרך קביעת תורים",
 };
@@ -70,15 +70,15 @@ const appointmentsPageStrings = {
 const announcementsPageStrings = {
     ANNOUNCE_REQ_TITLE_TABLE: "מודעות המחכות לאישור",
     ANNOUNCE_TITLE_TABLE: "מודעות באחריותך",
-    ANNOUNCE_NUMBER:"מספר מודעה",
-    ANNOUNCE_CATEGORY:"קטגוריה",
-    ANNOUNCE_TITLE:"נושא",
-    ANNOUNCE_CONTENT:"תוכן",
-    ANNOUNCE_STATUS:"סטטוס",
-    ANNOUNCE_DATE_OF_EVENT:"תאריך אירוע",
-    ANNOUNCE_EXPR_DATE:"תאריך תפוגה",
-    OPERATION_OPTIONS:"אפשרויות",
-    ADD_ANNOUNCEMENT:"פרסם מודעה חדשה",
+    ANNOUNCE_NUMBER: "מספר מודעה",
+    ANNOUNCE_CATEGORY: "קטגוריה",
+    ANNOUNCE_TITLE: "נושא",
+    ANNOUNCE_CONTENT: "תוכן",
+    ANNOUNCE_STATUS: "סטטוס",
+    ANNOUNCE_DATE_OF_EVENT: "תאריך אירוע",
+    ANNOUNCE_EXPR_DATE: "תאריך תפוגה",
+    OPERATION_OPTIONS: "אפשרויות",
+    ADD_ANNOUNCEMENT: "פרסם מודעה חדשה",
 };
 
 const roles = {
@@ -95,6 +95,17 @@ const appointmentsWayType = {
     Admin: "הכל",
 };
 
+const days = {
+    DAYS_SUNDAY: "יום ראשון",
+    DAYS_MONDAY: "יום שני",
+    DAYS_TUESDAY: "יום שלישי",
+    DAYS_WEDNESDAY: "יום רביעי",
+    DAYS_THURSDAY: "יום חמישי",
+    DAYS_FRIDAY: "יום שישי",
+    DAYS_SATURDAY: "יום שבת",
+    DAYS_UNDEFINED: "לא קיים",
+}
+
 export default {
     loginPageStrings,
     mainPageStrings,
@@ -103,4 +114,5 @@ export default {
     roles,
     appointmentsWayType,
     announcementsPageStrings,
+    days,
 };

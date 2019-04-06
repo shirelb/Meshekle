@@ -65,7 +65,7 @@ var updateUserById = function (updatedUser, userHeaders) {
             cellphone: updatedUser.cellphone ? updatedUser.cellphone : null,
             phone: updatedUser.phone ? updatedUser.phone : null,
             bornDate: updatedUser.bornDate ? updatedUser.bornDate : null,
-            active: updatedUser.active ? updatedUser.active : null,
+            active: typeof updatedUser.active === 'boolean' ? updatedUser.active : null,
         },
         {headers: userHeaders}
     )

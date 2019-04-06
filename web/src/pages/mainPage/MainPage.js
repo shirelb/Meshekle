@@ -50,9 +50,10 @@ class Home extends Component {
     componentDidMount() {
         usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
             .then(user => {
-                this.setState({
-                    userFullname: user.fullname,
-                })
+                if (user !== null)
+                    this.setState({
+                        userFullname: user.fullname,
+                    })
             })
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(permissions => {
