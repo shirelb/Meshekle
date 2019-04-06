@@ -1,11 +1,7 @@
 import React from 'react';
-import {get, patch} from 'axios';
 import {Helmet} from 'react-helmet';
 import ServiceProviderForm from './ServiceProviderForm';
-import Page from '../Page';
 import store from "store";
-import appointmentsStorage from "../../storage/appointmentsStorage";
-import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import {Grid, Header, Modal} from "semantic-ui-react";
 
@@ -13,7 +9,7 @@ class ServiceProviderEdit extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {user: this.props.location.state.user};
+        this.state = {serviceProvider: this.props.location.state.serviceProvider};
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -24,17 +20,18 @@ class ServiceProviderEdit extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.location.state.user)
-            this.setState({user: this.props.location.state.user});
+        if (this.props.location.state.serviceProvider)
+            this.setState({serviceProvider: this.props.location.state.serviceProvider});
         else
-            usersStorage.getUserByUserID(this.props.match.params.userId, this.serviceProviderHeaders)
-                .then(user => {
-                    this.setState({user: user});
+            serviceProvidersStorage.getServiceProviderById(this.props.match.params.serviceProviderId)
+                .then(serviceProvider => {
+                    this.setState({serviceProvider: serviceProvider});
                 })
     }
 
-    handleSubmit(user) {
-        usersStorage.updateUserById(user, this.serviceProviderHeaders)
+    handleSubmit(serviceProvider) {
+        // todo complete this -  handleSubmit(serviceProvider) !
+        serviceProvidersStorage.updateServiceProviderById(serviceProvider, this.serviceProviderHeaders)
             .then((response) => {
                 this.props.history.goBack();
                 this.props.history.goBack();
@@ -50,12 +47,13 @@ class ServiceProviderEdit extends React.Component {
     }
 
     render() {
-        const {user} = this.state;
+        const {serviceProvider} = this.state;
 
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | ערוך משתמש {user.fullname}</title>
+                    {/*<title>Meshekle | ערוך נותן שירות {serviceProvider.fullname}</title>*/}
+                    <title>Meshekle | ערוך נותן שירות {serviceProvider.serviceProviderId}</title>
                 </Helmet>
 
                 <Grid padded>
@@ -67,7 +65,7 @@ class ServiceProviderEdit extends React.Component {
                         <Grid.Column>
                             <ServiceProviderForm
                                 submitText="עדכן"
-                                user={user}
+                                serviceProvider={serviceProvider}
                                 handleSubmit={this.handleSubmit}
                                 handleCancel={this.handleCancel}
                             />

@@ -154,6 +154,31 @@ var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
         });
 };
 
+var createServiceProvider = (serviceProvider) => {
+    //TODO complete this - createServiceProvider!
+    return axios.put(`${SERVER_URL}/api/serviceProviders/add`,
+        {
+            serviceProviderId: serviceProvider.serviceProviderId,
+            role: serviceProvider.role,
+            userId: serviceProvider.userId,
+            operationTime: serviceProvider.operationTime,
+            phoneNumber: serviceProvider.phoneNumber,
+            appointmentWayType: serviceProvider.appointmentWayType,
+            subjects: serviceProvider.subjects,
+            active: serviceProvider.active === null ? false : serviceProvider.active,
+        },
+        {
+            headers: serviceProviderHeaders
+        }
+    )
+        .then((response) => {
+            return response;
+        })
+        .catch((error) => {
+            console.log('removeRoleFromServiceProviderById error ', error);
+        });
+};
+
 var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteType) => {
     if (deleteType === 'shallowDelete')
         return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProviderId}/role/${serviceProviderRole}`,
@@ -194,4 +219,5 @@ export default {
     addRoleToServiceProviderById,
     removeRoleFromServiceProviderById,
     deleteServiceProviderById,
+    createServiceProvider
 };

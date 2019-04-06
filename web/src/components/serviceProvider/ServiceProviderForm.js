@@ -1,8 +1,9 @@
 import React from 'react';
-import {Form, Label, Message, Checkbox} from 'semantic-ui-react';
+import {Checkbox, Form, Message} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
 
+// TODO put here the settings and delete settings page. put settings page also in the appointments as button "settings"
 class ServiceProviderForm extends React.Component {
     constructor(props) {
         super(props);
@@ -109,7 +110,7 @@ class ServiceProviderForm extends React.Component {
             return false;
         }
 
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email)) ) {
+        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
             this.setState({
                 formError: true,
                 formErrorMassage: "אימייל לא וואלידי",
@@ -272,7 +273,7 @@ class ServiceProviderForm extends React.Component {
                         name="email"
                         value={email}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
                         error={this.state.fieldMailboxError}
@@ -282,7 +283,7 @@ class ServiceProviderForm extends React.Component {
                         name="mailbox"
                         value={mailbox}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
@@ -295,7 +296,7 @@ class ServiceProviderForm extends React.Component {
                         name="cellphone"
                         value={cellphone}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
                         error={this.state.fieldPhoneError}
@@ -305,7 +306,7 @@ class ServiceProviderForm extends React.Component {
                         name="phone"
                         value={phone}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                 </Form.Group>
 

@@ -316,7 +316,7 @@ router.post('/add', function (req, res, next) {
                         })
                 })
             :
-
+            // todo ask dafna about this (2 serviceProviderId to 2 different roles? OR 1 Id to 2 defferent roles?)
             ServiceProviders.max('serviceProviderId')
                 .then(serviceProviderId => {
                     ServiceProviders.create({

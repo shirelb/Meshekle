@@ -1,9 +1,7 @@
 import React from 'react';
-import {post} from 'axios';
 import ServiceProviderForm from './ServiceProviderForm';
 import {Helmet} from 'react-helmet';
-import Page from '../Page';
-import usersStorage from "../../storage/usersStorage";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 import {Grid, Header, Modal} from "semantic-ui-react";
 
@@ -23,10 +21,10 @@ class ServiceProviderAdd extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
     }
 
-    handleSubmit(user) {
-        usersStorage.createUser(user, this.serviceProviderHeaders)
+    handleSubmit(serviceProvider) {
+        serviceProvidersStorage.createServiceProvider(serviceProvider)
             .then(response => {
-                console.log('user created ', response);
+                console.log('serviceProvider created ', response);
                 this.props.history.goBack();
             });
     }
@@ -43,12 +41,12 @@ class ServiceProviderAdd extends React.Component {
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | Add User</title>
+                    <title>Meshekle | Add ServiceProvider</title>
                 </Helmet>
 
                 <Grid padded>
                     <Grid.Row>
-                        <Header as="h1" floated="right">משתמש חדש</Header>
+                        <Header as="h1" floated="right">נותן שירות חדש</Header>
                     </Grid.Row>
 
                     <Grid.Row>
