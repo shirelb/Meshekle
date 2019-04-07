@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Form, Icon, Menu, Radio, Sidebar} from 'semantic-ui-react';
+import {Icon, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
 import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
@@ -57,21 +57,25 @@ class Home extends Component {
             })
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(permissions => {
-                this.setState({
-                    serviceProviderPermissions: permissions,
-                })
+                if (permissions !== null)
+                    this.setState({
+                        serviceProviderPermissions: permissions,
+                    })
             })
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                this.setState({
-                    serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
-                })
+                if (roles !== null)
+                    this.setState({
+                        serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
+                    })
             })
 
         connectToServerSocket(store.get('serviceProviderId'));
     }
 
     render() {
+
+        console.log("serviceProviderRoles  ", this.state.serviceProviderRoles);
         return (
             <div>
                 <p>
@@ -81,7 +85,8 @@ class Home extends Component {
                     ההרשאות שלך הן: {this.state.serviceProviderPermissions}
                 </p>
                 <p>
-                    התפקידים עליהם את/ה אחראיים הם: {this.state.serviceProviderRoles}
+                    התפקידים עליהם את/ה אחראיים הם:
+                    {Array.isArray(this.state.serviceProviderRoles) ? this.state.serviceProviderRoles.join(", ") : this.state.serviceProviderRoles}
                 </p>
             </div>
         );
