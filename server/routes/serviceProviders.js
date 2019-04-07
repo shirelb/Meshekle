@@ -276,79 +276,44 @@ router.post('/add', function (req, res, next) {
     validations.getUsersByUserIdPromise(req.body.userId).then(users => {
         if (users.length === 0)
             return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
-        req.body.serviceProviderId ?
-            validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId)
-                .then(serviceProviders => {
-                    if (serviceProviders.length !== 0) {
-                        serviceProviders.forEach(provider=>{
-                            if(provider.dataValues.role === req.body.role)
-                                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
+        validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId)
+            .then(serviceProviders => {
+                if (serviceProviders.length !== 0) {
+                    serviceProviders.forEach(provider => {
+                        if (provider.dataValues.role === req.body.role)
+                            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
+                    });
+                }
+                ServiceProviders.create({
+                    serviceProviderId: req.body.serviceProviderId,
+                    role: req.body.role,
+                    userId: req.body.userId,
+                    operationTime: req.body.operationTime,
+                    phoneNumber: req.body.phoneNumber,
+                    appointmentWayType: req.body.appointmentWayType,
+                    subjects: req.body.subjects,
+                    active: req.body.active === null ? false : req.body.active,
+                })
+                    .then(newServiceProvider => {
+                        res.status(200).send({
+                            "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
+                            "result": newServiceProvider.dataValues
                         });
-                    }
-                    ServiceProviders.create({
-                        serviceProviderId: req.body.serviceProviderId,
-                        role: req.body.role,
-                        userId: req.body.userId,
-                        operationTime: req.body.operationTime,
-                        phoneNumber: req.body.phoneNumber,
-                        appointmentWayType: req.body.appointmentWayType,
-                        subjects: req.body.subjects,
-                        active: req.body.active === null ? false : req.body.active,
+                        validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                            .then(users => {
+                                sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                    "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
                     })
-                        .then(newServiceProvider => {
-                            res.status(200).send({
-                                "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
-                                "result": newServiceProvider.dataValues
-                            });
-                            validations.getUsersByUserIdPromise(newServiceProvider.userId)
-                                .then(users => {
-                                    sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                        "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    res.status(500).send(err);
-                                })
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).send(err);
-                        })
-                })
-            :
-            // todo ask dafna about this (2 serviceProviderId to 2 different roles? OR 1 Id to 2 defferent roles?)
-            ServiceProviders.max('serviceProviderId')
-                .then(serviceProviderId => {
-                    ServiceProviders.create({
-                        serviceProviderId: parseInt(serviceProviderId) + 1,
-                        role: req.body.role,
-                        userId: req.body.userId,
-                        operationTime: req.body.operationTime,
-                        phoneNumber: req.body.phoneNumber,
-                        appointmentWayType: req.body.appointmentWayType,
-                        subjects: req.body.subjects,
-                        active: req.body.active === null ? false : req.body.active,
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
                     })
-                        .then(newServiceProvider => {
-                            res.status(200).send({
-                                "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
-                                "result": newServiceProvider.dataValues
-                            });
-                            validations.getUsersByUserIdPromise(newServiceProvider.userId)
-                                .then(users => {
-                                    sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                        "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    res.status(500).send(err);
-                                })
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).send(err);
-                        })
-                })
+            });
     })
         .catch(err => {
             console.log(err);
