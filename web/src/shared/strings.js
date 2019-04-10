@@ -44,7 +44,7 @@ const phoneBookPageStrings = {
     ACTIVE_HEADER: "פעיל",
     ACTIVE_ANSWER_YES: "כן",
     ACTIVE_ANSWER_NO: "לא",
-    SERVICE_PROVIDER_ID_HEADER: "מ.מ. נותן שירות",
+    SERVICE_PROVIDER_ID_HEADER: "ת.ז. נותן שירות",
     SERVICE_PROVIDER_ROLE_HEADER: "תפקיד",
     SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. משתמש",
     SERVICE_PROVIDER_OPERATION_TIME_HEADER: "זמני פעילות",
@@ -89,22 +89,22 @@ const roles = {
 
 
 const appointmentsWayType = {
-    Dialog: "דיון",
-    Slots: "שורה נעלמת",
+    Dialog: "בקשה ומענה",
+    Slots: "חלונות זמן",
     Fault: "פתיחת תקלה",
     Admin: "הכל",
 };
 
 const days = {
-    DAYS_SUNDAY: "יום ראשון",
-    DAYS_MONDAY: "יום שני",
-    DAYS_TUESDAY: "יום שלישי",
-    DAYS_WEDNESDAY: "יום רביעי",
-    DAYS_THURSDAY: "יום חמישי",
-    DAYS_FRIDAY: "יום שישי",
-    DAYS_SATURDAY: "יום שבת",
-    DAYS_UNDEFINED: "לא קיים",
-}
+    Sunday: "יום ראשון",
+    Monday: "יום שני",
+    Tuesday: "יום שלישי",
+    Wednesday: "יום רביעי",
+    Thursday: "יום חמישי",
+    Friday: "יום שישי",
+    Saturday: "יום שבת",
+    Undefined: "לא קיים",
+};
 
 export default {
     loginPageStrings,

@@ -39,7 +39,7 @@ class ServiceProviderAdd extends React.Component {
 
     render() {
         return (
-            <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
+            <Modal size='large' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
                     <title>Meshekle | Add ServiceProvider</title>
                 </Helmet>
@@ -53,6 +53,7 @@ class ServiceProviderAdd extends React.Component {
                         <Grid.Column>
                             <ServiceProviderForm
                                 submitText="הוסף"
+                                users={this.props.location.state.users ? this.props.location.state.users : []}
                                 handleSubmit={this.handleSubmit}
                                 handleCancel={this.handleCancel}
                             />

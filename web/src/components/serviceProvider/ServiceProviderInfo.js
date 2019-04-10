@@ -66,19 +66,19 @@ class ServiceProviderInfo extends React.Component {
             <div>
                 <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                     <Helmet>
-                        {/*<title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>*/}
-                        <title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>
+                        <title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>
+                        {/*<title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>*/}
                     </Helmet>
 
-                    {/*<Modal.Header>{serviceProvider.fullname}</Modal.Header>*/}
-                    <Modal.Header>{serviceProvider.serviceProviderId}</Modal.Header>
+                    <Modal.Header>{serviceProvider.fullname}</Modal.Header>
+                    {/*<Modal.Header>{serviceProvider.serviceProviderId}</Modal.Header>*/}
                     <Modal.Content image>
                         <Image wrapped size="small" src={`https://api.adorable.io/avatars/250`}/>
                         <Modal.Description>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
-                            {/*<p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>*/}
+                            <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {mappers.rolesMapper(serviceProvider.role)}</p>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>
+                            {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
                             <div>
                                 {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
                                 {

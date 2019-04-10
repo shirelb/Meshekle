@@ -3,7 +3,7 @@ import './styles.css';
 
 import moment from 'moment';
 
-import {Grid, Header} from 'semantic-ui-react';
+import {Grid, Header, Icon, Menu} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import AppointmentCalendar from "../../components/calendars/AppointmentCalendar";
 import store from 'store';
@@ -11,13 +11,14 @@ import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import AppointmentInfo from "../../components/appointment/AppointmentInfo";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
-import {Route, Switch} from "react-router-dom";
+import {NavLink, Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 import DraggableAppointmentRequest from "../../components/appointmentRequest/DraggableAppointmentRequest";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import SettingsPage from "../settingsPage/SettingsPage";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -332,6 +333,13 @@ class AppointmentsManagementPage extends React.Component {
                             <Header as="h1"
                                     floated="right">{strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}</Header>
                         </Grid.Row>
+
+                        //TODO complete settings page in the appointemnts page
+                        {/*<Menu.Item name="settings" as={NavLink} to="/settings">
+                            <Icon name="settings"/>
+                            {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
+                        </Menu.Item>*/}
+
                         <Grid.Row columns='equal'>
                             <Grid.Column>
                                 <Header as={'h3'} style={{'display': 'contents'}}> בקשות תורים:</Header>
@@ -439,6 +447,8 @@ class AppointmentsManagementPage extends React.Component {
                                component={AppointmentInfo}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
                                component={AppointmentEdit}/>
+                        //TODO complete the settings of the serviceProvider page
+                        {/*<Route path={`/settings`} component={SettingsPage}/>*/}
 
                         {/*{
                             (this.props.location.pathname === window.location.pathname) ?

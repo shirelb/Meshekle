@@ -109,7 +109,7 @@ class UserForm extends React.Component {
             return false;
         }
 
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email)) ) {
+        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
             this.setState({
                 formError: true,
                 formErrorMassage: "אימייל לא וואלידי",
@@ -177,7 +177,20 @@ class UserForm extends React.Component {
             this.setState({formComplete: true});
 
             handleSubmit(user);
-            this.setState({user: {}});
+            this.setState({
+                user: {
+                    userId: '',
+                    fullname: '',
+                    password: '',
+                    email: '',
+                    mailbox: 0,
+                    cellphone: '',
+                    phone: '',
+                    bornDate: null,
+                    active: true,
+                    image: "",
+                },
+            });
         }
 
     }
@@ -272,7 +285,7 @@ class UserForm extends React.Component {
                         name="email"
                         value={email}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
                         error={this.state.fieldMailboxError}
@@ -282,7 +295,7 @@ class UserForm extends React.Component {
                         name="mailbox"
                         value={mailbox}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
@@ -295,7 +308,7 @@ class UserForm extends React.Component {
                         name="cellphone"
                         value={cellphone}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
                         error={this.state.fieldPhoneError}
@@ -305,7 +318,7 @@ class UserForm extends React.Component {
                         name="phone"
                         value={phone}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
@@ -339,7 +352,7 @@ class UserForm extends React.Component {
                     <Form.Input
                         error={this.state.fieldActiveError}
                         required
-                        label="קיים"
+                        label="פעיל"
                         // type="checkbox"
                         name="active"
                     >

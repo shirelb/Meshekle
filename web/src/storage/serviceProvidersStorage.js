@@ -155,16 +155,15 @@ var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
 };
 
 var createServiceProvider = (serviceProvider) => {
-    //TODO complete this - createServiceProvider!
-    return axios.put(`${SERVER_URL}/api/serviceProviders/add`,
+    return axios.post(`${SERVER_URL}/api/serviceProviders/add`,
         {
             serviceProviderId: serviceProvider.serviceProviderId,
             role: serviceProvider.role,
             userId: serviceProvider.userId,
-            operationTime: serviceProvider.operationTime,
+            operationTime: JSON.stringify(serviceProvider.operationTime),
             phoneNumber: serviceProvider.phoneNumber,
             appointmentWayType: serviceProvider.appointmentWayType,
-            subjects: serviceProvider.subjects,
+            subjects: JSON.stringify(serviceProvider.subjects),
             active: serviceProvider.active === null ? false : serviceProvider.active,
         },
         {
@@ -175,7 +174,7 @@ var createServiceProvider = (serviceProvider) => {
             return response;
         })
         .catch((error) => {
-            console.log('removeRoleFromServiceProviderById error ', error);
+            console.log('createServiceProvider error ', error);
         });
 };
 
@@ -207,6 +206,18 @@ var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteT
             });
 };
 
+var getServiceProviderUserDetails = function (serviceProviderId) {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/userDetails/serviceProviderId/${serviceProviderId}`,
+        {headers: serviceProviderHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get serviceProvider user details error ', error)
+        });
+};
+
 export default {
     getServiceProviders,
     getRolesOfServiceProvider,
@@ -219,5 +230,6 @@ export default {
     addRoleToServiceProviderById,
     removeRoleFromServiceProviderById,
     deleteServiceProviderById,
-    createServiceProvider
+    createServiceProvider,
+    getServiceProviderUserDetails,
 };

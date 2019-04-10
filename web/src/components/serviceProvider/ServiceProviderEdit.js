@@ -50,7 +50,7 @@ class ServiceProviderEdit extends React.Component {
         const {serviceProvider} = this.state;
 
         return (
-            <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
+            <Modal size='large' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
                     {/*<title>Meshekle | ערוך נותן שירות {serviceProvider.fullname}</title>*/}
                     <title>Meshekle | ערוך נותן שירות {serviceProvider.serviceProviderId}</title>

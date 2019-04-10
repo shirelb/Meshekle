@@ -50,21 +50,21 @@ class Home extends Component {
     componentDidMount() {
         usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
             .then(user => {
-                if (user !== null)
+                if (user !== null && user !== undefined)
                     this.setState({
                         userFullname: user.fullname,
                     })
             })
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(permissions => {
-                if (permissions !== null)
+                if (permissions !== null && permissions !== undefined)
                     this.setState({
                         serviceProviderPermissions: permissions,
                     })
             })
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                if (roles !== null)
+                if (roles !== null && roles !== undefined)
                     this.setState({
                         serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
                     })
@@ -133,10 +133,6 @@ class MainPage extends Component {
                         <Icon name="home"/>
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
-                    <Menu.Item name="settings" as={NavLink} to="/settings">
-                        <Icon name="settings"/>
-                        {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
-                    </Menu.Item>
                     <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
                         <Icon name="users"/>
                         {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
@@ -163,7 +159,6 @@ class MainPage extends Component {
                     <Switch>
                         <Route path={`/home`} render={() => <Home userId={store.get('userId')}
                                                                   serviceProviderId={store.get('serviceProviderId')}/>}/>
-                        <Route path={`/settings`} component={SettingsPage}/>
                         <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                         <Route path={`/chores`} component={ChoresManagementPage}/>
