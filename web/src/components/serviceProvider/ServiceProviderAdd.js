@@ -56,6 +56,7 @@ class ServiceProviderAdd extends React.Component {
                                 users={this.props.location.state.users ? this.props.location.state.users : []}
                                 handleSubmit={this.handleSubmit}
                                 handleCancel={this.handleCancel}
+                                openedFrom={"ServiceProviderAdd"}
                             />
                         </Grid.Column>
                     </Grid.Row>

@@ -3,7 +3,7 @@ import './styles.css';
 
 import moment from 'moment';
 
-import {Grid, Header, Icon, Menu} from 'semantic-ui-react';
+import {Button, Grid, Header, Icon, Menu} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import AppointmentCalendar from "../../components/calendars/AppointmentCalendar";
 import store from 'store';
@@ -11,7 +11,7 @@ import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import AppointmentInfo from "../../components/appointment/AppointmentInfo";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
-import {NavLink, Route, Switch} from "react-router-dom";
+import {Link, NavLink, Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 import DraggableAppointmentRequest from "../../components/appointmentRequest/DraggableAppointmentRequest";
@@ -19,6 +19,9 @@ import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import SettingsPage from "../settingsPage/SettingsPage";
+import ServiceProviderForm from "../../components/serviceProvider/ServiceProviderForm";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -53,6 +56,7 @@ class AppointmentsManagementPage extends React.Component {
         };
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
+
         this.getServiceProviderAppointments();
         this.getServiceProviderAppointmentRequests();
 
@@ -316,6 +320,7 @@ class AppointmentsManagementPage extends React.Component {
             })
     };
 
+
     render() {
         const {appointments, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
@@ -339,6 +344,16 @@ class AppointmentsManagementPage extends React.Component {
                             <Icon name="settings"/>
                             {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
                         </Menu.Item>*/}
+                        <Link to={{
+                            pathname: `${this.props.match.url}/serviceProvider/settings`,
+                            state: {serviceProviderId: this.serviceProviderId, users: []}
+                        }}>
+                            <Button positive icon>
+                                <Icon name="settings"/>
+                                &nbsp;&nbsp;
+                                {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
+                            </Button>
+                        </Link>
 
                         <Grid.Row columns='equal'>
                             <Grid.Column>
@@ -437,6 +452,8 @@ class AppointmentsManagementPage extends React.Component {
 
                 <div>
                     <Switch>
+                        <Route exec path={`${this.props.match.url}/serviceProvider/settings`}
+                               component={ServiceProviderEdit}/>
                         <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
                                component={AppointmentRequestInfo}/>
                         <Route exec path={`${this.props.match.path}/set`} render={(props) => (

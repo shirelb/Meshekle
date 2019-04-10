@@ -20,13 +20,13 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import mappers from "../../shared/mappers";
 import store from "store";
 import strings from "../../shared/strings";
+import usersStorage from "../../storage/usersStorage";
 
-// TODO put here the settings and delete settings page. put settings page also in the appointments as button "settings"
 class ServiceProviderForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const {serviceProvider, users} = props;
+        // const {serviceProvider, users} = props;
 
         this.state = {
             formError: false,
@@ -56,17 +56,17 @@ class ServiceProviderForm extends React.Component {
             endTimeSelected: ["", "", "", "", "", ""],
         };
 
-        if (serviceProvider) {
+        if (this.props.serviceProvider) {
             Object.assign(this.state, {
                 serviceProvider: {
-                    serviceProviderId: serviceProvider.serviceProviderId,
-                    role: serviceProvider.role,
-                    userId: serviceProvider.userId,
-                    operationTime: serviceProvider.operationTime,
-                    phoneNumber: serviceProvider.phoneNumber,
-                    appointmentWayType: serviceProvider.appointmentWayType,
-                    subjects: serviceProvider.subjects,
-                    active: serviceProvider.active,
+                    serviceProviderId: this.props.serviceProvider.serviceProviderId,
+                    role: this.props.serviceProvider.role,
+                    userId: this.props.serviceProvider.userId,
+                    operationTime: typeof this.props.serviceProvider.operationTime === 'string' ? JSON.parse(this.props.serviceProvider.operationTime) : this.props.serviceProvider.operationTime,
+                    phoneNumber: this.props.serviceProvider.phoneNumber,
+                    appointmentWayType: this.props.serviceProvider.appointmentWayType,
+                    subjects: typeof this.props.serviceProvider.subjects === 'string' ? JSON.parse(this.props.serviceProvider.subjects) : this.props.serviceProvider.subjects,
+                    active: this.props.serviceProvider.active,
                 },
             });
         } else {
@@ -89,7 +89,7 @@ class ServiceProviderForm extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {serviceProvider} = nextProps;
+        const serviceProvider = nextProps.serviceProvider;
 
         if (serviceProvider) {
             this.setState({
@@ -97,16 +97,24 @@ class ServiceProviderForm extends React.Component {
                     serviceProviderId: serviceProvider.serviceProviderId,
                     role: serviceProvider.role,
                     userId: serviceProvider.userId,
-                    operationTime: serviceProvider.operationTime,
+                    operationTime: typeof serviceProvider.operationTime === 'string' ? JSON.parse(serviceProvider.operationTime) : serviceProvider.operationTime,
                     phoneNumber: serviceProvider.phoneNumber,
                     appointmentWayType: serviceProvider.appointmentWayType,
-                    subjects: serviceProvider.subjects,
+                    subjects: typeof serviceProvider.subjects === 'string' ? JSON.parse(serviceProvider.subjects) : serviceProvider.subjects,
                     active: serviceProvider.active,
                 },
             })
+
+            JSON.parse(serviceProvider.operationTime).forEach(dayTime => {
+                let operationTimeDaySelected = this.state.operationTimeDaySelected;
+                operationTimeDaySelected[Object.keys(strings.days).indexOf(dayTime.day)] = true;
+                this.setState({operationTimeDaySelected})
+            })
         }
 
-        this.buildUsersOption(nextProps.users);
+        if (nextProps.users)
+            this.buildUsersOption(nextProps.users);
+
     }
 
     buildUsersOption = (users) => {
@@ -161,7 +169,21 @@ class ServiceProviderForm extends React.Component {
                 // console.log("serviceProviderList ", response);
             });
 
-        this.buildUsersOption(this.props.users)
+        if (this.props.users)
+            this.buildUsersOption(this.props.users);
+        else
+            this.loadUsers();
+
+    }
+
+    loadUsers() {
+        usersStorage.getUsers()
+            .then((response) => {
+                console.log('response ', response);
+                const users = response;
+
+                this.buildUsersOption(users);
+            });
     }
 
     handleFocus = () => {
@@ -526,7 +548,7 @@ class ServiceProviderForm extends React.Component {
         const {formError, formComplete, usersOptions, operationTimeDaySelected, activeAccordionIndex, serviceProvider, serviceProvider: {serviceProviderId, role, userId, operationTime, phoneNumber, appointmentWayType, subjects, active}} = this.state;
         const {handleCancel, submitText} = this.props;
 
-        // console.log("serviceProvider form state ", this.state);
+        console.log("serviceProvider form state ", this.state);
         // console.log("serviceProvider filter ", operationTime.filter(dayTime => dayTime.day === "Sunday"));
 
         return (
@@ -548,6 +570,7 @@ class ServiceProviderForm extends React.Component {
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
                         search={this.userIdOrFullNameSearch}
+                        disabled={this.props.openedFrom !== "ServiceProviderAdd"}
                     />
                     <Form.Input
                         error={this.state.fieldPhoneNumberError}
@@ -578,8 +601,9 @@ class ServiceProviderForm extends React.Component {
                 </Form.Group>
 
                 <Form.Group widths='equal'>
-                    <Form.Field required error={this.state.fieldRoleError} onFocus={this.handleFocus}>
-                        <label>תפקידים</label>
+                    <Form.Field required error={this.state.fieldRoleError} onFocus={this.handleFocus}
+                                disabled={this.props.openedFrom !== "ServiceProviderAdd"}>
+                        <label>תפקיד</label>
                         <List>
                             {
                                 Object.keys(strings.roles).map((item, index) => {

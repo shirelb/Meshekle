@@ -18,6 +18,7 @@ import ServiceProviderAdd from "../../components/serviceProvider/ServiceProvider
 import ServiceProviderInfo from "../../components/serviceProvider/ServiceProviderInfo";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import mappers from "../../shared/mappers";
+import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -261,7 +262,7 @@ class PhoneBookManagementPage extends React.Component {
                                             <Header.Content>
                                                 <Link to={{
                                                     pathname: `${this.props.match.url}/serviceProvider/${serviceProvider.serviceProviderId}`,
-                                                    state: {serviceProvider: serviceProvider}
+                                                    state: {serviceProvider: serviceProvider, users: {users}}
                                                 }}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>

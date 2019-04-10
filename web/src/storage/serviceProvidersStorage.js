@@ -91,20 +91,20 @@ var getServiceProviderAppointmentWayTypeById = (serviceProviderId, role) => {
 };
 
 
-var updateServiceProviderById = (serviceProviderId, serviceProviderRole, updateOperationTime = null, updatePhoneNumber = null, updateAppointmentWayType = null, updateSubjects = null, updateActive = null) => {
+var updateServiceProviderById = (serviceProvider) => {
     let data = {};
-    if (updateOperationTime !== null)
-        data.operationTime = updateOperationTime;
-    if (updatePhoneNumber !== null)
-        data.phoneNumber = updatePhoneNumber;
-    if (updateAppointmentWayType !== null)
-        data.appointmentWayType = updateAppointmentWayType;
-    if (updateSubjects !== null)
-        data.subjects = JSON.stringify(updateSubjects);
-    if (updateActive !== null)
-        data.active = updateActive;
+    if (serviceProvider.operationTime !== null)
+        data.operationTime = JSON.stringify(serviceProvider.operationTime);
+    if (serviceProvider.phoneNumber !== null)
+        data.phoneNumber = serviceProvider.phoneNumber;
+    if (serviceProvider.appointmentWayType !== null)
+        data.appointmentWayType = serviceProvider.appointmentWayType;
+    if (serviceProvider.subjects !== null)
+        data.subjects = JSON.stringify(serviceProvider.subjects);
+    if (serviceProvider.active !== null)
+        data.active = serviceProvider.active;
 
-    return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProviderId}/role/${serviceProviderRole}`,
+    return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProvider.serviceProviderId}/role/${serviceProvider.role}`,
         data,
         {
             headers: serviceProviderHeaders
@@ -114,7 +114,7 @@ var updateServiceProviderById = (serviceProviderId, serviceProviderRole, updateO
             return response;
         })
         .catch((error) => {
-            console.log('getServiceProviderAppointmentWayTypeById error ', error);
+            console.log('updateServiceProviderById error ', error);
         });
 };
 
