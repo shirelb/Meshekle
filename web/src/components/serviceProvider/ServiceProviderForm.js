@@ -1,19 +1,5 @@
 import React from 'react';
-import {
-    Accordion,
-    Button,
-    Checkbox,
-    Dropdown,
-    Form,
-    Grid,
-    Header,
-    Icon,
-    Input,
-    List,
-    Message,
-    Radio,
-    Table
-} from 'semantic-ui-react';
+import {Button, Checkbox, Dropdown, Form, Grid, Header, Icon, Input, List, Message} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
@@ -57,6 +43,12 @@ class ServiceProviderForm extends React.Component {
         };
 
         if (this.props.serviceProvider) {
+            JSON.parse(this.props.serviceProvider.operationTime).forEach(dayTime => {
+                let operationTimeDaySelected = this.state.operationTimeDaySelected;
+                operationTimeDaySelected[Object.keys(strings.days).indexOf(dayTime.day)] = true;
+                Object.assign(this.state, {operationTimeDaySelected})
+            });
+
             Object.assign(this.state, {
                 serviceProvider: {
                     serviceProviderId: this.props.serviceProvider.serviceProviderId,
@@ -589,6 +581,7 @@ class ServiceProviderForm extends React.Component {
                         label="פעיל"
                         // type="checkbox"
                         name="active"
+                        disabled={serviceProviderId === store.get("serviceProviderId")}
                     >
                         <Checkbox
                             name="active"
@@ -631,19 +624,20 @@ class ServiceProviderForm extends React.Component {
                         <List>
                             {
                                 Object.keys(strings.appointmentsWayType).map((item, index) => {
-                                    return <List.Item key={index}>
-                                        <Checkbox
-                                            radio
-                                            checked={appointmentWayType === item}
-                                            // onChange={this.onChangeRoles.bind(this)}
-                                            onChange={this.handleChange}
-                                            value={item}
-                                            name="appointmentWayType"
-                                        />
-                                        <label>
-                                            {strings.appointmentsWayType[item]}
-                                        </label>
-                                    </List.Item>
+                                    if (item !== "Admin")
+                                        return <List.Item key={index}>
+                                            <Checkbox
+                                                radio
+                                                checked={appointmentWayType === item}
+                                                // onChange={this.onChangeRoles.bind(this)}
+                                                onChange={this.handleChange}
+                                                value={item}
+                                                name="appointmentWayType"
+                                            />
+                                            <label>
+                                                {strings.appointmentsWayType[item]}
+                                            </label>
+                                        </List.Item>
                                 })
                             }
                         </List>

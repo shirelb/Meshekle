@@ -9,7 +9,6 @@ import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
-import SettingsPage from '../settingsPage/SettingsPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import {AnnouncementsManagementPage} from '../announcementsManagementPage/AnnouncementsManagementPage'
 
@@ -17,7 +16,7 @@ import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
-import {WEB_SOCKET, connectToServerSocket} from "../../shared/constants";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 
 
 const handleLogout = history => () => {

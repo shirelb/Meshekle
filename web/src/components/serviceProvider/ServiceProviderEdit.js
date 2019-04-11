@@ -35,9 +35,10 @@ class ServiceProviderEdit extends React.Component {
 
     getServiceProvider = (serviceProviderId) => {
         serviceProvidersStorage.getServiceProviderById(serviceProviderId)
-            .then(serviceProvider => {
-                this.setState({serviceProvider: serviceProvider});
-                serviceProvidersStorage.getServiceProviderUserDetails(this.serviceProviderId)
+            .then(serviceProviderFound => {
+                let serviceProvider = serviceProviderFound[0];
+                // this.setState({serviceProvider: serviceProvider});
+                serviceProvidersStorage.getServiceProviderUserDetails(serviceProviderId)
                     .then(userDetails => {
                         serviceProvider.fullname = userDetails.data.fullname;
                         this.setState({serviceProvider: serviceProvider});
@@ -49,7 +50,8 @@ class ServiceProviderEdit extends React.Component {
         serviceProvidersStorage.updateServiceProviderById(serviceProvider)
             .then((response) => {
                 this.props.history.goBack();
-                this.props.history.goBack();
+                if (this.props.location.state.serviceProvider)
+                    this.props.history.goBack();
             })
     }
 
@@ -64,7 +66,7 @@ class ServiceProviderEdit extends React.Component {
     render() {
         const {serviceProvider} = this.state;
 
-        console.log("ServiceProviderEdit state ", this.state);
+        // console.log("ServiceProviderEdit state ", this.state);
 
 
         return (
@@ -76,18 +78,21 @@ class ServiceProviderEdit extends React.Component {
 
                 <Grid padded>
                     <Grid.Row>
-                        <Header as="h1" floated="right">ערוך משתמש</Header>
+                        <Header as="h1" floated="right">ערוך נותן שירות</Header>
                     </Grid.Row>
 
                     <Grid.Row>
                         <Grid.Column>
-                            <ServiceProviderForm
-                                submitText="עדכן"
-                                serviceProvider={serviceProvider}
-                                handleSubmit={this.handleSubmit}
-                                handleCancel={this.handleCancel}
-                                openedFrom={"ServiceProviderEdit"}
-                            />
+                            {serviceProvider.role ?
+                                <ServiceProviderForm
+                                    submitText="עדכן"
+                                    serviceProvider={serviceProvider}
+                                    handleSubmit={this.handleSubmit}
+                                    handleCancel={this.handleCancel}
+                                    openedFrom={"ServiceProviderEdit"}
+                                />
+                                : null
+                            }
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
