@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import store from "store";
 
 const serviceProviderHeaders = {
@@ -111,6 +111,10 @@ var updateServiceProviderById = (serviceProvider) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderUpdate', {
+                serviceProviderId: serviceProvider.serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -129,6 +133,10 @@ var addRoleToServiceProviderById = (serviceProviderId, roleToAdd) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderAddRole', {
+                serviceProviderId: serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -147,6 +155,10 @@ var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderRemoveRole', {
+                serviceProviderId: serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -171,6 +183,10 @@ var createServiceProvider = (serviceProvider) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderCreated', {
+                serviceProviderId: serviceProvider.serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -187,6 +203,10 @@ var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteT
             }
         )
             .then((response) => {
+                WEB_SOCKET.emit('serviceProviderShallowDeleted', {
+                    serviceProviderId: serviceProviderId,
+                });
+
                 return response;
             })
             .catch((error) => {
@@ -197,9 +217,11 @@ var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteT
             {headers: serviceProviderHeaders}
         )
             .then((response) => {
-                let permissions = response.data;
-                console.log('permissions ', permissions);
-                return permissions;
+                WEB_SOCKET.emit('serviceProviderDeepDeleted', {
+                    serviceProviderId: serviceProviderId,
+                });
+
+                return response;
             })
             .catch((error) => {
                 console.log('error ', error);
