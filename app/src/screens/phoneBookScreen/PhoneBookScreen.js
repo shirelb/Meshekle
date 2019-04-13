@@ -6,6 +6,7 @@ import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import mappers from "../../shared/mappers";
+import {APP_SOCKET} from "../../shared/constants";
 
 
 export default class PhoneBookScreen extends Component {
@@ -35,6 +36,14 @@ export default class PhoneBookScreen extends Component {
                 this.userId = userData.userId;
                 this.loadUsers();
             });
+
+        APP_SOCKET.on("getServiceProviders", this.loadUsers.bind(this));
+        APP_SOCKET.on("getUsers", this.loadUsers.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getServiceProviders");
+        APP_SOCKET.off("getUsers");
     }
 
     loadUsers() {
@@ -88,13 +97,13 @@ export default class PhoneBookScreen extends Component {
         // console.log("in search ", search);
         let users = this.state.users;
         let filteredByNameOrRole = users.filter((item) => {
-            let roleFound=false;
+            let roleFound = false;
             item.ServiceProviders.forEach(provider => {
-                if(mappers.serviceProviderRolesMapper(provider.role).includes(search)) {
+                if (mappers.serviceProviderRolesMapper(provider.role).includes(search)) {
                     roleFound = true;
                 }
             });
-            return item.fullname.includes(search) ||roleFound;
+            return item.fullname.includes(search) || roleFound;
         });
         if (!search || search === '') {
             this.setState({
@@ -125,7 +134,8 @@ export default class PhoneBookScreen extends Component {
     renderRow = ({item}) => {
         let roles = [];
         item.ServiceProviders.forEach(provider => {
-            roles.push(mappers.serviceProviderRolesMapper(provider.role));
+            if (provider.active)
+                roles.push(mappers.serviceProviderRolesMapper(provider.role));
         });
 
         return (

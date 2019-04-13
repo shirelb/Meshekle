@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import store from "store";
 
 const serviceProviderHeaders = {
@@ -38,6 +38,8 @@ var deleteUserByUserID = (userId, headers) => {
         {headers: headers}
     )
         .then((response) => {
+            WEB_SOCKET.emit('userShallowDeleted');
+
             return response;
         })
         .catch((error) => {
@@ -60,6 +62,8 @@ var createUser = (newUser, serviceProviderHeaders) => {
         {headers: serviceProviderHeaders}
     )
         .then((response) => {
+            WEB_SOCKET.emit('userCreated');
+
             return response;
         })
         .catch((error) => {
@@ -83,6 +87,8 @@ var updateUserById = function (updatedUser, serviceProviderHeaders) {
         {headers: serviceProviderHeaders}
     )
         .then(response => {
+            WEB_SOCKET.emit('userUpdated');
+
             return response;
         })
         .catch(error => {

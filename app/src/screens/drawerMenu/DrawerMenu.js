@@ -53,6 +53,14 @@ export default class DrawerMenu extends Component {
             });
     }
 
+    componentDidMount() {
+        APP_SOCKET.on("getUsers", this.loadUser.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUsers");
+    }
+
     loadUser() {
         usersStorage.getUserById(this.userId, this.userHeaders)
             .then(user => {

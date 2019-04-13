@@ -1,37 +1,22 @@
 
-module.exports = function (socket,pushToWebClient,pushToAppClient) {
-    socket.on('userPostAppointmentRequests', (data) => {
-        console.log('socket userPostAppointmentRequests data ', data);
-        pushToWebClient(data, 'getServiceProviderAppointmentRequests');
+module.exports = function (socket,pushToAllWebClient,pushToAllAppClient) {
+    socket.on('userShallowDeleted', (data) => {
+        console.log('socket userShallowDeleted data ', data);
+        pushToAllWebClient('getUsers');
+        pushToAllAppClient('getUsers');
     });
 
-    socket.on('userCancelAppointmentRequests', (data) => {
-        console.log('socket userPostAppointmentRequests data ', data);
-        pushToWebClient(data, 'getServiceProviderAppointmentRequests');
+    socket.on('userCreated', (data) => {
+        console.log('socket userCreated data ', data);
+        pushToAllWebClient('getUsers');
+        pushToAllAppClient('getUsers');
     });
 
-    socket.on('serviceProviderPostAppointment', (data) => {
-        console.log('socket serviceProviderPostAppointment data ', data);
-        pushToAppClient(data, 'getUserAppointments');
+    socket.on('userUpdated', (data) => {
+        console.log('socket userUpdated data ', data);
+        pushToAllWebClient('getUsers');
+        pushToAllAppClient('getUsers');
     });
 
-    socket.on('serviceProviderUpdateAppointment', (data) => {
-        console.log('socket serviceProviderUpdateAppointment data ', data);
-        pushToAppClient(data, 'getUserAppointments');
-    });
 
-    socket.on('serviceProviderCancelAppointment', (data) => {
-        console.log('socket serviceProviderCancelAppointment data ', data);
-        pushToAppClient(data, 'getUserAppointments');
-    });
-
-    socket.on('serviceProviderRejectAppointmentRequest', (data) => {
-        console.log('socket serviceProviderRejectAppointmentRequest data ', data);
-        pushToAppClient(data, 'getUserAppointmentRequests');
-    });
-
-    socket.on('serviceProviderApproveAppointmentRequest', (data) => {
-        console.log('socket serviceProviderApproveAppointmentRequest data ', data);
-        pushToAppClient(data, 'getUserAppointmentRequests');
-    });
 };

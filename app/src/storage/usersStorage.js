@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {APP_SOCKET, SERVER_URL} from "../shared/constants";
 
 var getUserEvents = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/users/events/userId/${userId}`,
@@ -70,6 +70,8 @@ var updateUserById = function (updatedUser, userHeaders) {
         {headers: userHeaders}
     )
         .then(response => {
+            APP_SOCKET.emit('userUpdated');
+
             return response;
         })
         .catch(error => {

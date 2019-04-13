@@ -19,6 +19,7 @@ import ServiceProviderInfo from "../../components/serviceProvider/ServiceProvide
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import mappers from "../../shared/mappers";
 import AppointmentAdd from "../../components/appointment/AppointmentAdd";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -53,6 +54,16 @@ class PhoneBookManagementPage extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
         this.loadUsers();
         this.loadServiceProviders();
+
+        connectToServerSocket(store.get('serviceProviderId'));
+
+        WEB_SOCKET.on("getUsers", this.loadUsers.bind(this));
+        WEB_SOCKET.on("getServiceProviders", this.loadServiceProviders.bind(this));
+    }
+
+    componentWillUnmount() {
+        WEB_SOCKET.off("getUsers");
+        WEB_SOCKET.off("getServiceProviders");
     }
 
     componentWillReceiveProps({location = {}}) {
