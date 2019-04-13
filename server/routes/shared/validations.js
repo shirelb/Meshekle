@@ -71,6 +71,10 @@ module.exports = {
             }
         })
     },
+    getCategoriesPromise: function() {
+        return Categories.findAll({
+        })
+    },
     getSchedAppointmentByIdPromise: function(appointmentId) {
         return ScheduledAppointments.findAll({
             where: {

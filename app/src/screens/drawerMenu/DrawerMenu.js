@@ -84,6 +84,17 @@ export default class DrawerMenu extends Component {
                     />
                     <ListItem
                         // roundAvatar
+                        onPress={this.navigateToScreen('AnnouncementsScreen')}
+                        // avatar={l.avatar_url}
+                        // key={i}
+                        title={strings.drawerMenu.ANNOUNCEMENTS_SCREEN_NAME}
+                        // subtitle="test"
+                        leftIcon={{name: 'insert-comment'}}
+                        rightIcon={<Icon name={'chevron-left'}/>}
+                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                    />
+                    <ListItem
+                        // roundAvatar
                         onPress={this.onLogoutPress.bind(this)}
                         // avatar={l.avatar_url}
                         // key={i}

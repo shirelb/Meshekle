@@ -366,6 +366,45 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
 });
 
 
+//GET all announcements by status sorted by creation date
+router.get('/status/:status', function (req, res, next) {
+    Announcements.findAll({
+        where: {
+            status: req.params.status
+        },
+        order: [['creationTime', 'DESC']]
+    })
+        .then(Announcements => {
+            console.log(Announcements);
+            res.status(200).send(Announcements);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+
+
+
+//GET all categories
+router.get('/categories', function (req, res, next) {
+    Categories.findAll()
+        .then(Categories => {
+            console.log(Categories);
+            res.status(200).send(Categories);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+
+
+
+
+
 // DELETE announcement by announcementId.
 router.put('/delete/announcementId/:announcementId', function (req, res, next) {
     Announcements.destroy(
@@ -401,8 +440,10 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
         req.body.categoryId ? updateFields.categoryId = req.body.categoryId : null;
         req.body.content ? updateFields.content = req.body.content : null;
         req.body.title ? updateFields.title = req.body.title : null;
-        req.body.image ? updateFields.image = req.body.image : null;
+        req.body.file ? updateFields.file = req.body.file : null;
+        req.body.fileName ? updateFields.fileName = req.body.fileName : null;
         req.body.dateOfEvent ? updateFields.dateOfEvent = req.body.dateOfEvent : null;
+        req.body.creationTime ? updateFields.creationTime = req.body.creationTime : null;
 
         if(req.body.status)
             if (!isStatusExists(req.body.status))
@@ -452,7 +493,8 @@ router.post('/add', function (req, res, next) {
         title: req.body.title,
         content: req.body.content,
         expirationTime: req.body.expirationTime,
-        image: req.body.image,
+        file: req.body.file,
+        fileName: req.body.fileName,
         dateOfEvent: req.body.dateOfEvent,
         status: req.body.status,
     })
@@ -553,6 +595,57 @@ router.put('/subscription/delete', function (req, res, next) {
 
 
 
+// update category subscription
+router.post('/subscription/update', function (req, res, next) {
+
+    validations.getUsersByUserIdPromise(req.body.userId)
+        .then(users => {
+            if(users.length === 0)
+                return res.status(400).send({message: announcementsRoute.USER_NOT_FOUND});
+            validations.getCategoriesPromise()
+                .then(categories => {
+                    categories = categories.map(c => c.categoryId);
+                    req.body.categories.map(cat => {
+                        if(!categories.includes(cat.categoryId))
+                            return res.status(400).send({message: announcementsRoute.CATEGORY_NOT_FOUND});
+                    });
+                    AnnouncementSubscriptions.destroy(
+                        {
+                            where: {
+                                userId: req.body.userId,
+                            }
+                        })
+                        .then(() => {
+                            AnnouncementSubscriptions.bulkCreate(
+                                req.body.categories.filter(c => c.switch).map(item => {return {userId: req.body.userId, categoryId: item.categoryId}})
+                            ).then(updated =>
+                                res.status(200).send({
+                                    "message": announcementsRoute.SUB_UPDATED_SUCC,
+                                    "result": updated
+                                }))
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+
+});
 
 
 

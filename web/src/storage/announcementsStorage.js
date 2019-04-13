@@ -75,4 +75,17 @@ var removeAnnouncement = (announcementId,headers) => {
         });
 };
 
-export default {getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement, updateAnnouncement, removeAnnouncement};
+var getUsers = function (userHeaders) {
+    return axios.get(`${SERVER_URL}/api/users`,
+        {
+            headers: userHeaders,
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get users error ', error)
+        });
+};
+
+export default {getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement, updateAnnouncement, removeAnnouncement, getUsers};

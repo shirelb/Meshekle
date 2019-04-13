@@ -23,8 +23,12 @@ import AppointmentsScreen from './screens/appointmentsScreen/AppointmentsScreen'
 import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest';
 import UserAppointmentRequests from './screens/userAppointmentRequests/UserAppointmentRequests';
 import ChoresScreen from './screens/choresScreen/ChoresScreen';
+import AnnouncementsScreen from './screens/announcementsScreen/AnnouncementsScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
+import UserAnnouncementsSettings from './screens/userAnnouncementsSettings/UserAnnouncementsSettings';
+import RequestAnnouncement from './screens/requestAnnouncement/RequestAnnouncement';
+import UserAnnouncementsRequests from './screens/userAnnouncementsRequests/UserAnnouncementsRequests';
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -70,6 +74,30 @@ const DrawerMenuNavigator = createDrawerNavigator(
             screen: ChoresScreen,
             params: {
                 headerTitle: 'התורנויות שלי',
+            },
+        },
+        AnnouncementsScreen: {
+            screen: AnnouncementsScreen,
+            params: {
+                headerTitle: 'לוח מודעות',
+            },
+        },
+        UserAnnouncementsSettings: {
+            screen: UserAnnouncementsSettings,
+            params: {
+                headerTitle: 'הגדרות לוח מודעות',
+            },
+        },
+        RequestAnnouncement: {
+            screen: RequestAnnouncement,
+            params: {
+                headerTitle: 'בקשת פרסום מודעה',
+            },
+        },
+        UserAnnouncementsRequests: {
+            screen: UserAnnouncementsRequests,
+            params: {
+                headerTitle: 'הבקשות שלי',
             },
         },
     },

@@ -107,7 +107,8 @@ describe('announcements route', function () {
         title: "example1",
         content: "announcement example",
         expirationTime: "2019-06-22",
-        image: "",
+        file: "",
+        fileName: "",
         //dateOfEvent: "",
         status:constants.statueses.REQUEST_STATUS,
     };
@@ -120,7 +121,8 @@ describe('announcements route', function () {
         title: "example2",
         content: "announcement example",
         expirationTime: "2019-06-22",
-        image: "",
+        file: "",
+        fileName: "",
         //dateOfEvent: "",
         status:constants.statueses.ON_AIR_STATUS,
     };
@@ -133,7 +135,8 @@ describe('announcements route', function () {
         title: "example3",
         content: "announcement example",
         expirationTime: "2019-01-22",
-        image: "",
+        file: "",
+        fileName: "",
         //dateOfEvent: "",
         status:constants.statueses.EXPIRED_STATUS,
     };
@@ -146,7 +149,8 @@ describe('announcements route', function () {
         title: "example4",
         content: "announcement example",
         expirationTime: "2019-06-22",
-        image: "",
+        file: "",
+        fileName: "",
         //dateOfEvent: "",
         status:constants.statueses.CANCELLED_STATUS,
     };
@@ -154,9 +158,17 @@ describe('announcements route', function () {
         categoryId:1,
         userId:"111111111"
     };
+    let subscriptionTest3 ={
+        categoryId:2,
+        userId:"111111111"
+    };
     let subscriptionTest2 ={
         categoryId:1,
         userId:"222222222"
+    };
+    let subscriptionSwitchesTest ={
+        userId:1,
+        categories:[{categoryId:1,switch:false},{categoryId:2,switch:true}],
     };
     let categoryTest1 ={
         categoryId: 1,
@@ -988,6 +1000,116 @@ describe('announcements route', function () {
 
 
 
+// GET announcement by status
+    describe('/ GET announcement by status\n', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createCategory(categoryTest1)
+                                .then(
+                                    createAnnouncement(announcementTest1)
+                                        .then(
+                                            createAnnouncement(announcementTest2)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+                        )
+                );
+
+        });
+        it('it should GET announcement by status\n ', (done) => {
+            chai.request(server)
+                .get('/api/announcements/status/'+constants.statueses.ON_AIR_STATUS)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+
+        after((done) => {
+            deleteAnnouncements(announcementTest1)
+                .then(
+                    deleteAnnouncements(announcementTest2)
+                        .then(
+                            deleteCategory(categoryTest1)
+                                .then(
+                                    deleteServiceProvider(serviceProviderTest)
+                                        .then(
+                                            deleteUser(userTest)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+                        )
+                );
+        });
+    });
+
+
+
+// GET all categories
+    describe('/ GET all categories\n', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createCategory(categoryTest1)
+                                .then(
+                                    createAnnouncement(announcementTest1)
+                                        .then(
+                                            createAnnouncement(announcementTest2)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+                        )
+                );
+
+        });
+        it('it should GET categories\n ', (done) => {
+            chai.request(server)
+                .get('/api/announcements/categories')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(1);
+                    done();
+                });
+        });
+
+        after((done) => {
+            deleteAnnouncements(announcementTest1)
+                .then(
+                    deleteAnnouncements(announcementTest2)
+                        .then(
+                            deleteCategory(categoryTest1)
+                                .then(
+                                    deleteServiceProvider(serviceProviderTest)
+                                        .then(
+                                            deleteUser(userTest)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+                        )
+                );
+        });
+    });
+
+
+
 
 
 
@@ -1416,6 +1538,99 @@ describe('announcements route', function () {
 
 
 
+
+//UPDATE category subscription
+    describe('/PUT update category subscription', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createUser(userTest1)
+                        .then(
+                            createServiceProvider(serviceProviderTest)
+                                .then(
+                                    createCategory(categoryTest1)
+                                        .then(
+                                            createCategory(categoryTest2)
+                                                .then(
+                                                    createAnnouncementSubscription(subscriptionTest1)
+                                                        .then(
+                                                            done()
+                                                        )
+                                            )
+                                        )
+                                )
+                        )
+                );
+        });
+        it('it should Update the user category subscription ', (done) => {
+            chai.request(server)
+                .post('/api/announcements/subscription/update')
+                .set('Authorization', tokenTest)
+                .send(subscriptionSwitchesTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(announcementsRoute.SUB_UPDATED_SUCC);
+                    AnnouncementSubscriptions.findAll({
+                        where: {userId:subscriptionSwitchesTest.userId}
+                    }).then(subs => {
+                        subs.length.should.be.eql(1);
+                        subs[0].userId.should.be.eql(subscriptionSwitchesTest.userId);
+                        subs[0].categoryId.should.be.eql(subscriptionSwitchesTest.categories[1].categoryId);
+                    });
+                    done()
+                });
+        });
+
+        it('it should send an error that the user not found', (done) => {
+            subscriptionSwitchesTest.userId = "123";
+            chai.request(server)
+                .post('/api/announcements/subscription/update')
+                .set('Authorization', tokenTest)
+                .send(subscriptionSwitchesTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.USER_NOT_FOUND);
+                    subscriptionSwitchesTest.userId = "111111111";
+                    done();
+                });
+        });
+        it('it should send an error that the category not found', (done) => {
+            subscriptionSwitchesTest.categories[0].categoryId = "123";
+            chai.request(server)
+                .post('/api/announcements/subscription/update')
+                .set('Authorization', tokenTest)
+                .send(subscriptionSwitchesTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_NOT_FOUND);
+                    subscriptionSwitchesTest.categories[0].categoryId = "1";
+                    done();
+                });
+        });
+
+
+        after((done) => {
+            deleteAnnouncementsSubscription(subscriptionTest3)
+                .then(
+                    deleteCategory(categoryTest2)
+                        .then(
+                            deleteCategory(categoryTest1)
+                                .then(
+                                    deleteServiceProvider(serviceProviderTest)
+                                        .then(
+                                            deleteUser(userTest)
+                                                .then(
+                                                    deleteUser(userTest1)
+                                                        .then(
+                                                            done()
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                )
+        });
+    });
 
 
 

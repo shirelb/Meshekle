@@ -132,6 +132,7 @@ module.exports = {
         SUB_ALREADY_EXISTS :"Subscription already exists!",
         SUB_ADDED_SUCC :"Subscription added successfully!",
         SUB_NOT_FOUND :"Subscription not found!",
+        SUB_UPDATED_SUCC :"Subscription updated successfully!",
         CATEGORY_ALREADY_EXISTS :"Category already exists!",
         CATEGORY_ADDED_SUCC :"Category added successfully!",
         CATEGORY_DELETED_SUCC :"Category deleted successfully!",

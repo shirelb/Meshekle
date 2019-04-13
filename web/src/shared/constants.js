@@ -9,7 +9,7 @@ export const SERVER_URL = __DEV__ ?
 import openSocket from "socket.io-client";
 import store from "store";
 
-const SERVER_URL = "http://132.73.206.100:4000";
+const SERVER_URL = "http://192.168.0.14:4000";
 
 const WEB_SOCKET = openSocket(SERVER_URL);
 

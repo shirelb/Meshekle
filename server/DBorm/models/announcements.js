@@ -34,8 +34,12 @@ module.exports = (sequelize, type) => {
             type: type.DATE,
             required: false
         },
-        image: {
-            type: type.BLOB,
+        file: {
+            type: type.STRING,
+            required: false
+        },
+        fileName: {
+            type: type.STRING,
             required: false
         },
         dateOfEvent: {
