@@ -74,7 +74,8 @@ export default class UserProfileInfo extends Component {
                                 <View style={styles.circle2}>
                                     <View style={styles.circle3}>
                                         <Image style={styles.avatar}
-                                               source={{uri: 'https://cdn.iconscout.com/icon/free/png-256/avatar-373-456325.png'}}/>
+                                               source={{uri: user.image}}
+                                        />
                                     </View>
                                 </View>
                             </View>

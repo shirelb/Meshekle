@@ -62,8 +62,9 @@ class UserInfo extends React.Component {
 
                     <Modal.Header>{user.fullname}</Modal.Header>
                     <Modal.Content image>
-                        <Image wrapped size="small" src={`https://api.adorable.io/avatars/250`}/>
-                        <Modal.Description>
+                        <Image wrapped size="small"
+                               src={user.image ? user.image : 'https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png'}/>
+                        <Modal.Description style={{marginRight: 20}}>
                             <p>{strings.phoneBookPageStrings.USER_ID_HEADER}: {user.userId}</p>
                             <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {user.fullname}</p>
                             {/*<p>{strings.phoneBookPageStrings.PASSWORD_HEADER}: {user.password}</p>*/}
@@ -91,7 +92,8 @@ class UserInfo extends React.Component {
                     </Switch>
                 </div>
             </div>
-        );
+        )
+            ;
     }
 }
 

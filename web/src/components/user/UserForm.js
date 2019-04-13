@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form, Label, Message, Checkbox} from 'semantic-ui-react';
+import {Form, Label, Message, Image, Checkbox} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
 
@@ -234,13 +234,31 @@ class UserForm extends React.Component {
         this.setState({user: updateUser})
     };
 
+    onChangeImage = (e) => {
+        e.preventDefault();
+
+        let reader = new FileReader();
+        let file = e.target.files[0];
+
+        reader.readAsDataURL(file);
+
+        reader.onloadend = () => {
+            this.setState({
+                user: {...this.state.user, image: reader.result},
+                imageFile: file,
+            });
+        };
+
+    };
 
     render() {
         const {formError, formComplete, user, user: {userId, fullname, password, email, mailbox, cellphone, phone, bornDate, active, image}} = this.state;
         const {handleCancel, submitText} = this.props;
 
+        // console.log("USerForm user ", user);
+
         return (
-            <Form onSubmit={this.handleSubmit} error={formError}>
+            <Form error={formError}>
                 <Form.Group widths='equal'>
                     <Form.Input
                         error={this.state.fieldUserIdError}
@@ -343,12 +361,16 @@ class UserForm extends React.Component {
                     <Form.Input
                         // error={this.state.field}
                         label="תמונה"
-                        type="image"
+                        type="file"
                         name="image"
-                        value={image}
-                        onChange={this.handleChange}
+                        // value={image}
+                        onChange={this.onChangeImage}
                         onFocus={this.handleFocus}
                     />
+                    {image !== "" ?
+                        <Image src={image} style={{height: '60px', width: '60px'}}/>
+                        : null
+                    }
                     <Form.Input
                         error={this.state.fieldActiveError}
                         required
@@ -381,7 +403,7 @@ class UserForm extends React.Component {
                 }
 
                 <Form.Group style={{marginTop: 20}}>
-                    <Form.Button positive type="submit">{submitText}</Form.Button>
+                    <Form.Button positive type="submit" onClick={this.handleSubmit}>{submitText}</Form.Button>
                     <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>
                 </Form.Group>

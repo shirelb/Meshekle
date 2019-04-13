@@ -7,7 +7,7 @@ var express = require('express');
 var moment = require('moment');
 var router = express.Router();
 var nodemailer = require('nodemailer');
-
+var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
@@ -440,6 +440,7 @@ router.post('/users/add', function (req, res, next) {
                 cellphone: req.body.cellphone,
                 phone: req.body.phone,
                 bornDate: req.body.bornDate,
+                image: req.body.image,
             })
                 .then(newUser => {
                     res.status(200).send({

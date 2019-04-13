@@ -52,7 +52,7 @@ export default class PhoneBookScreen extends Component {
                 console.log("phonebook users ", users);
 
                 this.setState({
-                    users: users,
+                    users: users.filter(user => user.active === true),
                 });
 
                 this.users = users;
@@ -132,23 +132,37 @@ export default class PhoneBookScreen extends Component {
     };
 
     renderRow = ({item}) => {
+        console.log("item ", item);
         let roles = [];
         item.ServiceProviders.forEach(provider => {
             if (provider.active)
                 roles.push(mappers.serviceProviderRolesMapper(provider.role));
         });
 
-        return (
-            <ListItem
-                roundAvatar
-                title={item.fullname}
-                subtitle={roles.join(", ")}
-                // avatar={{uri:item.avatar_url}}
-                onPress={() => this.openUserInfo(item)}
-                containerStyle={{borderBottomWidth: 0}}
-                rightIcon={<Icon name={'chevron-left'}/>}
-            />
-        )
+        if (item.image !== null)
+            return (
+                <ListItem
+                    roundAvatar
+                    title={item.fullname}
+                    subtitle={roles.join(", ")}
+                    avatar={{uri: item.image}}
+                    onPress={() => this.openUserInfo(item)}
+                    containerStyle={{borderBottomWidth: 0}}
+                    rightIcon={<Icon name={'chevron-left'}/>}
+                />
+            );
+        else
+            return (
+                <ListItem
+                    roundAvatar
+                    title={item.fullname}
+                    subtitle={roles.join(", ")}
+                    avatar={{uri: "https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png"}}
+                    onPress={() => this.openUserInfo(item)}
+                    containerStyle={{borderBottomWidth: 0}}
+                    rightIcon={<Icon name={'chevron-left'}/>}
+                />
+            )
     };
 
     render() {

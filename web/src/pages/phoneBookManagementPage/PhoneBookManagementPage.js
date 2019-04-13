@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Accordion, Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
+import {Accordion, Button, Header, Icon, Menu, Image, Table} from 'semantic-ui-react';
 import {Link, Route, Switch} from "react-router-dom";
 import store from 'store';
 import moment from 'moment';
@@ -106,6 +106,7 @@ class PhoneBookManagementPage extends React.Component {
                     serviceProvidersStorage.getServiceProviderUserDetails(provider.serviceProviderId)
                         .then(userDetails => {
                             provider.fullname = userDetails.data.fullname;
+                            provider.image = userDetails.data.image;
                             this.setState({
                                 serviceProviders: serviceProviders
                             })
@@ -165,6 +166,8 @@ class PhoneBookManagementPage extends React.Component {
 
         const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
+        let urlObject;
+        let url;
 
         return (
             <div>
@@ -194,7 +197,10 @@ class PhoneBookManagementPage extends React.Component {
                                     <Table.Cell>{user.userId}</Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
+                                            <Image
+                                                src={user.image}
+                                                rounded size='mini'
+                                            />
                                             <Header.Content>
                                                 <Link to={{
                                                     pathname: `${this.props.match.url}/user/${user.userId}`,
@@ -269,7 +275,6 @@ class PhoneBookManagementPage extends React.Component {
                                 (<Table.Row key={index}>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
                                                 <Link to={{
                                                     pathname: `${this.props.match.url}/serviceProvider/${serviceProvider.serviceProviderId}`,
@@ -281,7 +286,17 @@ class PhoneBookManagementPage extends React.Component {
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell>{serviceProvider.fullname}</Table.Cell>
+                                    <Table.Cell>
+                                        <Header as='h5' image>
+                                            <Image
+                                                src={serviceProvider.image}
+                                                rounded size='mini'
+                                            />
+                                            <Header.Content>
+                                                {serviceProvider.fullname}
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
                                     <Table.Cell>{mappers.rolesMapper(serviceProvider.role)}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
                                     <Table.Cell>

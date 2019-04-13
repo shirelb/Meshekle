@@ -99,11 +99,10 @@ export default class DrawerMenu extends Component {
                         containerStyle={{height: 150}}
                         roundAvatar
                         onPress={() => this.setState({infoModal: true})}
-                        // avatar='https://cdn.iconscout.com/icon/free/png-256/avatar-373-456325.png'
                         avatar={<Avatar
                             large
                             rounded
-                            source={{uri: "https://cdn.iconscout.com/icon/free/png-256/avatar-373-456325.png"}}
+                            source={{uri: this.state.userLoggedin.image}}
                             activeOpacity={0.7}
                         />}
                         // key={i}

@@ -49,6 +49,7 @@ var deleteUserByUserID = (userId, headers) => {
 };
 
 var createUser = (newUser, serviceProviderHeaders) => {
+    serviceProviderHeaders['Access-Control-Allow-Origin'] = '*';
     return axios.post(`${SERVER_URL}/api/serviceProviders/users/add`,
         {
             userId: newUser.userId,
@@ -58,6 +59,7 @@ var createUser = (newUser, serviceProviderHeaders) => {
             cellphone: newUser.cellphone,
             phone: newUser.phone,
             bornDate: newUser.bornDate,
+            image: newUser.image ? newUser.image : null,
         },
         {headers: serviceProviderHeaders}
     )
@@ -83,6 +85,7 @@ var updateUserById = function (updatedUser, serviceProviderHeaders) {
             phone: updatedUser.phone ? updatedUser.phone : null,
             bornDate: updatedUser.bornDate ? updatedUser.bornDate : null,
             active: typeof updatedUser.active === 'boolean' ? updatedUser.active : null,
+            image: updatedUser.image ? updatedUser.image : null,
         },
         {headers: serviceProviderHeaders}
     )
