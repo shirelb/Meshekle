@@ -9,12 +9,6 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 
 
-/*const this.subjectOptions = [
-    {key: 'f', text: 'פן', value: 'פן'},
-    {key: 'hd', text: 'צבע', value: 'צבע'},
-    {key: 'hc', text: 'תספורת', value: 'תספורת'},
-];*/
-
 let userOptions = {};
 
 usersStorage.getUsers()
@@ -189,7 +183,7 @@ class AppointmentForm extends Component {
 
     onChangeDate = date => {
         let updateAppointment = this.state.appointment;
-        updateAppointment.date = date;
+        updateAppointment.date = moment(date).format("YYYY-MM-DD");
         this.setState({appointment: updateAppointment})
     };
 
@@ -291,7 +285,7 @@ class AppointmentForm extends Component {
                         as={Datetime}
                         label='תאריך'
                         value={appointment.date}
-                        locale={'he'}
+                        // locale={'he'}
                         timeFormat={false}
                         install
                         // name="date"
