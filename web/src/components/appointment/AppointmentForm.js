@@ -34,9 +34,10 @@ class AppointmentForm extends Component {
             formError: false,
             formComplete: false,
             isAlertModal: false,
+
+            subjectOptions: [],
         };
 
-        this.subjectOptions = [];
 
         if (slotInfo) {
             console.log('slotInfo ', slotInfo);
@@ -82,12 +83,14 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    componentDidMount() {
+    componentWillMount() {
+        let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProvider => {
                 JSON.parse(serviceProvider[0].subjects).map((subject, index) => {
-                    this.subjectOptions.push({key: index, text: subject, value: subject});
+                    subjectOptions.push({key: index, text: subject, value: subject});
                 })
+                this.setState({subjectOptions: subjectOptions})
             });
     }
 
@@ -261,7 +264,7 @@ class AppointmentForm extends Component {
                     search
                     multiple
                     selection
-                    options={this.subjectOptions}
+                    options={this.state.subjectOptions}
                     value={appointment.subject}
                     onChange={this.handleChange}
                     name='subject'
