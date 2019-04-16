@@ -57,6 +57,14 @@ class ServiceProviderInfo extends React.Component {
         this.setState({activeIndex: newIndex})
     };
 
+    renewPassword = () => {
+        serviceProvidersStorage.renewUserPassword(this.state.serviceProvider.userId, this.serviceProviderHeaders)
+            .then((response) => {
+                console.log('user password renewed response ', response);
+                this.props.history.goBack();
+            });
+    }
+
 
     render() {
         const {serviceProvider, activeIndex} = this.state;
@@ -108,13 +116,14 @@ class ServiceProviderInfo extends React.Component {
                             <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
                             <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
-                            {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+
+                            <Button onClick={this.renewPassword}>חדש סיסמא</Button>
                         </Modal.Description>
                     </Modal.Content>
                     <Modal.Actions className='alignLeft'>
                         <Button positive onClick={this.handleEdit}>ערוך</Button>
                         <Button negative onClick={this.handleDelete}>מחק</Button>
-                        <Button>סגור</Button>
+                        <Button onClick={() => this.props.history.goBack()}>סגור</Button>
                     </Modal.Actions>
                 </Modal>
 

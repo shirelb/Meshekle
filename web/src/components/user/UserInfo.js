@@ -5,8 +5,9 @@ import {Helmet} from 'react-helmet';
 import usersStorage from "../../storage/usersStorage";
 import store from "store";
 import strings from "../../shared/strings";
-import {Redirect, Route, Switch} from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
 import UserEdit from "./UserEdit";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 class UserInfo extends React.Component {
     constructor(props) {
@@ -49,6 +50,14 @@ class UserInfo extends React.Component {
         });
     }
 
+    renewPassword = () => {
+        serviceProvidersStorage.renewUserPassword(this.props.match.params.userId, this.serviceProviderHeaders)
+            .then((response) => {
+                console.log('user password renewed response ', response);
+                this.props.history.goBack();
+            });
+    }
+
     render() {
         const {user} = this.state;
         console.log('UserInfo user ', user);
@@ -74,13 +83,14 @@ class UserInfo extends React.Component {
                             <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {user.phone}</p>
                             <p>{strings.phoneBookPageStrings.BORN_DATE_HEADER}: {moment(user.bornDate).format("DD/MM/YYYY")}</p>
                             <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
-                            {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+
+                            <Button onClick={this.renewPassword}>חדש סיסמא</Button>
                         </Modal.Description>
                     </Modal.Content>
                     <Modal.Actions className='alignLeft'>
                         <Button positive onClick={this.handleEdit}>ערוך</Button>
                         <Button negative onClick={this.handleDelete}>מחק</Button>
-                        <Button>סגור</Button>
+                        <Button onClick={() => this.props.history.goBack()}>סגור</Button>
                     </Modal.Actions>
                 </Modal>
 

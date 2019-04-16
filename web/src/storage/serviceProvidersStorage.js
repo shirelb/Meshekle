@@ -240,6 +240,25 @@ var getServiceProviderUserDetails = function (serviceProviderId) {
         });
 };
 
+
+var renewUserPassword = function (userId, serviceProviderHeaders){
+    return axios.put(`${SERVER_URL}/api/serviceProviders/users/renewPassword/userId/${userId}`,
+        {
+        },
+        {headers: serviceProviderHeaders}
+    )
+        .then(response => {
+            WEB_SOCKET.emit('userUpdated');
+
+            return response;
+        })
+        .catch(error => {
+            console.log('renewUserPassword error ', error)
+            return null;
+        });
+}
+
+
 export default {
     getServiceProviders,
     getRolesOfServiceProvider,
@@ -254,4 +273,5 @@ export default {
     deleteServiceProviderById,
     createServiceProvider,
     getServiceProviderUserDetails,
+    renewUserPassword,
 };

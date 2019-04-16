@@ -461,6 +461,38 @@ router.post('/users/add', function (req, res, next) {
         })
 });
 
+// update user by userId.
+router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            let newPassword = generateRandomPassword();
+
+            Users.findOne(
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(user => {
+                    // user.dataValues.password = newPassword;
+                    user.update({
+                        password: newPassword
+                    })
+                        .then(updatedUser => {
+                            res.status(200).send({
+                                "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                                "result": updatedUser.dataValues
+                            });
+                            sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
+});
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
