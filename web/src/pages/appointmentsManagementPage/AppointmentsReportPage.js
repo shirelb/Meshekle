@@ -3,28 +3,26 @@ import './styles.css';
 
 import moment from 'moment';
 
-import {Button, Grid, Header, Icon} from 'semantic-ui-react';
+import {Button, Grid, Header, Icon, Menu, Table} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
-import AppointmentCalendar from "../../components/calendars/AppointmentCalendar";
 import store from 'store';
 import {Helmet} from 'react-helmet';
+import times from 'lodash.times';
 import strings from "../../shared/strings";
 import AppointmentInfo from "../../components/appointment/AppointmentInfo";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import {Link, Route, Switch} from "react-router-dom";
 import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
-import DraggableAppointmentRequest from "../../components/appointmentRequest/DraggableAppointmentRequest";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
-import AppointmentsReportPage from "./AppointmentsReportPage";
 
 const TOTAL_PER_PAGE = 10;
 
 
-class AppointmentsManagementPage extends React.Component {
+class AppointmentsReportPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -242,17 +240,17 @@ class AppointmentsManagementPage extends React.Component {
         //     this.setState({highlightTableRow: event.appointmentId});
         //
         // }
-        this.props.history.push(`${this.props.match.path}/${event.appointment.appointmentId}`, {
+        /*this.props.history.push(`${this.props.match.path}/${event.appointment.appointmentId}`, {
             appointment: event.appointment
-        });
+        });*/
     };
 
     onSelectSlot = (start, end) => {
         let slotInfo = {start: start, end: end};
 
-        this.props.history.push(`${this.props.match.path}/set`, {
+        /*this.props.history.push(`${this.props.match.path}/set`, {
             slotInfo: slotInfo,
-        });
+        });*/
     };
 
     approveAppointmentRequest = (appointmentRequestEventDropped) => {
@@ -277,9 +275,9 @@ class AppointmentsManagementPage extends React.Component {
             allDay: appointmentRequestEvent.allDay,
             appointmentRequest: appointmentRequestEvent.appointmentRequest,
         };
-        this.props.history.push(`${this.props.match.path}/set`, {
+        /*this.props.history.push(`${this.props.match.path}/set`, {
             appointmentRequestDropped: appointmentRequestDropped,
-        });
+        });*/
     };
 
     updateAfterMoveOrResizeEvent(event) {
@@ -323,18 +321,18 @@ class AppointmentsManagementPage extends React.Component {
         const {appointments, page, totalPages} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
+        console.log("AppointmentsReportPage appointments ", appointments);
 
         return (
             <div>
-                {/*<Page children={appointments} title={strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE} columns={1}>*/}
                 <div>
                     <Helmet>
-                        <title>Meshekle | Appointments</title>
+                        <title>Meshekle | Appointments Report</title>
                     </Helmet>
                     <Grid stretched padded>
                         <Grid.Row>
                             <Header as="h1"
-                                    floated="right">{strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}</Header>
+                                    floated="right">{strings.mainPageStrings.REPORT_PAGE_TITLE}</Header>
                         </Grid.Row>
 
                         <Link to={{
@@ -347,114 +345,86 @@ class AppointmentsManagementPage extends React.Component {
                                 {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
                             </Button>
                         </Link>
-                        <Link to='appointments/report'>
+                        <Link to='/appointments'>
                             <Button positive icon>
-                                <Icon name="columns"/>
+                                <Icon name="calendar"/>
                                 &nbsp;&nbsp;
-                                {strings.mainPageStrings.REPORT_PAGE_TITLE}
+                                {strings.mainPageStrings.BACK_TO_APPOINTMENTS_PAGE_TITLE}
                             </Button>
                         </Link>
 
                         <Grid.Row columns='equal'>
-                            <Grid.Column>
-                                <Header as={'h3'} style={{'display': 'contents'}}> בקשות תורים:</Header>
-                                {this.state.appointmentRequests.length === 0 ?
-                                    <Header as={'h4'}> אין לך בקשות לתורים </Header>
-                                    :
-                                    <DraggableAppointmentRequest
-                                        appointmentRequests={this.state.appointmentRequests}
-                                        hoverOnAppointmentRequest={(appointmentRequest) => this.hoverOnAppointmentRequest.bind(this, appointmentRequest)}
-                                        hoverOffAppointmentRequest={(appointmentRequest) => this.hoverOffAppointmentRequest.bind(this, appointmentRequest)}
-                                        onClick={(appointmentRequest) => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
-                                            appointmentRequest: appointmentRequest
-                                        })}
-                                    />
-                                }
-                            </Grid.Column>
-                            <Grid.Column width={13}>
-                                <div style={{height: 500}}>
-                                    <AppointmentCalendar
-                                        events={Array.isArray(appointments) ? appointments : []}
+                            <Table celled striped textAlign='right' selectable sortable>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell></Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.CLIENT_ID}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.ROLE}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.SUBJECT}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.STATUS}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.DATE}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.START_TIME}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.END_TIME}</Table.HeaderCell>
+                                        <Table.HeaderCell>{strings.appointmentsPageStrings.REMARKS}</Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {appointments.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(appointmentEvent =>
+                                        (<Table.Row key={appointmentEvent.appointment.appointmentId}
+                                                    positive={this.state.highlightTableRow === appointmentEvent.appointment.appointmentId}>
+                                            <Table.Cell>
+                                                <Icon link name='edit'
+                                                      onClick={() => this.props.history.push(`${this.props.match.path}/${appointmentEvent.appointment.appointmentId}/edit`, {
+                                                          appointment: appointmentEvent.appointment,
+                                                          openedFrom: "AppointmentsReportPage"
+                                                      })}
+                                                />
+                                            </Table.Cell>
+                                            <Table.Cell>{appointmentEvent.appointment.AppointmentDetail.clientId}</Table.Cell>
+                                            <Table.Cell>{appointmentEvent.appointment.AppointmentDetail.serviceProviderId}</Table.Cell>
+                                            <Table.Cell>{appointmentEvent.appointment.AppointmentDetail.role}</Table.Cell>
+                                            <Table.Cell>{JSON.parse(appointmentEvent.appointment.AppointmentDetail.subject).join(", ")}</Table.Cell>
+                                            <Table.Cell>{appointmentEvent.appointment.status}</Table.Cell>
+                                            <Table.Cell>{new Date(appointmentEvent.appointment.startDateAndTime).toISOString().split('T')[0]}</Table.Cell>
+                                            <Table.Cell>{new Date(appointmentEvent.appointment.startDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
+                                            <Table.Cell>{new Date(appointmentEvent.appointment.endDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
+                                            <Table.Cell>{appointmentEvent.appointment.remarks}</Table.Cell>
+                                        </Table.Row>),
+                                    )}
+                                </Table.Body>
+                                <Table.Footer>
+                                    <Table.Row>
+                                        <Table.HeaderCell colSpan={10}>
+                                            <Menu floated="left" pagination>
+                                                {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
+                                                    <Icon name="right chevron"/>
+                                                </Menu.Item>}
+                                                {times(totalPages, n =>
+                                                    (<Menu.Item as="a" key={n} active={n === page}
+                                                                onClick={this.setPage(n)}>
+                                                        {n + 1}
+                                                    </Menu.Item>),
+                                                )}
+                                                {page !== (totalPages - 1) &&
+                                                <Menu.Item as="a" icon onClick={this.incrementPage}>
+                                                    <Icon name="left chevron"/>
+                                                </Menu.Item>}
+                                            </Menu>
+                                        </Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Footer>
+                            </Table>
 
-                                        onSelectEvent={this.onSelectEvent.bind(this)}
-                                        onSelectSlot={this.onSelectSlot.bind(this)}
-                                        onDropAppointmentRequest={this.onDropAppointmentRequest.bind(this)}
-                                        approveAppointmentRequest={(appointmentRequestDropped) => this.approveAppointmentRequest.bind(this, appointmentRequestDropped)}
-                                        updateAfterMoveOrResizeEvent={this.updateAfterMoveOrResizeEvent}
-                                    />
-                                </div>
-                            </Grid.Column>
-                            {/*<Grid.Column>
-
-                            </Grid.Column>*/}
                         </Grid.Row>
                     </Grid>
                 </div>
-
-
-                {/*<Table celled striped textAlign='right' selectable sortable>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.CLIENT_ID}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.ROLE}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.SUBJECT}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.STATUS}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.DATE}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.START_TIME}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.END_TIME}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.appointmentsPageStrings.REMARKS}</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {appointments.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(appointment =>
-                                (<Table.Row key={appointment.appointmentId}
-                                            positive={this.state.highlightTableRow === appointment.appointmentId}>
-                                    <Table.Cell>{appointment.AppointmentDetail.clientId}</Table.Cell>
-                                    <Table.Cell>{appointment.AppointmentDetail.serviceProviderId}</Table.Cell>
-                                    <Table.Cell>{appointment.AppointmentDetail.role}</Table.Cell>
-                                    <Table.Cell>{appointment.AppointmentDetail.subject}</Table.Cell>
-                                    <Table.Cell>{appointment.status}</Table.Cell>
-                                    <Table.Cell>{new Date(appointment.startDateAndTime).toISOString().split('T')[0]}</Table.Cell>
-                                    <Table.Cell>{new Date(appointment.startDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
-                                    <Table.Cell>{new Date(appointment.endDateAndTime).toISOString().split('T')[1].split('.')[0].slice(0, -3)}</Table.Cell>
-                                    <Table.Cell>{appointment.remarks}</Table.Cell>
-                                </Table.Row>),
-                            )}
-                        </Table.Body>
-                        <Table.Footer>
-                            <Table.Row>
-                                <Table.HeaderCell colSpan={9}>
-                                    <Menu floated="left" pagination>
-                                        {page !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
-                                            <Icon name="right chevron"/>
-                                        </Menu.Item>}
-                                        {times(totalPages, n =>
-                                            (<Menu.Item as="a" key={n} active={n === page} onClick={this.setPage(n)}>
-                                                {n + 1}
-                                            </Menu.Item>),
-                                        )}
-                                        {page !== (totalPages - 1) &&
-                                        <Menu.Item as="a" icon onClick={this.incrementPage}>
-                                            <Icon name="left chevron"/>
-                                        </Menu.Item>}
-                                    </Menu>
-                                </Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Footer>
-                    </Table>
-
-                    <Button as={Link} to={`${this.props.match.path}/set`}
-                            positive>{strings.appointmentsPageStrings.ADD_APPOINTMENT}</Button>
-*/}
-                {/*</Page>*/}
 
 
                 <div>
                     <Switch>
                         <Route exec path={`${this.props.match.url}/serviceProvider/settings`}
                                component={ServiceProviderEdit}/>
-
                         <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
                                component={AppointmentRequestInfo}/>
                         <Route exec path={`${this.props.match.path}/set`} render={(props) => (
@@ -466,11 +436,11 @@ class AppointmentsManagementPage extends React.Component {
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
                                component={AppointmentEdit}/>
 
-                        {/*{
-                            (this.props.location.pathname === window.location.pathname) ?
-                            <Redirect to={`${this.props.match.path}`}/>
-                            : null}
-                        }*/}
+                        {/*{*/}
+                        {/*(this.props.location.pathname === window.location.pathname) ?*/}
+                        {/*<Redirect to={`${this.props.match.path}`}/>*/}
+                        {/*: null}*/}
+                        {/*}*/}
                     </Switch>
                 </div>
             </div>
@@ -479,5 +449,5 @@ class AppointmentsManagementPage extends React.Component {
     }
 }
 
-export default AppointmentsManagementPage
+export default AppointmentsReportPage
 

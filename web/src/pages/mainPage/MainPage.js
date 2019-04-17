@@ -17,6 +17,7 @@ import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import AppointmentsReportPage from "../appointmentsManagementPage/AppointmentsReportPage";
 
 
 const handleLogout = history => () => {
@@ -133,11 +134,11 @@ class MainPage extends Component {
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
                     <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
-                        <Icon name="users"/>
+                        <Icon name="address book outline"/>
                         {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
                     </Menu.Item>
                     <Menu.Item name="appointments" as={NavLink} to="/appointments">
-                        <Icon name="handshake outline"/>
+                        <Icon name="calendar alternate outline"/>
                         {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
                     </Menu.Item>
                     <Menu.Item name="chores" as={NavLink} to="/chores">
@@ -159,6 +160,7 @@ class MainPage extends Component {
                         <Route path={`/home`} render={() => <Home userId={store.get('userId')}
                                                                   serviceProviderId={store.get('serviceProviderId')}/>}/>
                         <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
+                        <Route exec path={`/appointments/report`} component={AppointmentsReportPage}/>
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                         <Route path={`/chores`} component={ChoresManagementPage}/>
                         <Route path={`/announcements`} component={AnnouncementsManagementPage}/>

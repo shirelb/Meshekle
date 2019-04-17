@@ -38,7 +38,8 @@ class AppointmentEdit extends React.Component {
                 appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
                     .then((response) => {
                         this.props.history.goBack();
-                        this.props.history.goBack();
+                        if (this.props.location.state.openedFrom === "AppointmentInfo")
+                            this.props.history.goBack();
                     })
             })
     }

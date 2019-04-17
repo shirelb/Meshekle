@@ -46,7 +46,8 @@ class AppointmentInfo extends React.Component {
 
     handleEdit() {
         this.props.history.push(`${this.props.match.url}/edit`, {
-            appointment: this.state.appointment
+            appointment: this.state.appointment,
+            openedFrom: "AppointmentInfo"
         });
     }
 
