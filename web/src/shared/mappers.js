@@ -53,4 +53,16 @@ var daysMapper = function (value) {
             return strings.days.Undefined;
     }
 };
-export default {loginPageMapper, mainScreenMapper, rolesMapper,daysMapper};
+
+var appointmentStatusMapper = function (value) {
+    switch (value) {
+        case "set":
+            return "נקבע";
+        case "cancelled":
+            return "בוטל";
+        default:
+            return value;
+    }
+};
+
+export default {loginPageMapper, mainScreenMapper, rolesMapper,daysMapper,appointmentStatusMapper};

@@ -8,6 +8,7 @@ import AppointmentEdit from "./AppointmentEdit";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import moment from 'moment';
 import {Redirect, Route, Switch} from "react-router-dom";
+import mappers from "../../shared/mappers";
 
 
 class AppointmentInfo extends React.Component {
@@ -68,9 +69,9 @@ class AppointmentInfo extends React.Component {
                             <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointment.appointmentId}</p>
                             <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointment.clientName}</p>
                             <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointment.AppointmentDetail.serviceProviderId}</p>
-                            <p>{strings.appointmentsPageStrings.ROLE}: {appointment.AppointmentDetail.role}</p>
+                            <p>{strings.appointmentsPageStrings.ROLE}: {mappers.rolesMapper(appointment.AppointmentDetail.role)}</p>
                             <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointment.AppointmentDetail.subject).join(", ")}</p>
-                            <p>{strings.appointmentsPageStrings.STATUS}: {appointment.status}</p>
+                            <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentStatusMapper(appointment.status)}</p>
                             <p>{strings.appointmentsPageStrings.DATE}: {moment(appointment.startDateAndTime).format('DD.MM.YYYY')}</p>
                             <p>{strings.appointmentsPageStrings.START_TIME}: {moment(appointment.startDateAndTime).format("HH:mm")} </p>
                             <p>{strings.appointmentsPageStrings.END_TIME}: {moment(appointment.endDateAndTime).format("HH:mm")}</p>
