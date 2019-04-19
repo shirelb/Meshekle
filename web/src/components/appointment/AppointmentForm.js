@@ -15,11 +15,13 @@ usersStorage.getUsers()
     .then(users => {
         console.log('users ', users);
         if (Array.isArray(users))
-            userOptions = users.map(item => ({
-                key: item.userId,
-                text: item.fullname,
-                value: item.fullname
-            }));
+            userOptions = users.filter(u => u.active).map(item =>
+                ({
+                    key: item.userId,
+                    text: item.fullname,
+                    value: item.fullname
+                })
+            )
     });
 
 
