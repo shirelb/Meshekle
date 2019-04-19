@@ -15,11 +15,13 @@ usersStorage.getUsers()
     .then(users => {
         console.log('users ', users);
         if (Array.isArray(users))
-            userOptions = users.map(item => ({
-                key: item.userId,
-                text: item.fullname,
-                value: item.fullname
-            }));
+            userOptions = users.filter(u => u.active).map(item =>
+                ({
+                    key: item.userId,
+                    text: item.fullname,
+                    value: item.fullname
+                })
+            )
     });
 
 
@@ -193,9 +195,9 @@ class AppointmentForm extends Component {
     onChangeTime = (time, isStart) => {
         let updateAppointment = this.state.appointment;
         isStart ?
-            updateAppointment.startTime = time
+            updateAppointment.startTime = moment(time).format("HH:mm")
             :
-            updateAppointment.endTime = time;
+            updateAppointment.endTime =  moment(time).format("HH:mm");
         this.setState({appointment: updateAppointment});
     };
 
