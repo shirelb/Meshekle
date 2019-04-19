@@ -2,8 +2,6 @@ import React from 'react';
 import './styles.css';
 
 import moment from 'moment';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import {Button, Dropdown, Grid, Header, Icon, Input, Menu, Table} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import store from 'store';
@@ -16,6 +14,7 @@ import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import mappers from "../../shared/mappers";
+import helpers from "../../shared/helpers";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import Datetime from 'react-datetime';
@@ -158,27 +157,6 @@ class AppointmentsReportPage extends React.Component {
     }
 
 
-    exportToPDF() {
-        const input = document.getElementById('divToPrint');
-        html2canvas(input)
-            .then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'mm',
-                    format: 'a4',
-                    putOnlyUsedFonts: true
-                });
-                const width = pdf.internal.pageSize.getWidth();
-                const height = pdf.internal.pageSize.getHeight();
-                pdf.addImage(imgData, 'JPEG', 5, 5, width - 10, height);
-                // pdf.output('dataurlnewwindow');
-                pdf.save("MeshekleAppointmentsReport.pdf");
-            })
-        ;
-    }
-
-
     handleSort = clickedColumn => () => {
         const {column, appointments, direction} = this.state;
 
@@ -269,7 +247,7 @@ class AppointmentsReportPage extends React.Component {
                     <Helmet>
                         <title>Meshekle | Appointments Report</title>
                     </Helmet>
-                    <Grid stretched padded>
+                    <Grid stretched padded id="divToPrint">
                         <Grid.Row>
                             <Header as="h1"
                                     floated="right">{strings.mainPageStrings.REPORT_PAGE_TITLE}</Header>
@@ -293,13 +271,14 @@ class AppointmentsReportPage extends React.Component {
                             </Button>
                         </Link>
 
-                        <Button icon className="k-button" onClick={this.exportToPDF}>
+                        <Button icon
+                                onClick={() => helpers.exportToPDF('MeshekleAppointmentsReport', 'divToPrint', 'landscape')}>
                             <Icon name="file pdf outline"/>
                             &nbsp;&nbsp;
                             יצא לPDF
                         </Button>
 
-                        <Grid.Row columns='equal' id="divToPrint"
+                        <Grid.Row columns='equal'
                                   style={{
                                       minHeight: '210mm',
                                       width: '297mm',
@@ -429,7 +408,7 @@ class AppointmentsReportPage extends React.Component {
                                                   onClick={(e) => this.handleFilter('date', e)}
                                             />
                                             <Datetime
-                                                inputProps={{style: {width: (120 + 'px')}}}
+                                                inputProps={{style: {width: (100 + 'px')}}}
                                                 locale={'he'}
                                                 timeFormat={false}
                                                 install
@@ -462,7 +441,7 @@ class AppointmentsReportPage extends React.Component {
                                                   onClick={(e) => this.handleFilter('startTime', e)}
                                             />
                                             <Datetime
-                                                inputProps={{style: {width: (80 + 'px')}}}
+                                                inputProps={{style: {width: (60 + 'px')}}}
                                                 locale={'he'}
                                                 dateFormat={false}
                                                 install
@@ -474,7 +453,7 @@ class AppointmentsReportPage extends React.Component {
                                                   onClick={(e) => this.handleFilter('endTime', e)}
                                             />
                                             <Datetime
-                                                inputProps={{style: {width: (80 + 'px')}}}
+                                                inputProps={{style: {width: (60 + 'px')}}}
                                                 locale={'he'}
                                                 dateFormat={false}
                                                 install
