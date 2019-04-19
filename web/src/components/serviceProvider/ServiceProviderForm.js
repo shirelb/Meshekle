@@ -1,52 +1,79 @@
 import React from 'react';
-import {Checkbox, Form, Message} from 'semantic-ui-react';
+import {Button, Checkbox, Dropdown, Form, Grid, Header, Icon, Input, List, Message} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import mappers from "../../shared/mappers";
+import store from "store";
+import strings from "../../shared/strings";
+import usersStorage from "../../storage/usersStorage";
 
-// TODO put here the settings and delete settings page. put settings page also in the appointments as button "settings"
 class ServiceProviderForm extends React.Component {
     constructor(props) {
         super(props);
 
-        const {user} = props;
+        // const {serviceProvider, users} = props;
 
         this.state = {
             formError: false,
             formComplete: false,
             isAlertModal: false,
+
+            serviceProviderRoles: [],
+            dropdownRoles: [],
+            roleSelected: "",
+            serviceProviderSelected: {},
+
+            operationTime: "",
+            phoneNumber: "",
+            appointmentWayType: "",
+            subjects: "",
+            active: "",
+
+            editIconVisible: true,
+            approveIconVisible: false,
+
+            usersOptions: [],
+
+            operationTimeDaySelected: [false, false, false, false, false, false,],
+            activeAccordionIndex: -1,
+
+            startTimeSelected: ["", "", "", "", "", ""],
+            endTimeSelected: ["", "", "", "", "", ""],
         };
 
-        if (user) {
-            this.state = {
-                user: {
-                    userId: user.userId,
-                    fullname: user.fullname,
-                    password: user.password,
-                    email: user.email,
-                    mailbox: user.mailbox,
-                    cellphone: user.cellphone,
-                    phone: user.phone,
-                    // bornDate: moment(user.bornDate).format("DD/MM/YYYY"),
-                    bornDate: moment(user.bornDate),
-                    active: user.active,
-                    image: user.image,
+        if (this.props.serviceProvider) {
+            JSON.parse(this.props.serviceProvider.operationTime).forEach(dayTime => {
+                let operationTimeDaySelected = this.state.operationTimeDaySelected;
+                operationTimeDaySelected[Object.keys(strings.days).indexOf(dayTime.day)] = true;
+                Object.assign(this.state, {operationTimeDaySelected})
+            });
+
+            Object.assign(this.state, {
+                serviceProvider: {
+                    serviceProviderId: this.props.serviceProvider.serviceProviderId,
+                    role: this.props.serviceProvider.role,
+                    userId: this.props.serviceProvider.userId,
+                    operationTime: typeof this.props.serviceProvider.operationTime === 'string' ? JSON.parse(this.props.serviceProvider.operationTime) : this.props.serviceProvider.operationTime,
+                    phoneNumber: this.props.serviceProvider.phoneNumber,
+                    appointmentWayType: this.props.serviceProvider.appointmentWayType,
+                    subjects: typeof this.props.serviceProvider.subjects === 'string' ? JSON.parse(this.props.serviceProvider.subjects) : this.props.serviceProvider.subjects,
+                    active: this.props.serviceProvider.active,
                 },
-            };
+            });
         } else {
-            this.state = {
-                user: {
+            Object.assign(this.state, {
+                serviceProvider: {
+                    serviceProviderId: '',
+                    role: '',
                     userId: '',
-                    fullname: '',
-                    password: '',
-                    email: '',
-                    mailbox: 0,
-                    cellphone: '',
-                    phone: '',
-                    bornDate: null,
-                    active: true,
-                    image: "",
+                    operationTime: [],
+                    phoneNumber: '',
+                    appointmentWayType: '',
+                    subjects: [],
+                    active: false,
                 },
-            };
+            });
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -54,25 +81,101 @@ class ServiceProviderForm extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {user} = nextProps;
+        const serviceProvider = nextProps.serviceProvider;
 
-        if (user) {
+        if (serviceProvider) {
             this.setState({
-                user: {
-                    userId: user.userId,
-                    fullname: user.fullname,
-                    password: user.password,
-                    email: user.email,
-                    mailbox: user.mailbox,
-                    cellphone: user.cellphone,
-                    phone: user.phone,
-                    // bornDate: moment(user.bornDate).format("DD/MM/YYYY"),
-                    bornDate: moment(user.bornDate),
-                    active: user.active,
-                    image: user.image,
+                serviceProvider: {
+                    serviceProviderId: serviceProvider.serviceProviderId,
+                    role: serviceProvider.role,
+                    userId: serviceProvider.userId,
+                    operationTime: typeof serviceProvider.operationTime === 'string' ? JSON.parse(serviceProvider.operationTime) : serviceProvider.operationTime,
+                    phoneNumber: serviceProvider.phoneNumber,
+                    appointmentWayType: serviceProvider.appointmentWayType,
+                    subjects: typeof serviceProvider.subjects === 'string' ? JSON.parse(serviceProvider.subjects) : serviceProvider.subjects,
+                    active: serviceProvider.active,
                 },
             })
+
+            JSON.parse(serviceProvider.operationTime).forEach(dayTime => {
+                let operationTimeDaySelected = this.state.operationTimeDaySelected;
+                operationTimeDaySelected[Object.keys(strings.days).indexOf(dayTime.day)] = true;
+                this.setState({operationTimeDaySelected})
+            })
         }
+
+        if (nextProps.users)
+            this.buildUsersOption(nextProps.users);
+
+    }
+
+    buildUsersOption = (users) => {
+        let usersOptions = users.map(item => ({
+            key: item.userId,
+            text: item.fullname,
+            value: item.userId,
+            user: item,
+            content: <Header icon='mobile' content={item.fullname} subheader={item.userId}/>,
+            // image: { avatar: true, src: '/images/avatar/small/jenny.jpg' },
+        }));
+
+        this.setState({
+            usersOptions: usersOptions,
+        })
+    };
+
+    getRolesOfServiceProviderAndCreateDropdown() {
+        serviceProvidersStorage.getRolesOfServiceProvider(this.serviceProviderId)
+            .then(roles => {
+                if (roles != undefined || roles != null) {
+                    this.setState({
+                        serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
+                    });
+
+                    // console.log("serviceProviderRoles dddd ", this.state.serviceProviderRoles);
+                    // console.log("state dעddd ", this.state);
+
+                    roles.forEach((role, index) => {
+                        let dropdownRole = {key: index, value: role, text: mappers.rolesMapper(role)};
+                        let dropdownRoles = this.state.dropdownRoles;
+                        dropdownRoles.push(dropdownRole);
+                        this.setState({
+                            dropdownRoles: dropdownRoles,
+                        })
+                    });
+
+                    // console.log("dropdownRoles dddd ", this.state.dropdownRoles);
+                }
+            });
+    }
+
+    componentDidMount() {
+        this.serviceProviderId = store.get('serviceProviderId');
+
+        this.getRolesOfServiceProviderAndCreateDropdown();
+
+        serviceProvidersStorage.getServiceProviderById(this.serviceProviderId)
+            .then(response => {
+                this.setState({serviceProviderList: response});
+
+                // console.log("serviceProviderList ", response);
+            });
+
+        if (this.props.users)
+            this.buildUsersOption(this.props.users);
+        else
+            this.loadUsers();
+
+    }
+
+    loadUsers() {
+        usersStorage.getUsers()
+            .then((response) => {
+                console.log('response ', response);
+                const users = response;
+
+                this.buildUsersOption(users);
+            });
     }
 
     handleFocus = () => {
@@ -80,269 +183,405 @@ class ServiceProviderForm extends React.Component {
             formError: false,
             formErrorMassage: "",
             fieldUserIdError: false,
-            fieldFullnameError: false,
-            fieldEmailError: false,
-            fieldMailboxError: false,
-            fieldCellphoneError: false,
-            fieldPhoneError: false,
-            fieldBornDateError: false,
+            fieldPhoneNumberError: false,
+            fieldRoleError: false,
+            fieldAppointmentsWayTypeError: false,
+            fieldSubjectsError: false,
+            fieldOperationTimeError: false,
             fieldActiveError: false,
-            // fieldImageError:false,
         })
-    }
+    };
 
-    isFormValid = (user) => {
-        if (user.userId === '' || !(/^\d*$/.test(user.userId))) {
+    isFormValid = (serviceProvider) => {
+        if (serviceProvider.serviceProviderId === '' || serviceProvider.userId === '') {
             this.setState({
                 formError: true,
-                formErrorMassage: "ת.ז. צריך להכיל רק ספרות",
+                formErrorMassage: "משתמש חסר",
                 fieldUserIdError: true
             });
             return false;
         }
 
-        if (user.fullname === '' || !(/^([^0-9]*)$/.test(user.fullname))) {
+        if (serviceProvider.phoneNumber === '' || serviceProvider.phoneNumber.match(/^[0-9]+$/) === null || serviceProvider.phoneNumber.length < 9 || serviceProvider.phoneNumber.length > 10) {
             this.setState({
                 formError: true,
-                formErrorMassage: "שמך צריך להכיל רק אותיות",
-                fieldFullnameError: true
+                formErrorMassage: "טלפון חסר וצריך להכיל בין 9 ל10 ספרות",
+                fieldPhoneNumberError: true
             });
             return false;
         }
 
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
+        if (serviceProvider.role === '') {
             this.setState({
                 formError: true,
-                formErrorMassage: "אימייל לא וואלידי",
-                fieldEmailError: true
+                formErrorMassage: "ענף חסר",
+                fieldRoleError: true
             });
             return false;
         }
 
-        if (user.mailbox === 0 || !(/^\d*$/.test(user.mailbox))) {
+        if (serviceProvider.appointmentWayType === '') {
             this.setState({
                 formError: true,
-                formErrorMassage: "תיבת דואר צריך להכיל רק ספרות",
-                fieldMailboxError: true
+                formErrorMassage: "דרך הצגת תורים לא נבחרה",
+                fieldAppointmentsWayTypeError: true
             });
             return false;
         }
 
-        if (user.cellphone === '' || !(/^\d*$/.test(user.cellphone))) {
+        if (serviceProvider.subjects.length === 0) {
             this.setState({
                 formError: true,
-                formErrorMassage: "הפלאפון לא וואלידי",
-                fieldCellphoneError: true
+                formErrorMassage: "חייב להיות לפחות נושא אחד",
+                fieldSubjectsError: true
             });
             return false;
         }
 
-        if (!(/^\d*$/.test(user.phone))) {
+        if (serviceProvider.operationTime.length === 0) {
             this.setState({
                 formError: true,
-                formErrorMassage: "הטלפון לא וואלידי",
-                fieldPhoneError: true
+                formErrorMassage: "זמן פעילות חסר",
+                fieldOperationTimeError: true
             });
             return false;
         }
 
-        if (user.bornDate === null) {
+        if (serviceProvider.active === null) {
             this.setState({
                 formError: true,
-                formErrorMassage: "תאריך לידה לא מולא",
-                fieldBornDateError: true
-            });
-            return false;
-        }
-
-        if (user.active === null) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "האם המשתמש פעיל?",
+                formErrorMassage: "האם נותן השירות פעיל?",
                 fieldActiveError: true
             });
             return false;
         }
 
-        // user.image: null
         return true;
     };
 
 
     handleSubmit(e) {
         e.preventDefault();
-        const {user} = this.state;
+        const {serviceProvider} = this.state;
         const {handleSubmit} = this.props;
 
-        if (this.isFormValid(user)) {
+        serviceProvider.serviceProviderId = serviceProvider.userId;
+        serviceProvider.operationTime = serviceProvider.operationTime.filter(dayTime => dayTime.hours.length > 0);
+
+        if (this.isFormValid(serviceProvider)) {
             this.setState({formComplete: true});
 
-            handleSubmit(user);
-            this.setState({user: {}});
+            handleSubmit(serviceProvider);
+            this.setState({
+                serviceProvider: {
+                    serviceProviderId: '',
+                    role: '',
+                    userId: '',
+                    operationTime: [],
+                    phoneNumber: '',
+                    appointmentWayType: '',
+                    subjects: [],
+                    active: false,
+                },
+            });
         }
 
     }
 
     handleChange(e, {name, value}) {
-        const {user} = this.state;
+        const {serviceProvider} = this.state;
 
         this.setState({formError: false, formComplete: false});
-        this.setState({user: {...user, [name]: value}});
+        this.setState({serviceProvider: {...serviceProvider, [name]: value}});
     }
+
+    handleUpdateChange = (e, {value}) => {
+        serviceProvidersStorage.updateServiceProviderById(this.serviceProviderId, this.state.roleSelected, null, null, value)
+            .then(response => {
+                console.log("updateServiceProviderById response ", response)
+            })
+        this.setState({appointmentWayType: value})
+    };
+
 
     handleClear = (e) => {
         e.preventDefault();
         this.setState({
-            user: {
+            serviceProvider: {
+                serviceProviderId: '',
+                role: '',
                 userId: '',
-                fullname: '',
-                password: '',
-                email: '',
-                mailbox: 0,
-                cellphone: '',
-                phone: '',
-                bornDate: null,
-                active: true,
-                image: "",
+                operationTime: [],
+                phoneNumber: '',
+                appointmentWayType: '',
+                subjects: [],
+                active: false,
             },
             formError: false,
             formComplete: false,
+
+            editIconVisible: true,
+            approveIconVisible: false,
+
+            usersOptions: [],
+
+            operationTimeDaySelected: [false, false, false, false, false, false,],
+            activeAccordionIndex: -1,
+
+            startTimeSelected: ["", "", "", "", "", ""],
+            endTimeSelected: ["", "", "", "", "", ""],
         });
+
+        this.handleFocus();
     };
 
+    selectRoleToChangeSettings = (e, {value}) => {
+        console.log('selectRoleToChangeSettings value ', value);
+
+        this.setState({
+            roleSelected: value,
+            serviceProviderSelected: this.state.serviceProviderList.filter(provider => provider.role === value)[0],
+        });
+
+        console.log("serviceProviderSelected ", this.state.serviceProviderList.filter(provider => provider.role === value)[0])
+
+        serviceProvidersStorage.getServiceProviderAppointmentWayTypeById(this.serviceProviderId, value)
+            .then(appointmentWayType => {
+                console.log("getServiceProviderAppointmentWayTypeById appointmentWayType ", appointmentWayType);
+                this.setState({
+                    appointmentWayType: appointmentWayType,
+                })
+            });
+    };
+
+    addRoleToServiceProvider = (role) => {
+        serviceProvidersStorage.addRoleToServiceProviderById(this.serviceProviderId, role)
+            .then(response => {
+                console.log("addRoleToServiceProviderById response ", response);
+            })
+    }
+
+    removeRoleFromServiceProvider = (role) => {
+        serviceProvidersStorage.removeRoleFromServiceProviderById(this.serviceProviderId, role)
+            .then(response => {
+                console.log("removeRoleFromServiceProviderById response ", response);
+            })
+    }
+
+    onChangeRoles = (event, data) => {
+        console.log("onChangeRoles event ", event);
+        console.log("onChangeRoles data ", data);
+        data.checked ?
+            this.addRoleToServiceProvider(data.name)
+            :
+            this.removeRoleFromServiceProvider(data.name);
+
+        this.getRolesOfServiceProviderAndCreateDropdown();
+    }
+
+    addSubject = () => {
+        if (this.state.newSubject === undefined || this.state.newSubject === "" || !(/^(?!\s*$).+/.test(this.state.newSubject)))
+            return;
+
+        // let updateSubjects = JSON.parse(this.state.serviceProvider.subjects);
+        let updateSubjects = this.state.serviceProvider.subjects;
+        updateSubjects.push(this.state.newSubject);
+        this.setState({newSubject: "", serviceProvider: {...this.state.serviceProvider, subjects: updateSubjects}});
+
+        /* serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
+             this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
+             .then(response => {
+                 console.log("addSubject response ", response)
+                 this.setState({
+                     newSubject: "",
+                     serviceProviderSelected: {
+                         ...this.state.serviceProviderSelected,
+                         subjects: JSON.stringify(updateSubjects)
+                     },
+                 });
+
+             })*/
+    }
+
+    removeSubject = (subject) => {
+        let updateSubjects = this.state.serviceProvider.subjects;
+        updateSubjects.pop(subject);
+        this.setState({serviceProvider: {...this.state.serviceProvider, subjects: updateSubjects}});
+
+        // let updateSubjects = JSON.parse(this.state.serviceProvider.subjects);
+        // updateSubjects.pop(subject);
+
+        /*serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
+            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
+            .then(response => {
+                console.log("addSubject response ", response)
+                this.setState({
+                    newSubject: "",
+                    serviceProviderSelected: {
+                        ...this.state.serviceProviderSelected,
+                        subjects: JSON.stringify(updateSubjects)
+                    },
+                });
+
+            })*/
+    }
+
+    editSubject = (index, subject) => {
+        let updateSubjects = this.state.serviceProvider.subjects;
+        updateSubjects[index] = subject;
+        this.setState({
+            editIconVisible: true,
+            approveIconVisible: false,
+            serviceProvider: {...this.state.serviceProvider, subjects: updateSubjects}
+        });
+
+        // let updateSubjects = JSON.parse(this.state.serviceProvider.subjects);
+        // updateSubjects[index] = subject;
+
+        /*serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
+            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
+            .then(response => {
+                console.log("addSubject response ", response)
+                this.setState({
+                    newSubject: "",
+                    editIconVisible: true,
+                    approveIconVisible: false,
+                    serviceProviderSelected: {
+                        ...this.state.serviceProviderSelected,
+                        subjects: JSON.stringify(updateSubjects)
+                    },
+                });
+
+            })*/
+    }
+
     onChangeDate = date => {
-        let updateUser = this.state.user;
+        let updateUser = this.state.serviceProvider;
         updateUser.bornDate = date;
-        this.setState({user: updateUser})
+        this.setState({serviceProvider: updateUser})
     };
 
     onChangeActive = () => {
-        let updateUser = this.state.user;
-        updateUser.active = !this.state.user.active;
-        this.setState({user: updateUser})
+        let updateUser = this.state.serviceProvider;
+        updateUser.active = !this.state.serviceProvider.active;
+        this.setState({serviceProvider: updateUser})
     };
 
+    userIdOrFullNameSearch = (options, query) => {
+        return options.filter(opt => opt.key.includes(query) || opt.text.includes(query))
+    };
+
+    handleAccordionClick = (e, titleProps) => {
+        const {index} = titleProps;
+        const {activeIndex} = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
+
+        this.setState({activeIndex: newIndex})
+    };
+
+    toggleDayToOperationTime = (event, data, index) => {
+        let updateOperationTime = this.state.serviceProvider.operationTime;
+        let dayTime = {};
+        dayTime.day = data.value;
+        dayTime.hours = [];
+
+        let updateOperationTimeDaySelected = this.state.operationTimeDaySelected;
+
+        if (data.checked) {
+            updateOperationTimeDaySelected[index] = true;
+            updateOperationTime.push(dayTime);
+        } else {
+            updateOperationTime = updateOperationTime.filter(dayTime => dayTime.day !== data.value);
+            updateOperationTimeDaySelected[index] = false;
+        }
+
+        this.setState({
+            operationTimeDaySelected: updateOperationTimeDaySelected,
+            serviceProvider: {...this.state.serviceProvider, operationTime: updateOperationTime}
+        })
+    };
+
+    addHours = (day, index) => {
+        if (!(/^(?!\s*$).+/.test(this.state.startTimeSelected[index])) || !(/^(?!\s*$).+/.test(this.state.endTimeSelected[index])))
+            return;
+
+        if (this.state.startTimeSelected[index] === undefined || this.state.endTimeSelected[index] === undefined)
+            return;
+
+        let updateOperationTime = this.state.serviceProvider.operationTime;
+        let dayTime = updateOperationTime.filter(dayTime => dayTime.day === day)[0];
+        dayTime.hours.push({
+            startHour: this.state.startTimeSelected[index],
+            endHour: this.state.endTimeSelected[index]
+        });
+
+        let startTimeSelected = this.state.startTimeSelected;
+        startTimeSelected[index] = "";
+
+        let endTimeSelected = this.state.endTimeSelected;
+        endTimeSelected[index] = "";
+
+        this.setState({
+            startTimeSelected: startTimeSelected,
+            endTimeSelected: endTimeSelected,
+            serviceProvider: {...this.state.serviceProvider, operationTime: updateOperationTime}
+        })
+    };
+
+    removeHours = (item, hour) => {
+        let updateOperationTime = this.state.serviceProvider.operationTime;
+        let updateHours = updateOperationTime.filter(dayTime => dayTime.day === item)[0].hours;
+        updateHours = updateHours.filter(times => times.startHour !== hour.startHour && times.endHour !== hour.endHour);
+        updateOperationTime.filter(dayTime => dayTime.day === item)[0].hours = updateHours;
+        this.setState({serviceProvider: {...this.state.serviceProvider, operationTime: updateOperationTime}});
+    };
 
     render() {
-        const {formError, formComplete, user, user: {userId, fullname, password, email, mailbox, cellphone, phone, bornDate, active, image}} = this.state;
+        const {formError, formComplete, usersOptions, operationTimeDaySelected, activeAccordionIndex, serviceProvider, serviceProvider: {serviceProviderId, role, userId, operationTime, phoneNumber, appointmentWayType, subjects, active}} = this.state;
         const {handleCancel, submitText} = this.props;
 
+        console.log("serviceProvider form state ", this.state);
+        // console.log("serviceProvider filter ", operationTime.filter(dayTime => dayTime.day === "Sunday"));
+
         return (
-            <Form onSubmit={this.handleSubmit} error={formError}>
+            <Form error={formError}>
                 <Form.Group widths='equal'>
-                    <Form.Input
+                    <Form.Field
+                        control={Dropdown}
                         error={this.state.fieldUserIdError}
                         required
-                        label="ת.ז."
-                        type="text"
-                        name="userId"
+                        label="משתמש"
+                        placeholder='משתמש'
+                        fluid
+                        autoComplete='on'
+                        options={Array.isArray(usersOptions) ? usersOptions : []}
                         value={userId}
+                        name="userId"
+                        noResultsMessage='לא נמצאו התאמות'
+                        selection
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
+                        search={this.userIdOrFullNameSearch}
+                        disabled={this.props.openedFrom !== "ServiceProviderAdd"}
                     />
                     <Form.Input
-                        error={this.state.fieldFullnameError}
-                        required
-                        label="שם מלא"
-                        type="text"
-                        name="fullname"
-                        value={fullname}
-                        onChange={this.handleChange}
-                        onFocus={this.handleFocus}
-                    />
-                    {/*{password !== '' ?
-                        <Form.Input
-                        error=this.state.field
-                            required
-                            label="סיסמא"
-                            type="password"
-                            name="password"
-                            value={password}
-                            onChange={this.handleChange}
-                                                    onFocus={this.handleFocus}
-                        /> : null
-                    }*/}
-                </Form.Group>
-
-                <Form.Group widths='equal'>
-                    <Form.Input
-                        error={this.state.fieldEmailError}
-                        required
-                        label="אימייל"
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={this.handleChange}
-                        onFocus={this.handleFocus}
-                    />
-                    <Form.Input
-                        error={this.state.fieldMailboxError}
-                        required
-                        label="תיבת דואר"
-                        type="number"
-                        name="mailbox"
-                        value={mailbox}
-                        onChange={this.handleChange}
-                        onFocus={this.handleFocus}
-                    />
-                </Form.Group>
-
-                <Form.Group widths='equal'>
-                    <Form.Input
-                        error={this.state.fieldCellphoneError}
-                        required
-                        label="פלאפון"
-                        type="tel"
-                        name="cellphone"
-                        value={cellphone}
-                        onChange={this.handleChange}
-                        onFocus={this.handleFocus}
-                    />
-                    <Form.Input
-                        error={this.state.fieldPhoneError}
+                        error={this.state.fieldPhoneNumberError}
                         required
                         label="טלפון"
                         type="tel"
-                        name="phone"
-                        value={phone}
+                        name="phoneNumber"
+                        value={phoneNumber}
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
                     />
-                </Form.Group>
 
-                <Form.Group>
-                    <Form.Input
-                        error={this.state.fieldBornDateError}
-                        required
-                        label="תאריך לידה"
-                        // type="date"
-                        name="bornDate"
-                        // onChange={this.handleChange}
-                    >
-                        <Datetime
-                            locale={'he'}
-                            timeFormat={false}
-                            install
-                            value={bornDate}
-                            onChange={this.onChangeDate.bind(this)}
-                            onFocus={this.handleFocus}
-                        />
-                    </Form.Input>
-                    <Form.Input
-                        // error={this.state.field}
-                        label="תמונה"
-                        type="image"
-                        name="image"
-                        value={image}
-                        onChange={this.handleChange}
-                        onFocus={this.handleFocus}
-                    />
                     <Form.Input
                         error={this.state.fieldActiveError}
                         required
-                        label="קיים"
+                        label="פעיל"
                         // type="checkbox"
                         name="active"
+                        disabled={serviceProviderId === store.get("serviceProviderId")}
                     >
                         <Checkbox
                             name="active"
@@ -354,22 +593,239 @@ class ServiceProviderForm extends React.Component {
                     </Form.Input>
                 </Form.Group>
 
+                <Form.Group widths='equal'>
+                    <Form.Field required error={this.state.fieldRoleError} onFocus={this.handleFocus}
+                                disabled={this.props.openedFrom !== "ServiceProviderAdd"}>
+                        <label>תפקיד</label>
+                        <List>
+                            {
+                                Object.keys(strings.roles).map((item, index) => {
+                                    return <List.Item key={index}>
+                                        <Checkbox
+                                            radio
+                                            checked={role === item}
+                                            // onChange={this.onChangeRoles.bind(this)}
+                                            onChange={this.handleChange}
+                                            value={item}
+                                            name="role"
+                                        />
+                                        <label>
+                                            {strings.roles[item]}
+                                        </label>
+                                    </List.Item>
+                                })
+                            }
+                        </List>
+                    </Form.Field>
+
+                    <Form.Field required error={this.state.fieldAppointmentsWayTypeError} onFocus={this.handleFocus}>
+                        <label>דרך הצגת התורים</label>
+                        {/*<label>{strings.appointmentsWayType[this.state.appointmentWayType]}</label>*/}
+                        <List>
+                            {
+                                Object.keys(strings.appointmentsWayType).map((item, index) => {
+                                    if (item !== "Admin")
+                                        return <List.Item key={index}>
+                                            <Checkbox
+                                                radio
+                                                checked={appointmentWayType === item}
+                                                // onChange={this.onChangeRoles.bind(this)}
+                                                onChange={this.handleChange}
+                                                value={item}
+                                                name="appointmentWayType"
+                                            />
+                                            <label>
+                                                {strings.appointmentsWayType[item]}
+                                            </label>
+                                        </List.Item>
+                                })
+                            }
+                        </List>
+                    </Form.Field>
+
+                    <Form.Field required error={this.state.fieldSubjectsError} onFocus={this.handleFocus}>
+                        <label>הנושאים</label>
+                        <Input
+                            focus
+                            placeholder='הוסף נושא חדש...'
+                            // value={this.state.newSubject}
+                            onChange={(event, data) => this.setState({newSubject: data.value})}
+                            action={<Button icon onClick={this.addSubject.bind(this)}>
+                                <Icon link name='plus'/>
+                            </Button>}
+                        />
+                        <Grid relaxed textAlign={"right"} columns={3}>
+                            {
+                                subjects.map((subject, index) => {
+                                    return <Grid.Row key={index} columns='equal' className={"subjectListItem"}>
+                                        <Grid.Column>
+                                            {this.state.editIconVisible ?
+                                                <label>{subject} </label> :
+                                                <Form.Input
+                                                    focus
+                                                    placeholder={subject}
+                                                    onChange={(event, data) => this.setState({editedSubject: data.value})}
+                                                />
+                                            }
+                                        </Grid.Column>
+                                        <Grid.Column>
+                                            {this.state.editIconVisible ?
+                                                <Icon link name='edit'
+                                                      className={"subjectListIcon"}
+                                                      onClick={() => this.setState({
+                                                          editIconVisible: false,
+                                                          approveIconVisible: true
+                                                      })}
+                                                />
+                                                :
+                                                <Icon link name='check'
+                                                      className={"subjectListIcon"}
+                                                      onClick={this.editSubject.bind(this, index, this.state.editedSubject)}/>
+                                            }
+                                        </Grid.Column>
+                                        <Grid.Column>
+                                            <Icon link name='delete'
+                                                  className={"subjectListIcon"}
+                                                  onClick={this.removeSubject.bind(this, subject)}/>
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                })
+                            }
+                        </Grid>
+                    </Form.Field>
+                </Form.Group>
+
+                <Form.Group widths='equal'>
+                    <Form.Input
+                        error={this.state.fieldOperationTimeError}
+                        required
+                        label="זמן פעילות"
+                        // type="number"
+                        name="operationTime"
+                        // value={operationTime}
+                        onFocus={this.handleFocus}
+                    >
+                        <Grid relaxed={"very"} textAlign={"right"} container columns={'equal'}>
+                            {
+                                Object.keys(strings.days).map((item, index) => {
+                                    if (index < 6)
+                                        return <Grid.Column key={index} className={"subjectListItem"}>
+                                            <Grid.Row>
+                                                <Checkbox
+                                                    toggle
+                                                    checked={operationTime.filter(dayTimes =>
+                                                        Object.keys(dayTimes).some(day => dayTimes[day].includes(item))).length > 0}
+                                                    // onChange={this.onChangeRoles.bind(this)}
+                                                    onChange={(event, data) => this.toggleDayToOperationTime(event, data, index)}
+                                                    value={item}
+                                                    name="operationTime"
+                                                    onFocus={this.handleFocus}
+                                                />
+                                            </Grid.Row>
+                                            <Grid.Row>
+                                                <label>
+                                                    {strings.days[item]}
+                                                </label>
+                                            </Grid.Row>
+
+                                            <Grid.Row>
+                                                {operationTimeDaySelected[index] ?
+                                                    <div>
+                                                        <label>שעת התחלה</label>
+                                                        <Datetime
+                                                            inputProps={{style: {width: (100 + '%')}}}
+                                                            label='שעת התחלה'
+                                                            // value={this.state.startTimeSelected[index]}
+                                                            locale={'he'}
+                                                            dateFormat={false}
+                                                            install
+                                                            // name="startTime"
+                                                            ref={'refStartTime' + index}
+                                                            onChange={time => {
+                                                                let startTimeSelected = this.state.startTimeSelected;
+                                                                startTimeSelected[index] = moment(time).format("HH:mm");
+                                                                this.setState(startTimeSelected);
+                                                            }}
+                                                            onFocus={this.handleFocus}
+                                                        />
+                                                        <label>שעת סיום</label>
+                                                        <Datetime
+                                                            inputProps={{style: {width: (100 + '%')}}}
+                                                            label='שעת סיום'
+                                                            // value={this.state.endTimeSelected[index]}
+                                                            locale={'he'}
+                                                            dateFormat={false}
+                                                            install
+                                                            // name="endTime"
+                                                            onChange={time => {
+                                                                let endTimeSelected = this.state.endTimeSelected;
+                                                                endTimeSelected[index] = moment(time).format("HH:mm");
+                                                                this.setState(endTimeSelected);
+                                                            }}
+                                                            onFocus={this.handleFocus}
+                                                        />
+                                                        <Button icon onClick={() => this.addHours(item, index)}>
+                                                            <Icon link name='plus'/>
+                                                        </Button>
+                                                        <List relaxed={'very'}>
+                                                            {
+                                                                operationTime.filter(dayTime => dayTime.day === item).length > 0 ?
+                                                                    operationTime.filter(dayTime => dayTime.day === item)[0].hours.map((hour, index) => {
+                                                                        return <List.Item key={index}>
+                                                                            {hour.startHour} - {hour.endHour}
+                                                                            <Icon link name='delete'
+                                                                                  className={"subjectListIcon"}
+                                                                                  onClick={() => this.removeHours(item, hour)}
+                                                                            />
+                                                                        </List.Item>
+                                                                    })
+                                                                    : null
+                                                            }
+                                                        </List>
+                                                    </div>
+                                                    : null
+                                                }
+                                            </Grid.Row>
+                                        </Grid.Column>
+                                })
+                            }
+                        </Grid>
+                    </Form.Input>
+                </Form.Group>
+                {/*<Form.Group>
+                    <Form.label> בחר את הענף עבורו את/ה רוצה לשנות את ההגדרות:</Form.label>
+                    <Form.Field
+                        control={Dropdown}
+                        // label='ענף'
+                        placeholder='ענף'
+                        search
+                        selection
+                        autoComplete='on'
+                        options={this.state.dropdownRoles}
+                        value={this.state.roleSelected}
+                        onChange={this.selectRoleToChangeSettings.bind(this)}
+                        name='serviceProviderRole'
+                        required
+                        noResultsMessage='לא נמצאו ענפים'
+                    />
+                </Form.Group>*/}
+
 
                 {formError ?
                     <Message
                         error
-                        header='פרטי משתמש חסרים'
+                        header='פרטי נותן שירות חסרים'
                         content={this.state.formErrorMassage === "" ? 'נא להשלים את השדות החסרים' : this.state.formErrorMassage}
                     />
                     : null
                 }
                 {formComplete ?
-                    <Message success header='פרטי משתמש הושלמו' content="המשתמש נוסף בהצלחה"/>
+                    <Message success header='פרטי נותן שירות הושלמו' content="נותן שירות נוסף בהצלחה"/>
                     : null
                 }
 
                 <Form.Group style={{marginTop: 20}}>
-                    <Form.Button positive type="submit">{submitText}</Form.Button>
+                    <Form.Button positive type="submit" onClick={this.handleSubmit}>{submitText}</Form.Button>
                     <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>
                 </Form.Group>

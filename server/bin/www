@@ -69,6 +69,16 @@ io.on("connection", socket => {
             }
     };
 
+    var pushToAllWebClient = function (socketEventName) {
+        serviceProviderClients.forEach(serviceProviderSocket=>{
+            try {
+                io.sockets.connected[serviceProviderSocket.socketId].emit(socketEventName);
+            } catch (err) {
+                console.log("pushToAllAppClient error ", err);
+            }
+        })
+    };
+
     var pushToAppClient = function (data, socketEventName) {
         let userSocket = userClients.filter(item => item.userId === data.userId);
         if (userSocket.length === 1)
@@ -77,6 +87,16 @@ io.on("connection", socket => {
             } catch (err) {
                 console.log("pushToAppClient error ", err);
             }
+    };
+
+    var pushToAllAppClient = function (socketEventName) {
+        userClients.forEach(userSocket=>{
+            try {
+                io.sockets.connected[userSocket.socketId].emit(socketEventName);
+            } catch (err) {
+                console.log("pushToAllAppClient error ", err);
+            }
+        })
     };
 
     socket.on('disconnectWebClient', (data) => {
@@ -98,7 +118,8 @@ io.on("connection", socket => {
     });
 
     require('../sockets/appointments')(socket, pushToWebClient, pushToAppClient);
-
+    require('../sockets/serviceProviders')(socket, pushToWebClient, pushToAllAppClient);
+    require('../sockets/users')(socket, pushToAllWebClient, pushToAllAppClient);
 
     return io;
 });

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import store from "store";
 
 const serviceProviderHeaders = {
@@ -38,6 +38,8 @@ var deleteUserByUserID = (userId, headers) => {
         {headers: headers}
     )
         .then((response) => {
+            WEB_SOCKET.emit('userShallowDeleted');
+
             return response;
         })
         .catch((error) => {
@@ -47,6 +49,7 @@ var deleteUserByUserID = (userId, headers) => {
 };
 
 var createUser = (newUser, serviceProviderHeaders) => {
+    serviceProviderHeaders['Access-Control-Allow-Origin'] = '*';
     return axios.post(`${SERVER_URL}/api/serviceProviders/users/add`,
         {
             userId: newUser.userId,
@@ -56,10 +59,13 @@ var createUser = (newUser, serviceProviderHeaders) => {
             cellphone: newUser.cellphone,
             phone: newUser.phone,
             bornDate: newUser.bornDate,
+            image: newUser.image ? newUser.image : null,
         },
         {headers: serviceProviderHeaders}
     )
         .then((response) => {
+            WEB_SOCKET.emit('userCreated');
+
             return response;
         })
         .catch((error) => {
@@ -79,10 +85,13 @@ var updateUserById = function (updatedUser, serviceProviderHeaders) {
             phone: updatedUser.phone ? updatedUser.phone : null,
             bornDate: updatedUser.bornDate ? updatedUser.bornDate : null,
             active: typeof updatedUser.active === 'boolean' ? updatedUser.active : null,
+            image: updatedUser.image ? updatedUser.image : null,
         },
         {headers: serviceProviderHeaders}
     )
         .then(response => {
+            WEB_SOCKET.emit('userUpdated');
+
             return response;
         })
         .catch(error => {

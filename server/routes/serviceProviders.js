@@ -7,7 +7,7 @@ var express = require('express');
 var moment = require('moment');
 var router = express.Router();
 var nodemailer = require('nodemailer');
-
+var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
@@ -440,6 +440,7 @@ router.post('/users/add', function (req, res, next) {
                 cellphone: req.body.cellphone,
                 phone: req.body.phone,
                 bornDate: req.body.bornDate,
+                image: req.body.image,
             })
                 .then(newUser => {
                     res.status(200).send({
@@ -460,6 +461,38 @@ router.post('/users/add', function (req, res, next) {
         })
 });
 
+// update user by userId.
+router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            let newPassword = generateRandomPassword();
+
+            Users.findOne(
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(user => {
+                    // user.dataValues.password = newPassword;
+                    user.update({
+                        password: newPassword
+                    })
+                        .then(updatedUser => {
+                            res.status(200).send({
+                                "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                                "result": updatedUser.dataValues
+                            });
+                            sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
+});
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Accordion, Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
+import {Accordion, Button, Header, Icon, Menu, Image, Table} from 'semantic-ui-react';
 import {Link, Route, Switch} from "react-router-dom";
 import store from 'store';
 import moment from 'moment';
@@ -18,6 +18,8 @@ import ServiceProviderAdd from "../../components/serviceProvider/ServiceProvider
 import ServiceProviderInfo from "../../components/serviceProvider/ServiceProviderInfo";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import mappers from "../../shared/mappers";
+import AppointmentAdd from "../../components/appointment/AppointmentAdd";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -52,6 +54,16 @@ class PhoneBookManagementPage extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
         this.loadUsers();
         this.loadServiceProviders();
+
+        connectToServerSocket(store.get('serviceProviderId'));
+
+        WEB_SOCKET.on("getUsers", this.loadUsers.bind(this));
+        WEB_SOCKET.on("getServiceProviders", this.loadServiceProviders.bind(this));
+    }
+
+    componentWillUnmount() {
+        WEB_SOCKET.off("getUsers");
+        WEB_SOCKET.off("getServiceProviders");
     }
 
     componentWillReceiveProps({location = {}}) {
@@ -88,6 +100,18 @@ class PhoneBookManagementPage extends React.Component {
                     pageServiceProviders: 0,
                     totalPagesServiceProviders,
                 });
+
+
+                serviceProviders.forEach(provider => {
+                    serviceProvidersStorage.getServiceProviderUserDetails(provider.serviceProviderId)
+                        .then(userDetails => {
+                            provider.fullname = userDetails.data.fullname;
+                            provider.image = userDetails.data.image;
+                            this.setState({
+                                serviceProviders: serviceProviders
+                            })
+                        })
+                })
             });
     }
 
@@ -126,11 +150,24 @@ class PhoneBookManagementPage extends React.Component {
         this.setState({activeIndex: newIndex})
     };
 
+    getFullNameOfServiceProvider = (serviceProvider) => {
+        if (this.state.users.length === 0)
+            return;
+        let serviceProviders = this.state.serviceProviders;
+        let serviceProviderUpdate = serviceProviders.filter(provider => provider.serviceProviderId === serviceProvider.serviceProviderId)[0];
+        serviceProviderUpdate.fullname = this.state.users.filter(user => user.userId === serviceProvider.userId)[0].fullname;
+        this.setState({
+            serviceProviders: serviceProviders
+        })
+    };
+
     render() {
         // console.log('app props ', this.props);
 
         const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
+        let urlObject;
+        let url;
 
         return (
             <div>
@@ -142,6 +179,7 @@ class PhoneBookManagementPage extends React.Component {
                     <Table celled striped textAlign='right' selectable sortable>
                         <Table.Header>
                             <Table.Row>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.USER_ID_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
                                 {/*<Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>*/}
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
@@ -156,9 +194,13 @@ class PhoneBookManagementPage extends React.Component {
                         <Table.Body>
                             {users.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(user =>
                                 (<Table.Row key={user.userId}>
+                                    <Table.Cell>{user.userId}</Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
+                                            <Image
+                                                src={user.image}
+                                                rounded size='mini'
+                                            />
                                             <Header.Content>
                                                 <Link to={{
                                                     pathname: `${this.props.match.url}/user/${user.userId}`,
@@ -218,8 +260,9 @@ class PhoneBookManagementPage extends React.Component {
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}</Table.HeaderCell>
+                                {/*<Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}</Table.HeaderCell>*/}
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}</Table.HeaderCell>
@@ -228,15 +271,14 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(serviceProvider =>
-                                (<Table.Row key={serviceProvider.serviceProviderId}>
+                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map((serviceProvider, index) =>
+                                (<Table.Row key={index}>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
                                                 <Link to={{
                                                     pathname: `${this.props.match.url}/serviceProvider/${serviceProvider.serviceProviderId}`,
-                                                    state: {serviceProvider: serviceProvider}
+                                                    state: {serviceProvider: serviceProvider, users: {users}}
                                                 }}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>
@@ -244,9 +286,19 @@ class PhoneBookManagementPage extends React.Component {
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    {/*<Table.Cell>{serviceProvider.fullname}</Table.Cell>*/}
+                                    <Table.Cell>
+                                        <Header as='h5' image>
+                                            <Image
+                                                src={serviceProvider.image}
+                                                rounded size='mini'
+                                            />
+                                            <Header.Content>
+                                                {serviceProvider.fullname}
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
                                     <Table.Cell>{mappers.rolesMapper(serviceProvider.role)}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.userId}</Table.Cell>
+                                    {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
                                     <Table.Cell>
                                         {
                                             JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
@@ -301,7 +353,9 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                    <Link to={{pathname: `${this.props.match.url}/serviceProvider/add`, state: {users: users}}}>
+                        <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                    </Link>
                 </Page>
 
                 <div>

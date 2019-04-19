@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import store from "store";
 
 const serviceProviderHeaders = {
@@ -91,30 +91,34 @@ var getServiceProviderAppointmentWayTypeById = (serviceProviderId, role) => {
 };
 
 
-var updateServiceProviderById = (serviceProviderId, serviceProviderRole, updateOperationTime = null, updatePhoneNumber = null, updateAppointmentWayType = null, updateSubjects = null, updateActive = null) => {
+var updateServiceProviderById = (serviceProvider) => {
     let data = {};
-    if (updateOperationTime !== null)
-        data.operationTime = updateOperationTime;
-    if (updatePhoneNumber !== null)
-        data.phoneNumber = updatePhoneNumber;
-    if (updateAppointmentWayType !== null)
-        data.appointmentWayType = updateAppointmentWayType;
-    if (updateSubjects !== null)
-        data.subjects = JSON.stringify(updateSubjects);
-    if (updateActive !== null)
-        data.active = updateActive;
+    if (serviceProvider.operationTime !== null)
+        data.operationTime = JSON.stringify(serviceProvider.operationTime);
+    if (serviceProvider.phoneNumber !== null)
+        data.phoneNumber = serviceProvider.phoneNumber;
+    if (serviceProvider.appointmentWayType !== null)
+        data.appointmentWayType = serviceProvider.appointmentWayType;
+    if (serviceProvider.subjects !== null)
+        data.subjects = JSON.stringify(serviceProvider.subjects);
+    if (serviceProvider.active !== null)
+        data.active = serviceProvider.active;
 
-    return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProviderId}/role/${serviceProviderRole}`,
+    return axios.put(`${SERVER_URL}/api/serviceProviders/update/serviceProviderId/${serviceProvider.serviceProviderId}/role/${serviceProvider.role}`,
         data,
         {
             headers: serviceProviderHeaders
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderUpdate', {
+                serviceProviderId: serviceProvider.serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
-            console.log('getServiceProviderAppointmentWayTypeById error ', error);
+            console.log('updateServiceProviderById error ', error);
         });
 };
 
@@ -129,6 +133,10 @@ var addRoleToServiceProviderById = (serviceProviderId, roleToAdd) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderAddRole', {
+                serviceProviderId: serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -147,6 +155,10 @@ var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderRemoveRole', {
+                serviceProviderId: serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
@@ -155,16 +167,15 @@ var removeRoleFromServiceProviderById = (serviceProviderId, roleToRemove) => {
 };
 
 var createServiceProvider = (serviceProvider) => {
-    //TODO complete this - createServiceProvider!
-    return axios.put(`${SERVER_URL}/api/serviceProviders/add`,
+    return axios.post(`${SERVER_URL}/api/serviceProviders/add`,
         {
             serviceProviderId: serviceProvider.serviceProviderId,
             role: serviceProvider.role,
             userId: serviceProvider.userId,
-            operationTime: serviceProvider.operationTime,
+            operationTime: JSON.stringify(serviceProvider.operationTime),
             phoneNumber: serviceProvider.phoneNumber,
             appointmentWayType: serviceProvider.appointmentWayType,
-            subjects: serviceProvider.subjects,
+            subjects: JSON.stringify(serviceProvider.subjects),
             active: serviceProvider.active === null ? false : serviceProvider.active,
         },
         {
@@ -172,10 +183,14 @@ var createServiceProvider = (serviceProvider) => {
         }
     )
         .then((response) => {
+            WEB_SOCKET.emit('serviceProviderCreated', {
+                serviceProviderId: serviceProvider.serviceProviderId,
+            });
+
             return response;
         })
         .catch((error) => {
-            console.log('removeRoleFromServiceProviderById error ', error);
+            console.log('createServiceProvider error ', error);
         });
 };
 
@@ -188,6 +203,10 @@ var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteT
             }
         )
             .then((response) => {
+                WEB_SOCKET.emit('serviceProviderShallowDeleted', {
+                    serviceProviderId: serviceProviderId,
+                });
+
                 return response;
             })
             .catch((error) => {
@@ -198,14 +217,47 @@ var deleteServiceProviderById = (serviceProviderId, serviceProviderRole, deleteT
             {headers: serviceProviderHeaders}
         )
             .then((response) => {
-                let permissions = response.data;
-                console.log('permissions ', permissions);
-                return permissions;
+                WEB_SOCKET.emit('serviceProviderDeepDeleted', {
+                    serviceProviderId: serviceProviderId,
+                });
+
+                return response;
             })
             .catch((error) => {
                 console.log('error ', error);
             });
 };
+
+var getServiceProviderUserDetails = function (serviceProviderId) {
+    return axios.get(`${SERVER_URL}/api/serviceProviders/userDetails/serviceProviderId/${serviceProviderId}`,
+        {headers: serviceProviderHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get serviceProvider user details error ', error)
+        });
+};
+
+
+var renewUserPassword = function (userId, serviceProviderHeaders){
+    return axios.put(`${SERVER_URL}/api/serviceProviders/users/renewPassword/userId/${userId}`,
+        {
+        },
+        {headers: serviceProviderHeaders}
+    )
+        .then(response => {
+            WEB_SOCKET.emit('userUpdated');
+
+            return response;
+        })
+        .catch(error => {
+            console.log('renewUserPassword error ', error)
+            return null;
+        });
+}
+
 
 export default {
     getServiceProviders,
@@ -219,5 +271,7 @@ export default {
     addRoleToServiceProviderById,
     removeRoleFromServiceProviderById,
     deleteServiceProviderById,
-    createServiceProvider
+    createServiceProvider,
+    getServiceProviderUserDetails,
+    renewUserPassword,
 };

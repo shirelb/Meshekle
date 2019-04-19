@@ -57,28 +57,37 @@ class ServiceProviderInfo extends React.Component {
         this.setState({activeIndex: newIndex})
     };
 
+    renewPassword = () => {
+        serviceProvidersStorage.renewUserPassword(this.state.serviceProvider.userId, this.serviceProviderHeaders)
+            .then((response) => {
+                console.log('user password renewed response ', response);
+                this.props.history.goBack();
+            });
+    }
+
 
     render() {
-        const {serviceProvider,activeIndex} = this.state;
+        const {serviceProvider, activeIndex} = this.state;
         console.log('ServiceProviderInfo serviceProvider ', serviceProvider);
 
         return (
             <div>
                 <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                     <Helmet>
-                        {/*<title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>*/}
-                        <title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>
+                        <title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>
+                        {/*<title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>*/}
                     </Helmet>
 
-                    {/*<Modal.Header>{serviceProvider.fullname}</Modal.Header>*/}
-                    <Modal.Header>{serviceProvider.serviceProviderId}</Modal.Header>
+                    <Modal.Header>{serviceProvider.fullname}</Modal.Header>
+                    {/*<Modal.Header>{serviceProvider.serviceProviderId}</Modal.Header>*/}
                     <Modal.Content image>
-                        <Image wrapped size="small" src={`https://api.adorable.io/avatars/250`}/>
-                        <Modal.Description>
+                        <Image wrapped size="small"
+                               src={serviceProvider.image ? serviceProvider.image : 'https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png'}/>
+                        <Modal.Description style={{marginRight: 20}}>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
-                            {/*<p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>*/}
+                            <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {mappers.rolesMapper(serviceProvider.role)}</p>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>
+                            {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
                             <div>
                                 {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
                                 {
@@ -107,13 +116,14 @@ class ServiceProviderInfo extends React.Component {
                             <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
                             <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
-                            {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+
+                            <Button onClick={this.renewPassword}>חדש סיסמא</Button>
                         </Modal.Description>
                     </Modal.Content>
                     <Modal.Actions className='alignLeft'>
                         <Button positive onClick={this.handleEdit}>ערוך</Button>
                         <Button negative onClick={this.handleDelete}>מחק</Button>
-                        <Button>סגור</Button>
+                        <Button onClick={() => this.props.history.goBack()}>סגור</Button>
                     </Modal.Actions>
                 </Modal>
 

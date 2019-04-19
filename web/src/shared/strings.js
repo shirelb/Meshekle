@@ -16,10 +16,12 @@ const mainPageStrings = {
     WELCOME: "ברוכים הבאים ",
     MAIN_PAGE_TITLE: "בית",
     SETTINGS_PAGE_TITLE: "הגדרות",
+    REPORT_PAGE_TITLE: "דוח תורים",
     PHONE_BOOK_PAGE_TITLE: "ספר טלפונים",
     PHONE_BOOK_PAGE_USERS_TITLE: "משתמשים",
     PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
     APPOINTMENTS_PAGE_TITLE: "תורים",
+    BACK_TO_APPOINTMENTS_PAGE_TITLE: "חזור ללוח שנה",
     CHORES_PAGE_TITLE: "תורנויות",
     ANNOUNCEMENTS_PAGE_TITLE: "לוח מודעות",
     ROLES_HairDresser: "מספרה",
@@ -44,7 +46,7 @@ const phoneBookPageStrings = {
     ACTIVE_HEADER: "פעיל",
     ACTIVE_ANSWER_YES: "כן",
     ACTIVE_ANSWER_NO: "לא",
-    SERVICE_PROVIDER_ID_HEADER: "מ.מ. נותן שירות",
+    SERVICE_PROVIDER_ID_HEADER: "ת.ז. נותן שירות",
     SERVICE_PROVIDER_ROLE_HEADER: "תפקיד",
     SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. משתמש",
     SERVICE_PROVIDER_OPERATION_TIME_HEADER: "זמני פעילות",
@@ -89,22 +91,22 @@ const roles = {
 
 
 const appointmentsWayType = {
-    Dialog: "דיון",
-    Slots: "שורה נעלמת",
+    Dialog: "בקשה ומענה",
+    Slots: "חלונות זמן",
     Fault: "פתיחת תקלה",
     Admin: "הכל",
 };
 
 const days = {
-    DAYS_SUNDAY: "יום ראשון",
-    DAYS_MONDAY: "יום שני",
-    DAYS_TUESDAY: "יום שלישי",
-    DAYS_WEDNESDAY: "יום רביעי",
-    DAYS_THURSDAY: "יום חמישי",
-    DAYS_FRIDAY: "יום שישי",
-    DAYS_SATURDAY: "יום שבת",
-    DAYS_UNDEFINED: "לא קיים",
-}
+    Sunday: "יום ראשון",
+    Monday: "יום שני",
+    Tuesday: "יום שלישי",
+    Wednesday: "יום רביעי",
+    Thursday: "יום חמישי",
+    Friday: "יום שישי",
+    Saturday: "יום שבת",
+    Undefined: "לא קיים",
+};
 
 export default {
     loginPageStrings,

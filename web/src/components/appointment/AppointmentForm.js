@@ -9,12 +9,6 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 
 
-/*const this.subjectOptions = [
-    {key: 'f', text: 'פן', value: 'פן'},
-    {key: 'hd', text: 'צבע', value: 'צבע'},
-    {key: 'hc', text: 'תספורת', value: 'תספורת'},
-];*/
-
 let userOptions = {};
 
 usersStorage.getUsers()
@@ -40,9 +34,10 @@ class AppointmentForm extends Component {
             formError: false,
             formComplete: false,
             isAlertModal: false,
+
+            subjectOptions: [],
         };
 
-        this.subjectOptions = [];
 
         if (slotInfo) {
             console.log('slotInfo ', slotInfo);
@@ -88,12 +83,14 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    componentDidMount() {
+    componentWillMount() {
+        let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProvider => {
                 JSON.parse(serviceProvider[0].subjects).map((subject, index) => {
-                    this.subjectOptions.push({key: index, text: subject, value: subject});
+                    subjectOptions.push({key: index, text: subject, value: subject});
                 })
+                this.setState({subjectOptions: subjectOptions})
             });
     }
 
@@ -189,7 +186,7 @@ class AppointmentForm extends Component {
 
     onChangeDate = date => {
         let updateAppointment = this.state.appointment;
-        updateAppointment.date = date;
+        updateAppointment.date = moment(date).format("YYYY-MM-DD");
         this.setState({appointment: updateAppointment})
     };
 
@@ -267,7 +264,7 @@ class AppointmentForm extends Component {
                     search
                     multiple
                     selection
-                    options={this.subjectOptions}
+                    options={this.state.subjectOptions}
                     value={appointment.subject}
                     onChange={this.handleChange}
                     name='subject'
@@ -291,7 +288,7 @@ class AppointmentForm extends Component {
                         as={Datetime}
                         label='תאריך'
                         value={appointment.date}
-                        locale={'he'}
+                        // locale={'he'}
                         timeFormat={false}
                         install
                         // name="date"

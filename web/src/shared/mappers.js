@@ -36,21 +36,33 @@ var rolesMapper = function (value) {
 var daysMapper = function (value) {
     switch (value) {
         case "Sunday":
-            return strings.days.DAYS_SUNDAY;
+            return strings.days.Sunday;
         case "Monday":
-            return strings.days.DAYS_MONDAY;
+            return strings.days.Monday;
         case "Tuesday":
-            return strings.days.DAYS_TUESDAY;
+            return strings.days.Tuesday;
         case "Wednesday":
-            return strings.days.DAYS_WEDNESDAY;
+            return strings.days.Wednesday;
         case "Thursday":
-            return strings.days.DAYS_THURSDAY;
+            return strings.days.Thursday;
         case "Friday":
-            return strings.days.DAYS_FRIDAY;
+            return strings.days.Friday;
         case "Saturday":
-            return strings.days.DAYS_SATURDAY;
+            return strings.days.Saturday;
         default:
-            return strings.days.DAYS_UNDEFINED;
+            return strings.days.Undefined;
     }
 };
-export default {loginPageMapper, mainScreenMapper, rolesMapper,daysMapper};
+
+var appointmentStatusMapper = function (value) {
+    switch (value) {
+        case "set":
+            return "נקבע";
+        case "cancelled":
+            return "בוטל";
+        default:
+            return value;
+    }
+};
+
+export default {loginPageMapper, mainScreenMapper, rolesMapper,daysMapper,appointmentStatusMapper};

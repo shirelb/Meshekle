@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form, Label, Message, Checkbox} from 'semantic-ui-react';
+import {Form, Label, Message, Image, Checkbox} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
 
@@ -109,7 +109,7 @@ class UserForm extends React.Component {
             return false;
         }
 
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email)) ) {
+        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
             this.setState({
                 formError: true,
                 formErrorMassage: "אימייל לא וואלידי",
@@ -177,7 +177,20 @@ class UserForm extends React.Component {
             this.setState({formComplete: true});
 
             handleSubmit(user);
-            this.setState({user: {}});
+            this.setState({
+                user: {
+                    userId: '',
+                    fullname: '',
+                    password: '',
+                    email: '',
+                    mailbox: 0,
+                    cellphone: '',
+                    phone: '',
+                    bornDate: null,
+                    active: true,
+                    image: "",
+                },
+            });
         }
 
     }
@@ -221,13 +234,31 @@ class UserForm extends React.Component {
         this.setState({user: updateUser})
     };
 
+    onChangeImage = (e) => {
+        e.preventDefault();
+
+        let reader = new FileReader();
+        let file = e.target.files[0];
+
+        reader.readAsDataURL(file);
+
+        reader.onloadend = () => {
+            this.setState({
+                user: {...this.state.user, image: reader.result},
+                imageFile: file,
+            });
+        };
+
+    };
 
     render() {
         const {formError, formComplete, user, user: {userId, fullname, password, email, mailbox, cellphone, phone, bornDate, active, image}} = this.state;
         const {handleCancel, submitText} = this.props;
 
+        // console.log("USerForm user ", user);
+
         return (
-            <Form onSubmit={this.handleSubmit} error={formError}>
+            <Form error={formError}>
                 <Form.Group widths='equal'>
                     <Form.Input
                         error={this.state.fieldUserIdError}
@@ -272,7 +303,7 @@ class UserForm extends React.Component {
                         name="email"
                         value={email}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
                         error={this.state.fieldMailboxError}
@@ -282,7 +313,7 @@ class UserForm extends React.Component {
                         name="mailbox"
                         value={mailbox}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
@@ -295,7 +326,7 @@ class UserForm extends React.Component {
                         name="cellphone"
                         value={cellphone}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                     <Form.Input
                         error={this.state.fieldPhoneError}
@@ -305,7 +336,7 @@ class UserForm extends React.Component {
                         name="phone"
                         value={phone}
                         onChange={this.handleChange}
-                                                onFocus={this.handleFocus}
+                        onFocus={this.handleFocus}
                     />
                 </Form.Group>
 
@@ -330,16 +361,20 @@ class UserForm extends React.Component {
                     <Form.Input
                         // error={this.state.field}
                         label="תמונה"
-                        type="image"
+                        type="file"
                         name="image"
-                        value={image}
-                        onChange={this.handleChange}
+                        // value={image}
+                        onChange={this.onChangeImage}
                         onFocus={this.handleFocus}
                     />
+                    {image !== "" ?
+                        <Image src={image} style={{height: '60px', width: '60px'}}/>
+                        : null
+                    }
                     <Form.Input
                         error={this.state.fieldActiveError}
                         required
-                        label="קיים"
+                        label="פעיל"
                         // type="checkbox"
                         name="active"
                     >
@@ -368,7 +403,7 @@ class UserForm extends React.Component {
                 }
 
                 <Form.Group style={{marginTop: 20}}>
-                    <Form.Button positive type="submit">{submitText}</Form.Button>
+                    <Form.Button positive type="submit" onClick={this.handleSubmit}>{submitText}</Form.Button>
                     <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>
                 </Form.Group>

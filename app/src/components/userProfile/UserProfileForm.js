@@ -71,6 +71,23 @@ export default class UserProfileForm extends Component {
             })
     }
 
+    onChangeImage = (e) => {
+        e.preventDefault();
+
+        let reader = new FileReader();
+        let file = e.target.files[0];
+
+        reader.readAsDataURL(file);
+
+        reader.onloadend = () => {
+            this.setState({
+                user: {...this.state.user, image: reader.result},
+                imageFile: file,
+            });
+        };
+
+    };
+
 
     render() {
         let user = this.state.user;
@@ -95,9 +112,9 @@ export default class UserProfileForm extends Component {
                             <Avatar
                                 large
                                 rounded
-                                source={{uri: "https://cdn.iconscout.com/icon/free/png-256/avatar-373-456325.png"}}
+                                source={{uri: user.image}}
                                 activeOpacity={0.7}
-                                onPress={() => console.log("this will change the image")}
+                                onPress={() => this.onChangeImage}
                             />
                         </View>
 

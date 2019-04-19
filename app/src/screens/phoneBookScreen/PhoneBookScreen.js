@@ -6,6 +6,7 @@ import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import mappers from "../../shared/mappers";
+import {APP_SOCKET} from "../../shared/constants";
 
 
 export default class PhoneBookScreen extends Component {
@@ -35,6 +36,14 @@ export default class PhoneBookScreen extends Component {
                 this.userId = userData.userId;
                 this.loadUsers();
             });
+
+        APP_SOCKET.on("getServiceProviders", this.loadUsers.bind(this));
+        APP_SOCKET.on("getUsers", this.loadUsers.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getServiceProviders");
+        APP_SOCKET.off("getUsers");
     }
 
     loadUsers() {
@@ -43,7 +52,7 @@ export default class PhoneBookScreen extends Component {
                 console.log("phonebook users ", users);
 
                 this.setState({
-                    users: users,
+                    users: users.filter(user => user.active === true),
                 });
 
                 this.users = users;
@@ -88,13 +97,13 @@ export default class PhoneBookScreen extends Component {
         // console.log("in search ", search);
         let users = this.state.users;
         let filteredByNameOrRole = users.filter((item) => {
-            let roleFound=false;
+            let roleFound = false;
             item.ServiceProviders.forEach(provider => {
-                if(mappers.serviceProviderRolesMapper(provider.role).includes(search)) {
+                if (mappers.serviceProviderRolesMapper(provider.role).includes(search)) {
                     roleFound = true;
                 }
             });
-            return item.fullname.includes(search) ||roleFound;
+            return item.fullname.includes(search) || roleFound;
         });
         if (!search || search === '') {
             this.setState({
@@ -123,22 +132,37 @@ export default class PhoneBookScreen extends Component {
     };
 
     renderRow = ({item}) => {
+        console.log("item ", item);
         let roles = [];
         item.ServiceProviders.forEach(provider => {
-            roles.push(mappers.serviceProviderRolesMapper(provider.role));
+            if (provider.active)
+                roles.push(mappers.serviceProviderRolesMapper(provider.role));
         });
 
-        return (
-            <ListItem
-                roundAvatar
-                title={item.fullname}
-                subtitle={roles.join(", ")}
-                // avatar={{uri:item.avatar_url}}
-                onPress={() => this.openUserInfo(item)}
-                containerStyle={{borderBottomWidth: 0}}
-                rightIcon={<Icon name={'chevron-left'}/>}
-            />
-        )
+        if (item.image !== null)
+            return (
+                <ListItem
+                    roundAvatar
+                    title={item.fullname}
+                    subtitle={roles.join(", ")}
+                    avatar={{uri: item.image}}
+                    onPress={() => this.openUserInfo(item)}
+                    containerStyle={{borderBottomWidth: 0}}
+                    rightIcon={<Icon name={'chevron-left'}/>}
+                />
+            );
+        else
+            return (
+                <ListItem
+                    roundAvatar
+                    title={item.fullname}
+                    subtitle={roles.join(", ")}
+                    avatar={{uri: "https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png"}}
+                    onPress={() => this.openUserInfo(item)}
+                    containerStyle={{borderBottomWidth: 0}}
+                    rightIcon={<Icon name={'chevron-left'}/>}
+                />
+            )
     };
 
     render() {
