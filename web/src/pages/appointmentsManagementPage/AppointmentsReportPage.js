@@ -407,6 +407,18 @@ class AppointmentsReportPage extends React.Component {
                                             <Icon link name='filter'
                                                   onClick={(e) => this.handleFilter('date', e)}
                                             />
+                                            <Icon link name='x'
+                                                  onClick={(e) => {
+                                                      let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+                                                      filterColumnsAndTexts.date = "";
+                                                      this.setState({
+                                                          monthFilterSelected: null,
+                                                          dateFilterSelected: "",
+                                                          filterColumnsAndTexts: filterColumnsAndTexts,
+                                                      });
+                                                      this.handleFilter('', e);
+                                                  }}
+                                            />
                                             <Datetime
                                                 inputProps={{style: {width: (100 + 'px')}}}
                                                 locale={'he'}
