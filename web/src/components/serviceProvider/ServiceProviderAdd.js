@@ -1,13 +1,11 @@
 import React from 'react';
-import {post} from 'axios';
-import UserForm from './UserForm';
+import ServiceProviderForm from './ServiceProviderForm';
 import {Helmet} from 'react-helmet';
-import Page from '../Page';
-import usersStorage from "../../storage/usersStorage";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 import {Grid, Header, Modal} from "semantic-ui-react";
 
-class UserAdd extends React.Component {
+class ServiceProviderAdd extends React.Component {
     constructor(props) {
         super(props);
 
@@ -23,10 +21,10 @@ class UserAdd extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
     }
 
-    handleSubmit(user) {
-        usersStorage.createUser(user, this.serviceProviderHeaders)
+    handleSubmit(serviceProvider) {
+        serviceProvidersStorage.createServiceProvider(serviceProvider)
             .then(response => {
-                console.log('user created ', response);
+                console.log('serviceProvider created ', response);
                 this.props.history.goBack();
             });
     }
@@ -41,22 +39,24 @@ class UserAdd extends React.Component {
 
     render() {
         return (
-            <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
+            <Modal size='large' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | Add User</title>
+                    <title>Meshekle | Add ServiceProvider</title>
                 </Helmet>
 
                 <Grid padded>
                     <Grid.Row>
-                        <Header as="h1" floated="right">משתמש חדש</Header>
+                        <Header as="h1" floated="right">נותן שירות חדש</Header>
                     </Grid.Row>
 
                     <Grid.Row>
                         <Grid.Column>
-                            <UserForm
+                            <ServiceProviderForm
                                 submitText="הוסף"
+                                users={this.props.location.state.users ? this.props.location.state.users : []}
                                 handleSubmit={this.handleSubmit}
                                 handleCancel={this.handleCancel}
+                                openedFrom={"ServiceProviderAdd"}
                             />
                         </Grid.Column>
                     </Grid.Row>
@@ -66,4 +66,4 @@ class UserAdd extends React.Component {
     }
 }
 
-export default UserAdd;
+export default ServiceProviderAdd;

@@ -22,6 +22,7 @@ const drawerMenu = {
     CHORES_SCREEN_NAME: "תורנויות",
     ANNOUNCEMENTS_SCREEN_NAME: "לוח מודעות",
 
+    PhoneBook_SCREEN_NAME: "ספר טלפונים",
 };
 
 export default {loginScreenStrings,mainScreenStrings,drawerMenu};

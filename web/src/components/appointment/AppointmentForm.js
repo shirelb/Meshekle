@@ -9,23 +9,19 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 
 
-/*const this.subjectOptions = [
-    {key: 'f', text: 'פן', value: 'פן'},
-    {key: 'hd', text: 'צבע', value: 'צבע'},
-    {key: 'hc', text: 'תספורת', value: 'תספורת'},
-];*/
-
 let userOptions = {};
 
 usersStorage.getUsers()
-    .then(response => {
-        const users = response.data;
+    .then(users => {
         console.log('users ', users);
-        userOptions = users.map(item => ({
-            key: item.userId,
-            text: item.fullname,
-            value: item.fullname
-        }));
+        if (Array.isArray(users))
+            userOptions = users.filter(u => u.active).map(item =>
+                ({
+                    key: item.userId,
+                    text: item.fullname,
+                    value: item.fullname
+                })
+            )
     });
 
 
@@ -40,9 +36,10 @@ class AppointmentForm extends Component {
             formError: false,
             formComplete: false,
             isAlertModal: false,
+
+            subjectOptions: [],
         };
 
-        this.subjectOptions=[];
 
         if (slotInfo) {
             console.log('slotInfo ', slotInfo);
@@ -88,12 +85,14 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    componentDidMount() {
+    componentWillMount() {
+        let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProvider => {
-                JSON.parse(serviceProvider[0].subjects).map((subject,index)=>{
-                    this.subjectOptions.push({key: index, text: subject, value: subject});
+                JSON.parse(serviceProvider[0].subjects).map((subject, index) => {
+                    subjectOptions.push({key: index, text: subject, value: subject});
                 })
+                this.setState({subjectOptions: subjectOptions})
             });
     }
 
@@ -115,15 +114,15 @@ class AppointmentForm extends Component {
         }
         if (appointmentRequestEvent) {
             this.setState({
-               /* appointment: {
-                    date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
-                    startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
-                    endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
-                    subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
-                    clientName: appointmentRequestEvent.appointmentRequest.clientName,
-                    remarks: appointmentRequestEvent.appointmentRequest.notes,
-                },*/
+                /* appointment: {
+                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
+                     // date: moment(appointment.startDateAndTime),
+                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
+                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
+                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
+                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
+                     remarks: appointmentRequestEvent.appointmentRequest.notes,
+                 },*/
                 appointmentRequestEvent: appointmentRequestEvent,
             })
         }
@@ -189,16 +188,16 @@ class AppointmentForm extends Component {
 
     onChangeDate = date => {
         let updateAppointment = this.state.appointment;
-        updateAppointment.date = date;
+        updateAppointment.date = moment(date).format("YYYY-MM-DD");
         this.setState({appointment: updateAppointment})
     };
 
     onChangeTime = (time, isStart) => {
         let updateAppointment = this.state.appointment;
         isStart ?
-            updateAppointment.startTime = time
+            updateAppointment.startTime = moment(time).format("HH:mm")
             :
-            updateAppointment.endTime = time;
+            updateAppointment.endTime =  moment(time).format("HH:mm");
         this.setState({appointment: updateAppointment});
     };
 
@@ -267,7 +266,7 @@ class AppointmentForm extends Component {
                     search
                     multiple
                     selection
-                    options={this.subjectOptions}
+                    options={this.state.subjectOptions}
                     value={appointment.subject}
                     onChange={this.handleChange}
                     name='subject'
@@ -291,7 +290,7 @@ class AppointmentForm extends Component {
                         as={Datetime}
                         label='תאריך'
                         value={appointment.date}
-                        locale={'he'}
+                        // locale={'he'}
                         timeFormat={false}
                         install
                         // name="date"
@@ -390,7 +389,8 @@ class AppointmentForm extends Component {
                                         content='כן אני בטוח'
                                         onClick={this.handleSubmit}
                                     />
-                                    <Button content='לא אני רוצה לשנות' onClick={()=>this.setState({isAlertModal: false})}/>
+                                    <Button content='לא אני רוצה לשנות'
+                                            onClick={() => this.setState({isAlertModal: false})}/>
                                 </Modal.Actions>
                             </Modal>
                         </div>
@@ -411,7 +411,7 @@ class AppointmentForm extends Component {
                     : null
                 }
 
-                <Form.Group style={{marginTop:20}}>
+                <Form.Group style={{marginTop: 20}}>
                     <Form.Button positive type="submit">{submitText}</Form.Button>
                     <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>

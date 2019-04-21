@@ -1,16 +1,25 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {Link, Redirect, Route, Switch} from "react-router-dom";
+import {Accordion, Button, Header, Icon, Menu, Image, Table} from 'semantic-ui-react';
+import {Link, Route, Switch} from "react-router-dom";
 import store from 'store';
+import moment from 'moment';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
 import strings from "../../shared/strings";
 import UserInfo from "../../components/user/UserInfo";
+import UserAdd from "../../components/user/UserAdd";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import UserEdit from "../../components/user/UserEdit";
+import ServiceProviderAdd from "../../components/serviceProvider/ServiceProviderAdd";
+import ServiceProviderInfo from "../../components/serviceProvider/ServiceProviderInfo";
+import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
+import mappers from "../../shared/mappers";
+import AppointmentAdd from "../../components/appointment/AppointmentAdd";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -25,6 +34,8 @@ class PhoneBookManagementPage extends React.Component {
             serviceProviders: [],
             pageServiceProviders: 0,
             totalPagesServiceProviders: 0,
+
+            activeIndex: -1,
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -41,22 +52,32 @@ class PhoneBookManagementPage extends React.Component {
         };
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
-        this.getUsers();
-        this.getServiceProviders();
+        this.loadUsers();
+        this.loadServiceProviders();
+
+        connectToServerSocket(store.get('serviceProviderId'));
+
+        WEB_SOCKET.on("getUsers", this.loadUsers.bind(this));
+        WEB_SOCKET.on("getServiceProviders", this.loadServiceProviders.bind(this));
+    }
+
+    componentWillUnmount() {
+        WEB_SOCKET.off("getUsers");
+        WEB_SOCKET.off("getServiceProviders");
     }
 
     componentWillReceiveProps({location = {}}) {
-        if (location.pathname === '/chores' && location.pathname !== this.props.location.pathname) {
-            this.getUsers();
-            this.getServiceProviders();
+        if (location.pathname === '/phoneBook' && location.pathname !== this.props.location.pathname) {
+            this.loadUsers();
+            this.loadServiceProviders();
         }
     }
 
-    getUsers() {
+    loadUsers() {
         usersStorage.getUsers()
             .then((response) => {
                 console.log('response ', response);
-                const users = response.data;
+                const users = response;
                 const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 
                 this.setState({
@@ -67,7 +88,7 @@ class PhoneBookManagementPage extends React.Component {
             });
     }
 
-    getServiceProviders() {
+    loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders()
             .then(serviceProviders => {
 
@@ -79,6 +100,18 @@ class PhoneBookManagementPage extends React.Component {
                     pageServiceProviders: 0,
                     totalPagesServiceProviders,
                 });
+
+
+                serviceProviders.forEach(provider => {
+                    serviceProvidersStorage.getServiceProviderUserDetails(provider.serviceProviderId)
+                        .then(userDetails => {
+                            provider.fullname = userDetails.data.fullname;
+                            provider.image = userDetails.data.image;
+                            this.setState({
+                                serviceProviders: serviceProviders
+                            })
+                        })
+                })
             });
     }
 
@@ -109,57 +142,46 @@ class PhoneBookManagementPage extends React.Component {
         });
     }
 
-    getUserByUserID(userId) {
-        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
-            .then((user) => {
-                // let user=response.data[0];
-                console.log('then getUserByUserID ', userId, ' ', user);
-                console.log('then getUserByUserID props', this.props);
-                this.props.history.push({
-                    pathname: `/users/${userId}`,
-                    // search: '?query=abc',
-                    state: {userData: user}
-                })
-                // this.props.history.push(`/users/${userId}`);
-                // return <UserInfo/>
-                // return <Route
-                //     path={`${this.props.match.path}/:${userId}`}
-                //     render={() => {
-                //         return <UserInfo
-                //             user={
-                //                 this.state.users.filter(
-                //                     user => user.id === userId
-                //                 )[0]
-                //             }
-                //         />
-                //     }
-                //     }
-                // />
-            })
-            .catch((error) => {
-                console.log('error getUserByUserID ', userId, ' ', error);
-            });
-    }
+    handleClick = (e, titleProps) => {
+        const {index} = titleProps;
+        const {activeIndex} = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
 
+        this.setState({activeIndex: newIndex})
+    };
+
+    getFullNameOfServiceProvider = (serviceProvider) => {
+        if (this.state.users.length === 0)
+            return;
+        let serviceProviders = this.state.serviceProviders;
+        let serviceProviderUpdate = serviceProviders.filter(provider => provider.serviceProviderId === serviceProvider.serviceProviderId)[0];
+        serviceProviderUpdate.fullname = this.state.users.filter(user => user.userId === serviceProvider.userId)[0].fullname;
+        this.setState({
+            serviceProviders: serviceProviders
+        })
+    };
 
     render() {
-        console.log('app props ', this.props);
+        // console.log('app props ', this.props);
 
-        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
+        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
+        let urlObject;
+        let url;
 
         return (
             <div>
                 <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_USERS_TITLE}>
                     <Helmet>
-                        <title>Meshekle | Users</title>
+                        <title>Meshekle | Phone Book</title>
                     </Helmet>
 
                     <Table celled striped textAlign='right' selectable sortable>
                         <Table.Header>
                             <Table.Row>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.USER_ID_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>
+                                {/*<Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>*/}
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
@@ -172,24 +194,30 @@ class PhoneBookManagementPage extends React.Component {
                         <Table.Body>
                             {users.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(user =>
                                 (<Table.Row key={user.userId}>
+                                    <Table.Cell>{user.userId}</Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
+                                            <Image
+                                                src={user.image}
+                                                rounded size='mini'
+                                            />
                                             <Header.Content>
-                                                <Link to={`${this.props.match.url}/users/${user.userId}`}>
+                                                <Link to={{
+                                                    pathname: `${this.props.match.url}/user/${user.userId}`,
+                                                    state: {user: user}
+                                                }}>
                                                     {user.fullname}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    {/*<Table.Cell>{user.fullname}</Table.Cell>*/}
-                                    <Table.Cell>{user.password}</Table.Cell>
+                                    {/*<Table.Cell>{user.password}</Table.Cell>*/}
                                     <Table.Cell>{user.email}</Table.Cell>
                                     <Table.Cell>{user.mailbox}</Table.Cell>
                                     <Table.Cell>{user.cellphone}</Table.Cell>
                                     <Table.Cell>{user.phone}</Table.Cell>
-                                    <Table.Cell>{new Date(user.bornDate).toISOString().split('T')[0]}</Table.Cell>
+                                    <Table.Cell>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
                                     <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                     {/*<Table.Cell>{user.image}</Table.Cell>*/}
                                 </Table.Row>),
@@ -217,8 +245,11 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                    <Link to={{pathname: `${this.props.match.url}/user/add`}}>
+                        <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                    </Link>
                 </Page>
+
                 <Page children={serviceProviders}
                       title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}>
                     <Helmet>
@@ -229,8 +260,9 @@ class PhoneBookManagementPage extends React.Component {
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}</Table.HeaderCell>
+                                <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}</Table.HeaderCell>
+                                {/*<Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}</Table.HeaderCell>*/}
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
                                 <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}</Table.HeaderCell>
@@ -239,26 +271,60 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(serviceProvider =>
-                                (<Table.Row key={serviceProvider.serviceProviderId}>
+                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map((serviceProvider, index) =>
+                                (<Table.Row key={index}>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
-                                                <Link
-                                                    to={`${this.props.match.url}/serviceProviders/${serviceProvider.serviceProviderId}`}>
+                                                <Link to={{
+                                                    pathname: `${this.props.match.url}/serviceProvider/${serviceProvider.serviceProviderId}`,
+                                                    state: {serviceProvider: serviceProvider, users: {users}}
+                                                }}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    {/*<Table.Cell>{serviceProvider.fullname}</Table.Cell>*/}
-                                    <Table.Cell>{serviceProvider.role}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.userId}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.operationTime}</Table.Cell>
+                                    <Table.Cell>
+                                        <Header as='h5' image>
+                                            <Image
+                                                src={serviceProvider.image}
+                                                rounded size='mini'
+                                            />
+                                            <Header.Content>
+                                                {serviceProvider.fullname}
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>{mappers.rolesMapper(serviceProvider.role)}</Table.Cell>
+                                    {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
+                                    <Table.Cell>
+                                        {
+                                            JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
+                                                return <Accordion key={index}>
+                                                    <Accordion.Title
+                                                        active={activeIndex === (serviceProvider.serviceProviderId + "-" + index)}
+                                                        index={serviceProvider.serviceProviderId + "-" + index}
+                                                        onClick={this.handleClick}>
+                                                        <Icon name='dropdown'/>
+                                                        {mappers.daysMapper(dayTime.day)}
+                                                    </Accordion.Title>
+                                                    {
+                                                        dayTime.hours.map((hour, j) => {
+                                                            return <Accordion.Content
+                                                                active={activeIndex === (serviceProvider.serviceProviderId + "-" + index)}
+                                                                key={j}>
+                                                                {hour.startHour} - {hour.endHour}
+                                                            </Accordion.Content>
+                                                        })
+                                                    }
+                                                </Accordion>
+                                            })
+                                        }
+                                    </Table.Cell>
                                     <Table.Cell>{serviceProvider.phoneNumber}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.appointmentWayType}</Table.Cell>
+                                    <Table.Cell>{strings.appointmentsWayType[serviceProvider.appointmentWayType]}</Table.Cell>
                                     <Table.Cell>{serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.image}</Table.Cell>*/}
                                 </Table.Row>),
@@ -287,16 +353,28 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                    <Link to={{pathname: `${this.props.match.url}/serviceProvider/add`, state: {users: users}}}>
+                        <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                    </Link>
                 </Page>
+
                 <div>
                     {/*<Router>*/}
                     <Switch>
-                        <Route exec path={`${this.props.match.path}/users/:userId`}
+                        <Route exec path={`${this.props.match.path}/user/add`}
+                               component={UserAdd}/>
+                        <Route exec path={`${this.props.match.path}/user/:userId`}
                                component={UserInfo}/>
-                        <Route exec path={`${this.props.match.path}/serviceProviders/:serviceProviderId`}
-                               component={UserInfo}/>
-                        <Redirect to={`${this.props.match.path}`}/>
+                        <Route exec path={`${this.props.match.path}/user/:userId/edit`}
+                               component={UserEdit}/>
+
+                        <Route exec path={`${this.props.match.path}/serviceProvider/add`}
+                               component={ServiceProviderAdd}/>
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
+                               component={ServiceProviderInfo}/>
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId/edit`}
+                               component={ServiceProviderEdit}/>
+                        {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
                     {/*</Router>*/}
                 </div>

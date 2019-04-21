@@ -1,4 +1,4 @@
-process.dbMode='dev';
+process.dbMode = 'dev';
 var expect = require('chai').expect;
 let chai = require('chai');
 let chaiHttp = require('chai-http');
@@ -47,17 +47,19 @@ describe('incidents route', function () {
 
     describe('/POST incident of user', () => {
         before((done) => {
-            createUser(userTest)
-                .then(
-                    tokenTest === null ?
-                        loginAuthenticateUser(userTest)
-                            .then(token => {
-                                tokenTest = `Bearer ${token}`;
-                                done()
-                            })
-                        :
-                        done()
-                );
+            setTimeout(function () {
+                createUser(userTest)
+                    .then(
+                        tokenTest === null ?
+                            loginAuthenticateUser(userTest)
+                                .then(token => {
+                                    tokenTest = `Bearer ${token}`;
+                                    done()
+                                })
+                            :
+                            done()
+                    );
+            }, 5000);
         });
 
         it('it should POST an incident of user ', (done) => {

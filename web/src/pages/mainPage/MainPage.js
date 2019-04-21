@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Form, Icon, Menu, Radio, Sidebar} from 'semantic-ui-react';
+import {Icon, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
 import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
@@ -9,7 +9,6 @@ import isLoggedIn from '../../shared/isLoggedIn';
 import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
-import SettingsPage from '../settingsPage/SettingsPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import {AnnouncementsManagementPage} from '../announcementsManagementPage/AnnouncementsManagementPage'
 
@@ -17,10 +16,12 @@ import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
-import {connectToServerSocket} from "../../shared/constants";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import AppointmentsReportPage from "../appointmentsManagementPage/AppointmentsReportPage";
 
 
 const handleLogout = history => () => {
+    WEB_SOCKET.emit('disconnectWebClient', {serviceProviderId: store.get('serviceProviderId')});
     store.remove('serviceProviderToken');
     store.remove('serviceProviderId');
     store.remove('userId');
@@ -49,27 +50,32 @@ class Home extends Component {
     componentDidMount() {
         usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
             .then(user => {
-                this.setState({
-                    userFullname: user.fullname,
-                })
+                if (user !== null && user !== undefined)
+                    this.setState({
+                        userFullname: user.fullname,
+                    })
             })
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(permissions => {
-                this.setState({
-                    serviceProviderPermissions: permissions,
-                })
+                if (permissions !== null && permissions !== undefined)
+                    this.setState({
+                        serviceProviderPermissions: permissions,
+                    })
             })
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                this.setState({
-                    serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
-                })
+                if (roles !== null && roles !== undefined)
+                    this.setState({
+                        serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
+                    })
             })
 
         connectToServerSocket(store.get('serviceProviderId'));
     }
 
     render() {
+
+        console.log("serviceProviderRoles  ", this.state.serviceProviderRoles);
         return (
             <div>
                 <p>
@@ -79,7 +85,8 @@ class Home extends Component {
                     ההרשאות שלך הן: {this.state.serviceProviderPermissions}
                 </p>
                 <p>
-                    התפקידים עליהם את/ה אחראיים הם: {this.state.serviceProviderRoles}
+                    התפקידים עליהם את/ה אחראיים הם:
+                    {Array.isArray(this.state.serviceProviderRoles) ? this.state.serviceProviderRoles.join(", ") : this.state.serviceProviderRoles}
                 </p>
             </div>
         );
@@ -126,16 +133,12 @@ class MainPage extends Component {
                         <Icon name="home"/>
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
-                    <Menu.Item name="settings" as={NavLink} to="/settings">
-                        <Icon name="settings"/>
-                        {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
-                    </Menu.Item>
                     <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
-                        <Icon name="users"/>
+                        <Icon name="address book outline"/>
                         {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
                     </Menu.Item>
                     <Menu.Item name="appointments" as={NavLink} to="/appointments">
-                        <Icon name="handshake outline"/>
+                        <Icon name="calendar alternate outline"/>
                         {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
                     </Menu.Item>
                     <Menu.Item name="chores" as={NavLink} to="/chores">
@@ -156,8 +159,8 @@ class MainPage extends Component {
                     <Switch>
                         <Route path={`/home`} render={() => <Home userId={store.get('userId')}
                                                                   serviceProviderId={store.get('serviceProviderId')}/>}/>
-                        <Route path={`/settings`} component={SettingsPage}/>
                         <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
+                        <Route exec path={`/appointments/report`} component={AppointmentsReportPage}/>
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                         <Route path={`/chores`} component={ChoresManagementPage}/>
                         <Route path={`/announcements`} component={AnnouncementsManagementPage}/>

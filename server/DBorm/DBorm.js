@@ -37,7 +37,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: process.dbMode === "dev"? './server/DBorm/sqliteTests.db':'./DBorm/sqlite.db'
+    storage: process.dbMode === "dev"? './DBorm/sqliteTests.db':'./DBorm/sqlite.db'
 });
 
 sequelize
@@ -137,7 +137,14 @@ UsersChoresTypes.belongsTo(Users, {
     foreignKey: 'userId', 
     targetKey:'userId'
 });
-
+Users.hasMany(ServiceProviders, {
+    foreignKey: 'userId',
+    targetKey:'userId'
+});
+ServiceProviders.hasOne(Users, {
+    foreignKey: 'userId',
+    targetKey:'userId'
+});
 
 if(process.dbMode === "dev"){
     sequelize.sync({force: true})
@@ -160,7 +167,7 @@ if(process.dbMode === "dev"){
                         role: 'Admin',
                         operationTime: 'all time',
                         phoneNumber: '0123456789',
-                        appointmentWayType: 'all',
+                        appointmentWayType: 'Admin',
                         subjects:"[\"הכל\"]",
                         active: true,
                     })

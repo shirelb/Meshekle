@@ -4,9 +4,10 @@ var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
+var moment = require('moment');
 var router = express.Router();
 var nodemailer = require('nodemailer');
-
+var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
@@ -238,7 +239,7 @@ router.put('/update/serviceProviderId/:serviceProviderId/role/:role', function (
                     return res.status(400).send({"message": serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT});
 
             req.body.subjects ? updateFields.subjects = req.body.subjects : null;
-            req.body.active ? updateFields.active = req.body.active : null;
+            typeof req.body.active === 'boolean' ? updateFields.active = req.body.active : null;
 
             ServiceProviders.update(
                 updateFields,
@@ -275,38 +276,44 @@ router.post('/add', function (req, res, next) {
     validations.getUsersByUserIdPromise(req.body.userId).then(users => {
         if (users.length === 0)
             return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
-        validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId).then(serviceProviders => {
-            if (serviceProviders.length !== 0)
-                return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
-            ServiceProviders.create({
-                serviceProviderId: req.body.serviceProviderId,
-                role: req.body.role,
-                userId: req.body.userId,
-                operationTime: req.body.operationTime,
-                phoneNumber: req.body.phoneNumber,
-                appointmentWayType: req.body.appointmentWayType,
-                subjects: req.body.subjects,
-            })
-                .then(newServiceProvider => {
-                    res.status(200).send({
-                        "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
-                        "result": newServiceProvider.dataValues
+        validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId)
+            .then(serviceProviders => {
+                if (serviceProviders.length !== 0) {
+                    serviceProviders.forEach(provider => {
+                        if (provider.dataValues.role === req.body.role)
+                            return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS});
                     });
-                    validations.getUsersByUserIdPromise(newServiceProvider.userId)
-                        .then(users => {
-                            sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            res.status(500).send(err);
-                        })
+                }
+                ServiceProviders.create({
+                    serviceProviderId: req.body.serviceProviderId,
+                    role: req.body.role,
+                    userId: req.body.userId,
+                    operationTime: req.body.operationTime,
+                    phoneNumber: req.body.phoneNumber,
+                    appointmentWayType: req.body.appointmentWayType,
+                    subjects: req.body.subjects,
+                    active: req.body.active === null ? false : req.body.active,
                 })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).send(err);
-                })
-        })
+                    .then(newServiceProvider => {
+                        res.status(200).send({
+                            "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
+                            "result": newServiceProvider.dataValues
+                        });
+                        validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                            .then(users => {
+                                sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                    "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+            });
     })
         .catch(err => {
             console.log(err);
@@ -346,8 +353,8 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                 });
                 validations.getUsersByUserIdPromise(newServiceProvider.userId)
                     .then(users => {
-                        sendMail(users[0].email,constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "Hello " + users[0].fullname+",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                        sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                            "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);
@@ -433,14 +440,15 @@ router.post('/users/add', function (req, res, next) {
                 cellphone: req.body.cellphone,
                 phone: req.body.phone,
                 bornDate: req.body.bornDate,
+                image: req.body.image,
             })
                 .then(newUser => {
                     res.status(200).send({
                         "message": serviceProvidersRoute.USER_ADDED_SUCC,
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
-                    sendMail(newUser.email,constants.mailMessages.ADD_USER_SUBJECT,
-                        "Hello " + newUser.fullname+",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
+                    sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                        "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -453,6 +461,38 @@ router.post('/users/add', function (req, res, next) {
         })
 });
 
+// update user by userId.
+router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            let newPassword = generateRandomPassword();
+
+            Users.findOne(
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(user => {
+                    // user.dataValues.password = newPassword;
+                    user.update({
+                        password: newPassword
+                    })
+                        .then(updatedUser => {
+                            res.status(200).send({
+                                "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                                "result": updatedUser.dataValues
+                            });
+                            sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
+});
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
@@ -612,8 +652,6 @@ function isUserInputValid(userInput) {
 }
 
 
-
-
 function isRoleExists(roleToCheck) {
     let roles = takeValues(constants.roles);
     return roles.includes(roleToCheck)
@@ -625,13 +663,14 @@ function isAppWayTypeExists(wayType) {
 }
 
 function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    // var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    var re = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
     return re.test(String(email).toLowerCase());
 }
 
 //userInput.cellphone.match(/^[0-9]+$/) === null
 function validateBornDate(bornDateString) {
-    let splitted = bornDateString.split('-');
+    let splitted = moment(bornDateString).format("YYYY-MM-DD").split('-');
     if (splitted.length !== 3)
         return false;
     if (splitted[0].length !== 4 && splitted[0].match(/^[0-9]+$/) === null)
@@ -648,7 +687,7 @@ function validateBornDate(bornDateString) {
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-function sendMail(mailToSend,subject,text) {
+function sendMail(mailToSend, subject, text) {
 
     var mailOptions = {
         from: 'meshekle2019@gmail.com',
@@ -657,7 +696,7 @@ function sendMail(mailToSend,subject,text) {
         text: text
     };
 
-    transporter.sendMail(mailOptions, function(error, info){
+    transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.log(error);
         } else {

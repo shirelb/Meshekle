@@ -139,9 +139,9 @@ describe('appointmentRequests route', function () {
                     );
             });
 
-            it('it should not POST an appointment approve without existing request ', (done) => {
+            it('it should not PUT an appointment approve without existing request ', (done) => {
                 chai.request(server)
-                    .post('/api/appointmentRequests/user/approve')
+                    .put('/api/appointmentRequests/user/approve')
                     .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
@@ -171,9 +171,9 @@ describe('appointmentRequests route', function () {
                     );
             });
 
-            it('it should POST an appointment approve of user ', (done) => {
+            it('it should PUT an appointment approve of user ', (done) => {
                 chai.request(server)
-                    .post('/api/appointmentRequests/user/approve')
+                    .put('/api/appointmentRequests/user/approve')
                     .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
@@ -238,9 +238,9 @@ describe('appointmentRequests route', function () {
                     );
             });
 
-            it('it should not POST an appointment reject without existing request ', (done) => {
+            it('it should not PUT an appointment reject without existing request ', (done) => {
                 chai.request(server)
-                    .post('/api/appointmentRequests/user/reject')
+                    .put('/api/appointmentRequests/user/reject')
                     .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
@@ -270,9 +270,9 @@ describe('appointmentRequests route', function () {
                     );
             });
 
-            it('it should POST an appointment reject of user ', (done) => {
+            it('it should PUT an appointment reject of user ', (done) => {
                 chai.request(server)
-                    .post('/api/appointmentRequests/user/reject')
+                    .put('/api/appointmentRequests/user/reject')
                     .set('Authorization', tokenTest)
                     .send(appointmentApproveTest)
                     .end((err, res) => {
