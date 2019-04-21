@@ -137,8 +137,9 @@ android {
 }
 
 dependencies {
+    compile project(':rn-fetch-blob')
+    compile project(':react-native-fs')
     compile project(':react-native-document-picker')
-    compile project(':react-native-cardview')
     compile project(':react-native-vector-icons')
     compile project(':react-native-gesture-handler')
     implementation fileTree(dir: "libs", include: ["*.jar"])

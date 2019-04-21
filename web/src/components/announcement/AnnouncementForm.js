@@ -30,8 +30,8 @@ class AnnouncementForm extends Component {
                 title: announcement.title ? announcement.title : '',
                 content:announcement.content ? announcement.content : '',
                 categoryName:announcement.categoryName ? announcement.categoryName : '',
-                expirationTime:announcement.expirationTime ? announcement.expirationTime : '',
-                dateOfEvent:announcement.dateOfEvent ? announcement.dateOfEvent : '',
+                expirationTime:announcement.expirationTime ? announcement.expirationTime.substring(0,announcement.expirationTime.indexOf('T')) : '',
+                dateOfEvent:announcement.dateOfEvent ? announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T')) : '',
                 file:announcement.file ? announcement.file : '',
                 fileName:announcement.fileName ? announcement.fileName : '',
             }};
@@ -57,8 +57,9 @@ class AnnouncementForm extends Component {
             updatedAnnouncement.categoryId = (categoryOptions.filter(cat => cat.value === announcement.categoryName))[0].key;
             this.setState({announcement: updatedAnnouncement});
 
-            handleSubmit(updatedAnnouncement);
-            this.setState({announcement: {}});
+            let submit = handleSubmit(updatedAnnouncement);
+            if(submit)
+                this.setState({announcement: {}});
         } else {
             this.setState({formError: true});
         }

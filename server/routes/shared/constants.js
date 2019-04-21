@@ -123,6 +123,8 @@ module.exports = {
         ANNOUNCEMENT_DELETED_SUCC: "Announcement deleted successfully!",
         INVALID_EXP_TIME_INPUT:"Expiration time is invalid!",
         ILLEGAL_EXP_TIME_INPUT:"Expiration time is illegal!",
+        INVALID_DOE_INPUT:"Date Of Event time is invalid!",
+        ILLEGAL_DOE_INPUT:"Date Of Event time is illegal!",
         ANNOUNCEMENT_UPDATE_SUCCESS:"Announcement updated successfully!",
         STATUS_DOESNT_EXISTS :"Status doesnt exists!",
         CATEGORY_DOESNT_EXISTS :"Category doesnt exists!",

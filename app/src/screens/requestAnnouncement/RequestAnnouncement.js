@@ -115,10 +115,12 @@ export default class RequestAnnouncement extends Component {
             if(value.dateOfEvent)
                 value.dateOfEvent = this.formatDate(String(value.dateOfEvent));
             announcementsStorage.addAnnouncement(value,this.userHeaders)
-                .then(() => {
-                    this.clearForm();
-                    this.props.navigation.navigate('AnnouncementsScreen');
-                });
+                .then((response) => {
+                    if(response.status === 200){
+                        this.clearForm();
+                        this.props.navigation.navigate('AnnouncementsScreen');
+                    }
+                })
         }
         else if(category === "---"){
             Alert.alert(
@@ -173,13 +175,18 @@ export default class RequestAnnouncement extends Component {
                 //Plain Text DocumentPickerUtil.plainText()
             },
             (error, res) => {
-                this.setState({fileUri: res.uri, fileType: res.type,fileName: res.fileName,fileSize: res.fileSize});
-                const realPath = `${RNFS.TemporaryDirectoryPath}${inbox}/${name}`;
-                console.log('res : ' + JSON.stringify(res));
-                console.log('URI : ' + res.uri);
-                console.log('Type : ' + res.type);
-                console.log('File Name : ' + res.fileName);
-                console.log('File Size : ' + res.fileSize);
+                if(res) {
+                    //this.setState({fileUri: res.uri, fileType: res.type,fileName: res.fileName,fileSize: res.fileSize});
+                    let url = res.uri;
+                    RNFS.readFile(url, 'base64')
+                        .then((content) => {
+                            console.log(content);
+                            let value = this.state.value;
+                            value.file = content;
+                            value.fileName = res.fileName;
+                            this.setState({value: value});
+                        });
+                }
             }
         );
     }

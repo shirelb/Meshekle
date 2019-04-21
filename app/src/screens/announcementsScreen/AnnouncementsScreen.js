@@ -2,13 +2,14 @@ import React, {Component} from 'react';
 import {Platform, RefreshControl,Switch, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
-import {Icon, SearchBar} from 'react-native-elements'
+import {Icon, SearchBar, Button} from 'react-native-elements'
 import { Dropdown } from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 import ZoomImage from 'react-native-zoom-image';
 import {Easing} from 'react-native';
-import { Divider } from 'react-native-elements';
+import RNFetchBlob from 'rn-fetch-blob'
+var RNFS = require('react-native-fs');
 
 
 export default class AnnouncementsScreen extends Component {
@@ -139,7 +140,33 @@ export default class AnnouncementsScreen extends Component {
                     {section.dateOfEvent ? "תאריך אירוע: " + section.dateOfEvent.substring(0,section.dateOfEvent.indexOf("T")) : ""}
                 </Animatable.Text>
 
+                {section.fileName ?
 
+                    <Button
+                        style={styles.button}
+                        title="save file"
+                        onPress={() => {
+                            let date = new Date();
+                            console.log(section);
+                            let dir = RNFS.DocumentDirectoryPath;
+
+                            // let path = dir + "/me"+Math.floor(date.getTime() + date.getSeconds() / 2);
+                            let path = RNFS.DocumentDirectoryPath + '/test.txt';
+                            // RNFS.mkdir(path)
+                            //     .then(()=> {
+                            //         RNFS.writeFile(path,section.file,'base64')
+                            //             .then(() => console.log("file downloaded"));
+                            //     });
+                            RNFS.writeFile(path, 'Lorem ipsum dolor sit amet', 'utf8')
+                                .then((success) => {
+                                    console.log('FILE WRITTEN!');
+                                })
+
+                        }}
+                    />
+                 :
+                    null
+                }
                 {section.fileName && ["png","jpg"].includes(section.fileName.substring(section.fileName.indexOf(".")+1,section.fileName.length).toLowerCase()) ?
                     <ZoomImage
                         source={{uri: 'data:image/png;base64,'+section.file}}
@@ -154,13 +181,14 @@ export default class AnnouncementsScreen extends Component {
                         easingFunc={Easing.ease}
                     />
                     :
-                    <Animatable.Text style = {{color : "#1C87FF", textDecorationLine: "underline"}} animation={isActive ? 'bounceIn' : undefined}>
-                        {section.fileName ? section.fileName : ""}
-                    </Animatable.Text>
+                    null
                 }
             </Animatable.View>
         );
     }
+
+
+
 
     onSettingsPress = () => {
         this.onNavigateOut();
@@ -173,6 +201,14 @@ export default class AnnouncementsScreen extends Component {
     onWatchRequestsPress = () => {
         this.onNavigateOut();
         this.props.navigation.navigate('UserAnnouncementsRequests')
+    };
+
+    downloadAnnouncementFile = (announcement) => {
+        console.log(announcement);
+        let PictureDir = RNFetchBlob.fs.dirs.PictureDir;
+        let path = PictureDir + "/me_"+Math.floor(date.getTime() + date.getSeconds() / 2);
+        RNFS.writeFile(path,announcement.file,'base64')
+            .then(() => console.log("file downloaded"));
     };
 
     onNavigateOut = () => {
@@ -306,6 +342,16 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderColor: '#45b7d5',
 
+    },
+    button: {
+        height: 36,
+        backgroundColor: '#48BBEC',
+        borderColor: '#48BBEC',
+        borderWidth: 1,
+        borderRadius: 8,
+        marginBottom: 10,
+        alignSelf: 'stretch',
+        justifyContent: 'center'
     },
 });
 

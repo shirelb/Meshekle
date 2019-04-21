@@ -1,5 +1,6 @@
 import axios from "axios";
 import {APP_SOCKET, SERVER_URL} from "../shared/constants";
+import {Alert} from "react-native";
 
 
 var getOnAirAnnouncements = function (userHeaders) {
@@ -138,6 +139,16 @@ var addAnnouncement = (announcement,headers) => {
     )
         .then((response) => {
             return response;
+        })
+        .catch((error)=>{
+            Alert.alert(
+                'אופס, יש בעיה',
+                error.response.data.message,
+                [
+                    {text: 'אישור', style: 'cancel'},
+                ]
+            );
+            return error.response;
         });
 };
 

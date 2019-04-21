@@ -52,7 +52,7 @@ var addAnnouncement = (announcement,headers) => {
     )
         .then((response) => {
             return response;
-        });
+        }).catch(error => error.response);
 };
 
 var updateAnnouncement = (announcement,headers) => {
@@ -62,7 +62,7 @@ var updateAnnouncement = (announcement,headers) => {
     )
         .then((response) => {
             return response;
-        });
+        }).catch(error => error.response);
 };
 
 var removeAnnouncement = (announcementId,headers) => {

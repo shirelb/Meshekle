@@ -442,7 +442,6 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
         req.body.title ? updateFields.title = req.body.title : null;
         req.body.file ? updateFields.file = req.body.file : null;
         req.body.fileName ? updateFields.fileName = req.body.fileName : null;
-        req.body.dateOfEvent ? updateFields.dateOfEvent = req.body.dateOfEvent : null;
         req.body.creationTime ? updateFields.creationTime = req.body.creationTime : null;
 
         if(req.body.status)
@@ -452,10 +451,15 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
                 updateFields.status = req.body.status;
 
             if (req.body.expirationTime)
-            if (!validateExpirationTime(req.body.expirationTime))
+            if (!validateTime(req.body.expirationTime))
                 return res.status(400).send({"message": announcementsRoute.INVALID_EXP_TIME_INPUT});
             else
               updateFields.expirationTime = req.body.expirationTime;
+
+            if (!validateTime(req.body.dateOfEvent))
+                return res.status(400).send({"message": announcementsRoute.INVALID_DOE_INPUT});
+            else
+                updateFields.dateOfEvent = req.body.dateOfEvent;
 
         Announcements.update(
             updateFields,
@@ -723,13 +727,13 @@ router.put('/categories/delete/categoryId/:categoryId/serviceProviderId/:service
 
 
 
-function validateExpirationTime(expirationTime) {
+function validateTime(expirationTime) {
     let today = new Date();
     let toCheck= new Date(expirationTime);
     return toCheck >= today;
 }
 
-function isLegalExpirationTime(expirationTime) {
+function isLegalTime(expirationTime) {
     let regEx = /^\d{4}-\d{2}-\d{2}$/;
     if(!expirationTime.match(regEx)) return false;  // Invalid format
     let d = new Date(expirationTime);
@@ -749,10 +753,14 @@ function isCategoryExists(categoryToCheck) {
 
 function isAnnouncementInputValid(announcementInput) {
 
-    if(!isLegalExpirationTime(announcementInput.expirationTime))
+    if(!isLegalTime(announcementInput.expirationTime))
         return announcementsRoute.ILLEGAL_EXP_TIME_INPUT;
-    if (!validateExpirationTime(announcementInput.expirationTime))
+    if (!validateTime(announcementInput.expirationTime))
         return announcementsRoute.INVALID_EXP_TIME_INPUT;
+    if(!isLegalTime(announcementInput.dateOfEvent))
+        return announcementsRoute.ILLEGAL_DOE_INPUT;
+    if (!validateTime(announcementInput.dateOfEvent))
+        return announcementsRoute.INVALID_DOE_INPUT;
     if (!isStatusExists(announcementInput.status))
         return announcementsRoute.STATUS_DOESNT_EXISTS;
 

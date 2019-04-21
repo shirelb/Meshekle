@@ -10,6 +10,11 @@ import strings from '../../shared/strings'
 import mappers from '../../shared/mappers'
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
+
+var sha512 = require('js-sha512');
+
+
+
 class LoginPage extends Component {
 
     constructor(props) {
@@ -40,6 +45,8 @@ class LoginPage extends Component {
                 this.setState({isLoggedIn: answer});
             });
     }
+
+
 
     validate = (userId, password) => {
         console.log('in validate func');
@@ -90,7 +97,8 @@ class LoginPage extends Component {
             this.setState({error: true});
             this.setState({err: errors});
         } else {
-            serviceProvidersStorage.serviceProviderLogin(this.state.userId, this.state.password)
+            let hash = sha512.update('Message to hash');
+            serviceProvidersStorage.serviceProviderLogin(this.state.userId,  hash.hex())
                 .then((response) => {
                     console.log(response);
                     store.set('serviceProviderToken', response.data.token);

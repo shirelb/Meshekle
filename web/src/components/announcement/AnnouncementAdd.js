@@ -1,6 +1,6 @@
 import React from 'react';
 import {Helmet} from 'react-helmet';
-import {Grid, Header, Modal} from "semantic-ui-react";
+import {Grid, Header, Message, Modal} from "semantic-ui-react";
 import store from "store";
 import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
@@ -15,7 +15,7 @@ class AnnouncementAdd extends React.Component {
         this.serviceProviderId = this.props.location.state.serviceProviderId;
         this.userId = this.props.location.state.userId;
         this.isUpdate = this.props.location.state.isUpdate;
-        this.state = {categories: []};
+        this.state = {categories: [],formError: "",};
 
 
 
@@ -37,10 +37,11 @@ class AnnouncementAdd extends React.Component {
     };
 
     handleSubmit(announcement) {
-
+        this.setState({formError:""});
         const {getAnnouncements} = this.props;
+        var newAnnouncement = JSON.parse(JSON.stringify(announcement));
         if(!this.isUpdate) {
-            var newAnnouncement = announcement;
+
             newAnnouncement.serviceProviderId = store.get('serviceProviderId');
             newAnnouncement.userId = store.get('userId');
             newAnnouncement.creationTime = this.formatDate(new Date());
@@ -50,26 +51,40 @@ class AnnouncementAdd extends React.Component {
             newAnnouncement.status = "On air";
             announcementsStorage.addAnnouncement(newAnnouncement, this.serviceProviderHeaders)
                 .then((response) => {
-                    console.log(response);
+                    if(response.status === 200) {
+                        console.log(response);
 
-                    getAnnouncements();
-                    this.props.history.goBack();
-                    //this.props.history.reload()
+                        getAnnouncements();
+                        this.props.history.goBack();
+                        //this.props.history.reload()
+                        return true;
+                    }
+                    else {
+                        this.setState({formError: response.data.message});
+                        return false;
+                    }
                 });
         }
         else{
-            var newAnnouncement = announcement;
+
             newAnnouncement.expirationTime = this.formatDate(newAnnouncement.expirationTime);
             newAnnouncement.dateOfEvent = this.formatDate(newAnnouncement.dateOfEvent);
             newAnnouncement.announcementId = this.isUpdate.announcementId;
 
             announcementsStorage.updateAnnouncement(newAnnouncement, this.serviceProviderHeaders)
                 .then((response) => {
-                    console.log(response);
+                    if(response.status === 200) {
+                        console.log(response);
 
-                    getAnnouncements();
-                    this.props.history.goBack();
-                    //this.props.history.reload()
+                        getAnnouncements();
+                        this.props.history.goBack();
+                        //this.props.history.reload()
+                        return true;
+                    }
+                    else {
+                        this.setState({formError: response.data.message});
+                        return false;
+                    }
                 });
         }
     }
@@ -94,7 +109,7 @@ class AnnouncementAdd extends React.Component {
 
     render() {
 
-        const {categories} = this.state;
+        const {categories,formError} = this.state;
 
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
@@ -113,6 +128,15 @@ class AnnouncementAdd extends React.Component {
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                         />
+
+                        {formError === "" ?
+                            null
+                            : <Message
+                                error
+                                header='אופס, יש בעיה'
+                                content={formError}
+                            />
+                        }
                     </Grid.Column>
                 </Grid>
             </Modal>
