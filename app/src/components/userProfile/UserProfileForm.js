@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {Alert, Modal, ScrollView, StyleSheet, TextInput, View} from "react-native";
+import {Alert, Modal, ScrollView, StyleSheet, TextInput,TouchableOpacity, View} from "react-native";
 import {Avatar, FormLabel, FormValidationMessage, Text} from "react-native-elements";
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Button from "../submitButton/Button";
 import moment from 'moment';
 import usersStorage from "../../storage/usersStorage";
+import ImagePicker from 'react-native-image-crop-picker';
 
 
 export default class UserProfileForm extends Component {
@@ -74,18 +75,18 @@ export default class UserProfileForm extends Component {
     onChangeImage = (e) => {
         e.preventDefault();
 
-        let reader = new FileReader();
-        let file = e.target.files[0];
-
-        reader.readAsDataURL(file);
-
-        reader.onloadend = () => {
+        ImagePicker.openPicker({
+            width: 300,
+            height: 300,
+            cropping: true,
+            includeBase64: true,
+        }).then(image => {
+            console.log(image);
             this.setState({
-                user: {...this.state.user, image: reader.result},
-                imageFile: file,
+                user: {...this.state.user, image: "data:"+image.mime+";base64,"+image.data},
+                imageResponse: image,
             });
-        };
-
+        });
     };
 
 
@@ -109,13 +110,16 @@ export default class UserProfileForm extends Component {
 
                         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start',}}>
                             <FormLabel labelStyle={styles.formText}>תמונה</FormLabel>
-                            <Avatar
-                                large
-                                rounded
-                                source={{uri: user.image}}
-                                activeOpacity={0.7}
-                                onPress={() => this.onChangeImage}
-                            />
+                            <TouchableOpacity onPress={this.onChangeImage}>
+                                <Avatar
+                                    large
+                                    rounded
+                                    source={{uri: user.image}}
+                                    // source={user.image}
+                                    activeOpacity={0.7}
+                                    // onPress={() => this.onChangeImage}
+                                />
+                            </TouchableOpacity>
                         </View>
 
                         <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
