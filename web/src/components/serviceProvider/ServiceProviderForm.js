@@ -82,6 +82,7 @@ class ServiceProviderForm extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         const serviceProvider = nextProps.serviceProvider;
+        // const serviceProvidersFound = nextProps.serviceProvidersFound;
 
         if (serviceProvider) {
             this.setState({
@@ -103,6 +104,10 @@ class ServiceProviderForm extends React.Component {
                 this.setState({operationTimeDaySelected})
             })
         }
+
+        // if(serviceProvidersFound){
+        //     this.setState(serviceProvidersFound)
+        // }
 
         if (nextProps.users)
             this.buildUsersOption(nextProps.users);
@@ -129,14 +134,14 @@ class ServiceProviderForm extends React.Component {
             .then(roles => {
                 if (roles != undefined || roles != null) {
                     this.setState({
-                        serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
+                        serviceProviderRoles: roles.map(role => strings.roles[role]),
                     });
 
                     // console.log("serviceProviderRoles dddd ", this.state.serviceProviderRoles);
                     // console.log("state dעddd ", this.state);
 
                     roles.forEach((role, index) => {
-                        let dropdownRole = {key: index, value: role, text: mappers.rolesMapper(role)};
+                        let dropdownRole = {key: index, value: role, text: strings.roles[role]};
                         let dropdownRoles = this.state.dropdownRoles;
                         dropdownRoles.push(dropdownRole);
                         this.setState({
@@ -152,7 +157,7 @@ class ServiceProviderForm extends React.Component {
     componentDidMount() {
         this.serviceProviderId = store.get('serviceProviderId');
 
-        this.getRolesOfServiceProviderAndCreateDropdown();
+        // this.getRolesOfServiceProviderAndCreateDropdown();
 
         serviceProvidersStorage.getServiceProviderById(this.serviceProviderId)
             .then(response => {
@@ -220,31 +225,33 @@ class ServiceProviderForm extends React.Component {
             return false;
         }
 
-        if (serviceProvider.appointmentWayType === '') {
-            this.setState({
-                formError: true,
-                formErrorMassage: "דרך הצגת תורים לא נבחרה",
-                fieldAppointmentsWayTypeError: true
-            });
-            return false;
-        }
+        if(this.appointmentRoleDetailsVisible()) {
+            if (serviceProvider.appointmentWayType === '') {
+                this.setState({
+                    formError: true,
+                    formErrorMassage: "דרך הצגת תורים לא נבחרה",
+                    fieldAppointmentsWayTypeError: true
+                });
+                return false;
+            }
 
-        if (serviceProvider.subjects.length === 0) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "חייב להיות לפחות נושא אחד",
-                fieldSubjectsError: true
-            });
-            return false;
-        }
+            if (serviceProvider.subjects.length === 0) {
+                this.setState({
+                    formError: true,
+                    formErrorMassage: "חייב להיות לפחות נושא אחד",
+                    fieldSubjectsError: true
+                });
+                return false;
+            }
 
-        if (serviceProvider.operationTime.length === 0) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "זמן פעילות חסר",
-                fieldOperationTimeError: true
-            });
-            return false;
+            if (serviceProvider.operationTime.length === 0) {
+                this.setState({
+                    formError: true,
+                    formErrorMassage: "זמן פעילות חסר",
+                    fieldOperationTimeError: true
+                });
+                return false;
+            }
         }
 
         if (serviceProvider.active === null) {
@@ -335,7 +342,7 @@ class ServiceProviderForm extends React.Component {
         this.handleFocus();
     };
 
-    selectRoleToChangeSettings = (e, {value}) => {
+    /*selectRoleToChangeSettings = (e, {value}) => {
         console.log('selectRoleToChangeSettings value ', value);
 
         this.setState({
@@ -352,7 +359,7 @@ class ServiceProviderForm extends React.Component {
                     appointmentWayType: appointmentWayType,
                 })
             });
-    };
+    };*/
 
     addRoleToServiceProvider = (role) => {
         serviceProvidersStorage.addRoleToServiceProviderById(this.serviceProviderId, role)
@@ -536,6 +543,13 @@ class ServiceProviderForm extends React.Component {
         this.setState({serviceProvider: {...this.state.serviceProvider, operationTime: updateOperationTime}});
     };
 
+    appointmentRoleDetailsVisible = () => {
+        if (this.state.serviceProvider.role !== "")
+            if (Object.keys(strings.appointmentRoles).includes(this.state.serviceProvider.role))
+                return true;
+        return false;
+    };
+
     render() {
         const {formError, formComplete, usersOptions, operationTimeDaySelected, activeAccordionIndex, serviceProvider, serviceProvider: {serviceProviderId, role, userId, operationTime, phoneNumber, appointmentWayType, subjects, active}} = this.state;
         const {handleCancel, submitText} = this.props;
@@ -545,6 +559,27 @@ class ServiceProviderForm extends React.Component {
 
         return (
             <Form error={formError}>
+              {/*  {this.state.serviceProvidersFound ?
+                    <Form.Group>
+                        <Form.label> בחר את התפקיד עבורו את/ה רוצה לשנות את ההגדרות:</Form.label>
+                        <Form.Field
+                            control={Dropdown}
+                            label='ענף'
+                            placeholder='ענף'
+                            search
+                            selection
+                            autoComplete='on'
+                            options={this.state.dropdownRoles}
+                            // value={this.state.roleSelected}
+                            // onChange={this.selectRoleToChangeSettings.bind(this)}
+                            // name='serviceProviderRole'
+                            required
+                            noResultsMessage='לא נמצאו ענפים'
+                        />
+                    </Form.Group>
+                    :null
+                }*/}
+
                 <Form.Group widths='equal'>
                     <Form.Field
                         control={Dropdown}
@@ -618,197 +653,188 @@ class ServiceProviderForm extends React.Component {
                         </List>
                     </Form.Field>
 
-                    <Form.Field required error={this.state.fieldAppointmentsWayTypeError} onFocus={this.handleFocus}>
-                        <label>דרך הצגת התורים</label>
-                        {/*<label>{strings.appointmentsWayType[this.state.appointmentWayType]}</label>*/}
-                        <List>
-                            {
-                                Object.keys(strings.appointmentsWayType).map((item, index) => {
-                                    if (item !== "Admin")
-                                        return <List.Item key={index}>
-                                            <Checkbox
-                                                radio
-                                                checked={appointmentWayType === item}
-                                                // onChange={this.onChangeRoles.bind(this)}
-                                                onChange={this.handleChange}
-                                                value={item}
-                                                name="appointmentWayType"
-                                            />
-                                            <label>
-                                                {strings.appointmentsWayType[item]}
-                                            </label>
-                                        </List.Item>
-                                })
-                            }
-                        </List>
-                    </Form.Field>
-
-                    <Form.Field required error={this.state.fieldSubjectsError} onFocus={this.handleFocus}>
-                        <label>הנושאים</label>
-                        <Input
-                            focus
-                            placeholder='הוסף נושא חדש...'
-                            // value={this.state.newSubject}
-                            onChange={(event, data) => this.setState({newSubject: data.value})}
-                            action={<Button icon onClick={this.addSubject.bind(this)}>
-                                <Icon link name='plus'/>
-                            </Button>}
-                        />
-                        <Grid relaxed textAlign={"right"} columns={3}>
-                            {
-                                subjects.map((subject, index) => {
-                                    return <Grid.Row key={index} columns='equal' className={"subjectListItem"}>
-                                        <Grid.Column>
-                                            {this.state.editIconVisible ?
-                                                <label>{subject} </label> :
-                                                <Form.Input
-                                                    focus
-                                                    placeholder={subject}
-                                                    onChange={(event, data) => this.setState({editedSubject: data.value})}
+                    {this.appointmentRoleDetailsVisible() ?
+                        <Form.Field required error={this.state.fieldAppointmentsWayTypeError}
+                                    onFocus={this.handleFocus}>
+                            <label>דרך הצגת התורים</label>
+                            {/*<label>{strings.appointmentsWayType[this.state.appointmentWayType]}</label>*/}
+                            <List>
+                                {
+                                    Object.keys(strings.appointmentsWayType).map((item, index) => {
+                                        if (item !== "Admin")
+                                            return <List.Item key={index}>
+                                                <Checkbox
+                                                    radio
+                                                    checked={appointmentWayType === item}
+                                                    // onChange={this.onChangeRoles.bind(this)}
+                                                    onChange={this.handleChange}
+                                                    value={item}
+                                                    name="appointmentWayType"
                                                 />
-                                            }
-                                        </Grid.Column>
-                                        <Grid.Column>
-                                            {this.state.editIconVisible ?
-                                                <Icon link name='edit'
+                                                <label>
+                                                    {strings.appointmentsWayType[item]}
+                                                </label>
+                                            </List.Item>
+                                    })
+                                }
+                            </List>
+                        </Form.Field>
+                        : null}
+                    {this.appointmentRoleDetailsVisible() ?
+                        <Form.Field required error={this.state.fieldSubjectsError} onFocus={this.handleFocus}>
+                            <label>הנושאים</label>
+                            <Input
+                                focus
+                                placeholder='הוסף נושא חדש...'
+                                // value={this.state.newSubject}
+                                onChange={(event, data) => this.setState({newSubject: data.value})}
+                                action={<Button icon onClick={this.addSubject.bind(this)}>
+                                    <Icon link name='plus'/>
+                                </Button>}
+                            />
+                            <Grid relaxed textAlign={"right"} columns={3}>
+                                {
+                                    subjects.map((subject, index) => {
+                                        return <Grid.Row key={index} columns='equal' className={"subjectListItem"}>
+                                            <Grid.Column>
+                                                {this.state.editIconVisible ?
+                                                    <label>{subject} </label> :
+                                                    <Form.Input
+                                                        focus
+                                                        placeholder={subject}
+                                                        onChange={(event, data) => this.setState({editedSubject: data.value})}
+                                                    />
+                                                }
+                                            </Grid.Column>
+                                            <Grid.Column>
+                                                {this.state.editIconVisible ?
+                                                    <Icon link name='edit'
+                                                          className={"subjectListIcon"}
+                                                          onClick={() => this.setState({
+                                                              editIconVisible: false,
+                                                              approveIconVisible: true
+                                                          })}
+                                                    />
+                                                    :
+                                                    <Icon link name='check'
+                                                          className={"subjectListIcon"}
+                                                          onClick={this.editSubject.bind(this, index, this.state.editedSubject)}/>
+                                                }
+                                            </Grid.Column>
+                                            <Grid.Column>
+                                                <Icon link name='delete'
                                                       className={"subjectListIcon"}
-                                                      onClick={() => this.setState({
-                                                          editIconVisible: false,
-                                                          approveIconVisible: true
-                                                      })}
-                                                />
-                                                :
-                                                <Icon link name='check'
-                                                      className={"subjectListIcon"}
-                                                      onClick={this.editSubject.bind(this, index, this.state.editedSubject)}/>
-                                            }
-                                        </Grid.Column>
-                                        <Grid.Column>
-                                            <Icon link name='delete'
-                                                  className={"subjectListIcon"}
-                                                  onClick={this.removeSubject.bind(this, subject)}/>
-                                        </Grid.Column>
-                                    </Grid.Row>
-                                })
-                            }
-                        </Grid>
-                    </Form.Field>
+                                                      onClick={this.removeSubject.bind(this, subject)}/>
+                                            </Grid.Column>
+                                        </Grid.Row>
+                                    })
+                                }
+                            </Grid>
+                        </Form.Field>
+                        : null
+                    }
                 </Form.Group>
 
                 <Form.Group widths='equal'>
-                    <Form.Input
-                        error={this.state.fieldOperationTimeError}
-                        required
-                        label="זמן פעילות"
-                        // type="number"
-                        name="operationTime"
-                        // value={operationTime}
-                        onFocus={this.handleFocus}
-                    >
-                        <Grid relaxed={"very"} textAlign={"right"} container columns={'equal'}>
-                            {
-                                Object.keys(strings.days).map((item, index) => {
-                                    if (index < 6)
-                                        return <Grid.Column key={index} className={"subjectListItem"}>
-                                            <Grid.Row>
-                                                <Checkbox
-                                                    toggle
-                                                    checked={operationTime.filter(dayTimes =>
-                                                        Object.keys(dayTimes).some(day => dayTimes[day].includes(item))).length > 0}
-                                                    // onChange={this.onChangeRoles.bind(this)}
-                                                    onChange={(event, data) => this.toggleDayToOperationTime(event, data, index)}
-                                                    value={item}
-                                                    name="operationTime"
-                                                    onFocus={this.handleFocus}
-                                                />
-                                            </Grid.Row>
-                                            <Grid.Row>
-                                                <label>
-                                                    {strings.days[item]}
-                                                </label>
-                                            </Grid.Row>
+                    {this.appointmentRoleDetailsVisible() ?
+                        <Form.Input
+                            error={this.state.fieldOperationTimeError}
+                            required
+                            label="זמן פעילות"
+                            // type="number"
+                            name="operationTime"
+                            // value={operationTime}
+                            onFocus={this.handleFocus}
+                        >
+                            <Grid relaxed={"very"} textAlign={"right"} container columns={'equal'}>
+                                {
+                                    Object.keys(strings.days).map((item, index) => {
+                                        if (index < 6)
+                                            return <Grid.Column key={index} className={"subjectListItem"}>
+                                                <Grid.Row>
+                                                    <Checkbox
+                                                        toggle
+                                                        checked={operationTime.filter(dayTimes =>
+                                                            Object.keys(dayTimes).some(day => dayTimes[day].includes(item))).length > 0}
+                                                        // onChange={this.onChangeRoles.bind(this)}
+                                                        onChange={(event, data) => this.toggleDayToOperationTime(event, data, index)}
+                                                        value={item}
+                                                        name="operationTime"
+                                                        onFocus={this.handleFocus}
+                                                    />
+                                                </Grid.Row>
+                                                <Grid.Row>
+                                                    <label>
+                                                        {strings.days[item]}
+                                                    </label>
+                                                </Grid.Row>
 
-                                            <Grid.Row>
-                                                {operationTimeDaySelected[index] ?
-                                                    <div>
-                                                        <label>שעת התחלה</label>
-                                                        <Datetime
-                                                            inputProps={{style: {width: (100 + '%')}}}
-                                                            label='שעת התחלה'
-                                                            // value={this.state.startTimeSelected[index]}
-                                                            locale={'he'}
-                                                            dateFormat={false}
-                                                            install
-                                                            // name="startTime"
-                                                            ref={'refStartTime' + index}
-                                                            onChange={time => {
-                                                                let startTimeSelected = this.state.startTimeSelected;
-                                                                startTimeSelected[index] = moment(time).format("HH:mm");
-                                                                this.setState(startTimeSelected);
-                                                            }}
-                                                            onFocus={this.handleFocus}
-                                                        />
-                                                        <label>שעת סיום</label>
-                                                        <Datetime
-                                                            inputProps={{style: {width: (100 + '%')}}}
-                                                            label='שעת סיום'
-                                                            // value={this.state.endTimeSelected[index]}
-                                                            locale={'he'}
-                                                            dateFormat={false}
-                                                            install
-                                                            // name="endTime"
-                                                            onChange={time => {
-                                                                let endTimeSelected = this.state.endTimeSelected;
-                                                                endTimeSelected[index] = moment(time).format("HH:mm");
-                                                                this.setState(endTimeSelected);
-                                                            }}
-                                                            onFocus={this.handleFocus}
-                                                        />
-                                                        <Button icon onClick={() => this.addHours(item, index)}>
-                                                            <Icon link name='plus'/>
-                                                        </Button>
-                                                        <List relaxed={'very'}>
-                                                            {
-                                                                operationTime.filter(dayTime => dayTime.day === item).length > 0 ?
-                                                                    operationTime.filter(dayTime => dayTime.day === item)[0].hours.map((hour, index) => {
-                                                                        return <List.Item key={index}>
-                                                                            {hour.startHour} - {hour.endHour}
-                                                                            <Icon link name='delete'
-                                                                                  className={"subjectListIcon"}
-                                                                                  onClick={() => this.removeHours(item, hour)}
-                                                                            />
-                                                                        </List.Item>
-                                                                    })
-                                                                    : null
-                                                            }
-                                                        </List>
-                                                    </div>
-                                                    : null
-                                                }
-                                            </Grid.Row>
-                                        </Grid.Column>
-                                })
-                            }
-                        </Grid>
-                    </Form.Input>
+                                                <Grid.Row>
+                                                    {operationTimeDaySelected[index] ?
+                                                        <div>
+                                                            <label>שעת התחלה</label>
+                                                            <Datetime
+                                                                inputProps={{style: {width: (100 + '%')}}}
+                                                                label='שעת התחלה'
+                                                                // value={this.state.startTimeSelected[index]}
+                                                                locale={'he'}
+                                                                dateFormat={false}
+                                                                install
+                                                                // name="startTime"
+                                                                ref={'refStartTime' + index}
+                                                                onChange={time => {
+                                                                    let startTimeSelected = this.state.startTimeSelected;
+                                                                    startTimeSelected[index] = moment(time).format("HH:mm");
+                                                                    this.setState(startTimeSelected);
+                                                                }}
+                                                                onFocus={this.handleFocus}
+                                                            />
+                                                            <label>שעת סיום</label>
+                                                            <Datetime
+                                                                inputProps={{style: {width: (100 + '%')}}}
+                                                                label='שעת סיום'
+                                                                // value={this.state.endTimeSelected[index]}
+                                                                locale={'he'}
+                                                                dateFormat={false}
+                                                                install
+                                                                // name="endTime"
+                                                                onChange={time => {
+                                                                    let endTimeSelected = this.state.endTimeSelected;
+                                                                    endTimeSelected[index] = moment(time).format("HH:mm");
+                                                                    this.setState(endTimeSelected);
+                                                                }}
+                                                                onFocus={this.handleFocus}
+                                                            />
+                                                            <Button icon onClick={() => this.addHours(item, index)}>
+                                                                <Icon link name='plus'/>
+                                                            </Button>
+                                                            <List relaxed={'very'}>
+                                                                {
+                                                                    operationTime.filter(dayTime => dayTime.day === item).length > 0 ?
+                                                                        operationTime.filter(dayTime => dayTime.day === item)[0].hours.map((hour, index) => {
+                                                                            return <List.Item key={index}>
+                                                                                {hour.startHour} - {hour.endHour}
+                                                                                <Icon link name='delete'
+                                                                                      className={"subjectListIcon"}
+                                                                                      onClick={() => this.removeHours(item, hour)}
+                                                                                />
+                                                                            </List.Item>
+                                                                        })
+                                                                        : null
+                                                                }
+                                                            </List>
+                                                        </div>
+                                                        : null
+                                                    }
+                                                </Grid.Row>
+                                            </Grid.Column>
+                                    })
+                                }
+                            </Grid>
+                        </Form.Input>
+                        : null
+                    }
                 </Form.Group>
-                {/*<Form.Group>
-                    <Form.label> בחר את הענף עבורו את/ה רוצה לשנות את ההגדרות:</Form.label>
-                    <Form.Field
-                        control={Dropdown}
-                        // label='ענף'
-                        placeholder='ענף'
-                        search
-                        selection
-                        autoComplete='on'
-                        options={this.state.dropdownRoles}
-                        value={this.state.roleSelected}
-                        onChange={this.selectRoleToChangeSettings.bind(this)}
-                        name='serviceProviderRole'
-                        required
-                        noResultsMessage='לא נמצאו ענפים'
-                    />
-                </Form.Group>*/}
 
 
                 {formError ?

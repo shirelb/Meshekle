@@ -568,7 +568,7 @@ class PhoneBookManagementPage extends React.Component {
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell>{mappers.rolesMapper(serviceProvider.role)}</Table.Cell>
+                                    <Table.Cell>{strings.roles[serviceProvider.role]}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
                                     <Table.Cell>
                                         {

@@ -7,6 +7,7 @@ import '../styles.css';
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
+import strings from "../../shared/strings";
 
 
 let userOptions = {};
@@ -20,6 +21,22 @@ usersStorage.getUsers()
                     key: item.userId,
                     text: item.fullname,
                     value: item.fullname
+                })
+            )
+    });
+
+
+let rolesOptions = {};
+
+serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+    .then(serviceProvidersFound => {
+        console.log('serviceProvidersFound ', serviceProvidersFound);
+        if (Array.isArray(serviceProvidersFound))
+            rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
+                ({
+                    key: index,
+                    text: strings.roles[item.role],
+                    value: item.role
                 })
             )
     });
@@ -50,7 +67,9 @@ class AppointmentForm extends Component {
                     endTime: moment.isMoment(slotInfo.end) ? moment(slotInfo.end).format("HH:mm") : '',
                     subject: [],
                     clientName: '',
+                    role: '',
                 },
+                subjectOptions: [],
             };
         } else if (appointment) {
             this.state = {
@@ -59,10 +78,12 @@ class AppointmentForm extends Component {
                     // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
+                    role: appointment.AppointmentDetail.role,
                     subject: JSON.parse(appointment.AppointmentDetail.subject),
                     clientName: appointment.clientName,
                     remarks: appointment.remarks,
                 },
+                subjectOptions: [],
             };
         } else if (appointmentRequestEvent) {
             this.state = {
@@ -74,8 +95,10 @@ class AppointmentForm extends Component {
                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
                     remarks: appointmentRequestEvent.appointmentRequest.notes,
+                    role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
                 },
                 appointmentRequestEvent: appointmentRequestEvent,
+                subjectOptions: [],
             };
         }
 
@@ -85,16 +108,17 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    componentWillMount() {
+    getSubjectsOfServiceProviderRole = () => {
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
-            .then(serviceProvider => {
-                JSON.parse(serviceProvider[0].subjects).map((subject, index) => {
+            .then(serviceProviders => {
+                let serviceProvider = serviceProviders.filter(provider => provider.role === this.state.appointment.role)[0];
+                JSON.parse(serviceProvider.subjects).map((subject, index) => {
                     subjectOptions.push({key: index, text: subject, value: subject});
-                })
+                });
                 this.setState({subjectOptions: subjectOptions})
             });
-    }
+    };
 
     componentWillReceiveProps(nextProps) {
         const {appointment, appointmentRequestEvent} = nextProps;
@@ -106,6 +130,7 @@ class AppointmentForm extends Component {
                     // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
+                    role: appointment.AppointmentDetail.role,
                     subject: JSON.parse(appointment.AppointmentDetail.subject),
                     clientName: appointment.clientName,
                     remarks: appointment.remarks,
@@ -127,7 +152,10 @@ class AppointmentForm extends Component {
             })
         }
 
+        this.getSubjectsOfServiceProviderRole();
+
         console.log('will recive props  ', this.state.appointment);
+        console.log('will recive props  ', appointment);
     }
 
     handleSubmit(e) {
@@ -137,6 +165,7 @@ class AppointmentForm extends Component {
         const {handleSubmit} = this.props;
 
         if (appointment.clientName !== '' &&
+            appointment.role !== '' &&
             appointment.subject.length > 0 &&
             appointment.date !== '' &&
             appointment.startTime !== '' &&
@@ -168,6 +197,9 @@ class AppointmentForm extends Component {
 
         this.setState({formError: false, formComplete: false});
         this.setState({appointment: {...appointment, [name]: value}});
+
+        if (name === "role")
+            this.getSubjectsOfServiceProviderRole();
     }
 
     handleClear = (e) => {
@@ -177,6 +209,7 @@ class AppointmentForm extends Component {
                 date: '',
                 startTime: '',
                 endTime: '',
+                role: '',
                 subject: [],
                 clientName: '',
                 remarks: '',
@@ -197,7 +230,7 @@ class AppointmentForm extends Component {
         isStart ?
             updateAppointment.startTime = moment(time).format("HH:mm")
             :
-            updateAppointment.endTime =  moment(time).format("HH:mm");
+            updateAppointment.endTime = moment(time).format("HH:mm");
         this.setState({appointment: updateAppointment});
     };
 
@@ -260,21 +293,41 @@ class AppointmentForm extends Component {
                 />
                 <Form.Field
                     control={Dropdown}
-                    label='נושא'
-                    placeholder='נושא'
+                    label='ענף'
+                    placeholder='ענף'
                     fluid
-                    search
-                    multiple
+                    // search
                     selection
-                    options={this.state.subjectOptions}
-                    value={appointment.subject}
+                    autoComplete='on'
+                    options={rolesOptions}
+                    value={appointment.role}
                     onChange={this.handleChange}
-                    name='subject'
+                    name='role'
                     required
-                    noResultsMessage='לא נמצאו התאמות'
-                    onSearchChange={this.handleSearchChange}
+                    noResultsMessage='לא נמצאו ענפים'
+                    // onSearchChange={this.handleSearchChange}
                     // width='10'
                 />
+                {appointment.role ?
+                    <Form.Field
+                        control={Dropdown}
+                        label='נושא'
+                        placeholder='נושא'
+                        fluid
+                        search
+                        multiple
+                        selection
+                        options={this.state.subjectOptions}
+                        value={appointment.subject}
+                        onChange={this.handleChange}
+                        name='subject'
+                        required
+                        noResultsMessage='לא נמצאו התאמות'
+                        onSearchChange={this.handleSearchChange}
+                        // width='10'
+                    />
+                    : null
+                }
                 <Form.Field
                     control={TextArea}
                     label='הערות'

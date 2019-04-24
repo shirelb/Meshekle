@@ -9,29 +9,12 @@ var loginPageMapper = function (value) {
     }
 };
 
-var mainScreenMapper = function (value) {
+var mainPageMapper = function (value) {
     switch (value) {
-        case "HairDresser":
-            return strings.mainPageStrings.ROLES_HairDresser;
-        case "Admin":
-            return strings.mainPageStrings.ROLES_HairDresser;
         default:
             return value;
     }
 };
-
-var rolesMapper = function (value) {
-    switch (value) {
-        case "HairDresser":
-            return strings.mainPageStrings.ROLES_HairDresser;
-        case "Dentist":
-            return strings.mainPageStrings.ROLES_Dentist;
-        case "Admin":
-            return strings.mainPageStrings.ROLES_Admin;
-        default:
-            return strings.mainPageStrings.ROLES_Undefined;
-    }
-}
 
 var daysMapper = function (value) {
     switch (value) {
@@ -65,4 +48,4 @@ var appointmentStatusMapper = function (value) {
     }
 };
 
-export default {loginPageMapper, mainScreenMapper, rolesMapper,daysMapper,appointmentStatusMapper};
+export default {loginPageMapper, mainPageMapper, daysMapper, appointmentStatusMapper};

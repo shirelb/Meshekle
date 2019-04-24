@@ -3,7 +3,7 @@ import './styles.css';
 
 import moment from 'moment';
 
-import {Button, Grid, Header, Icon} from 'semantic-ui-react';
+import {Button, Grid, Header, Icon, Label} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import AppointmentCalendar from "../../components/calendars/AppointmentCalendar";
 import store from 'store';
@@ -19,11 +19,19 @@ import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
-import AppointmentsReportPage from "./AppointmentsReportPage";
 import helpers from "../../shared/helpers";
 
 const TOTAL_PER_PAGE = 10;
 
+let colorEventByRole = {
+    appointmentsHairDresser: "#3A87AD",
+    appointmentsDentist: "#378006",
+}
+
+const hex2rgba = (hex, alpha = 1) => {
+    const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
+    return `rgba(${r},${g},${b},${alpha})`;
+};
 
 class AppointmentsManagementPage extends React.Component {
     constructor(props) {
@@ -38,6 +46,7 @@ class AppointmentsManagementPage extends React.Component {
             eventPopup: {},
             highlightTableRow: null,
             appointmentRequestHoovering: {requestId: -1},
+            appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -97,7 +106,7 @@ class AppointmentsManagementPage extends React.Component {
                                     end: null,
                                     appointmentRequest: appointmentRequest,
                                     // color:'#b7d2ff',
-                                    backgroundColor: '#45b0d9',
+                                    backgroundColor: hex2rgba(colorEventByRole[appointmentRequest.AppointmentDetail.role], 0.5),
                                 };
 
                                 let appointmentRequestsEvents = this.state.appointmentRequests;
@@ -155,11 +164,18 @@ class AppointmentsManagementPage extends React.Component {
                                 appointmentEvent.start = moment(appointment.startDateAndTime);
                                 appointmentEvent.end = moment(appointment.endDateAndTime);
                                 appointmentEvent.appointment = appointment;
+                                appointmentEvent.backgroundColor = colorEventByRole[appointment.AppointmentDetail.role];
 
                                 let appointmentsEvents = this.state.appointments;
                                 appointmentsEvents.push(appointmentEvent);
                                 this.setState({
                                     appointments: appointmentsEvents
+                                });
+
+                                let appointmentByRoleCount = this.state.appointmentByRoleCount;
+                                appointmentByRoleCount[appointment.AppointmentDetail.role] = appointmentByRoleCount[appointment.AppointmentDetail.role] + 1;
+                                this.setState({
+                                    appointmentByRoleCount: appointmentByRoleCount
                                 });
                             });
                     });
@@ -321,11 +337,11 @@ class AppointmentsManagementPage extends React.Component {
 
 
     render() {
-        const {appointments} = this.state;
+        const {appointments, appointmentByRoleCount} = this.state;
 
 
         return (
-            <div>
+            <div style={{marginBottom: 150}}>
                 <div>
                     <Helmet>
                         <title>Meshekle | Appointments</title>
@@ -336,30 +352,49 @@ class AppointmentsManagementPage extends React.Component {
                                     floated="right">{strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}</Header>
                         </Grid.Row>
 
-                        <Link to={{
-                            pathname: `${this.props.match.url}/serviceProvider/settings`,
-                            state: {serviceProviderId: this.serviceProviderId, users: []}
-                        }}>
-                            <Button positive icon>
-                                <Icon name="settings"/>
-                                &nbsp;&nbsp;
-                                {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
-                            </Button>
-                        </Link>
-                        <Link to='appointments/report'>
-                            <Button positive icon>
-                                <Icon name="columns"/>
-                                &nbsp;&nbsp;
-                                {strings.mainPageStrings.REPORT_PAGE_TITLE}
-                            </Button>
-                        </Link>
+                        <div className={"left floated five"}>
+                            <Link to={{
+                                pathname: `${this.props.match.url}/serviceProvider/settings`,
+                                state: {serviceProviderId: this.serviceProviderId, users: []}
+                            }}>
+                                <Button positive icon>
+                                    <Icon name="settings"/>
+                                    &nbsp;&nbsp;
+                                    {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
+                                </Button>
+                            </Link>
+                            <Link to={`${this.props.match.url}/report`}>
+                                <Button positive icon>
+                                    <Icon name="columns"/>
+                                    &nbsp;&nbsp;
+                                    {strings.mainPageStrings.REPORT_PAGE_TITLE}
+                                </Button>
+                            </Link>
 
-                        <Button icon
-                                onClick={() => helpers.exportToPDF('MeshekleAppointmentsCalendar', 'divToPrint', 'landscape')}>
-                            <Icon name="file pdf outline"/>
-                            &nbsp;&nbsp;
-                            יצא לPDF
-                        </Button>
+                            <Button icon
+                                    onClick={() => helpers.exportToPDF('MeshekleAppointmentsCalendar', 'divToPrint', 'landscape')}>
+                                <Icon name="file pdf outline"/>
+                                &nbsp;&nbsp;
+                                יצא לPDF
+                            </Button>
+                        </div>
+
+                        <Grid.Column width={3}></Grid.Column>
+
+                        <div className={"right floated five"}>
+                            {Object.keys(colorEventByRole).map(role => {
+                                return <Label style={{
+                                    color: "white",
+                                    backgroundColor: `${colorEventByRole[role]}`,
+                                    marginLeft: 10
+                                }}>
+                                    {strings.roles[role]}
+                                    &nbsp;&nbsp;
+                                    <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
+                                </Label>
+                            })
+                            }
+                        </div>
 
                         <Grid.Row columns='equal'>
                             <Grid.Column>

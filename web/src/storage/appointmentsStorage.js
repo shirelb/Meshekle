@@ -82,7 +82,7 @@ var setAppointment = (appointment, serviceProviderId, roles, headers) => {
         {
             userId: appointment.clientId,
             serviceProviderId: serviceProviderId,
-            role: roles[0],
+            role: appointment.role,
             date: moment.isMoment(appointment.date) ? appointment.date.format('YYYY-MM-DD') : appointment.date,
             startHour: moment.isMoment(appointment.startTime) ? appointment.startTime.format("HH:mm") : appointment.startTime,
             endHour: moment.isMoment(appointment.endTime) ? appointment.endTime.format("HH:mm") : appointment.endTime,
@@ -114,6 +114,7 @@ var updateAppointment = (event, headers) => {
 
             subject: JSON.stringify(event.subject),
             clientId: event.clientId,
+            role: event.role,
         },
         {
             headers: headers,

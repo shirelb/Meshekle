@@ -2,6 +2,14 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const {ChoreTypes, ServiceProviders, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
 var constants = require('./constants');
+var nodemailer = require('nodemailer');
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'meshekle2019@gmail.com',
+        pass: 'geralemeshekle'
+    }
+});
 
 module.exports = {
     createAppointmentSetId: function () {
@@ -38,5 +46,35 @@ module.exports = {
                 });
             })
     },
+
+    // checkIfPasswordLegal: function (passToCheck) {
+    //     return /\d/.test(passToCheck) && isNaN(passToCheck);
+    // },
+
+    generateRandomPassword: function () {
+        let randomPassword = Math.random().toString(36).slice(-8);
+        while (!(/\d/.test(randomPassword) && isNaN(randomPassword))) {
+            randomPassword = Math.random().toString(36).slice(-8);
+        }
+        return randomPassword;
+    },
+
+    sendMail: function (mailToSend, subject, text) {
+
+        var mailOptions = {
+            from: 'meshekle2019@gmail.com',
+            to: mailToSend,
+            subject: subject,
+            text: text
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    }
 
 };

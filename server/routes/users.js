@@ -3,7 +3,7 @@ var router = express.Router();
 var jwt = require('jsonwebtoken');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {sequelize, Users, ServiceProviders,AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+const {sequelize, Users, ServiceProviders, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
 var validations = require('./shared/validations');
 var constants = require('./shared/constants');
 var authentications = require('./shared/authentications');
@@ -35,6 +35,72 @@ router.post('/login/authenticate', function (req, res) {
             });
     }
 });
+
+router.put('/forgetPassword', function (req, res) {
+    validations.checkIfUserExist(req.body.userId, res)
+        .then(user => {
+            let newPassword = helpers.generateRandomPassword();
+
+            Users.findOne(
+                {
+                    where: {
+                        userId: req.body.userId
+                    }
+                })
+                .then(user => {
+                    let userExist=  user.dataValues;
+
+                    if (req.body.userId)
+                        if (req.body.userId !== userExist.userId)
+                            return res.status(400).send({
+                                "message": constants.usersRoute.DETAILS_NOT_MATCH,
+                            });
+                    if (req.body.email)
+                        if (req.body.email !== userExist.email)
+                            return res.status(400).send({
+                                "message": constants.usersRoute.DETAILS_NOT_MATCH,
+                            });
+                    if (req.body.mailbox)
+                        if (parseInt(req.body.mailbox) !== userExist.mailbox)
+                            return res.status(400).send({
+                                "message": constants.usersRoute.DETAILS_NOT_MATCH,
+                            });
+                    if (req.body.cellphone)
+                        if (req.body.cellphone !== userExist.cellphone)
+                            return res.status(400).send({
+                                "message": constants.usersRoute.DETAILS_NOT_MATCH,
+                            });
+                    if (req.body.phone)
+                        if (req.body.phone !== userExist.phone)
+                            return res.status(400).send({
+                                "message": constants.usersRoute.DETAILS_NOT_MATCH,
+                            });
+                    if (req.body.bornDate)
+                        if (req.body.bornDate !== userExist.bornDate)
+                            return res.status(400).send({
+                                "message": constants.usersRoute.DETAILS_NOT_MATCH,
+                            });
+
+                    user.dataValues.password = newPassword;
+                    user.update({
+                        password: newPassword
+                    })
+                        .then(updatedUser => {
+                            res.status(200).send({
+                                "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                                "result": updatedUser.dataValues
+                            });
+                            helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
+});
+
 
 router.use(function (req, res, next) {
     authentications.verifyToken(req, res, next);
