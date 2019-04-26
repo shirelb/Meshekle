@@ -36,7 +36,7 @@ class AppointmentRequestInfo extends React.Component {
             .then((response) => {
                 console.log('appointmentRequest handleDelete ', response);
             });
-        this.props.history.goBack();
+
     }
 
     render() {

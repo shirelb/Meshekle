@@ -1,4 +1,5 @@
 var express = require('express');
+var moment = require('moment');
 var router = express.Router();
 var jwt = require('jsonwebtoken');
 const Sequelize = require('sequelize');
@@ -39,8 +40,6 @@ router.post('/login/authenticate', function (req, res) {
 router.put('/forgetPassword', function (req, res) {
     validations.checkIfUserExist(req.body.userId, res)
         .then(user => {
-            let newPassword = helpers.generateRandomPassword();
-
             Users.findOne(
                 {
                     where: {
@@ -48,7 +47,7 @@ router.put('/forgetPassword', function (req, res) {
                     }
                 })
                 .then(user => {
-                    let userExist=  user.dataValues;
+                    let userExist = user.dataValues;
 
                     if (req.body.userId)
                         if (req.body.userId !== userExist.userId)
@@ -76,23 +75,21 @@ router.put('/forgetPassword', function (req, res) {
                                 "message": constants.usersRoute.DETAILS_NOT_MATCH,
                             });
                     if (req.body.bornDate)
-                        if (req.body.bornDate !== userExist.bornDate)
+                        if (moment(req.body.bornDate).format("YYYY-MM-DD") !== moment(userExist.bornDate).format("YYYY-MM-DD"))
                             return res.status(400).send({
                                 "message": constants.usersRoute.DETAILS_NOT_MATCH,
                             });
 
-                    user.dataValues.password = newPassword;
-                    user.update({
-                        password: newPassword
-                    })
-                        .then(updatedUser => {
-                            res.status(200).send({
-                                "message": constants.usersRoute.USER_UPDATE_SUCCESS,
-                                "result": updatedUser.dataValues
-                            });
-                            helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
-                        })
+                    res.status(200).send({
+                        "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                        "result": user.dataValues.password
+                    });
+                    helpers.sendMail(user.email, constants.mailMessages.REMINDER_SUBJECT,
+                        "Hello " + user.fullname +
+                        "\nYour username is: " + user.userId +
+                        "\nYour password is: " + user.dataValues.password +
+                        "\n" + constants.mailMessages.REMINDER_END +
+                        "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
