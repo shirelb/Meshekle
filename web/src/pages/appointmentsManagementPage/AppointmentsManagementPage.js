@@ -23,10 +23,11 @@ import helpers from "../../shared/helpers";
 
 const TOTAL_PER_PAGE = 10;
 
-let colorEventByRole = {
-    appointmentsHairDresser: "#3A87AD",
+const colorEventByRole = {
+    appointmentsHairDresser: "#3a87ad",
     appointmentsDentist: "#378006",
-}
+};
+
 
 const hex2rgba = (hex, alpha = 1) => {
     const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
@@ -142,7 +143,10 @@ class AppointmentsManagementPage extends React.Component {
     getServiceProviderAppointments() {
         appointmentsStorage.getServiceProviderAppointments(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
-                this.setState({appointments: []});
+                this.setState({
+                    appointments: [],
+                    appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
+                });
 
                 const appointments = response.data;
                 const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
@@ -234,7 +238,7 @@ class AppointmentsManagementPage extends React.Component {
                             appointmentRequest: appointmentRequest,
                             status: "optional",
                             // color:'#b7d2ff',
-                            backgroundColor: '#45b0d9',
+                            backgroundColor: hex2rgba(colorEventByRole[appointmentRequest.AppointmentDetail.role], 0.5),
                         }
                     )
                 })
@@ -409,6 +413,7 @@ class AppointmentsManagementPage extends React.Component {
                                         onClick={(appointmentRequest) => this.props.history.push(`${this.props.match.path}/requests/${appointmentRequest.requestId}`, {
                                             appointmentRequest: appointmentRequest
                                         })}
+                                        colorEventByRole={colorEventByRole}
                                     />
                                 }
                             </Grid.Column>

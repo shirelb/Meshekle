@@ -243,8 +243,8 @@ class AppointmentForm extends Component {
     checkIfDateTimesWithInOptional = (typeOfMsg) => {
         var found = false;
         const appointmentDate = moment.isMoment(this.state.appointment.date) ? this.state.appointment.date : moment(this.state.appointment.date);
-        const appointmentStartTime = moment.isMoment(this.state.appointment.startTime) ? this.state.appointment.startTime : moment(this.state.appointment.startTime);
-        const appointmentEndTime = moment.isMoment(this.state.appointment.endTime) ? this.state.appointment.endTime : moment(this.state.appointment.endTime);
+        const appointmentStartTime = moment.isMoment(this.state.appointment.startTime) ? this.state.appointment.startTime : moment(this.state.appointment.date + " " + this.state.appointment.startTime);
+        const appointmentEndTime = moment.isMoment(this.state.appointment.endTime) ? this.state.appointment.endTime : moment(this.state.appointment.date + " " + this.state.appointment.endTime);
         const dateTimesArray = this.state.appointmentRequestEvent.appointmentRequest.optionalTimes.filter(e => moment(e.date).isSame(moment(appointmentDate)));
         if (dateTimesArray.length > 0) {
             dateTimesArray.forEach(dateTime => {

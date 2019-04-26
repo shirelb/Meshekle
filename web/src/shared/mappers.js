@@ -48,4 +48,17 @@ var appointmentStatusMapper = function (value) {
     }
 };
 
-export default {loginPageMapper, mainPageMapper, daysMapper, appointmentStatusMapper};
+var appointmentRequestStatusMapper = function (value) {
+    switch (value) {
+        case "requested":
+            return "בוקש";
+        case "approved":
+            return "אושר";
+        case "rejected":
+            return "נדחה";
+        default:
+            return value;
+    }
+};
+
+export default {loginPageMapper, mainPageMapper, daysMapper, appointmentStatusMapper, appointmentRequestStatusMapper};

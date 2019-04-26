@@ -8,6 +8,10 @@ import "jquery-ui/ui/widgets/droppable";
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
+const colorCardByRole = {
+    appointmentsHairDresser: "blue",
+    appointmentsDentist: "olive",
+};
 
 export default class DraggableAppointmentRequest extends React.Component {
     componentDidUpdate() {
@@ -83,7 +87,9 @@ export default class DraggableAppointmentRequest extends React.Component {
                                     )}
                                     </List.Description>
                                     </List.Content>*/}
-                                <List.Content as={Card} centered>
+                                <List.Content as={Card} centered
+                                              color={`${colorCardByRole[appointmentRequest.AppointmentDetail.role]}`}
+                                              style={{color: `${this.props.colorEventByRole[appointmentRequest.AppointmentDetail.role]}`}}>
                                     <Icon name='info circle'
                                           onClick={this.props.onClick.bind(this, appointmentRequest)}/>
                                     <Card.Header>{appointmentRequest.clientName}</Card.Header>
