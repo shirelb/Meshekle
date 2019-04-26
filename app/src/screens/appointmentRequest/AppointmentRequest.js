@@ -119,7 +119,7 @@ export default class AppointmentRequest extends Component {
         return (
             <ListItem
                 roundAvatar
-                title={item.role}
+                title={mappers.serviceProviderRolesMapper(item.role)}
                 subtitle={item.fullname}
                 // avatar={{uri:item.avatar_url}}
                 onPress={() => this.requestAppointment(item)}
@@ -137,7 +137,7 @@ export default class AppointmentRequest extends Component {
                         <FlatList
                             data={this.state.serviceProviders}
                             renderItem={this.renderRow}
-                            keyExtractor={item => item.userId}
+                            keyExtractor={item => item.serviceProviderId+"-"+item.role}
                             ItemSeparatorComponent={this.renderSeparator}
                             ListHeaderComponent={this.renderHeader}
                         />

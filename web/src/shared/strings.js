@@ -90,12 +90,12 @@ const roles = {
     AnnouncementsSecretary:"מזכירות לוח מודעות",
 
     appointmentsHairDresser: "מספרה",
-    appointmentsDentist: "רפואת שיניים",
+    appointmentsDentist: "מרפאת שיניים",
 };
 
 const appointmentRoles = {
     appointmentsHairDresser: "מספרה",
-    appointmentsDentist: "רפואת שיניים",
+    appointmentsDentist: "מרפאת שיניים",
 };
 
 const appointmentsWayType = {

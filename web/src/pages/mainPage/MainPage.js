@@ -157,7 +157,8 @@ class MainPage extends Component {
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
                     {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("phoneBook") ?
+                        this.state.serviceProviderPermissions.includes("phoneBook") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
                                 <Icon name="address book outline"/>
                                 {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
@@ -166,7 +167,8 @@ class MainPage extends Component {
                         : null
                     }
                     {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("appointments") ?
+                        this.state.serviceProviderPermissions.includes("appointments") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name={"appointments"} as={NavLink} to={"/appointments"}>
                                 <Icon name="calendar alternate outline"/>
                                 {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
@@ -175,7 +177,8 @@ class MainPage extends Component {
                         : null
                     }
                     {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("chores") ?
+                        this.state.serviceProviderPermissions.includes("chores") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name="chores" as={NavLink} to="/chores">
                                 <Icon name="industry"/>
                                 {strings.mainPageStrings.CHORES_PAGE_TITLE}
@@ -184,7 +187,8 @@ class MainPage extends Component {
                         : null
                     }
                     {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("announcements") ?
+                        this.state.serviceProviderPermissions.includes("announcements") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name="announcements" as={NavLink} to="/announcements">
                                 <Icon name="announcement"/>
                                 {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}

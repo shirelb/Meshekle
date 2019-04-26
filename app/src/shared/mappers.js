@@ -16,10 +16,18 @@ var mainScreenMapper = function (value) {
 
 var serviceProviderRolesMapper = function (value) {
     switch (value) {
-        case "HairDresser":
-            return "מספרה";
         case "Admin":
             return "מנהלה";
+        case "PhoneBookSecretary":
+            return "מזכירות ספר טלפונים";
+        case "ChoresSecretary":
+            return "מזכירות תורנויות";
+        case "AnnouncementsSecretary":
+            return "מזכירות לוח מודעות";
+        case "appointmentsHairDresser":
+            return "מספרה";
+        case "appointmentsDentist":
+            return "מרפאת שיניים";
         default:
             return value;
     }
