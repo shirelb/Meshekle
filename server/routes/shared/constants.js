@@ -5,8 +5,9 @@ module.exports = {
         SUCCESSFUL_TOKEN: "Token generated successfully !",
 
     },
-    usersRoute:{
+    usersRoute: {
         USER_NOT_FOUND: "userId doesn't exist!",
+        DETAILS_NOT_MATCH: "user details not match, cant renew password",
         APPOINTMENT_REQUEST_NOT_FOUND: "AppointmentRequest not found!",
         APPOINTMENT_NOT_FOUND: "Appointment not found!",
         INCIDENT_NOT_FOUND: "Incident not found!",
@@ -24,9 +25,9 @@ module.exports = {
         ALREADY_CANCELED_APPOINTMENT: "Appointment already canceled !",
         PASSED_APPOINTMENT: "Appointment already passed !",
         SUCCESSFUL_INCIDENT: "Incident successfully added!",
-        USER_UPDATE_SUCCESS:"User fields updated successfully!",
+        USER_UPDATE_SUCCESS: "User fields updated successfully!",
     },
-    serviceProvidersRoute:{
+    serviceProvidersRoute: {
         USER_NOT_FOUND: "User not found!",
         APPOINTMENT_NOT_FOUND: "User not found!",
         SERVICE_PROVIDER_ALREADY_EXISTS: "Service provider already exists",
@@ -54,7 +55,7 @@ module.exports = {
 
         USER_ALREADY_EXISTS: "User is already exists",
     },
-    appointmentStatuses:{
+    appointmentStatuses: {
         APPOINTMENT_CANCELLED: "cancelled",
         APPOINTMENT_SET: "set"
     },
@@ -75,66 +76,69 @@ module.exports = {
         APPOINTMENT_REQUEST_APPROVED: "approved",
         APPOINTMENT_REQUEST_REJECTED: "rejected",
     },
-    appointmentWayTypes:{
+    appointmentWayTypes: {
         SLOT_WAY_TYPE: "Slots",
         DIALOG_WAY_TYPE: "Dialog",
         FAULT_WAY_TYPE: "Fault",
     },
-    permissionsOpNames:{
-
-    },
-    modules:{
-
-    },
-    roles:{
-        DENTIST_ROLE: "Dentist",
-        HAIRDRESSER_ROLE: "HairDresser",
+    permissionsOpNames: {},
+    modules: {},
+    roles: {
         ADMIN_ROLE: "Admin",
+        PHONE_BOOK_SECRETARY_ROLE: "PhoneBookSecretary",
+        CHORES_SECRETARY_ROLE: "ChoresSecretary",
+        ANNOUNCEMENTS_SECRETARY_ROLE: "AnnouncementsSecretary",
+
+        //APPOINTMENTS_ROLE:
+        APPOINTMENTS_DENTIST_ROLE: "appointmentsDentist",
+        APPOINTMENTS_HAIRDRESSER_ROLE: "appointmentsHairDresser",
     },
-    statueses:{
-        ON_AIR_STATUS:"On air",
-        REQUEST_STATUS:"Requested",
-        EXPIRED_STATUS:"Expired",
-        CANCELLED_STATUS:"Cancelled"
+    statueses: {
+        ON_AIR_STATUS: "On air",
+        REQUEST_STATUS: "Requested",
+        EXPIRED_STATUS: "Expired",
+        CANCELLED_STATUS: "Cancelled"
     },
-    categories:{
-        SECURITY_CATEGORY:"Security",
-        DINNING_ROOM_CATEGORY:"Dinning room",
-        SUPERMARKET_CATEGORY:"Supermarket",
-        HEALTH_CATEGORY:"Health",
-        VEHICLE_CATEGORY:"Vehicle",
-        SEWING_CATEGORY:"Sewing",
-        GYM_CATEGORY:"Gym",
-        TRIPS_CATEGORY:"Trips",
-        INFRASTRUCTURE_CATEGORY:"Infastructure",
-        CULTURE_CATEGORY:"Culture",
+    categories: {
+        SECURITY_CATEGORY: "Security",
+        DINNING_ROOM_CATEGORY: "Dinning room",
+        SUPERMARKET_CATEGORY: "Supermarket",
+        HEALTH_CATEGORY: "Health",
+        VEHICLE_CATEGORY: "Vehicle",
+        SEWING_CATEGORY: "Sewing",
+        GYM_CATEGORY: "Gym",
+        TRIPS_CATEGORY: "Trips",
+        INFRASTRUCTURE_CATEGORY: "Infastructure",
+        CULTURE_CATEGORY: "Culture",
     },
-    mailMessages:{
+    mailMessages: {
         ADD_USER_SUBJECT: "Welcome to Meshekle - There is your credentials",
-        ADD_SERVICE_PROVIDER_SUBJECT:"Your new role at Meshekle!",
+        REMINDER_SUBJECT: "Reminder from Meshekle",
+        ADD_SERVICE_PROVIDER_SUBJECT: "Your new role at Meshekle!",
         BEFORE_CRED: "Welcome to Meshkele",
         BEFORE_ROLE: "You have got a new role at Meshkele",
+        REMINDER_END: "Dont forget to change your password next time you visit, ",
         MAIL_END: "Have a nice day, Meshkele family"
     },
-    announcementsRoute:{
+    announcementsRoute: {
         SERVICE_PROVIDER_NOT_FOUND: "Service provider not found!",
         USER_NOT_FOUND: "User not found!",
         ANNOUNCEMENT_NOT_FOUND: "Announcement not found!",
         ANNOUNCEMENT_DELETED_SUCC: "Announcement deleted successfully!",
-        INVALID_EXP_TIME_INPUT:"Expiration time is invalid!",
-        ILLEGAL_EXP_TIME_INPUT:"Expiration time is illegal!",
-        ANNOUNCEMENT_UPDATE_SUCCESS:"Announcement updated successfully!",
-        STATUS_DOESNT_EXISTS :"Status doesnt exists!",
-        CATEGORY_DOESNT_EXISTS :"Category doesnt exists!",
-        ANNOUNCEMENT_STATUS_UPDATE_SUCCESS :"Status updated successfully!",
-        ANNOUNCEMENT_ADDED_SUCC :"Announcement added successfully!",
-        CATEGORY_NOT_FOUND :"Category not found!",
-        SUB_ALREADY_EXISTS :"Subscription already exists!",
-        SUB_ADDED_SUCC :"Subscription added successfully!",
-        SUB_NOT_FOUND :"Subscription not found!",
-        CATEGORY_ALREADY_EXISTS :"Category already exists!",
-        CATEGORY_ADDED_SUCC :"Category added successfully!",
-        CATEGORY_DELETED_SUCC :"Category deleted successfully!",
-        SUB_DELETED_SUCC :"Subscription deleted successfully!",
+        INVALID_EXP_TIME_INPUT: "Expiration time is invalid!",
+        ILLEGAL_EXP_TIME_INPUT: "Expiration time is illegal!",
+        ANNOUNCEMENT_UPDATE_SUCCESS: "Announcement updated successfully!",
+        STATUS_DOESNT_EXISTS: "Status doesnt exists!",
+        CATEGORY_DOESNT_EXISTS: "Category doesnt exists!",
+        ANNOUNCEMENT_STATUS_UPDATE_SUCCESS: "Status updated successfully!",
+        ANNOUNCEMENT_ADDED_SUCC: "Announcement added successfully!",
+        CATEGORY_NOT_FOUND: "Category not found!",
+        SUB_ALREADY_EXISTS: "Subscription already exists!",
+        SUB_ADDED_SUCC: "Subscription added successfully!",
+        SUB_NOT_FOUND: "Subscription not found!",
+        CATEGORY_ALREADY_EXISTS: "Category already exists!",
+        CATEGORY_ADDED_SUCC: "Category added successfully!",
+        CATEGORY_DELETED_SUCC: "Category deleted successfully!",
+        SUB_DELETED_SUCC: "Subscription deleted successfully!",
     },
 };

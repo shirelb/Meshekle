@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Accordion, Button, Header, Icon, Menu, Image, Table} from 'semantic-ui-react';
+import {Accordion, Button, Checkbox, Dropdown, Header, Icon, Image, Input, Menu, Table} from 'semantic-ui-react';
 import {Link, Route, Switch} from "react-router-dom";
 import store from 'store';
 import moment from 'moment';
@@ -18,8 +18,10 @@ import ServiceProviderAdd from "../../components/serviceProvider/ServiceProvider
 import ServiceProviderInfo from "../../components/serviceProvider/ServiceProviderInfo";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import mappers from "../../shared/mappers";
-import AppointmentAdd from "../../components/appointment/AppointmentAdd";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import _ from "lodash";
+import Datetime from 'react-datetime';
+import helpers from "../../shared/helpers";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -36,6 +38,18 @@ class PhoneBookManagementPage extends React.Component {
             totalPagesServiceProviders: 0,
 
             activeIndex: -1,
+            column: null,
+            direction: null,
+            filterColumnsAndTexts: {
+                userId: "",
+                fullname: "",
+                email: "",
+                mailbox: "",
+                cellphone: "",
+                phone: "",
+                bornDate: "",
+                active: "",
+            }
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -44,6 +58,7 @@ class PhoneBookManagementPage extends React.Component {
         this.handleDelete = this.handleDelete.bind(this);
 
         this.serviceProviderHeaders = '';
+        this.users = [];
     }
 
     componentDidMount() {
@@ -85,6 +100,8 @@ class PhoneBookManagementPage extends React.Component {
                     pageUsers: 0,
                     totalPagesUsers,
                 });
+
+                this.users = users;
             });
     }
 
@@ -161,34 +178,281 @@ class PhoneBookManagementPage extends React.Component {
         })
     };
 
+    handleSort = clickedColumn => () => {
+        const {column, users, direction} = this.state;
+
+        if (column !== clickedColumn) {
+            this.setState({
+                column: clickedColumn,
+                users: _.sortBy(users, [clickedColumn]),
+                direction: 'ascending',
+            });
+
+            return
+        }
+
+        this.setState({
+            appointments: users.reverse(),
+            direction: direction === 'ascending' ? 'descending' : 'ascending',
+        })
+    };
+
+    handleFilter = (clickedColumn, e) => {
+        if (e === "") {
+            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+            filterColumnsAndTexts[clickedColumn] = "";
+            this.setState({
+                filterColumnsAndTexts: filterColumnsAndTexts
+            })
+        } else if (clickedColumn === 'bornDate') {
+            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+            if (moment.isMoment(e)) {
+                filterColumnsAndTexts[clickedColumn] = moment(e).format("YYYY-MM-DD");
+                this.setState({
+                    filterColumnsAndTexts: filterColumnsAndTexts,
+                    monthFilterSelected: null,
+                    dateFilterSelected: moment(e).format("DD/MM/YYYY"),
+                })
+            } else {
+                filterColumnsAndTexts[clickedColumn] = e.value;
+                this.setState({
+                    filterColumnsAndTexts: filterColumnsAndTexts,
+                    monthFilterSelected: e.text,
+                    dateFilterSelected: "",
+                })
+            }
+        } else if (clickedColumn === 'active') {
+            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+            filterColumnsAndTexts[clickedColumn] = e.checked;
+            this.setState({
+                activeSelected: e.checked,
+                filterColumnsAndTexts: filterColumnsAndTexts,
+            })
+        } else if (e.target.value !== undefined) {
+            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+            filterColumnsAndTexts[clickedColumn] = e.target.value;
+            this.setState({
+                filterColumnsAndTexts: filterColumnsAndTexts
+            })
+        }
+
+        let filterColumnsAndTexts = _.omitBy(this.state.filterColumnsAndTexts, (att) => att === "");
+        let users = _.filter(this.users,
+            (o) =>
+                Object.keys(filterColumnsAndTexts).every((col) => {
+                    if (col === 'bornDate')
+                        if (e.text && e.value)
+                            return o[col].split("-")[1] === filterColumnsAndTexts[col];
+                        else
+                            return o[col].split("T")[0].includes(filterColumnsAndTexts[col]);
+                    else if (_.isNumber(o[col]))
+                        return o[col] === parseInt(filterColumnsAndTexts[col]);
+                    else if (_.isBoolean(o[col]))
+                        return o[col].toString() === filterColumnsAndTexts[col].toString();
+                    else
+                        return o[col].includes(filterColumnsAndTexts[col]);
+                })
+        );
+        this.setState({
+            users: users,
+        });
+    };
+
     render() {
         // console.log('app props ', this.props);
 
-        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
+        const {column, direction, users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
-        let urlObject;
-        let url;
 
         return (
             <div>
-                <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_USERS_TITLE}>
+                <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_USERS_TITLE}
+                      divId={'divUsersToPrint'}>
                     <Helmet>
                         <title>Meshekle | Phone Book</title>
                     </Helmet>
 
-                    <Table celled striped textAlign='right' selectable sortable>
+                    <Button icon
+                            onClick={() => helpers.exportToPDF('MesheklePhoneBookUsers', 'divUsersToPrint', 'landscape')}>
+                        <Icon name="file pdf outline"/>
+                        &nbsp;&nbsp;
+                        יצא לPDF
+                    </Button>
+
+                    <Table celled striped textAlign='right' selectable sortable compact={"very"} collapsing>
                         <Table.Header>
                             <Table.Row>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.USER_ID_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
-                                {/*<Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>*/}
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.BORN_DATE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.ACTIVE_HEADER}</Table.HeaderCell>
-                                {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+                                <Table.HeaderCell
+                                    sorted={column === 'userId' ? direction : null}
+                                    onClick={this.handleSort('userId')}
+                                >
+                                    {strings.phoneBookPageStrings.USER_ID_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={column === 'fullname' ? direction : null}
+                                    onClick={this.handleSort('fullname')}
+                                >
+                                    {strings.phoneBookPageStrings.FULLNAME_HEADER}
+                                </Table.HeaderCell>
+                                {/*<Table.HeaderCell
+                                sorted={column === 'clientId' ? direction : null}
+                                            onClick={this.handleSort('clientId')}
+                                            >
+                                            {strings.phoneBookPageStrings.PASSWORD_HEADER}
+                                            </Table.HeaderCell>*/}
+                                <Table.HeaderCell
+                                    sorted={column === 'email' ? direction : null}
+                                    onClick={this.handleSort('email')}
+                                >
+                                    {strings.phoneBookPageStrings.EMAIL_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={column === 'mailbox' ? direction : null}
+                                    onClick={this.handleSort('mailbox')}
+                                >
+                                    {strings.phoneBookPageStrings.MAILBOX_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={column === 'cellphone' ? direction : null}
+                                    onClick={this.handleSort('cellphone')}
+                                >
+                                    {strings.phoneBookPageStrings.CELLPHONE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={column === 'phone' ? direction : null}
+                                    onClick={this.handleSort('phone')}
+                                >
+                                    {strings.phoneBookPageStrings.PHONE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={column === 'bornDate' ? direction : null}
+                                    onClick={this.handleSort('bornDate')}
+                                >
+                                    {strings.phoneBookPageStrings.BORN_DATE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={column === 'active' ? direction : null}
+                                    onClick={this.handleSort('active')}
+                                >
+                                    {strings.phoneBookPageStrings.ACTIVE_HEADER}
+                                </Table.HeaderCell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('userId', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('userId', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('fullname', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('fullname', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('email', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('email', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('mailbox', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('mailbox', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('cellphone', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('cellphone', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('phone', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('phone', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('bornDate', e)}
+                                    />
+                                    <Icon link name='x'
+                                          onClick={(e) => {
+                                              let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+                                              filterColumnsAndTexts.bornDate = "";
+                                              this.setState({
+                                                  monthFilterSelected: null,
+                                                  dateFilterSelected: "",
+                                                  filterColumnsAndTexts: filterColumnsAndTexts,
+                                              });
+                                              this.handleFilter('', e);
+                                          }}
+                                    />
+                                    <Datetime
+                                        inputProps={{style: {width: (100 + 'px')}}}
+                                        locale={'he'}
+                                        timeFormat={false}
+                                        install
+                                        onChange={(e) => this.handleFilter('bornDate', e)}
+                                        value={this.state.dateFilterSelected}
+                                    />
+                                    <Dropdown
+                                        text={this.state.monthFilterSelected ? this.state.monthFilterSelected : 'חודש'}
+                                        floating
+                                        className={"filterInput"}
+                                        labeled
+                                        button
+                                        multiple={false}
+                                        fluid
+                                    >
+                                        <Dropdown.Menu>
+                                            {moment.months().map(month =>
+                                                <Dropdown.Item
+                                                    // label={{empty: true, circular: true}}
+                                                    text={month + " | " + moment().month(month).format("MM")}
+                                                    onClick={(event, data) => this.handleFilter('bornDate', data)}
+                                                    value={moment().month(month).format("MM")}
+                                                />
+                                            )}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('active', e)}
+                                    />
+                                    <Icon link name='x'
+                                          onClick={(e) => {
+                                              let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+                                              filterColumnsAndTexts.active = "";
+                                              this.setState({
+                                                  activeSelected: false,
+                                                  filterColumnsAndTexts: filterColumnsAndTexts,
+                                              });
+                                              this.handleFilter('', e);
+                                          }}
+                                    />
+                                    <Checkbox
+                                        name="active"
+                                        toggle
+                                        checked={this.state.activeSelected}
+                                        onChange={(event, data) => this.handleFilter('active', data)}
+                                    />
+                                </Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
@@ -219,7 +483,6 @@ class PhoneBookManagementPage extends React.Component {
                                     <Table.Cell>{user.phone}</Table.Cell>
                                     <Table.Cell>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
                                     <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
-                                    {/*<Table.Cell>{user.image}</Table.Cell>*/}
                                 </Table.Row>),
                             )}
                         </Table.Body>
@@ -251,10 +514,18 @@ class PhoneBookManagementPage extends React.Component {
                 </Page>
 
                 <Page children={serviceProviders}
-                      title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}>
+                      title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}
+                      divId={'divServiceProvidersToPrint'}>
                     <Helmet>
                         <title>Meshekle | ServiceProviders</title>
                     </Helmet>
+
+                    <Button icon
+                            onClick={() => helpers.exportToPDF('MesheklePhoneBookServiceProviders', 'divServiceProvidersToPrint', 'landscape')}>
+                        <Icon name="file pdf outline"/>
+                        &nbsp;&nbsp;
+                        יצא לPDF
+                    </Button>
 
                     <Table celled striped textAlign='right' selectable sortable>
                         <Table.Header>
@@ -297,7 +568,7 @@ class PhoneBookManagementPage extends React.Component {
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell>{mappers.rolesMapper(serviceProvider.role)}</Table.Cell>
+                                    <Table.Cell>{strings.roles[serviceProvider.role]}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
                                     <Table.Cell>
                                         {

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Icon, Menu, Sidebar} from 'semantic-ui-react';
+import {Grid, Header, Icon, Image, Menu, Sidebar} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import store from 'store';
 import {NavLink, Redirect, Route, Switch} from 'react-router-dom';
@@ -11,14 +11,10 @@ import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManag
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
 import {AnnouncementsManagementPage} from '../announcementsManagementPage/AnnouncementsManagementPage'
-
-import {Header} from "semantic-ui-react/dist/commonjs/elements/Header";
-import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import AppointmentsReportPage from "../appointmentsManagementPage/AppointmentsReportPage";
-
 
 const handleLogout = history => () => {
     WEB_SOCKET.emit('disconnectWebClient', {serviceProviderId: store.get('serviceProviderId')});
@@ -48,28 +44,6 @@ class Home extends Component {
 
 
     componentDidMount() {
-        usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
-            .then(user => {
-                if (user !== null && user !== undefined)
-                    this.setState({
-                        userFullname: user.fullname,
-                    })
-            })
-        serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
-            .then(permissions => {
-                if (permissions !== null && permissions !== undefined)
-                    this.setState({
-                        serviceProviderPermissions: permissions,
-                    })
-            })
-        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
-            .then(roles => {
-                if (roles !== null && roles !== undefined)
-                    this.setState({
-                        serviceProviderRoles: roles.map(role => mappers.rolesMapper(role)),
-                    })
-            })
-
         connectToServerSocket(store.get('serviceProviderId'));
     }
 
@@ -77,17 +51,30 @@ class Home extends Component {
 
         console.log("serviceProviderRoles  ", this.state.serviceProviderRoles);
         return (
-            <div>
-                <p>
-                    ברוכים הבאים {this.state.userFullname}
-                </p>
-                <p>
-                    ההרשאות שלך הן: {this.state.serviceProviderPermissions}
-                </p>
-                <p>
-                    התפקידים עליהם את/ה אחראיים הם:
-                    {Array.isArray(this.state.serviceProviderRoles) ? this.state.serviceProviderRoles.join(", ") : this.state.serviceProviderRoles}
-                </p>
+            <div className={"landing-image"}>
+                <Grid stretched textAlign={"center"}>
+                    <Grid.Column stretched textAlign={"center"}>
+                        <Image centered src={require('../../images/logo1.png')} size={'large'}/>
+                        <Header size={"huge"} textAlign={"center"} icon style={{marginTop: "-10px"}}>
+                            משקל'ה
+                            <Header.Subheader>יש משק ויש משקל'ה</Header.Subheader>
+                        </Header>
+
+                        <div style={{marginTop: 20, textAlign: "center"}}>
+                            <Header as={'h2'}>
+                                ברוכים הבאים {this.props.userFullname}
+                            </Header>
+                            <Header as={'h3'}>
+                                ההרשאות שלך
+                                הן: {Array.isArray(this.props.serviceProviderPermissions) ? this.props.serviceProviderPermissions.join(", ") : this.props.serviceProviderPermissions}
+                            </Header>
+                            <Header as={'h3'}>
+                                התפקידים באחריותך הם:
+                                {Array.isArray(this.props.serviceProviderRoles) ? this.props.serviceProviderRoles.map(role => strings.roles[role]).join(", ") : this.props.serviceProviderRoles}
+                            </Header>
+                        </div>
+                    </Grid.Column>
+                </Grid>
             </div>
         );
     }
@@ -100,7 +87,11 @@ class MainPage extends Component {
         super(props);
 
         this.state = {
-            isLoggedIn: true
+            isLoggedIn: true,
+
+            userFullname: "",
+            serviceProviderPermissions: "",
+            serviceProviderRoles: "",
         };
     }
 
@@ -109,6 +100,9 @@ class MainPage extends Component {
             .then(answer => {
                 console.log('hhhh compooooo abs ', answer);
                 this.setState({isLoggedIn: answer});
+
+                if (answer)
+                    this.getServiceProviderHomeDetails();
             })
             .catch(answer => {
                 console.log('hhhh compooooo abs ', answer);
@@ -116,8 +110,37 @@ class MainPage extends Component {
             });
     }
 
+    getServiceProviderHomeDetails = () => {
+        usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
+            .then(user => {
+                if (user !== null && user !== undefined)
+                    this.setState({
+                        userFullname: user.fullname,
+                    })
+            })
+        serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
+            .then(modulesPermitted => {
+                if (modulesPermitted !== null && modulesPermitted !== undefined)
+                    this.setState({
+                        serviceProviderPermissions: modulesPermitted,
+                    })
+            })
+        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
+            .then(roles => {
+                if (roles !== null && roles !== undefined)
+                    this.setState({
+                        serviceProviderRoles: roles,
+                    })
+            })
+    }
+
+
     render() {
         console.log('main page props ', this.props);
+        if (Array.isArray(this.state.serviceProviderPermissions)) {
+            console.log('this.state.serviceProviderRoles ', this.state.serviceProviderRoles);
+            console.log('this.state.serviceProviderRoles.filter(role => role.includes("appointments")) ', this.state.serviceProviderRoles.filter(role => role.includes("appointments")));
+        }
 
         if (!this.state.isLoggedIn)
             return <Redirect to="/login"/>;
@@ -133,22 +156,46 @@ class MainPage extends Component {
                         <Icon name="home"/>
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
-                    <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
-                        <Icon name="address book outline"/>
-                        {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
-                    </Menu.Item>
-                    <Menu.Item name="appointments" as={NavLink} to="/appointments">
-                        <Icon name="calendar alternate outline"/>
-                        {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
-                    </Menu.Item>
-                    <Menu.Item name="chores" as={NavLink} to="/chores">
-                        <Icon name="industry"/>
-                        {strings.mainPageStrings.CHORES_PAGE_TITLE}
-                    </Menu.Item>
-                    <Menu.Item name="announcements" as={NavLink} to="/announcements">
-                        <Icon name="announcement"/>
-                        {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
-                    </Menu.Item>
+                    {Array.isArray(this.state.serviceProviderPermissions) ?
+                        this.state.serviceProviderPermissions.includes("phoneBook") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
+                            <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
+                                <Icon name="address book outline"/>
+                                {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
+                            </Menu.Item>
+                            : null
+                        : null
+                    }
+                    {Array.isArray(this.state.serviceProviderPermissions) ?
+                        this.state.serviceProviderPermissions.includes("appointments") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
+                            <Menu.Item name={"appointments"} as={NavLink} to={"/appointments"}>
+                                <Icon name="calendar alternate outline"/>
+                                {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
+                            </Menu.Item>
+                            : null
+                        : null
+                    }
+                    {Array.isArray(this.state.serviceProviderPermissions) ?
+                        this.state.serviceProviderPermissions.includes("chores") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
+                            <Menu.Item name="chores" as={NavLink} to="/chores">
+                                <Icon name="industry"/>
+                                {strings.mainPageStrings.CHORES_PAGE_TITLE}
+                            </Menu.Item>
+                            : null
+                        : null
+                    }
+                    {Array.isArray(this.state.serviceProviderPermissions) ?
+                        this.state.serviceProviderPermissions.includes("announcements") ||
+                        this.state.serviceProviderPermissions.includes("all") ?
+                            <Menu.Item name="announcements" as={NavLink} to="/announcements">
+                                <Icon name="announcement"/>
+                                {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
+                            </Menu.Item>
+                            : null
+                        : null
+                    }
                     <Menu.Item name="logout" onClick={handleLogout(this.props.history)}>
                         <Icon name="power"/>
                         {strings.mainPageStrings.LOGOUT}
@@ -158,7 +205,11 @@ class MainPage extends Component {
                     {/*<Router>*/}
                     <Switch>
                         <Route path={`/home`} render={() => <Home userId={store.get('userId')}
-                                                                  serviceProviderId={store.get('serviceProviderId')}/>}/>
+                                                                  serviceProviderId={store.get('serviceProviderId')}
+                                                                  userFullname={this.state.userFullname}
+                                                                  serviceProviderPermissions={this.state.serviceProviderPermissions}
+                                                                  serviceProviderRoles={this.state.serviceProviderRoles}
+                        />}/>
                         <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
                         <Route exec path={`/appointments/report`} component={AppointmentsReportPage}/>
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>

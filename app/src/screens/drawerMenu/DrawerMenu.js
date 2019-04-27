@@ -173,6 +173,7 @@ export default class DrawerMenu extends Component {
                     modalVisible={this.state.infoModal}
                     user={this.state.userLoggedin}
                     openedFrom={"DrawerMenu"}
+                    userHeaders={this.userHeaders}
                     setFormModalVisible={this.setFormModalVisible}
                 />
 

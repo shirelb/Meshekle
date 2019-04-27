@@ -51,6 +51,17 @@ export default class PhoneBookScreen extends Component {
             .then(users => {
                 console.log("phonebook users ", users);
 
+                users.forEach(user => {
+                    if (user.ServiceProviders.length > 0) {
+                        let roles = [];
+                        user.ServiceProviders.forEach(provider => {
+                            if (provider.active)
+                                roles.push(mappers.serviceProviderRolesMapper(provider.role));
+                        });
+                        user.roles = roles;
+                    }
+                });
+
                 this.setState({
                     users: users.filter(user => user.active === true),
                 });
@@ -95,6 +106,7 @@ export default class PhoneBookScreen extends Component {
 
     updateSearch = search => {
         // console.log("in search ", search);
+        this.setState({infoModal: false});
         let users = this.state.users;
         let filteredByNameOrRole = users.filter((item) => {
             let roleFound = false;
@@ -133,18 +145,13 @@ export default class PhoneBookScreen extends Component {
 
     renderRow = ({item}) => {
         console.log("item ", item);
-        let roles = [];
-        item.ServiceProviders.forEach(provider => {
-            if (provider.active)
-                roles.push(mappers.serviceProviderRolesMapper(provider.role));
-        });
 
         if (item.image !== null)
             return (
                 <ListItem
                     roundAvatar
                     title={item.fullname}
-                    subtitle={roles.join(", ")}
+                    subtitle={item.roles ? item.roles.join(", ") : ""}
                     avatar={{uri: item.image}}
                     onPress={() => this.openUserInfo(item)}
                     containerStyle={{borderBottomWidth: 0}}

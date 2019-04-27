@@ -84,11 +84,19 @@ const announcementsPageStrings = {
 };
 
 const roles = {
-    HairDresser: "מספרה",
     Admin: "מנהלה",
-    Dentist: "רפואת שיניים",
+    PhoneBookSecretary:"מזכירות ספר טלפונים",
+    ChoresSecretary:"מזכירות תורנויות",
+    AnnouncementsSecretary:"מזכירות לוח מודעות",
+
+    appointmentsHairDresser: "מספרה",
+    appointmentsDentist: "מרפאת שיניים",
 };
 
+const appointmentRoles = {
+    appointmentsHairDresser: "מספרה",
+    appointmentsDentist: "מרפאת שיניים",
+};
 
 const appointmentsWayType = {
     Dialog: "בקשה ומענה",
@@ -117,4 +125,5 @@ export default {
     appointmentsWayType,
     announcementsPageStrings,
     days,
+    appointmentRoles,
 };

@@ -65,6 +65,12 @@ class ServiceProviderInfo extends React.Component {
             });
     }
 
+    appointmentRoleDetailsVisible = () => {
+        if (this.state.serviceProvider.role)
+            if (Object.keys(strings.appointmentRoles).includes(this.state.serviceProvider.role))
+                return true;
+        return false;
+    };
 
     render() {
         const {serviceProvider, activeIndex} = this.state;
@@ -86,35 +92,41 @@ class ServiceProviderInfo extends React.Component {
                         <Modal.Description style={{marginRight: 20}}>
                             <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
                             <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {mappers.rolesMapper(serviceProvider.role)}</p>
+                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {strings.roles[serviceProvider.role]}</p>
                             {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
-                            <div>
-                                {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
-                                {
-                                    JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
-                                        return <Accordion key={index}>
-                                            <Accordion.Title
-                                                active={activeIndex === index}
-                                                index={index}
-                                                onClick={this.handleClick}>
-                                                <Icon name='dropdown'/>
-                                                {mappers.daysMapper(dayTime.day)}
-                                            </Accordion.Title>
-                                            {
-                                                dayTime.hours.map((hour, j) => {
-                                                    return <Accordion.Content
-                                                        active={activeIndex === index}
-                                                        key={j}>
-                                                        {hour.startHour} - {hour.endHour}
-                                                    </Accordion.Content>
-                                                })
-                                            }
-                                        </Accordion>
-                                    })
-                                }
-                            </div>
+                            {this.appointmentRoleDetailsVisible() ?
+                                <div>
+                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
+                                    {
+                                        JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
+                                            return <Accordion key={index}>
+                                                <Accordion.Title
+                                                    active={activeIndex === index}
+                                                    index={index}
+                                                    onClick={this.handleClick}>
+                                                    <Icon name='dropdown'/>
+                                                    {mappers.daysMapper(dayTime.day)}
+                                                </Accordion.Title>
+                                                {
+                                                    dayTime.hours.map((hour, j) => {
+                                                        return <Accordion.Content
+                                                            active={activeIndex === index}
+                                                            key={j}>
+                                                            {hour.startHour} - {hour.endHour}
+                                                        </Accordion.Content>
+                                                    })
+                                                }
+                                            </Accordion>
+                                        })
+                                    }
+                                </div>
+                                : null
+                            }
                             <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
+                            {this.appointmentRoleDetailsVisible() ?
+                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
+                                : null
+                            }
                             <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
 
                             <Button onClick={this.renewPassword}>חדש סיסמא</Button>

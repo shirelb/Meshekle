@@ -299,6 +299,7 @@ router.put('/serviceProvider/update/appointmentId/:appointmentId', function (req
 
             AppointmentDetails.update(
                 {
+                    role: req.body.role,
                     subject: req.body.subject,
                     clientId: req.body.clientId,
                 },

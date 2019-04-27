@@ -3,6 +3,7 @@ import {Modal, ScrollView, StyleSheet, Text} from 'react-native';
 import moment from 'moment';
 import {List} from 'react-native-paper';
 import Button from '../submitButton/Button';
+import mappers from "../../shared/mappers";
 
 
 export default class AppointmentsDayInfo extends Component {
@@ -38,7 +39,8 @@ export default class AppointmentsDayInfo extends Component {
                 transparent={false}
                 visible={this.state.dateModalVisible}
                 onRequestClose={() => {
-                    this.setState({dateModalVisible: false})
+                    this.setState({dateModalVisible: false});
+                    this.props.afterCloseModalShowSelectDay();
                 }}
             >
                 <ScrollView style={{marginTop: 22}}>
@@ -49,6 +51,7 @@ export default class AppointmentsDayInfo extends Component {
                             label='חזור'
                             onPress={() => {
                                 this.setState({dateModalVisible: false})
+                                this.props.afterCloseModalShowSelectDay();
                             }}
                         />
 
@@ -68,7 +71,7 @@ export default class AppointmentsDayInfo extends Component {
                                     return <List.Accordion
                                         key={item.appointmentId}
                                         title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
-                                        description={item.AppointmentDetail.role + ',' + item.serviceProviderFullname}
+                                        description={mappers.serviceProviderRolesMapper(item.AppointmentDetail.role) + ' - ' + item.serviceProviderFullname}
                                         left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
                                         expanded={this.state.expanded[item.appointmentId]}
                                         onPress={() => {

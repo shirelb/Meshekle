@@ -66,6 +66,7 @@ var updateUserById = function (updatedUser, userHeaders) {
             phone: updatedUser.phone ? updatedUser.phone : null,
             bornDate: updatedUser.bornDate ? updatedUser.bornDate : null,
             active: typeof updatedUser.active === 'boolean' ? updatedUser.active : null,
+            image: updatedUser.image ? updatedUser.image : null,
         },
         {headers: userHeaders}
     )
@@ -79,5 +80,25 @@ var updateUserById = function (updatedUser, userHeaders) {
         });
 };
 
+var forgetPassword = function (userDetailsRemembered) {
+    return axios.put(`${SERVER_URL}/api/users/forgetPassword`,
+        {
+            userId: userDetailsRemembered.userId ? userDetailsRemembered.userId : null,
+            email: userDetailsRemembered.email ? userDetailsRemembered.email : null,
+            mailbox: userDetailsRemembered.mailbox ? userDetailsRemembered.mailbox : null,
+            cellphone: userDetailsRemembered.cellphone ? userDetailsRemembered.cellphone : null,
+            phone: userDetailsRemembered.phone ? userDetailsRemembered.phone : null,
+            bornDate: userDetailsRemembered.bornDate ? userDetailsRemembered.bornDate : null,
+        },
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('forgetPassword error ', error);
+            return null;
+        });
+};
 
-export default {getUserEvents, getUserById, userValidToken, userLogin, getUsers, updateUserById};
+
+export default {getUserEvents, getUserById, userValidToken, userLogin, getUsers, updateUserById, forgetPassword};

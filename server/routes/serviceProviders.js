@@ -6,20 +6,11 @@ var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
 var moment = require('moment');
 var router = express.Router();
-var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
-
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'meshekle2019@gmail.com',
-        pass: 'geralemeshekle'
-    }
-});
 
 
 //Login from service provider by userId and password
@@ -288,10 +279,10 @@ router.post('/add', function (req, res, next) {
                     serviceProviderId: req.body.serviceProviderId,
                     role: req.body.role,
                     userId: req.body.userId,
-                    operationTime: req.body.operationTime,
+                    operationTime: req.body.operationTime ? req.body.operationTime : null,
                     phoneNumber: req.body.phoneNumber,
-                    appointmentWayType: req.body.appointmentWayType,
-                    subjects: req.body.subjects,
+                    appointmentWayType: req.body.appointmentWayType ? req.body.appointmentWayType : null,
+                    subjects: req.body.subjects ? req.body.subjects : null,
                     active: req.body.active === null ? false : req.body.active,
                 })
                     .then(newServiceProvider => {
@@ -301,7 +292,7 @@ router.post('/add', function (req, res, next) {
                         });
                         validations.getUsersByUserIdPromise(newServiceProvider.userId)
                             .then(users => {
-                                sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
                                     "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                             })
                             .catch(err => {
@@ -353,7 +344,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                 });
                 validations.getUsersByUserIdPromise(newServiceProvider.userId)
                     .then(users => {
-                        sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                        helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
                             "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
@@ -430,7 +421,7 @@ router.post('/users/add', function (req, res, next) {
         .then(users => {
             if (users.length !== 0)
                 return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
-            const randomPassword = generateRandomPassword();
+            const randomPassword = helpers.generateRandomPassword();
             Users.create({
                 userId: req.body.userId,
                 fullname: req.body.fullname,
@@ -447,7 +438,7 @@ router.post('/users/add', function (req, res, next) {
                         "message": serviceProvidersRoute.USER_ADDED_SUCC,
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
-                    sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                    helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
                         "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
@@ -465,7 +456,7 @@ router.post('/users/add', function (req, res, next) {
 router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            let newPassword = generateRandomPassword();
+            let newPassword = helpers.generateRandomPassword();
 
             Users.findOne(
                 {
@@ -483,7 +474,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "message": constants.usersRoute.USER_UPDATE_SUCCESS,
                                 "result": updatedUser.dataValues
                             });
-                            sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
+                            helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
                                 "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
@@ -568,7 +559,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
         .then(roles => {
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
-            const rolesList = roles.map(role => role.role);
+            const rolesList = roles.map(role => role.dataValues.role);
             RulesModules.findAll({
                 attributes: ['module'],
                 where: {
@@ -576,25 +567,29 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
                         [Op.in]: rolesList
                     }
                 }
-            }).then(modules => {
-                const moduleList = modules.map(module => module.module);
-                Permissions.findAll({
-                    attributes: ['operationName'],
-                    where: {
-                        module: {
-                            [Op.in]: moduleList
-                        }
-                    }
-                }).then(permissions => {
-                    console.log(permissions);
-                    res.status(200).send(permissions.map(permission => permission.operationName));
-                })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    })
-
             })
+                .then(modules => {
+                    const moduleList = modules.map(module => module.dataValues.module);
+                    console.log(moduleList);
+                    res.status(200).send(moduleList);
+                    /* Permissions.findAll({
+                         attributes: ['operationName'],
+                         where: {
+                             module: {
+                                 [Op.in]: moduleList
+                             }
+                         }
+                     })
+                         .then(permissions => {
+                             console.log(permissions);
+                             res.status(200).send(permissions.map(permission => permission.operationName));
+                         })
+                         .catch(err => {
+                             console.log(err);
+                             res.status(500).send(err);
+                         })*/
+
+                })
                 .catch(err => {
                     console.log(err);
                     res.status(500).send(err);
@@ -607,18 +602,6 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
 });
 
 
-function generateRandomPassword() {
-    let randomPassword = Math.random().toString(36).slice(-8);
-    while (!checkIfPasswordLegal(randomPassword)) {
-        randomPassword = Math.random().toString(36).slice(-8);
-    }
-    return randomPassword;
-}
-
-function checkIfPasswordLegal(passToCheck) {
-    return /\d/.test(passToCheck) && isNaN(passToCheck);
-}
-
 let takeValues = (dic) => {
     return Object.keys(dic).map(function (key) {
         return dic[key];
@@ -627,7 +610,7 @@ let takeValues = (dic) => {
 
 
 function isServiceProviderInputValid(serviceProviderInput) {
-    if (!isAppWayTypeExists(serviceProviderInput.appointmentWayType))
+    if (serviceProviderInput.appointmentWayType & !isAppWayTypeExists(serviceProviderInput.appointmentWayType))
         return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
     if (!isRoleExists(serviceProviderInput.role))
         return serviceProvidersRoute.INVALID_ROLE_INPUT;
@@ -687,22 +670,5 @@ function validateBornDate(bornDateString) {
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-function sendMail(mailToSend, subject, text) {
-
-    var mailOptions = {
-        from: 'meshekle2019@gmail.com',
-        to: mailToSend,
-        subject: subject,
-        text: text
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
 
 module.exports = router;

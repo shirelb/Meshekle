@@ -26,6 +26,7 @@ import ChoresScreen from './screens/choresScreen/ChoresScreen';
 import PhoneBookScreen from './screens/phoneBookScreen/PhoneBookScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
+import ForgotPasswordScreen from "./screens/forgotPasswordScreen/ForgotPasswordScreen";
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -136,6 +137,13 @@ const AuthNavigator = createStackNavigator(
     {
         LoginScreen: {
             screen: LoginScreen,
+            params: {},
+            /*navigationOptions: {
+                header: null,
+            }*/
+        },
+        ForgotPasswordScreen: {
+            screen: ForgotPasswordScreen,
             params: {},
             /*navigationOptions: {
                 header: null,

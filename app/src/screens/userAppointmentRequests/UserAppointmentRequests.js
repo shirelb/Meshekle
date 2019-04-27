@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, RefreshControl, ScrollView, StyleSheet, Text} from 'react-native';
+import {Button, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {List} from "react-native-paper";
 import phoneStorage from "react-native-simple-store";
 import appointmentsStorage from "../../storage/appointmentsStorage";
@@ -135,6 +135,13 @@ export default class UserAppointmentRequests extends Component {
         this.loadMyAppointmentsRequests();
     };
 
+    closeAppointmentRequestInfo = () => {
+        this.setState({
+            appointmentRequestDetails: {},
+            infoModal: false,
+        })
+    };
+
     render() {
         return (
             <ScrollView refreshControl={
@@ -164,47 +171,68 @@ export default class UserAppointmentRequests extends Component {
                     <List.Section>
                         {Array.isArray(this.state.userAppointmentRequests) &&
                         this.state.userAppointmentRequests.map((item) => {
-                            return <List.Accordion
-                                key={item.requestId}
-                                // title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
-                                title={item.AppointmentDetail.role}
-                                description={item.serviceProviderFullname}
-                                // left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
-                                expanded={item.expanded}
-                                onPress={() => {
-                                    // let expanded = this.state.expanded;
-                                    // expanded[item.date] = !expanded[item.date];
-                                    // this.setState({expanded: expanded})
-                                    let appointmentRequestSelected = item;
-                                    appointmentRequestSelected.expanded = !appointmentRequestSelected.expanded;
-                                    this.setState({
-                                        appointmentRequestSelected: appointmentRequestSelected,
-                                        appointmentRequestDetails: {}
-                                    })
-                                }}
-                            >
-                                <List.Item
-                                    // key={item.requestId+'0'}
-                                    title={"סטאטוס: " + mappers.appointmentRequestStatusMapper(item.status)}
-                                    // description={item.notes + ' \n ' + item.optionalTimes.toString()}
-                                    containerStyle={{borderBottomWidth: 0}}
-                                    // onPress={() => console.log("item was presssed!!  ", item)}
-                                    right={props => <Icon {...props}
-                                                          name="delete-forever"
-                                                          color={'red'}
-                                                          onPress={() => this.cancelAppointmentRequest(item)}/>}
-                                />
-                                <List.Item
-                                    // key={item.requestId+'1'}
-                                    title={"נושא: " + JSON.parse(item.AppointmentDetail.subject).join(", ")}
-                                    // description={item.notes + ' \n ' + item.optionalTimes.toString()}
-                                    description={"לפרטים נוספים הקש כאן"}
-                                    containerStyle={{borderBottomWidth: 0}}
-                                    onPress={() => {
-                                        this.setState({appointmentRequestDetails: item, infoModal: true})
-                                    }}
-                                />
-                            </List.Accordion>
+                            return <View key={item.requestId} style={{
+                                flex: 1,
+                                flexDirection: 'row',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                            }}>
+                                <View style={{width: 30 + '%'}}>
+                                    <Icon
+                                        name="delete-forever"
+                                        color={'red'}
+                                        // containerStyle={{marginLeft: 10}}
+                                        // raised
+                                        onPress={() => this.cancelAppointmentRequest(item)}
+                                    />
+                                </View>
+                                <View style={{width: 70 + '%'}}>
+                                    <List.Accordion
+                                        // title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
+                                        title={item.AppointmentDetail.role}
+                                        description={item.serviceProviderFullname}
+                                        // left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
+                                        // left={props => <Icon {...props}
+                                        //                      name="delete-forever"
+                                        //                      color={'red'}
+                                        //                      containerStyle={{marginLeft: 10}}
+                                        //                      raised
+                                        //
+                                        //                      onPress={() => this.cancelAppointmentRequest(item)}/>}
+                                        // style={{marginLeft: 10, width: 100+"%",}}
+                                        expanded={item.expanded}
+                                        onPress={() => {
+                                            // let expanded = this.state.expanded;
+                                            // expanded[item.date] = !expanded[item.date];
+                                            // this.setState({expanded: expanded})
+                                            let appointmentRequestSelected = item;
+                                            appointmentRequestSelected.expanded = !appointmentRequestSelected.expanded;
+                                            this.setState({
+                                                appointmentRequestSelected: appointmentRequestSelected,
+                                                appointmentRequestDetails: {}
+                                            })
+                                        }}
+                                    >
+                                        <List.Item
+                                            // key={item.requestId+'0'}
+                                            title={"סטאטוס: " + mappers.appointmentRequestStatusMapper(item.status)}
+                                            // description={item.notes + ' \n ' + item.optionalTimes.toString()}
+                                            containerStyle={{borderBottomWidth: 0}}
+                                            // onPress={() => console.log("item was presssed!!  ", item)}
+                                        />
+                                        <List.Item
+                                            // key={item.requestId+'1'}
+                                            title={"נושא: " + JSON.parse(item.AppointmentDetail.subject).join(", ")}
+                                            // description={item.notes + ' \n ' + item.optionalTimes.toString()}
+                                            description={"לפרטים נוספים הקש כאן"}
+                                            containerStyle={{borderBottomWidth: 0}}
+                                            onPress={() => {
+                                                this.setState({appointmentRequestDetails: item, infoModal: true})
+                                            }}
+                                        />
+                                    </List.Accordion>
+                                </View>
+                            </View>
                         })
                         }
                     </List.Section>
@@ -214,7 +242,8 @@ export default class UserAppointmentRequests extends Component {
                     <AppointmentRequestInfo
                         appointmentRequest={this.state.appointmentRequestDetails}
                         modalVisible={this.state.infoModal}
-                        cancelAppointmentRequest = {this.cancelAppointmentRequest}
+                        cancelAppointmentRequest={this.cancelAppointmentRequest}
+                        closeAppointmentRequestInfo={this.closeAppointmentRequestInfo}
                     />
                     : null
                 }

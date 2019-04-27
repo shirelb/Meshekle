@@ -25,7 +25,7 @@ export default class AppointmentRequestInfo extends Component {
     }
 
     setModalVisible(visible) {
-        this.setState({modalVisible: visible});
+        this.setState({modalVisible: visible,appointmentRequestDetails: {},});
     }
 
     render() {
@@ -39,6 +39,7 @@ export default class AppointmentRequestInfo extends Component {
                 visible={this.state.modalVisible}
                 onRequestClose={() => {
                     this.setModalVisible(!this.state.modalVisible);
+                    this.props.closeAppointmentRequestInfo();
                 }}
             >
                 <View style={{marginTop: 20}}>
@@ -118,7 +119,8 @@ export default class AppointmentRequestInfo extends Component {
                                 label='מחק'
                                 onPress={() => {
                                     this.setModalVisible(!this.state.modalVisible);
-                                    this.props.cancelAppointmentRequest(appointmentRequest)
+                                    this.props.cancelAppointmentRequest(appointmentRequest);
+                                    this.props.closeAppointmentRequestInfo();
                                 }}
                                 color={colors.TORCH_RED}
                             />
@@ -126,6 +128,7 @@ export default class AppointmentRequestInfo extends Component {
                                 label='חזור'
                                 onPress={() => {
                                     this.setModalVisible(!this.state.modalVisible);
+                                    this.props.closeAppointmentRequestInfo();
                                 }}
                             />
                         </View>

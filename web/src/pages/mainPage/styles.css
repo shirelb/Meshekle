@@ -6,4 +6,25 @@ body{
     margin-right: 200px;
     min-width: 550px;
     max-width: 1200px;
+
+    height: 100%;
+    display: flex !important;
+    flex-direction: column;
+}
+
+
+.landing-image::before {
+    background-image: url(https://upload.wikimedia.org/wikipedia/he/2/29/Galed01.JPG);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    opacity: 0.4;
 }
