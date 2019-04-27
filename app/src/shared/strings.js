@@ -24,4 +24,9 @@ const drawerMenu = {
     PhoneBook_SCREEN_NAME: "ספר טלפונים",
 };
 
-export default {loginScreenStrings,mainScreenStrings,drawerMenu};
+const appointmentsServiceProviderRoles = [
+    "appointmentsHairDresser",
+    "appointmentsDentist",
+];
+
+export default {loginScreenStrings, mainScreenStrings, drawerMenu, appointmentsServiceProviderRoles};
