@@ -335,19 +335,34 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                 }
             })
                 .then(categories => {
-                    var categoriesIDs = categories.map((cat) => cat.dataValues.categoryId);
+                    var categoriesNames = categories.map((cat) => cat.dataValues.categoryName);
 
-                    Announcements.findAll({
+                    Categories.findAll({
                         where: {
-                            categoryId: {
-                                [Op.in]: categoriesIDs
-                            },
-                            status: constants.statueses.REQUEST_STATUS
+                            categoryName: {[Op.in]: categoriesNames}
                         }
                     })
-                        .then(announcements => {
-                            console.log(announcements);
-                            res.status(200).send(announcements);
+                        .then(categories => {
+
+
+                            var categoriesIDs = categories.map((cat) => cat.dataValues.categoryId);
+
+                            Announcements.findAll({
+                                where: {
+                                    categoryId: {
+                                        [Op.in]: categoriesIDs
+                                    },
+                                    status: constants.statueses.REQUEST_STATUS
+                                }
+                            })
+                                .then(announcements => {
+                                    console.log(announcements);
+                                    res.status(200).send(announcements);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
                         })
                         .catch(err => {
                             console.log(err);
@@ -456,7 +471,7 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
             else
               updateFields.expirationTime = req.body.expirationTime;
 
-            if (!validateTime(req.body.dateOfEvent))
+            if (req.body.dateOfEvent && req.body.dateOfEvent !== "NaN-NaN-NaN" && req.body.dateOfEvent !== "" && !validateTime(req.body.dateOfEvent))
                 return res.status(400).send({"message": announcementsRoute.INVALID_DOE_INPUT});
             else
                 updateFields.dateOfEvent = req.body.dateOfEvent;
@@ -655,45 +670,58 @@ router.post('/subscription/update', function (req, res, next) {
 
 // add announcement category
 router.post('/categories/add', function (req, res, next) {
-    if (!isCategoryExists(req.body.categoryName))
-        return res.status(400).send({"message": announcementsRoute.CATEGORY_DOESNT_EXISTS});
-    validations.getServiceProvidersByServProIdPromise(req.body.serviceProviderId)
-    .then(serviceProviders => {
-        if(serviceProviders.length === 0)
-            return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
-        Categories.findAll(
-            {
-                where: {
-                    categoryName: req.body.categoryName,
-                    serviceProviderId: req.body.serviceProviderId
-                }
-            })
-            .then(categories => {
-                if (categories.length > 0) {
-                    return res.status(400).send({message: announcementsRoute.CATEGORY_ALREADY_EXISTS});
-                }
-                Categories.create(
-                    {
-                        categoryName: req.body.categoryName,
-                        serviceProviderId: req.body.serviceProviderId
-                    }
-                ).then(newCat => {
-                    res.status(200).send({
-                        "message": announcementsRoute.CATEGORY_ADDED_SUCC,
-                        "result": newCat.dataValues
-                    });
-                })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    })
 
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send(err);
-            })
-    })
+    validations.getCategoriesPromise()
+        .then(categories =>
+        {
+            let catNames=categories.map((cat) => cat.dataValues.categoryName.toLowerCase());
+            if(catNames.includes(req.body.categoryName.toLowerCase()))
+                return res.status(400).send({"message": announcementsRoute.CATEGORY_ALREADY_EXISTS});
+
+            validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item =>item.serviceProviderId))
+                .then(serviceProviders => {
+                    if(serviceProviders.length !== req.body.managers.length)
+                        return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
+                    Categories.findAll(
+                        {
+                            where: {
+                                categoryName: req.body.categoryName,
+                                serviceProviderId: {
+                                    [Op.in]: req.body.managers.map(item =>item.serviceProviderId)
+                                },
+                            }
+                        })
+                        .then(categories => {
+                            if (categories.length > 0) {
+                                return res.status(400).send({message: announcementsRoute.CATEGORY_ALREADY_EXISTS});
+                            }
+                            req.body.managers.push({serviceProviderId:"1"});
+                            Categories.bulkCreate(
+                                req.body.managers.map(item => {return {categoryName: req.body.categoryName, serviceProviderId: item.serviceProviderId}})
+
+                            ).then(newCat => {
+                                res.status(200).send({
+                                    "message": announcementsRoute.CATEGORY_ADDED_SUCC,
+                                    "result": newCat.dataValues
+                                });
+                            })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+
+        })
         .catch(err => {
             console.log(err);
             res.status(500).send(err);
@@ -702,13 +730,140 @@ router.post('/categories/add', function (req, res, next) {
 });
 
 
+
+
+
+
+// update category
+router.post('/categories/update', function (req, res, next) {
+    validations.getCategoriesPromise()
+        .then(categories => {
+            let catNames = categories.map((cat) => cat.dataValues.categoryName.toLowerCase());
+
+            // checks if the user want to change category name to an already existing one
+            if (req.body.categoryName.toLowerCase() !== req.body.categoryOldName.toLowerCase() && catNames.includes(req.body.categoryName.toLowerCase()))
+                return res.status(400).send({"message": announcementsRoute.CATEGORY_ALREADY_EXISTS});
+
+            // checks if he want to update category that doesnt exists
+            if(!catNames.includes(req.body.categoryOldName.toLowerCase()))
+                return res.status(400).send({"message": announcementsRoute.CATEGORY_DOESNT_EXISTS});
+
+            validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item =>item.serviceProviderId))
+                .then(serviceProviders => {
+                    if(serviceProviders.length !== req.body.managers.length)
+                        return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
+
+                    // if (!isCategoryExists(req.body.categoryName))
+                    //     return res.status(400).send({"message": announcementsRoute.CATEGORY_DOESNT_EXISTS});
+                    Categories.findAll({
+                        where:{
+                            categoryName: req.body.categoryOldName,
+                        }
+                    })
+                        .then((categories)=> {
+                            const removedCategoriesList = categories.map((cat) => cat.dataValues.categoryId);
+                            Categories.destroy(
+                                {
+                                    where: {
+                                        categoryName: req.body.categoryOldName,
+                                    }
+                                })
+                                .then(() => {
+                                    req.body.managers.push({serviceProviderId: "1"});
+                                    Categories.bulkCreate(
+                                        req.body.managers.map(item => {
+                                            return {
+                                                categoryName: req.body.categoryName,
+                                                serviceProviderId: item.serviceProviderId
+                                            }
+                                        })
+                                    ).then(updated =>{
+                                        Categories.findAll({
+                                            where: {
+                                                categoryName: req.body.categoryName,
+                                                serviceProviderId: 1
+                                            }
+                                        })
+                                            .then((categories) => {
+                                                const adminCategoryId = categories.map((cat) => cat.dataValues.categoryId)[0];
+                                                Announcements.update(
+                                                    {categoryId: adminCategoryId},
+                                                    {
+                                                        where: {
+                                                            categoryId: {[Op.in]: removedCategoriesList}
+                                                        }
+                                                    }
+
+                                                )
+                                                    .then(()=> {
+                                                        AnnouncementSubscriptions.update(
+                                                            {categoryId: adminCategoryId},
+                                                            {
+                                                                where: {
+                                                                    categoryId: {[Op.in]: removedCategoriesList}
+                                                                }
+                                                            }
+
+                                                        )
+                                                            .then(()=> {
+
+                                                                res.status(200).send({
+                                                                    "message": announcementsRoute.CATEGORY_UPDATED_SUCC,
+                                                                    "result": updated
+                                                                })
+                                                            })
+                                                            .catch(err => {
+                                                                console.log(err);
+                                                                res.status(500).send(err);
+                                                            })
+                                                    })
+                                                    .catch(err => {
+                                                        console.log(err);
+                                                        res.status(500).send(err);
+                                                    })
+                                            })
+                                    })
+                                        .catch(err => {
+                                            console.log(err);
+                                            res.status(500).send(err);
+                                        })
+
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+
+});
+
+
+
+
+
+
 // DELETE announcement category.
-router.put('/categories/delete/categoryId/:categoryId/serviceProviderId/:serviceProviderId', function (req, res, next) {
+router.put('/categories/delete/categoryName/:categoryName', function (req, res, next) {
     Categories.destroy(
         {
             where: {
-                categoryId: req.params.categoryId,
-                serviceProviderId: req.params.serviceProviderId,
+                categoryName: req.params.categoryName,
             }
         })
         .then(numOfDeletes => {
@@ -757,10 +912,14 @@ function isAnnouncementInputValid(announcementInput) {
         return announcementsRoute.ILLEGAL_EXP_TIME_INPUT;
     if (!validateTime(announcementInput.expirationTime))
         return announcementsRoute.INVALID_EXP_TIME_INPUT;
-    if(!isLegalTime(announcementInput.dateOfEvent))
-        return announcementsRoute.ILLEGAL_DOE_INPUT;
-    if (!validateTime(announcementInput.dateOfEvent))
-        return announcementsRoute.INVALID_DOE_INPUT;
+
+    if(announcementInput.dateOfEvent && announcementInput.dateOfEvent !== "NaN-NaN-NaN" && announcementInput.dateOfEvent !== "") {
+        if (!isLegalTime(announcementInput.dateOfEvent))
+            return announcementsRoute.ILLEGAL_DOE_INPUT;
+        if (!validateTime(announcementInput.dateOfEvent))
+            return announcementsRoute.INVALID_DOE_INPUT;
+    }
+
     if (!isStatusExists(announcementInput.status))
         return announcementsRoute.STATUS_DOESNT_EXISTS;
 

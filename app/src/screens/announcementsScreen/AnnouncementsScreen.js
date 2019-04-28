@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Platform, RefreshControl,Switch, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
-import {Icon, SearchBar, Button} from 'react-native-elements'
+import {Icon, SearchBar} from 'react-native-elements'
 import { Dropdown } from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -10,6 +10,10 @@ import ZoomImage from 'react-native-zoom-image';
 import {Easing} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob'
 var RNFS = require('react-native-fs');
+import Button from "../../components/submitButton/Button"
+
+import Share from 'react-native-share';
+import {PermissionsAndroid} from 'react-native';
 
 
 export default class AnnouncementsScreen extends Component {
@@ -21,6 +25,7 @@ export default class AnnouncementsScreen extends Component {
             announcements: [],
             filteredAnnouncements: [],
             categories: [],
+            allCategories:[],
             settingsModal: false,
             addAnnouncementsModal: false,
             refreshing: false,
@@ -29,8 +34,33 @@ export default class AnnouncementsScreen extends Component {
             activeSections: [],
             categoriesDisplay:[],
         };
+        //TODO: CHECK IF RUN IN ANDROID OR IPHONE
+        this.requestSaveFilePermission();
     }
 
+    async requestSaveFilePermission() {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                {
+                    title: 'Cool Photo App Camera Permission',
+                    message:
+                        'Cool Photo App needs access to your camera ' +
+                        'so you can take awesome pictures.',
+                    buttonNeutral: 'Ask Me Later',
+                    buttonNegative: 'Cancel',
+                    buttonPositive: 'OK',
+                },
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('You can use the camera');
+            } else {
+                console.log('Camera permission denied');
+            }
+        } catch (err) {
+            console.warn(err);
+        }
+    }
 
     componentDidMount() {
         phoneStorage.get('userData')
@@ -42,6 +72,7 @@ export default class AnnouncementsScreen extends Component {
                 this.userId = userData.userId;
                 this.loadOnAirAnnouncements();
                 this.loadCategories();
+                this.loadAllCategories();
             });
     }
 
@@ -68,6 +99,17 @@ export default class AnnouncementsScreen extends Component {
             })
             .catch(err => console.log("loadCategories error ", err))
     };
+    loadAllCategories = () => {
+        announcementsStorage.getCategories(this.userHeaders)
+            .then(response => {
+                let categories = response.data;
+                console.log("categories",categories);
+
+                this.setState({allCategories: categories});
+
+            })
+            .catch(err => console.log("loadCategories error ", err))
+    };
 
 
     //Scroll view on refresh
@@ -82,22 +124,23 @@ export default class AnnouncementsScreen extends Component {
 
     //Search bar filter
     updateSearch = searchInput => {
-        let categoryId = this.state.categories.filter(cat => cat.categoryName === this.state.categoryNameFilter)[0].categoryId;
+        let categoriesWithFilterdName = this.state.allCategories.filter(cat => cat.categoryName === this.state.categoryNameFilter).map(item => item.categoryId);
+
         this.setState({filteredAnnouncements: this.state.announcements.filter(a => {
             return a.title.toLowerCase().includes(searchInput.toLowerCase()) &&
-            (this.state.categoryNameFilter === "Any" || categoryId === a.categoryId)
+            (this.state.categoryNameFilter === "Any" || categoriesWithFilterdName.includes(a.categoryId))
             }), search:searchInput});
     };
 
     //Category dropdown filter
     updateDropdown = categoryName => {
-        let categoryId=-1;
+        let categoriesWithFilterdName=[];
         if(categoryName !== 'Any'){
-            categoryId = this.state.categories.filter(cat => cat.categoryName === categoryName)[0].categoryId;
+            categoriesWithFilterdName = this.state.allCategories.filter(cat => cat.categoryName === categoryName).map(item => item.categoryId);
         }
         this.setState({filteredAnnouncements: this.state.announcements.filter(a => {
                 return a.title.toLowerCase().includes(this.state.search.toLowerCase()) &&
-                    (categoryName === "Any" || categoryId === a.categoryId)
+                    (categoryName === "Any" || categoriesWithFilterdName.includes(a.categoryId))
             }), categoryNameFilter: categoryName});
     };
 
@@ -118,7 +161,7 @@ export default class AnnouncementsScreen extends Component {
                 transition="backgroundColor"
             >
                 <Text style={styles.headerText}>{section.title}</Text>
-                <Text style={styles.subHeaderText}>{this.state.categories.filter(c => c.categoryId === section.categoryId)[0].categoryName}   {section.creationTime.substring(0,section.creationTime.indexOf('T'))}</Text>
+                <Text style={styles.subHeaderText}>{this.state.allCategories.filter(c => c.categoryId === section.categoryId)[0] ? this.state.allCategories.filter(c => c.categoryId === section.categoryId)[0].categoryName : ''}   {section.creationTime.substring(0,section.creationTime.indexOf('T'))}</Text>
                 {/*<Divider style={{ backgroundColor: 'black' }} />*/}
 
             </Animatable.View>
@@ -143,24 +186,29 @@ export default class AnnouncementsScreen extends Component {
                 {section.fileName ?
 
                     <Button
-                        style={styles.button}
-                        title="save file"
+                        containerStyle={styles.downloadButton}
+                        label="save file"
                         onPress={() => {
                             let date = new Date();
                             console.log(section);
-                            let dir = RNFS.DocumentDirectoryPath;
-
+                             let dir = RNFS.ExternalStorageDirectoryPath+'/Pictures';
+                            console.warn(dir);
                             // let path = dir + "/me"+Math.floor(date.getTime() + date.getSeconds() / 2);
-                            let path = RNFS.DocumentDirectoryPath + '/test.txt';
-                            // RNFS.mkdir(path)
-                            //     .then(()=> {
-                            //         RNFS.writeFile(path,section.file,'base64')
-                            //             .then(() => console.log("file downloaded"));
-                            //     });
-                            RNFS.writeFile(path, 'Lorem ipsum dolor sit amet', 'utf8')
+                            let path = dir + '/'+section.fileName;
+
+                            RNFS.writeFile(path, section.file, 'base64')
                                 .then((success) => {
-                                    console.log('FILE WRITTEN!');
-                                })
+                                    /*Share.open({
+                                        title: 'Share via',
+                                        message: 'some message',
+                                        url: 'file://'+path
+                                    })
+                                        .then((res) => { console.warn(res) })
+                                        .catch((err) => { err && console.error(err); });*/
+
+                                }).catch((e) => {
+                                console.warn(e);
+                            });
 
                         }}
                     />
@@ -236,16 +284,25 @@ export default class AnnouncementsScreen extends Component {
                     />
 
                     <Icon
+                        raised
+                        type='material'
+                        color='black'
                         style= {styles.icon}
                         name='settings'
                         onPress={this.onSettingsPress.bind(this)}
                     />
                     <Icon
+                        raised
+                        type='material'
+                        color='black'
                         style= {styles.icon}
                         name='add-circle'
                         onPress={this.onSendRequestPress.bind(this)}
                     />
                     <Icon
+                        raised
+                        type='font-awesome'
+                        color='black'
                         style= {styles.icon}
                         name='history'
                         onPress={this.onWatchRequestsPress.bind(this)}
@@ -264,7 +321,9 @@ export default class AnnouncementsScreen extends Component {
                         />}
                 >
                     <SearchBar
-                        containerStyle={styles.searchBarStyle}
+                        inputStyle={{backgroundColor: 'white'}}
+                        containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5}}
+                        placeholderTextColor='grey'
                         placeholder="חפש לפי כותרת..."
                         lightTheme
                         onChangeText={this.updateSearch.bind(this)}
@@ -300,7 +359,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     dropdownStyle:{
-        width: 230,
+        width: 150,
         height: 50,
     },
     searchBarStyle:{
@@ -344,6 +403,16 @@ const styles = StyleSheet.create({
 
     },
     button: {
+        height: 36,
+        backgroundColor: '#48BBEC',
+        borderColor: '#48BBEC',
+        borderWidth: 1,
+        borderRadius: 8,
+        marginBottom: 10,
+        alignSelf: 'stretch',
+        justifyContent: 'center'
+    },
+    downloadButton: {
         height: 36,
         backgroundColor: '#48BBEC',
         borderColor: '#48BBEC',

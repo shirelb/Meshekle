@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Platform, RefreshControl,Switch, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
-import {Button, Icon, SearchBar} from 'react-native-elements'
+import {Icon, SearchBar} from 'react-native-elements'
 import { Dropdown } from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
@@ -10,6 +10,8 @@ import { Divider } from 'react-native-elements';
 import {Image} from "react-native-animatable";
 import ZoomImage from 'react-native-zoom-image';
 import {Easing} from 'react-native';
+import Button from "../../components/submitButton/Button"
+
 
 
 export default class UserAnnouncementsRequests extends Component {
@@ -19,7 +21,7 @@ export default class UserAnnouncementsRequests extends Component {
 
         this.state = {
             announcements: [],
-            categories: [],
+            allCategories: [],
             settingsModal: false,
             addAnnouncementsModal: false,
             refreshing: false,
@@ -37,7 +39,7 @@ export default class UserAnnouncementsRequests extends Component {
                 };
                 this.userId = userData.userId;
                 this.loadUserAnnouncements();
-                this.loadCategories();
+                this.loadAllCategories();
             });
     }
 
@@ -51,15 +53,15 @@ export default class UserAnnouncementsRequests extends Component {
             .catch(err => console.log("loadOnAirAnnouncements error ", err))
     };
 
-    loadCategories = () => {
-        announcementsStorage.getUniqueCategories(this.userHeaders)
+
+    loadAllCategories = () => {
+        announcementsStorage.getCategories(this.userHeaders)
             .then(response => {
                 let categories = response.data;
                 console.log("categories",categories);
 
-                let categoriesDisplay = [{value: "Any"}];
-                categoriesDisplay = categoriesDisplay.concat(categories.map(cat => {return {value : cat.categoryName}}));
-                this.setState({categories: categories,categoriesDisplay:categoriesDisplay});
+
+                this.setState({allCategories: categories});
 
             })
             .catch(err => console.log("loadCategories error ", err))
@@ -94,7 +96,7 @@ export default class UserAnnouncementsRequests extends Component {
                 transition="backgroundColor"
             >
                 <Text style={styles.headerText}>{section.title}</Text>
-                <Text style={styles.subHeaderText}>{this.state.categories.filter(c => c.categoryId === section.categoryId)[0].categoryName}   {section.creationTime.substring(0,section.creationTime.indexOf('T'))}</Text>
+                <Text style={styles.subHeaderText}>{this.state.allCategories.filter(c => c.categoryId === section.categoryId)[0] ? this.state.allCategories.filter(c => c.categoryId === section.categoryId)[0].categoryName : ''}   {section.creationTime.substring(0,section.creationTime.indexOf('T'))}</Text>
                 <Text style={this.statusColor(this.statusesColors[section.status]).subHeaderText}>{section.status}</Text>
 
             </Animatable.View>
@@ -190,7 +192,7 @@ export default class UserAnnouncementsRequests extends Component {
                 </ScrollView>
                 <Button
                     buttonStyle = {{width:400}}
-                    title="Back"
+                    label="Back"
                     onPress={this.backButtonPress.bind(this)}
                 />
             </View>

@@ -97,7 +97,7 @@ class LoginPage extends Component {
             this.setState({error: true});
             this.setState({err: errors});
         } else {
-            let hash = sha512.update('Message to hash');
+            let hash = sha512.update(this.state.password);
             serviceProvidersStorage.serviceProviderLogin(this.state.userId,  hash.hex())
                 .then((response) => {
                     console.log(response);

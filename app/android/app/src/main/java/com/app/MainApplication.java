@@ -3,6 +3,7 @@ package com.app;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import cl.json.RNSharePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.rnfs.RNFSPackage;
 import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
@@ -16,8 +17,10 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 import com.reactnativedocumentpicker.ReactNativeDocumentPicker; // Import package
+import cl.json.ShareApplication;
 
-public class MainApplication extends Application implements ReactApplication {
+
+public class MainApplication extends Application implements ReactApplication , ShareApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -29,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNSharePackage(),
             new RNFetchBlobPackage(),
             new RNFSPackage(),
             new ReactNativeDocumentPicker(),
@@ -53,4 +57,8 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
   }
+   @Override
+       public String getFileProviderAuthority() {
+              return "com.app.provider";
+       }
 }

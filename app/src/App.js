@@ -39,7 +39,6 @@ const instructions = Platform.select({
 });
 
 console.ignoredYellowBox = ['Remote debugger'];
-import { YellowBox } from 'react-native';
 YellowBox.ignoreWarnings([
     'Unrecognized WebSocket connection option(s) `agent`, `perMessageDeflate`, `pfx`, `key`, `passphrase`, `cert`, `ca`, `ciphers`, `rejectUnauthorized`. Did you mean to put these under `headers`?'
 ]);
@@ -77,6 +76,37 @@ const DrawerMenuNavigator = createDrawerNavigator(
                 headerTitle: 'התורנויות שלי',
             },
         },
+        PhoneBookScreen: {
+            screen: PhoneBookScreen,
+            params: {
+                headerTitle: 'ספר טלפונים',
+            },
+        },
+        RequestAnnouncement: {
+            screen: RequestAnnouncement,
+            params: {
+                headerTitle: 'מודעה חדשה',
+            },
+        },
+        UserAnnouncementsSettings: {
+            screen: UserAnnouncementsSettings,
+            params: {
+                headerTitle: 'מסך הגדרות מודעות',
+            },
+        },
+        UserAnnouncementsRequests: {
+            screen: UserAnnouncementsRequests,
+            params: {
+                headerTitle: 'בקשות קיימות',
+            },
+        },
+        AnnouncementsScreen: {
+            screen: AnnouncementsScreen,
+            params: {
+                headerTitle: 'לוח מודעות',
+            },
+        },
+
     },
     {
         initialRouteName: 'MainScreen',

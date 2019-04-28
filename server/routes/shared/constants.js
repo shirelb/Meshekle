@@ -137,6 +137,7 @@ module.exports = {
         SUB_UPDATED_SUCC :"Subscription updated successfully!",
         CATEGORY_ALREADY_EXISTS :"Category already exists!",
         CATEGORY_ADDED_SUCC :"Category added successfully!",
+        CATEGORY_UPDATED_SUCC :"Category updated successfully!",
         CATEGORY_DELETED_SUCC :"Category deleted successfully!",
         SUB_DELETED_SUCC :"Subscription deleted successfully!",
     },

@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {FlatList, StyleSheet, View, Switch} from 'react-native';
-import {Button, Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
+import {Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
+import Button from "../../components/submitButton/Button"
+
 
 import announcementsStorage from "../../storage/announcementsStorage";
 
@@ -96,11 +98,11 @@ export default class UserAnnouncementsSettings extends Component {
                     keyExtractor={(item, index) => index.toString()}
                 />
                 <Button
-                    title="Submit"
+                    label="Submit"
                     onPress={this.saveChanges.bind(this)}
                 />
                 <Button
-                    title="Cancel"
+                    label="Cancel"
                     onPress={this.cancelButtonClicked.bind(this)}
                 />
             </View>

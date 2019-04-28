@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import {FlatList, StyleSheet, View, Switch, RefreshControl, ScrollView, Alert} from 'react-native';
-import {Button, Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
+import {Divider, Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
+import Button from "../../components/submitButton/Button"
+
+
 var t = require('tcomb-form-native');
 var Form = t.form.Form;
 
@@ -213,23 +216,25 @@ export default class RequestAnnouncement extends Component {
                         onChange={this.onChange.bind(this)}
                     />
                     <Button
-                        style={styles.button}
-                        title="Add File"
+                        label="Add File"
                         onPress={this.uploadFile.bind(this)}
                     />
+
+                    <Divider style={{ backgroundColor: 'white' ,height:100}} />
+
                     <Button
                         style={styles.button}
-                        title="Submit"
+                        label="Submit"
                         onPress={this.saveChanges.bind(this)}
                     />
                     <Button
                         style={styles.button}
-                        title="Clear"
+                        label="Clear"
                         onPress={this.clearForm.bind(this)}
                     />
                     <Button
                         style={styles.button}
-                        title="Cancel"
+                        label="Cancel"
                         onPress={this.cancelChanges.bind(this)}
                     />
                 </ScrollView>
@@ -261,6 +266,16 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignSelf: 'stretch',
         justifyContent: 'center'
-    }
+    },
+    addFileButton: {
+        height: 36,
+        backgroundColor: '#24ec14',
+        borderColor: '#29ec17',
+        borderWidth: 1,
+        borderRadius: 8,
+        marginBottom: 10,
+        alignSelf: 'stretch',
+        justifyContent: 'center'
+    },
 });
 

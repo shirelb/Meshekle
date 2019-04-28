@@ -83,6 +83,11 @@ const announcementsPageStrings = {
     ANNOUNCE_EXPR_DATE:"תאריך תפוגה",
     OPERATION_OPTIONS:"אפשרויות",
     ADD_ANNOUNCEMENT:"פרסם מודעה חדשה",
+    ADD_CATEGORY:"קטגוריה חדשה",
+    ANNOUNCE_CATEGORIES_TABLE: "קטגוריות",
+    CATEGORY_MANGERS: "מנהלי הקטגוריה",
+    CATEGORY_NAME: "שם הקטגוריה",
+    CATEGORY_ID: "מספר הקטגוריה",
 };
 
 const roles = {

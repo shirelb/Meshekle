@@ -67,7 +67,7 @@ export default class LoginScreen extends Component {
             console.log(errors);
             this.setState({err: errors});
         } else {
-            let hash = sha512.update('Message to hash');
+            let hash = sha512.update(this.state.password);
             usersStorage.userLogin(this.state.userId, hash.hex())
                 .then((response) => {
                     console.log(response);
