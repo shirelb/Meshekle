@@ -62,15 +62,46 @@ class Home extends Component {
 
                         <div style={{marginTop: 20, textAlign: "center"}}>
                             <Header as={'h2'}>
-                                ברוכים הבאים {this.props.userFullname}
+                                ברוכים הבאים
                             </Header>
-                            <Header as={'h3'}>
-                                ההרשאות שלך
-                                הן: {Array.isArray(this.props.serviceProviderPermissions) ? this.props.serviceProviderPermissions.join(", ") : this.props.serviceProviderPermissions}
+                            <Header as={'h1'}>
+                                {this.props.userFullname}
                             </Header>
+                            {/*<Header as={'h3'}>*/}
+                            {/*ההרשאות שלך*/}
+                            {/*הן: {Array.isArray(this.props.serviceProviderPermissions) ? this.props.serviceProviderPermissions.join(", ") : this.props.serviceProviderPermissions}*/}
+                            {/*</Header>*/}
                             <Header as={'h3'}>
-                                התפקידים באחריותך הם:
-                                {Array.isArray(this.props.serviceProviderRoles) ? this.props.serviceProviderRoles.map(role => strings.roles[role]).join(", ") : this.props.serviceProviderRoles}
+                                <Grid centered columns={'equal'}>
+                                    <Grid.Row>
+                                        התפקידים באחריותך הם:
+                                    </Grid.Row>
+                                    <Grid.Row>
+                                        {
+                                            Array.isArray(this.props.serviceProviderRoles) ?
+                                                this.props.serviceProviderPermissions.includes("all") ?
+                                                    Object.keys(strings.modulesIconsNames).slice(1, Object.keys(strings.modulesIconsNames).length - 1).map((module) => {
+                                                        return <Grid.Column>
+                                                            <Header as='h3' icon>
+                                                                <Icon name={strings.modulesIconsNames[module]}/>
+                                                                {module}
+                                                            </Header>
+                                                        </Grid.Column>
+                                                    })
+                                                    :
+                                                    this.props.serviceProviderRoles.map((role, index) => {
+                                                        return <Grid.Column>
+                                                            <Header as='h3' icon>
+                                                                <Icon
+                                                                    name={strings.modulesIconsNames[this.props.serviceProviderPermissions[index]]}/>
+                                                                {strings.roles[role]}
+                                                            </Header>
+                                                        </Grid.Column>
+                                                    })
+                                                : this.props.serviceProviderRoles
+                                        }
+                                    </Grid.Row>
+                                </Grid>
                             </Header>
                         </div>
                     </Grid.Column>
@@ -137,10 +168,6 @@ class MainPage extends Component {
 
     render() {
         console.log('main page props ', this.props);
-        if (Array.isArray(this.state.serviceProviderPermissions)) {
-            console.log('this.state.serviceProviderRoles ', this.state.serviceProviderRoles);
-            console.log('this.state.serviceProviderRoles.filter(role => role.includes("appointments")) ', this.state.serviceProviderRoles.filter(role => role.includes("appointments")));
-        }
 
         if (!this.state.isLoggedIn)
             return <Redirect to="/login"/>;
@@ -153,14 +180,14 @@ class MainPage extends Component {
 
                 <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
                     <Menu.Item name="home" as={NavLink} to="/home">
-                        <Icon name="home"/>
+                        <Icon name={strings.modulesIconsNames["home"]}/>
                         {strings.mainPageStrings.MAIN_PAGE_TITLE}
                     </Menu.Item>
                     {Array.isArray(this.state.serviceProviderPermissions) ?
                         this.state.serviceProviderPermissions.includes("phoneBook") ||
                         this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
-                                <Icon name="address book outline"/>
+                                <Icon name={strings.modulesIconsNames["phoneBook"]}/>
                                 {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
                             </Menu.Item>
                             : null
@@ -170,7 +197,7 @@ class MainPage extends Component {
                         this.state.serviceProviderPermissions.includes("appointments") ||
                         this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name={"appointments"} as={NavLink} to={"/appointments"}>
-                                <Icon name="calendar alternate outline"/>
+                                <Icon name={strings.modulesIconsNames["appointments"]}/>
                                 {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
                             </Menu.Item>
                             : null
@@ -180,7 +207,7 @@ class MainPage extends Component {
                         this.state.serviceProviderPermissions.includes("chores") ||
                         this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name="chores" as={NavLink} to="/chores">
-                                <Icon name="industry"/>
+                                <Icon name={strings.modulesIconsNames["chores"]}/>
                                 {strings.mainPageStrings.CHORES_PAGE_TITLE}
                             </Menu.Item>
                             : null
@@ -190,14 +217,14 @@ class MainPage extends Component {
                         this.state.serviceProviderPermissions.includes("announcements") ||
                         this.state.serviceProviderPermissions.includes("all") ?
                             <Menu.Item name="announcements" as={NavLink} to="/announcements">
-                                <Icon name="announcement"/>
+                                <Icon name={strings.modulesIconsNames["announcements"]}/>
                                 {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
                             </Menu.Item>
                             : null
                         : null
                     }
                     <Menu.Item name="logout" onClick={handleLogout(this.props.history)}>
-                        <Icon name="power"/>
+                        <Icon name={strings.modulesIconsNames["logout"]}/>
                         {strings.mainPageStrings.LOGOUT}
                     </Menu.Item>
                 </Sidebar>
