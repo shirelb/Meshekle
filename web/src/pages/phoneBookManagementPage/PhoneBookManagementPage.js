@@ -38,9 +38,9 @@ class PhoneBookManagementPage extends React.Component {
             totalPagesServiceProviders: 0,
 
             activeIndex: -1,
-            column: null,
-            direction: null,
-            filterColumnsAndTexts: {
+            usersColumn: null,
+            usersDirection: null,
+            usersFilterColumnsAndTexts: {
                 userId: "",
                 fullname: "",
                 email: "",
@@ -179,78 +179,78 @@ class PhoneBookManagementPage extends React.Component {
     };
 
     handleSort = clickedColumn => () => {
-        const {column, users, direction} = this.state;
+        const {usersColumn, users, usersDirection} = this.state;
 
-        if (column !== clickedColumn) {
+        if (usersColumn !== clickedColumn) {
             this.setState({
-                column: clickedColumn,
+                usersColumn: clickedColumn,
                 users: _.sortBy(users, [clickedColumn]),
-                direction: 'ascending',
+                usersDirection: 'ascending',
             });
 
             return
         }
 
         this.setState({
-            appointments: users.reverse(),
-            direction: direction === 'ascending' ? 'descending' : 'ascending',
+            users: users.reverse(),
+            usersDirection: usersDirection === 'ascending' ? 'descending' : 'ascending',
         })
     };
 
     handleFilter = (clickedColumn, e) => {
         if (e === "") {
-            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
-            filterColumnsAndTexts[clickedColumn] = "";
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            usersFilterColumnsAndTexts[clickedColumn] = "";
             this.setState({
-                filterColumnsAndTexts: filterColumnsAndTexts
+                usersFilterColumnsAndTexts: usersFilterColumnsAndTexts
             })
         } else if (clickedColumn === 'bornDate') {
-            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
             if (moment.isMoment(e)) {
-                filterColumnsAndTexts[clickedColumn] = moment(e).format("YYYY-MM-DD");
+                usersFilterColumnsAndTexts[clickedColumn] = moment(e).format("YYYY-MM-DD");
                 this.setState({
-                    filterColumnsAndTexts: filterColumnsAndTexts,
+                    usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
                     monthFilterSelected: null,
                     dateFilterSelected: moment(e).format("DD/MM/YYYY"),
                 })
             } else {
-                filterColumnsAndTexts[clickedColumn] = e.value;
+                usersFilterColumnsAndTexts[clickedColumn] = e.value;
                 this.setState({
-                    filterColumnsAndTexts: filterColumnsAndTexts,
+                    usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
                     monthFilterSelected: e.text,
                     dateFilterSelected: "",
                 })
             }
         } else if (clickedColumn === 'active') {
-            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
-            filterColumnsAndTexts[clickedColumn] = e.checked;
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            usersFilterColumnsAndTexts[clickedColumn] = e.checked;
             this.setState({
                 activeSelected: e.checked,
-                filterColumnsAndTexts: filterColumnsAndTexts,
+                usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
             })
         } else if (e.target.value !== undefined) {
-            let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
-            filterColumnsAndTexts[clickedColumn] = e.target.value;
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            usersFilterColumnsAndTexts[clickedColumn] = e.target.value;
             this.setState({
-                filterColumnsAndTexts: filterColumnsAndTexts
+                usersFilterColumnsAndTexts: usersFilterColumnsAndTexts
             })
         }
 
-        let filterColumnsAndTexts = _.omitBy(this.state.filterColumnsAndTexts, (att) => att === "");
+        let usersFilterColumnsAndTexts = _.omitBy(this.state.usersFilterColumnsAndTexts, (att) => att === "");
         let users = _.filter(this.users,
             (o) =>
-                Object.keys(filterColumnsAndTexts).every((col) => {
+                Object.keys(usersFilterColumnsAndTexts).every((col) => {
                     if (col === 'bornDate')
                         if (e.text && e.value)
-                            return o[col].split("-")[1] === filterColumnsAndTexts[col];
+                            return o[col].split("-")[1] === usersFilterColumnsAndTexts[col];
                         else
-                            return o[col].split("T")[0].includes(filterColumnsAndTexts[col]);
+                            return o[col].split("T")[0].includes(usersFilterColumnsAndTexts[col]);
                     else if (_.isNumber(o[col]))
-                        return o[col] === parseInt(filterColumnsAndTexts[col]);
+                        return o[col] === parseInt(usersFilterColumnsAndTexts[col]);
                     else if (_.isBoolean(o[col]))
-                        return o[col].toString() === filterColumnsAndTexts[col].toString();
+                        return o[col].toString() === usersFilterColumnsAndTexts[col].toString();
                     else
-                        return o[col].includes(filterColumnsAndTexts[col]);
+                        return o[col].includes(usersFilterColumnsAndTexts[col]);
                 })
         );
         this.setState({
@@ -261,7 +261,7 @@ class PhoneBookManagementPage extends React.Component {
     render() {
         // console.log('app props ', this.props);
 
-        const {column, direction, users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
+        const {usersColumn, usersDirection, users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
 
         return (
@@ -283,55 +283,55 @@ class PhoneBookManagementPage extends React.Component {
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell
-                                    sorted={column === 'userId' ? direction : null}
+                                    sorted={usersColumn === 'userId' ? usersDirection : null}
                                     onClick={this.handleSort('userId')}
                                 >
                                     {strings.phoneBookPageStrings.USER_ID_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={column === 'fullname' ? direction : null}
+                                    sorted={usersColumn === 'fullname' ? usersDirection : null}
                                     onClick={this.handleSort('fullname')}
                                 >
                                     {strings.phoneBookPageStrings.FULLNAME_HEADER}
                                 </Table.HeaderCell>
                                 {/*<Table.HeaderCell
-                                sorted={column === 'clientId' ? direction : null}
+                                sorted={usersColumn === 'clientId' ? usersDirection : null}
                                             onClick={this.handleSort('clientId')}
                                             >
                                             {strings.phoneBookPageStrings.PASSWORD_HEADER}
                                             </Table.HeaderCell>*/}
                                 <Table.HeaderCell
-                                    sorted={column === 'email' ? direction : null}
+                                    sorted={usersColumn === 'email' ? usersDirection : null}
                                     onClick={this.handleSort('email')}
                                 >
                                     {strings.phoneBookPageStrings.EMAIL_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={column === 'mailbox' ? direction : null}
+                                    sorted={usersColumn === 'mailbox' ? usersDirection : null}
                                     onClick={this.handleSort('mailbox')}
                                 >
                                     {strings.phoneBookPageStrings.MAILBOX_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={column === 'cellphone' ? direction : null}
+                                    sorted={usersColumn === 'cellphone' ? usersDirection : null}
                                     onClick={this.handleSort('cellphone')}
                                 >
                                     {strings.phoneBookPageStrings.CELLPHONE_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={column === 'phone' ? direction : null}
+                                    sorted={usersColumn === 'phone' ? usersDirection : null}
                                     onClick={this.handleSort('phone')}
                                 >
                                     {strings.phoneBookPageStrings.PHONE_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={column === 'bornDate' ? direction : null}
+                                    sorted={usersColumn === 'bornDate' ? usersDirection : null}
                                     onClick={this.handleSort('bornDate')}
                                 >
                                     {strings.phoneBookPageStrings.BORN_DATE_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={column === 'active' ? direction : null}
+                                    sorted={usersColumn === 'active' ? usersDirection : null}
                                     onClick={this.handleSort('active')}
                                 >
                                     {strings.phoneBookPageStrings.ACTIVE_HEADER}
@@ -392,12 +392,12 @@ class PhoneBookManagementPage extends React.Component {
                                     />
                                     <Icon link name='x'
                                           onClick={(e) => {
-                                              let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
-                                              filterColumnsAndTexts.bornDate = "";
+                                              let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+                                              usersFilterColumnsAndTexts.bornDate = "";
                                               this.setState({
                                                   monthFilterSelected: null,
                                                   dateFilterSelected: "",
-                                                  filterColumnsAndTexts: filterColumnsAndTexts,
+                                                  usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
                                               });
                                               this.handleFilter('', e);
                                           }}
@@ -437,11 +437,11 @@ class PhoneBookManagementPage extends React.Component {
                                     />
                                     <Icon link name='x'
                                           onClick={(e) => {
-                                              let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
-                                              filterColumnsAndTexts.active = "";
+                                              let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+                                              usersFilterColumnsAndTexts.active = "";
                                               this.setState({
                                                   activeSelected: false,
-                                                  filterColumnsAndTexts: filterColumnsAndTexts,
+                                                  usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
                                               });
                                               this.handleFilter('', e);
                                           }}
