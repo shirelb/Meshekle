@@ -3,7 +3,6 @@ import {Button, Checkbox, Dropdown, Form, Grid, Header, Icon, Input, List, Messa
 import moment from "moment";
 import Datetime from 'react-datetime';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
-import mappers from "../../shared/mappers";
 import store from "store";
 import strings from "../../shared/strings";
 import usersStorage from "../../storage/usersStorage";
@@ -225,7 +224,7 @@ class ServiceProviderForm extends React.Component {
             return false;
         }
 
-        if(this.appointmentRoleDetailsVisible()) {
+        if (this.appointmentRoleDetailsVisible()) {
             if (serviceProvider.appointmentWayType === '') {
                 this.setState({
                     formError: true,
@@ -559,7 +558,7 @@ class ServiceProviderForm extends React.Component {
 
         return (
             <Form error={formError}>
-              {/*  {this.state.serviceProvidersFound ?
+                {/*  {this.state.serviceProvidersFound ?
                     <Form.Group>
                         <Form.label> בחר את התפקיד עבורו את/ה רוצה לשנות את ההגדרות:</Form.label>
                         <Form.Field
@@ -634,7 +633,7 @@ class ServiceProviderForm extends React.Component {
                         <label>תפקיד</label>
                         <List>
                             {
-                                Object.keys(strings.roles).map((item, index) => {
+                                Object.keys(strings.roles).slice(1, Object.keys(strings.roles).length).map((item, index) => {
                                     return <List.Item key={index}>
                                         <Checkbox
                                             radio
