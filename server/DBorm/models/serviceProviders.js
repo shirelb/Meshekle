@@ -19,7 +19,7 @@ module.exports = (sequelize, type) => {
         },
         operationTime: {
             type: type.STRING,
-            allowNull: false,
+            allowNull: true,
             required: true
         },
         phoneNumber: {
@@ -28,13 +28,18 @@ module.exports = (sequelize, type) => {
         },
         appointmentWayType: {
             type: type.STRING,
-            allowNull: false,
+            allowNull: true,
+            required: true
+        },
+        subjects: {
+            type: type.STRING,
+            allowNull: true,
             required: true
         },
         active: {
             type: type.BOOLEAN,
             required: true,
-            defaultValue: true
+            defaultValue: false
         },
     });
 };

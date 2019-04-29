@@ -1,8 +1,11 @@
 import React from 'react';
-import { post } from 'axios';
+import {post} from 'axios';
 import UserForm from './UserForm';
-import { Helmet } from 'react-helmet';
+import {Helmet} from 'react-helmet';
 import Page from '../Page';
+import usersStorage from "../../storage/usersStorage";
+import store from "store";
+import {Grid, Header, Modal} from "semantic-ui-react";
 
 class UserAdd extends React.Component {
     constructor(props) {
@@ -12,10 +15,19 @@ class UserAdd extends React.Component {
         this.handleCancel = this.handleCancel.bind(this);
     }
 
+    componentDidMount() {
+        this.serviceProviderHeaders = {
+            'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+        };
+        this.userId = store.get('userId');
+        this.serviceProviderId = store.get('serviceProviderId');
+    }
+
     handleSubmit(user) {
-        post('/api/users', user)
-            .then(() => {
-                console.log('added:', user);
+        usersStorage.createUser(user, this.serviceProviderHeaders)
+            .then(response => {
+                console.log('user created ', response);
+                this.props.history.goBack();
             });
     }
 
@@ -23,20 +35,33 @@ class UserAdd extends React.Component {
         e.preventDefault();
 
         console.log('you have canceled');
+
+        this.props.history.goBack();
     }
 
     render() {
         return (
-            <Page title="Add User" columns={3}>
+            <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
                     <title>Meshekle | Add User</title>
                 </Helmet>
 
-                <UserForm
-                    handleSubmit={this.handleSubmit}
-                    handleCancel={this.handleCancel}
-                />
-            </Page>
+                <Grid padded>
+                    <Grid.Row>
+                        <Header as="h1" floated="right">משתמש חדש</Header>
+                    </Grid.Row>
+
+                    <Grid.Row>
+                        <Grid.Column>
+                            <UserForm
+                                submitText="הוסף"
+                                handleSubmit={this.handleSubmit}
+                                handleCancel={this.handleCancel}
+                            />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+            </Modal>
         );
     }
 }

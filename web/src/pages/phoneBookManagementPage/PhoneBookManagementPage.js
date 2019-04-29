@@ -1,16 +1,27 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Menu, Table} from 'semantic-ui-react';
-import {Link, Redirect, Route, Switch} from "react-router-dom";
+import {Accordion, Button, Checkbox, Dropdown, Header, Icon, Image, Input, Menu, Table} from 'semantic-ui-react';
+import {Link, Route, Switch} from "react-router-dom";
 import store from 'store';
+import moment from 'moment';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
 import strings from "../../shared/strings";
 import UserInfo from "../../components/user/UserInfo";
+import UserAdd from "../../components/user/UserAdd";
 import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import UserEdit from "../../components/user/UserEdit";
+import ServiceProviderAdd from "../../components/serviceProvider/ServiceProviderAdd";
+import ServiceProviderInfo from "../../components/serviceProvider/ServiceProviderInfo";
+import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
+import mappers from "../../shared/mappers";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import _ from "lodash";
+import Datetime from 'react-datetime';
+import helpers from "../../shared/helpers";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -25,6 +36,31 @@ class PhoneBookManagementPage extends React.Component {
             serviceProviders: [],
             pageServiceProviders: 0,
             totalPagesServiceProviders: 0,
+
+            activeIndex: -1,
+            usersColumn: null,
+            usersDirection: null,
+            usersFilterColumnsAndTexts: {
+                userId: "",
+                fullname: "",
+                email: "",
+                mailbox: "",
+                cellphone: "",
+                phone: "",
+                bornDate: "",
+                active: "",
+            },
+            serviceProvidersColumn: null,
+            serviceProvidersDirection: null,
+            serviceProvidersFilterColumnsAndTexts: {
+                serviceProviderId: "",
+                fullname: "",
+                role: "",
+                operationTime: "",
+                phone: "",
+                appointmentWayType: "",
+                active: "",
+            }
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -33,6 +69,8 @@ class PhoneBookManagementPage extends React.Component {
         this.handleDelete = this.handleDelete.bind(this);
 
         this.serviceProviderHeaders = '';
+        this.users = [];
+        this.serviceProviders = [];
     }
 
     componentDidMount() {
@@ -41,22 +79,32 @@ class PhoneBookManagementPage extends React.Component {
         };
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
-        this.getUsers();
-        this.getServiceProviders();
+        this.loadUsers();
+        this.loadServiceProviders();
+
+        connectToServerSocket(store.get('serviceProviderId'));
+
+        WEB_SOCKET.on("getUsers", this.loadUsers.bind(this));
+        WEB_SOCKET.on("getServiceProviders", this.loadServiceProviders.bind(this));
+    }
+
+    componentWillUnmount() {
+        WEB_SOCKET.off("getUsers");
+        WEB_SOCKET.off("getServiceProviders");
     }
 
     componentWillReceiveProps({location = {}}) {
-        if (location.pathname === '/chores' && location.pathname !== this.props.location.pathname) {
-            this.getUsers();
-            this.getServiceProviders();
+        if (location.pathname === '/phoneBook' && location.pathname !== this.props.location.pathname) {
+            this.loadUsers();
+            this.loadServiceProviders();
         }
     }
 
-    getUsers() {
+    loadUsers() {
         usersStorage.getUsers()
             .then((response) => {
                 console.log('response ', response);
-                const users = response.data;
+                const users = response;
                 const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 
                 this.setState({
@@ -64,14 +112,16 @@ class PhoneBookManagementPage extends React.Component {
                     pageUsers: 0,
                     totalPagesUsers,
                 });
+
+                this.users = users;
             });
     }
 
-    getServiceProviders() {
+    loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders()
-            .then((response) => {
+            .then(serviceProviders => {
 
-                const serviceProviders = response.data;
+                // const serviceProviders = response.data;
                 const totalPagesServiceProviders = Math.ceil(serviceProviders.length / TOTAL_PER_PAGE);
 
                 this.setState({
@@ -79,6 +129,20 @@ class PhoneBookManagementPage extends React.Component {
                     pageServiceProviders: 0,
                     totalPagesServiceProviders,
                 });
+
+
+                serviceProviders.forEach(provider => {
+                    serviceProvidersStorage.getServiceProviderUserDetails(provider.serviceProviderId)
+                        .then(userDetails => {
+                            provider.fullname = userDetails.data.fullname;
+                            provider.image = userDetails.data.image;
+                            this.setState({
+                                serviceProviders: serviceProviders
+                            })
+
+                            this.serviceProviders = serviceProviders;
+                        })
+                })
             });
     }
 
@@ -109,89 +173,407 @@ class PhoneBookManagementPage extends React.Component {
         });
     }
 
-    getUserByUserID(userId) {
-        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
-            .then((user) => {
-                // let user=response.data[0];
-                console.log('then getUserByUserID ', userId, ' ', user);
-                console.log('then getUserByUserID props', this.props);
-                this.props.history.push({
-                    pathname: `/users/${userId}`,
-                    // search: '?query=abc',
-                    state: {userData: user}
-                })
-                // this.props.history.push(`/users/${userId}`);
-                // return <UserInfo/>
-                // return <Route
-                //     path={`${this.props.match.path}/:${userId}`}
-                //     render={() => {
-                //         return <UserInfo
-                //             user={
-                //                 this.state.users.filter(
-                //                     user => user.id === userId
-                //                 )[0]
-                //             }
-                //         />
-                //     }
-                //     }
-                // />
-            })
-            .catch((error) => {
-                console.log('error getUserByUserID ', userId, ' ', error);
-            });
-    }
+    handleClick = (e, titleProps) => {
+        const {index} = titleProps;
+        const {activeIndex} = this.state;
+        const newIndex = activeIndex === index ? -1 : index;
 
+        this.setState({activeIndex: newIndex})
+    };
+
+    getFullNameOfServiceProvider = (serviceProvider) => {
+        if (this.state.users.length === 0)
+            return;
+        let serviceProviders = this.state.serviceProviders;
+        let serviceProviderUpdate = serviceProviders.filter(provider => provider.serviceProviderId === serviceProvider.serviceProviderId)[0];
+        serviceProviderUpdate.fullname = this.state.users.filter(user => user.userId === serviceProvider.userId)[0].fullname;
+        this.setState({
+            serviceProviders: serviceProviders
+        })
+    };
+
+    handleUsersSort = clickedColumn => () => {
+        const {usersColumn, users, usersDirection} = this.state;
+
+        if (usersColumn !== clickedColumn) {
+            this.setState({
+                usersColumn: clickedColumn,
+                users: _.sortBy(users, [clickedColumn]),
+                usersDirection: 'ascending',
+            });
+
+            return
+        }
+
+        this.setState({
+            users: users.reverse(),
+            usersDirection: usersDirection === 'ascending' ? 'descending' : 'ascending',
+        })
+    };
+
+    handleFilter = (clickedColumn, e) => {
+        if (e === "") {
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            usersFilterColumnsAndTexts[clickedColumn] = "";
+            this.setState({
+                usersFilterColumnsAndTexts: usersFilterColumnsAndTexts
+            })
+        } else if (clickedColumn === 'bornDate') {
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            if (moment.isMoment(e)) {
+                usersFilterColumnsAndTexts[clickedColumn] = moment(e).format("YYYY-MM-DD");
+                this.setState({
+                    usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
+                    monthFilterSelected: null,
+                    dateFilterSelected: moment(e).format("DD/MM/YYYY"),
+                })
+            } else {
+                usersFilterColumnsAndTexts[clickedColumn] = e.value;
+                this.setState({
+                    usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
+                    monthFilterSelected: e.text,
+                    dateFilterSelected: "",
+                })
+            }
+        } else if (clickedColumn === 'active') {
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            usersFilterColumnsAndTexts[clickedColumn] = e.checked;
+            this.setState({
+                activeSelected: e.checked,
+                usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
+            })
+        } else if (e.target.value !== undefined) {
+            let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+            usersFilterColumnsAndTexts[clickedColumn] = e.target.value;
+            this.setState({
+                usersFilterColumnsAndTexts: usersFilterColumnsAndTexts
+            })
+        }
+
+        let usersFilterColumnsAndTexts = _.omitBy(this.state.usersFilterColumnsAndTexts, (att) => att === "");
+        let users = _.filter(this.users,
+            (o) =>
+                Object.keys(usersFilterColumnsAndTexts).every((col) => {
+                    if (col === 'bornDate')
+                        if (e.text && e.value)
+                            return o[col].split("-")[1] === usersFilterColumnsAndTexts[col];
+                        else
+                            return o[col].split("T")[0].includes(usersFilterColumnsAndTexts[col]);
+                    else if (_.isNumber(o[col]))
+                        return o[col] === parseInt(usersFilterColumnsAndTexts[col]);
+                    else if (_.isBoolean(o[col]))
+                        return o[col].toString() === usersFilterColumnsAndTexts[col].toString();
+                    else
+                        return o[col].includes(usersFilterColumnsAndTexts[col]);
+                })
+        );
+        this.setState({
+            users: users,
+        });
+    };
+
+    handleServiceProvidersSort = clickedColumn => () => {
+        const {serviceProvidersColumn, serviceProviders, serviceProvidersDirection} = this.state;
+
+        if (serviceProvidersColumn !== clickedColumn) {
+            this.setState({
+                serviceProvidersColumn: clickedColumn,
+                serviceProviders: _.sortBy(serviceProviders, [clickedColumn]),
+                serviceProvidersDirection: 'ascending',
+            });
+
+            return
+        }
+
+        this.setState({
+            serviceProviders: serviceProviders.reverse(),
+            serviceProvidersDirection: serviceProvidersDirection === 'ascending' ? 'descending' : 'ascending',
+        })
+    };
+
+    handleServiceProviderFilter = (clickedColumn, e) => {
+        if (e === "") {
+            let serviceProvidersFilterColumnsAndTexts = this.state.serviceProvidersFilterColumnsAndTexts;
+            serviceProvidersFilterColumnsAndTexts[clickedColumn] = "";
+            this.setState({
+                serviceProvidersFilterColumnsAndTexts: serviceProvidersFilterColumnsAndTexts
+            })
+        } else if (clickedColumn === 'operationTime') {
+            let serviceProvidersFilterColumnsAndTexts = this.state.serviceProvidersFilterColumnsAndTexts;
+            serviceProvidersFilterColumnsAndTexts[clickedColumn] = e.value;
+            this.setState({
+                serviceProvidersFilterColumnsAndTexts: serviceProvidersFilterColumnsAndTexts,
+                dayFilterSelected: e.text,
+            })
+        } else if (clickedColumn === 'active') {
+            let serviceProvidersFilterColumnsAndTexts = this.state.serviceProvidersFilterColumnsAndTexts;
+            serviceProvidersFilterColumnsAndTexts[clickedColumn] = e.checked;
+            this.setState({
+                activeServiceProviderSelected: e.checked,
+                serviceProvidersFilterColumnsAndTexts: serviceProvidersFilterColumnsAndTexts,
+            })
+        } else if (e.target.value !== undefined) {
+            let serviceProvidersFilterColumnsAndTexts = this.state.serviceProvidersFilterColumnsAndTexts;
+            serviceProvidersFilterColumnsAndTexts[clickedColumn] = e.target.value;
+            this.setState({
+                serviceProvidersFilterColumnsAndTexts: serviceProvidersFilterColumnsAndTexts
+            })
+        }
+
+        let serviceProvidersFilterColumnsAndTexts = _.omitBy(this.state.serviceProvidersFilterColumnsAndTexts, (att) => att === "");
+        let serviceProviders = _.filter(this.serviceProviders,
+            (o) =>
+                Object.keys(serviceProvidersFilterColumnsAndTexts).every((col) => {
+                    if (col === 'operationTime') {
+                        let found = false;
+                        JSON.parse(o[col]).forEach(dayTime => {
+                            if (dayTime.day === serviceProvidersFilterColumnsAndTexts[col])
+                                found = true;
+                        });
+                        return found;
+                    } else if (col === 'appointmentWayType'){
+                        if(o[col] === null )
+                            return false;
+                        return strings.appointmentsWayType[o[col]] ? strings.appointmentsWayType[o[col]].includes(serviceProvidersFilterColumnsAndTexts[col]) : false;
+                    }
+                    else if (col === 'role')
+                        return strings.roles[o[col]].includes(serviceProvidersFilterColumnsAndTexts[col]);
+                    else if (_.isBoolean(o[col]))
+                        return o[col].toString() === serviceProvidersFilterColumnsAndTexts[col].toString();
+                    else
+                        return o[col].includes(serviceProvidersFilterColumnsAndTexts[col]);
+                })
+        );
+        this.setState({
+            serviceProviders: serviceProviders,
+        });
+    };
 
     render() {
-        console.log('app props ', this.props);
+        // console.log('dayyyyyy app props ', moment().day('שני').format("e"));
 
-        const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
+        const {usersColumn, usersDirection, users, pageUsers, totalPagesUsers, serviceProvidersColumn, serviceProvidersDirection, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
 
         return (
             <div>
-                <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_USERS_TITLE}>
+                <Page children={users} title={strings.mainPageStrings.PHONE_BOOK_PAGE_USERS_TITLE}
+                      divId={'divUsersToPrint'}>
                     <Helmet>
-                        <title>Meshekle | Users</title>
+                        <title>Meshekle | Phone Book</title>
                     </Helmet>
 
-                    <Table celled striped textAlign='right' selectable sortable>
+                    <Button icon
+                            onClick={() => helpers.exportToPDF('MesheklePhoneBookUsers', 'divUsersToPrint', 'landscape')}>
+                        <Icon name="file pdf outline"/>
+                        &nbsp;&nbsp;
+                        יצא לPDF
+                    </Button>
+
+                    <Table celled striped textAlign='right' selectable sortable compact={"very"} collapsing>
                         <Table.Header>
                             <Table.Row>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.FULLNAME_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.PASSWORD_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.EMAIL_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.MAILBOX_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.CELLPHONE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.BORN_DATE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.ACTIVE_HEADER}</Table.HeaderCell>
-                                {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'userId' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('userId')}
+                                >
+                                    {strings.phoneBookPageStrings.USER_ID_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'fullname' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('fullname')}
+                                >
+                                    {strings.phoneBookPageStrings.FULLNAME_HEADER}
+                                </Table.HeaderCell>
+                                {/*<Table.HeaderCell
+                                sorted={usersColumn === 'clientId' ? usersDirection : null}
+                                            onClick={this.handleUsersSort('clientId')}
+                                            >
+                                            {strings.phoneBookPageStrings.PASSWORD_HEADER}
+                                            </Table.HeaderCell>*/}
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'email' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('email')}
+                                >
+                                    {strings.phoneBookPageStrings.EMAIL_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'mailbox' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('mailbox')}
+                                >
+                                    {strings.phoneBookPageStrings.MAILBOX_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'cellphone' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('cellphone')}
+                                >
+                                    {strings.phoneBookPageStrings.CELLPHONE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'phone' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('phone')}
+                                >
+                                    {strings.phoneBookPageStrings.PHONE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'bornDate' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('bornDate')}
+                                >
+                                    {strings.phoneBookPageStrings.BORN_DATE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={usersColumn === 'active' ? usersDirection : null}
+                                    onClick={this.handleUsersSort('active')}
+                                >
+                                    {strings.phoneBookPageStrings.ACTIVE_HEADER}
+                                </Table.HeaderCell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('userId', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('userId', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('fullname', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('fullname', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('email', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('email', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('mailbox', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('mailbox', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('cellphone', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('cellphone', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('phone', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleFilter('phone', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('bornDate', e)}
+                                    />
+                                    <Icon link name='x'
+                                          onClick={(e) => {
+                                              let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+                                              usersFilterColumnsAndTexts.bornDate = "";
+                                              this.setState({
+                                                  monthFilterSelected: null,
+                                                  dateFilterSelected: "",
+                                                  usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
+                                              });
+                                              this.handleFilter('', e);
+                                          }}
+                                    />
+                                    <Datetime
+                                        inputProps={{style: {width: (100 + 'px')}}}
+                                        locale={'he'}
+                                        timeFormat={false}
+                                        install
+                                        onChange={(e) => this.handleFilter('bornDate', e)}
+                                        value={this.state.dateFilterSelected}
+                                    />
+                                    <Dropdown
+                                        text={this.state.monthFilterSelected ? this.state.monthFilterSelected : 'חודש'}
+                                        floating
+                                        className={"filterInput"}
+                                        labeled
+                                        button
+                                        multiple={false}
+                                        fluid
+                                    >
+                                        <Dropdown.Menu>
+                                            {moment.months().map(month =>
+                                                <Dropdown.Item
+                                                    // label={{empty: true, circular: true}}
+                                                    text={month + " | " + moment().month(month).format("MM")}
+                                                    onClick={(event, data) => this.handleFilter('bornDate', data)}
+                                                    value={moment().month(month).format("MM")}
+                                                />
+                                            )}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleFilter('active', e)}
+                                    />
+                                    <Icon link name='x'
+                                          onClick={(e) => {
+                                              let usersFilterColumnsAndTexts = this.state.usersFilterColumnsAndTexts;
+                                              usersFilterColumnsAndTexts.active = "";
+                                              this.setState({
+                                                  activeSelected: false,
+                                                  usersFilterColumnsAndTexts: usersFilterColumnsAndTexts,
+                                              });
+                                              this.handleFilter('', e);
+                                          }}
+                                    />
+                                    <Checkbox
+                                        name="active"
+                                        toggle
+                                        checked={this.state.activeSelected}
+                                        onChange={(event, data) => this.handleFilter('active', data)}
+                                    />
+                                </Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
                             {users.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(user =>
                                 (<Table.Row key={user.userId}>
+                                    <Table.Cell>{user.userId}</Table.Cell>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
+                                            <Image
+                                                src={user.image}
+                                                rounded size='mini'
+                                            />
                                             <Header.Content>
-                                                <Link to={`${this.props.match.url}/users/${user.userId}`}>
+                                                <Link to={{
+                                                    pathname: `${this.props.match.url}/user/${user.userId}`,
+                                                    state: {user: user}
+                                                }}>
                                                     {user.fullname}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    {/*<Table.Cell>{user.fullname}</Table.Cell>*/}
-                                    <Table.Cell>{user.password}</Table.Cell>
+                                    {/*<Table.Cell>{user.password}</Table.Cell>*/}
                                     <Table.Cell>{user.email}</Table.Cell>
                                     <Table.Cell>{user.mailbox}</Table.Cell>
                                     <Table.Cell>{user.cellphone}</Table.Cell>
                                     <Table.Cell>{user.phone}</Table.Cell>
-                                    <Table.Cell>{new Date(user.bornDate).toISOString().split('T')[0]}</Table.Cell>
+                                    <Table.Cell>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
                                     <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
-                                    {/*<Table.Cell>{user.image}</Table.Cell>*/}
                                 </Table.Row>),
                             )}
                         </Table.Body>
@@ -217,48 +599,230 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                    <Link to={{pathname: `${this.props.match.url}/user/add`}}>
+                        <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                    </Link>
                 </Page>
-                <Page children={serviceProviders}
-                      title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}>
-                    <Helmet>
-                        <title>Meshekle | ServiceProviders</title>
-                    </Helmet>
 
-                    <Table celled striped textAlign='right' selectable sortable>
+                <Page children={serviceProviders}
+                      title={strings.mainPageStrings.PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE}
+                      divId={'divServiceProvidersToPrint'}>
+
+                    <Button icon
+                            onClick={() => helpers.exportToPDF('MesheklePhoneBookServiceProviders', 'divServiceProvidersToPrint', 'landscape')}>
+                        <Icon name="file pdf outline"/>
+                        &nbsp;&nbsp;
+                        יצא לPDF
+                    </Button>
+
+                    <Table celled striped textAlign='right' selectable sortable compact={"very"}>
                         <Table.Header>
                             <Table.Row>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.PHONE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}</Table.HeaderCell>
-                                <Table.HeaderCell>{strings.phoneBookPageStrings.ACTIVE_HEADER}</Table.HeaderCell>
-                                {/*<Table.HeaderCell>Image</Table.HeaderCell>*/}
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'serviceProviderId' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('serviceProviderId')}
+                                >
+                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'fullname' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('fullname')}
+                                >
+                                    {strings.phoneBookPageStrings.FULLNAME_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'role' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('role')}
+                                >
+                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}
+                                </Table.HeaderCell>
+                                {/*<Table.HeaderCell
+                                sorted=serviceProviderssColumn === 'userId' ?serviceProviderssDirection : null}
+                                    onClick={this.handlServiceProviderssSort('userId')}
+                                >
+                                {strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}</
+                                Table.HeaderCell>*/}
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'operationTime' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('operationTime')}
+                                >
+                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'phone' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('phoneNumber')}
+                                >
+                                    {strings.phoneBookPageStrings.PHONE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'appointmentWayType' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('appointmentWayType')}
+                                >
+                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}
+                                </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'active' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('active')}
+                                >
+                                    {strings.phoneBookPageStrings.ACTIVE_HEADER}
+                                </Table.HeaderCell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('serviceProviderId', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleServiceProviderFilter('serviceProviderId', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('fullname', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleServiceProviderFilter('fullname', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('role', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleServiceProviderFilter('role', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('operationTime', e)}
+                                    />
+                                    <Icon link name='x'
+                                          onClick={(e) => {
+                                              let serviceProvidersFilterColumnsAndTexts = this.state.serviceProvidersFilterColumnsAndTexts;
+                                              serviceProvidersFilterColumnsAndTexts.operationTime = "";
+                                              this.setState({
+                                                  dayFilterSelected: "",
+                                                  serviceProvidersFilterColumnsAndTexts: serviceProvidersFilterColumnsAndTexts,
+                                              });
+                                              this.handleServiceProviderFilter('', e);
+                                          }}
+                                    />
+                                    <Dropdown
+                                        text={this.state.dayFilterSelected ? this.state.dayFilterSelected : 'יום'}
+                                        floating
+                                        className={"filterInput"}
+                                        labeled
+                                        button
+                                        multiple={false}
+                                        fluid
+                                    >
+                                        <Dropdown.Menu>
+                                            {moment.weekdays().map(day =>
+                                                <Dropdown.Item
+                                                    // label={{empty: true, circular: true}}
+                                                    text={day}
+                                                    onClick={(event, data) => this.handleServiceProviderFilter('operationTime', data)}
+                                                    value={moment.localeData('en').weekdays()[moment().day(day).format("e")]}
+                                                />
+                                            )}
+                                        </Dropdown.Menu>
+                                    </Dropdown>
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('phoneNumber', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleServiceProviderFilter('phoneNumber', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('appointmentWayType', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleServiceProviderFilter('appointmentWayType', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('active', e)}
+                                    />
+                                    <Icon link name='x'
+                                          onClick={(e) => {
+                                              let serviceProvidersFilterColumnsAndTexts = this.state.serviceProvidersFilterColumnsAndTexts;
+                                              serviceProvidersFilterColumnsAndTexts.active = "";
+                                              this.setState({
+                                                  activeServiceProviderSelected: false,
+                                                  serviceProvidersFilterColumnsAndTexts: serviceProvidersFilterColumnsAndTexts,
+                                              });
+                                              this.handleServiceProviderFilter('', e);
+                                          }}
+                                    />
+                                    <Checkbox
+                                        name="active"
+                                        toggle
+                                        checked={this.state.activeServiceProviderSelected}
+                                        onChange={(event, data) => this.handleServiceProviderFilter('active', data)}
+                                    />
+                                </Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(serviceProvider =>
-                                (<Table.Row key={serviceProvider.serviceProviderId}>
+                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map((serviceProvider, index) =>
+                                (<Table.Row key={index}>
                                     <Table.Cell>
                                         <Header as='h4' image>
-                                            {/*<Image src='/images/avatar/small/lena.png' rounded size='mini' />*/}
                                             <Header.Content>
-                                                <Link
-                                                    to={`${this.props.match.url}/serviceProviders/${serviceProvider.serviceProviderId}`}>
+                                                <Link to={{
+                                                    pathname: `${this.props.match.url}/serviceProvider/${serviceProvider.serviceProviderId}`,
+                                                    state: {serviceProvider: serviceProvider, users: {users}}
+                                                }}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>
                                                 {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    {/*<Table.Cell>{serviceProvider.fullname}</Table.Cell>*/}
-                                    <Table.Cell>{serviceProvider.role}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.userId}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.operationTime}</Table.Cell>
+                                    <Table.Cell>
+                                        <Header as='h5' image>
+                                            <Image
+                                                src={serviceProvider.image}
+                                                rounded size='mini'
+                                            />
+                                            <Header.Content>
+                                                {serviceProvider.fullname}
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>{strings.roles[serviceProvider.role]}</Table.Cell>
+                                    {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
+                                    <Table.Cell>
+                                        {
+                                            JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
+                                                return <Accordion key={index}>
+                                                    <Accordion.Title
+                                                        active={activeIndex === (serviceProvider.serviceProviderId + "-" + index)}
+                                                        index={serviceProvider.serviceProviderId + "-" + index}
+                                                        onClick={this.handleClick}>
+                                                        <Icon name='dropdown'/>
+                                                        {mappers.daysMapper(dayTime.day)}
+                                                    </Accordion.Title>
+                                                    {
+                                                        dayTime.hours.map((hour, j) => {
+                                                            return <Accordion.Content
+                                                                active={activeIndex === (serviceProvider.serviceProviderId + "-" + index)}
+                                                                key={j}>
+                                                                {hour.startHour} - {hour.endHour}
+                                                            </Accordion.Content>
+                                                        })
+                                                    }
+                                                </Accordion>
+                                            })
+                                        }
+                                    </Table.Cell>
                                     <Table.Cell>{serviceProvider.phoneNumber}</Table.Cell>
-                                    <Table.Cell>{serviceProvider.appointmentWayType}</Table.Cell>
+                                    <Table.Cell>{strings.appointmentsWayType[serviceProvider.appointmentWayType]}</Table.Cell>
                                     <Table.Cell>{serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.image}</Table.Cell>*/}
                                 </Table.Row>),
@@ -287,16 +851,30 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                    <Link to={{pathname: `${this.props.match.url}/serviceProvider/add`, state: {users: users}}}>
+                        <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                    </Link>
                 </Page>
+
                 <div>
+                    {/*<Router>*/}
                     <Switch>
-                        <Route exec path={`${this.props.match.path}/users/:userId`}
+                        <Route exec path={`${this.props.match.path}/user/add`}
+                               component={UserAdd}/>
+                        <Route exec path={`${this.props.match.path}/user/:userId`}
                                component={UserInfo}/>
-                        <Route exec path={`${this.props.match.path}/serviceProviders/:serviceProviderId`}
-                               component={UserInfo}/>
-                        <Redirect to={`${this.props.match.path}`}/>
+                        <Route exec path={`${this.props.match.path}/user/:userId/edit`}
+                               component={UserEdit}/>
+
+                        <Route exec path={`${this.props.match.path}/serviceProvider/add`}
+                               component={ServiceProviderAdd}/>
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
+                               component={ServiceProviderInfo}/>
+                        <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId/edit`}
+                               component={ServiceProviderEdit}/>
+                        {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
+                    {/*</Router>*/}
                 </div>
             </div>
         );

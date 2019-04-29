@@ -1,29 +1,44 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Message, TextArea} from 'semantic-ui-react';
+import {Button, Dropdown, Form, Message, Modal, TextArea} from 'semantic-ui-react';
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import '../styles.css';
 import usersStorage from "../../storage/usersStorage";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import store from "store";
+import strings from "../../shared/strings";
 
-
-const subjectOptions = [
-    {key: 'f', text: 'פן', value: 'פן'},
-    {key: 'hd', text: 'צבע', value: 'צבע'},
-    {key: 'hc', text: 'תספורת', value: 'תספורת'},
-];
 
 let userOptions = {};
 
 usersStorage.getUsers()
-    .then(response => {
-        const users = response.data;
+    .then(users => {
         console.log('users ', users);
-        userOptions = users.map(item => ({
-            key: item.userId,
-            text: item.fullname,
-            value: item.fullname
-        }));
+        if (Array.isArray(users))
+            userOptions = users.filter(u => u.active).map(item =>
+                ({
+                    key: item.userId,
+                    text: item.fullname,
+                    value: item.fullname
+                })
+            )
+    });
+
+
+let rolesOptions = {};
+
+serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+    .then(serviceProvidersFound => {
+        console.log('serviceProvidersFound ', serviceProvidersFound);
+        if (Array.isArray(serviceProvidersFound))
+            rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
+                ({
+                    key: index,
+                    text: strings.roles[item.role],
+                    value: item.role
+                })
+            )
     });
 
 
@@ -32,72 +47,139 @@ class AppointmentForm extends Component {
     constructor(props) {
         super(props);
 
-        const {slotInfo, appointment} = props;
+        const {slotInfo, appointment, appointmentRequestEvent} = props;
 
         this.state = {
             formError: false,
             formComplete: false,
+            isAlertModal: false,
+
+            subjectOptions: [],
         };
 
-        if (slotInfo)
+
+        if (slotInfo) {
+            console.log('slotInfo ', slotInfo);
             this.state = {
                 appointment: {
-                    date: slotInfo.start ? moment(slotInfo.start) : '',
-                    startTime: slotInfo.start ? moment(slotInfo.start).format("HH:mm") : '',
-                    endTime: slotInfo.end ? moment(slotInfo.end).format("HH:mm") : '',
+                    date: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format('YYYY-MM-DD') : '',
+                    startTime: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format("HH:mm") : '',
+                    endTime: moment.isMoment(slotInfo.end) ? moment(slotInfo.end).format("HH:mm") : '',
                     subject: [],
                     clientName: '',
+                    role: '',
                 },
+                subjectOptions: [],
             };
-        else {
-            console.log('sssss ',appointment);
-
+        } else if (appointment) {
             this.state = {
                 appointment: {
-                    // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                    date: moment(appointment.startDateAndTime),
+                    date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
+                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
+                    role: appointment.AppointmentDetail.role,
                     subject: JSON.parse(appointment.AppointmentDetail.subject),
                     clientName: appointment.clientName,
                     remarks: appointment.remarks,
                 },
+                subjectOptions: [],
             };
-
-            console.log('ssssddds ',this.state.appointment);
-
+        } else if (appointmentRequestEvent) {
+            this.state = {
+                appointment: {
+                    date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
+                    // date: moment(appointment.startDateAndTime),
+                    startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
+                    endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
+                    subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
+                    clientName: appointmentRequestEvent.appointmentRequest.clientName,
+                    remarks: appointmentRequestEvent.appointmentRequest.notes,
+                    role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
+                },
+                appointmentRequestEvent: appointmentRequestEvent,
+                subjectOptions: [],
+            };
         }
+
+        console.log('constructor  state', this.state);
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    componentWillReceiveProps(nextProps) {
-        const {appointment} = nextProps;
+    getSubjectsOfServiceProviderRole = () => {
+        let subjectOptions = [];
+        serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
+            .then(serviceProviders => {
+                let serviceProvider = serviceProviders.filter(provider => provider.role === this.state.appointment.role)[0];
+                JSON.parse(serviceProvider.subjects).map((subject, index) => {
+                    subjectOptions.push({key: index, text: subject, value: subject});
+                });
+                this.setState({subjectOptions: subjectOptions})
+            });
+    };
 
-        this.setState({
-            appointment: {
-                // date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                date: moment(appointment.startDateAndTime),
-                startTime: moment(appointment.startDateAndTime).format("HH:mm"),
-                endTime: moment(appointment.endDateAndTime).format("HH:mm"),
-                subject: JSON.parse(appointment.AppointmentDetail.subject),
-                clientName: appointment.clientName,
-                remarks: appointment.remarks,
-            },
-        });
+    componentWillReceiveProps(nextProps) {
+        const {appointment, appointmentRequestEvent} = nextProps;
+
+        if (appointment) {
+            this.setState({
+                appointment: {
+                    date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
+                    // date: moment(appointment.startDateAndTime),
+                    startTime: moment(appointment.startDateAndTime).format("HH:mm"),
+                    endTime: moment(appointment.endDateAndTime).format("HH:mm"),
+                    role: appointment.AppointmentDetail.role,
+                    subject: JSON.parse(appointment.AppointmentDetail.subject),
+                    clientName: appointment.clientName,
+                    remarks: appointment.remarks,
+                },
+            })
+        }
+        if (appointmentRequestEvent) {
+            this.setState({
+                /* appointment: {
+                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
+                     // date: moment(appointment.startDateAndTime),
+                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
+                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
+                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
+                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
+                     remarks: appointmentRequestEvent.appointmentRequest.notes,
+                 },*/
+                appointmentRequestEvent: appointmentRequestEvent,
+            })
+        }
+
+        this.getSubjectsOfServiceProviderRole();
+
+        console.log('will recive props  ', this.state.appointment);
+        console.log('will recive props  ', appointment);
     }
 
     handleSubmit(e) {
         e.preventDefault();
+
         const {appointment} = this.state;
         const {handleSubmit} = this.props;
 
         if (appointment.clientName !== '' &&
+            appointment.role !== '' &&
             appointment.subject.length > 0 &&
             appointment.date !== '' &&
             appointment.startTime !== '' &&
             appointment.endTime !== '') {
+
+            if (this.state.appointmentRequestEvent) {
+                if (!this.state.isAlertModal)
+                    if (this.checkIfDateTimesWithInOptional('warning')) {
+                        this.setState({isAlertModal: true});
+                        return;
+                    }
+                this.setState({isAlertModal: false});
+            }
+
             this.setState({formComplete: true});
             let updateAppointment = appointment;
             updateAppointment.clientId = (userOptions.filter(user => user.value === appointment.clientName))[0].key;
@@ -115,6 +197,9 @@ class AppointmentForm extends Component {
 
         this.setState({formError: false, formComplete: false});
         this.setState({appointment: {...appointment, [name]: value}});
+
+        if (name === "role")
+            this.getSubjectsOfServiceProviderRole();
     }
 
     handleClear = (e) => {
@@ -124,9 +209,10 @@ class AppointmentForm extends Component {
                 date: '',
                 startTime: '',
                 endTime: '',
+                role: '',
                 subject: [],
                 clientName: '',
-                remarks:'',
+                remarks: '',
             },
             formError: false,
             formComplete: false,
@@ -135,16 +221,16 @@ class AppointmentForm extends Component {
 
     onChangeDate = date => {
         let updateAppointment = this.state.appointment;
-        updateAppointment.date = date;
+        updateAppointment.date = moment(date).format("YYYY-MM-DD");
         this.setState({appointment: updateAppointment})
     };
 
     onChangeTime = (time, isStart) => {
         let updateAppointment = this.state.appointment;
         isStart ?
-            updateAppointment.startTime = time
+            updateAppointment.startTime = moment(time).format("HH:mm")
             :
-            updateAppointment.endTime = time;
+            updateAppointment.endTime = moment(time).format("HH:mm");
         this.setState({appointment: updateAppointment});
     };
 
@@ -154,12 +240,38 @@ class AppointmentForm extends Component {
         this.setState({appointment: updateAppointment})
     };
 
+    checkIfDateTimesWithInOptional = (typeOfMsg) => {
+        var found = false;
+        const appointmentDate = moment.isMoment(this.state.appointment.date) ? this.state.appointment.date : moment(this.state.appointment.date);
+        const appointmentStartTime = moment.isMoment(this.state.appointment.startTime) ? this.state.appointment.startTime : moment(this.state.appointment.date + " " + this.state.appointment.startTime);
+        const appointmentEndTime = moment.isMoment(this.state.appointment.endTime) ? this.state.appointment.endTime : moment(this.state.appointment.date + " " + this.state.appointment.endTime);
+        const dateTimesArray = this.state.appointmentRequestEvent.appointmentRequest.optionalTimes.filter(e => moment(e.date).isSame(moment(appointmentDate)));
+        if (dateTimesArray.length > 0) {
+            dateTimesArray.forEach(dateTime => {
+                const appointmentStartDateTime = moment(appointmentDate.format("YYYY-MM-DD") + ' ' + appointmentStartTime.format("HH:mm"));
+                const appointmentEndDateTime = moment(appointmentDate.format("YYYY-MM-DD") + ' ' + appointmentEndTime.format("HH:mm"));
+                dateTime.hours.forEach(times => {
+                    const optionalStartDateTime = moment(dateTime.date + ' ' + times.startHour);
+                    const OptionalEndDateTime = moment(dateTime.date + ' ' + times.endHour);
+                    if (appointmentStartDateTime.isBetween(optionalStartDateTime, OptionalEndDateTime, null, '[]') &&
+                        appointmentEndDateTime.isBetween(optionalStartDateTime, OptionalEndDateTime, null, '[]')) {
+                        found = true;
+                    }
+                });
+                if (found)
+                    return typeOfMsg === 'info';
+            });
+            if (found)
+                return typeOfMsg === 'info';
+        }
+        return typeOfMsg === 'warning';
+    };
 
     render() {
         const {appointment, formError, formComplete} = this.state;
         const {handleCancel, submitText} = this.props;
 
-        console.log('sasaaads ',this.state.appointment);
+        console.log('sasaaads ', this.state);
 
         return (
             <Form onSubmit={this.handleSubmit} error={formError}>
@@ -181,20 +293,41 @@ class AppointmentForm extends Component {
                 />
                 <Form.Field
                     control={Dropdown}
-                    label='נושא'
-                    placeholder='נושא'
+                    label='ענף'
+                    placeholder='ענף'
                     fluid
-                    multiple
+                    // search
                     selection
-                    options={subjectOptions}
-                    value={appointment.subject}
+                    autoComplete='on'
+                    options={rolesOptions}
+                    value={appointment.role}
                     onChange={this.handleChange}
-                    name='subject'
+                    name='role'
                     required
-                    noResultsMessage='לא נמצאו התאמות'
-                    onSearchChange={this.handleSearchChange}
+                    noResultsMessage='לא נמצאו ענפים'
+                    // onSearchChange={this.handleSearchChange}
                     // width='10'
                 />
+                {appointment.role ?
+                    <Form.Field
+                        control={Dropdown}
+                        label='נושא'
+                        placeholder='נושא'
+                        fluid
+                        search
+                        multiple
+                        selection
+                        options={this.state.subjectOptions}
+                        value={appointment.subject}
+                        onChange={this.handleChange}
+                        name='subject'
+                        required
+                        noResultsMessage='לא נמצאו התאמות'
+                        onSearchChange={this.handleSearchChange}
+                        // width='10'
+                    />
+                    : null
+                }
                 <Form.Field
                     control={TextArea}
                     label='הערות'
@@ -210,7 +343,7 @@ class AppointmentForm extends Component {
                         as={Datetime}
                         label='תאריך'
                         value={appointment.date}
-                        locale={'he'}
+                        // locale={'he'}
                         timeFormat={false}
                         install
                         // name="date"
@@ -247,6 +380,77 @@ class AppointmentForm extends Component {
                     />
                 </Form.Group>
 
+                {this.state.appointmentRequestEvent ?
+                    (<div>
+                            <Message info={this.checkIfDateTimesWithInOptional('info')}
+                                     warning={this.checkIfDateTimesWithInOptional('warning')}
+                                     visible
+                            >
+                                <Message.Header>זמנים אוצפיונאליים מהבקשה לתור</Message.Header>
+                                <Message.List>
+                                    {/*{Array.isArray(this.state.appointmentRequestEvent.appointmentRequest.optionalTimes) &&*/}
+                                    {this.state.appointmentRequestEvent.appointmentRequest.optionalTimes.map((datesTimes, j) =>
+                                        (
+                                            <Message.Item key={j}>
+                                                <Message.Content>
+                                                    <Message.List>{moment(datesTimes.date).format('DD.MM.YYYY')}:</Message.List>
+                                                    <Message.List>
+                                                        {/*{Array.isArray(datesTimes.hours) &&*/}
+                                                        {datesTimes.hours.map((time, k) =>
+                                                            (
+                                                                <Message.Item key={k}>
+                                                                    <Message.Content>
+                                                                        <Message.List>{time.startHour}-{time.endHour}</Message.List>
+                                                                    </Message.Content>
+                                                                </Message.Item>
+                                                            ),
+                                                        )}
+                                                    </Message.List>
+                                                </Message.Content>
+                                            </Message.Item>
+                                        ),
+                                    )}
+                                </Message.List>
+                            </Message>
+
+                            {/*< Message
+                                error
+                                header='שים לב, התאריך או השעות אינם בין התאריכים והשעות הפוטנציאליים של הלקוח'
+                                content='זה בסדר, בהנחה שדיברת עם הלקוח והוא הסכים'
+                                visible={this.checkIfDateTimesWithInOptional('warning')}
+                            />*/}
+
+                            <Modal
+                                open={this.state.isAlertModal}
+                                size='small'
+                                dimmer={"blurring"}
+                            >
+                                <Modal.Header>שים לב! האם את/ה בטוח?</Modal.Header>
+                                <Modal.Content>
+                                    <Message
+                                        error
+                                        header='שים לב, התאריך או השעות אינם בין התאריכים והשעות הפוטנציאליים של הלקוח'
+                                        content='זה בסדר, בהנחה שדיברת עם הלקוח והוא הסכים'
+                                        // visible={this.checkIfDateTimesWithInOptional('warning')}
+                                        visible
+                                    />
+                                </Modal.Content>
+                                <Modal.Actions>
+                                    <Button
+                                        positive
+                                        // labelPosition='right'
+                                        content='כן אני בטוח'
+                                        onClick={this.handleSubmit}
+                                    />
+                                    <Button content='לא אני רוצה לשנות'
+                                            onClick={() => this.setState({isAlertModal: false})}/>
+                                </Modal.Actions>
+                            </Modal>
+                        </div>
+                    ) : null
+
+                }
+
                 {formError ?
                     <Message
                         error
@@ -260,7 +464,7 @@ class AppointmentForm extends Component {
                     : null
                 }
 
-                <Form.Group>
+                <Form.Group style={{marginTop: 20}}>
                     <Form.Button positive type="submit">{submitText}</Form.Button>
                     <Form.Button negative onClick={handleCancel}>בטל</Form.Button>
                     <Form.Button onClick={this.handleClear}>נקה הכל</Form.Button>

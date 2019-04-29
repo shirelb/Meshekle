@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {ChoreTypes,ServiceProviders, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes,UsersChores, Events} = require('../../DBorm/DBorm');
+const {ChoreTypes,ServiceProviders, sequelize, Users,Announcements, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes,UsersChores, Events,Categories} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 
 module.exports = {
@@ -12,17 +12,9 @@ module.exports = {
                         })
                 .then(choreType => {
                     return choreType;
-                    // if (choreType){
-                    //     return choreType;
-                    // }
-                    // else{
-                    //     return res.status(400).send({
-                    //         "message": "choreType doesn't exist!",
-                    //     });
-                    // }
                 })
                 .catch(err => {
-                     res.status(400).send({"message":"choreType is not exist",err});
+                    return res.status(400).send({"message":"choreType is not exist",err});
                 })
     },
 
@@ -76,6 +68,20 @@ module.exports = {
         return ServiceProviders.findAll({
             where: {
                 serviceProviderId: serviceProviderId
+            }
+        })
+    },
+    getAnnouncementByAnnounceIdPromise: function(announcementId) {
+        return Announcements.findAll({
+            where: {
+                announcementId: announcementId
+            }
+        })
+    },
+    getCategoryByCategoryIdPromise: function(categoryId) {
+        return Categories.findAll({
+            where: {
+                categoryId: categoryId
             }
         })
     },

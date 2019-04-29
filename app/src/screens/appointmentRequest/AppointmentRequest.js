@@ -2,9 +2,11 @@ import React, {Component} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
-import AppointmentRequestForm from "../../components/appointmentRequestForm/AppointmentRequestForm";
+import AppointmentRequestForm from "../../components/appointmentRequest/AppointmentRequestForm";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
+import mappers from "../../shared/mappers";
+import strings from "../../shared/strings";
 
 
 export default class AppointmentRequest extends Component {
@@ -25,7 +27,7 @@ export default class AppointmentRequest extends Component {
     componentDidMount() {
         phoneStorage.get('userData')
             .then(userData => {
-                console.log('agenda componentDidMount userData ', userData);
+                // console.log('agenda componentDidMount userData ', userData);
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
@@ -36,19 +38,21 @@ export default class AppointmentRequest extends Component {
 
     loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders(this.userHeaders)
-            .then((response) => {
-                let serviceProviders = response.data;
+            .then(serviceProviders => {
+                let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
 
-                serviceProviders.forEach(provider => {
+                appointmentsServiceProviders.forEach(provider => {
+                    provider.role = mappers.serviceProviderRolesMapper(provider.role);
+
                     usersStorage.getUserById(provider.userId, this.userHeaders)
                         .then(user => {
                             provider.fullname = user.data[0].fullname;
 
                             this.setState({
-                                serviceProviders: serviceProviders,
+                                serviceProviders: appointmentsServiceProviders,
                             });
 
-                            this.serviceProviders = serviceProviders;
+                            this.serviceProviders = appointmentsServiceProviders;
                         })
                 })
             });
@@ -59,7 +63,15 @@ export default class AppointmentRequest extends Component {
             formModal: true,
             serviceProviderSelected: serviceProvider
         });
-        console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
+        // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
+    };
+
+    closeAppointmentRequestForm = () => {
+        this.setState({
+            formModal: false,
+            serviceProviderSelected: {},
+        });
+        // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
     };
 
     renderSeparator = () => {
@@ -105,7 +117,7 @@ export default class AppointmentRequest extends Component {
 
     renderHeader = () => {
         return <SearchBar
-            placeholder="רשום פה..."
+            placeholder="חפש..."
             lightTheme
             onChangeText={this.updateSearch.bind(this)}
             // round
@@ -116,7 +128,7 @@ export default class AppointmentRequest extends Component {
         return (
             <ListItem
                 roundAvatar
-                title={item.role}
+                title={mappers.serviceProviderRolesMapper(item.role)}
                 subtitle={item.fullname}
                 // avatar={{uri:item.avatar_url}}
                 onPress={() => this.requestAppointment(item)}
@@ -134,7 +146,7 @@ export default class AppointmentRequest extends Component {
                         <FlatList
                             data={this.state.serviceProviders}
                             renderItem={this.renderRow}
-                            keyExtractor={item => item.userId}
+                            keyExtractor={item => item.serviceProviderId + "-" + item.role}
                             ItemSeparatorComponent={this.renderSeparator}
                             ListHeaderComponent={this.renderHeader}
                         />
@@ -142,7 +154,11 @@ export default class AppointmentRequest extends Component {
                 </List>
                 <AppointmentRequestForm
                     modalVisible={this.state.formModal}
+                    userHeaders={this.userHeaders}
+                    userId={this.userId}
                     serviceProvider={this.state.serviceProviderSelected}
+                    selectedDate={this.props.navigation.state.params.selectedDate}
+                    closeAppointmentRequestForm={this.closeAppointmentRequestForm}
                 />
             </View>
         );

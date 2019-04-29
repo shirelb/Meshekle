@@ -1,3 +1,4 @@
+process.dbMode='dev';
 var moment = require('moment');
 var expect = require('chai').expect;
 let chai = require('chai');
@@ -202,7 +203,7 @@ describe('chores route', function () {
                          }, 5000);
         });
     });
-  
+
    //2 it 
     describe('/POST new choreType api19', () => {
         before((done) => {
@@ -218,10 +219,10 @@ describe('chores route', function () {
                     res.body.should.have.property('message').eql('This choreType allready exist!');
                     done();
                 });
-        }); 
+        });
 
 
-    
+
         after((done) => {
             ChoreTypes.destroy({
                 where: {
@@ -238,7 +239,7 @@ describe('chores route', function () {
             ChoreTypes.create(choreTypeTestSat);
             done();
         });
-        
+
         it('it should POST new Chore type that is not exist yet', (done) => {
             chai.request(server)
                 .post('/api/chores/add/choreType')
@@ -251,7 +252,7 @@ describe('chores route', function () {
         });
 
 
-    
+
         after((done) => {
             ChoreTypes.destroy({
                 where: {
@@ -502,7 +503,7 @@ describe('chores route', function () {
                     done();
                 });
         });
-*/        
+*/
          /* it('it should GET no user chores in future for userId that have no one', (done) => {
             chai.request(server)
                 .get('/api/chores/userChores/userId/'+userTest2.userId+'/future/true')
@@ -574,7 +575,7 @@ describe('chores route', function () {
                 }, 5000);
             });
         });
- /*       
+ /*
        it('it should GET the no users for the specific choretype that has no users', (done) => {
            chai.request(server)
            //.get('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/users')
@@ -751,7 +752,7 @@ describe('chores route', function () {
                 });
                 //UsersChores.create(userChoreTestNow);
                 UsersChores.create(userChoreTestFuture);
-    
+
                 done();
 
             })
@@ -891,7 +892,7 @@ describe('chores route', function () {
                 });
         });
             
-        
+
         it('it should not GET user chores of choreType and user in illegal month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+choreTypeTestFri.choreTypeName+'/month/k/year/2019/userId/'+userTest.userId+'')
@@ -1104,7 +1105,7 @@ describe('chores route', function () {
         }, 3000);
             
         });
-    
+
         it('it should GET all the user chores of in month of the userId ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+userTest.userId)
@@ -1156,7 +1157,7 @@ describe('chores route', function () {
                 });
         });
 
-   
+
         it('it should not GET user chores for userId is not exist', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+'111111111')
@@ -1673,7 +1674,7 @@ describe('chores route', function () {
                         done();
                     })
                 })
-            })           
+            })
         });
 
         it('it should GET all the replacement requests ', (done) => {
@@ -1692,7 +1693,7 @@ describe('chores route', function () {
         after((done) => {
             UsersChores.destroy({
                 where:{
-                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             ChoreTypes.destroy({
@@ -1702,7 +1703,7 @@ describe('chores route', function () {
             });
             Users.destroy({
                 where: {
-                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             done();
@@ -1756,7 +1757,7 @@ describe('chores route', function () {
                 })
             })
         });
-    
+
         it('it should POST new replacement request successefuly', (done) => {
             chai.request(server)
                 .post('/api/chores/replacementRequests/specificRequest')
@@ -1786,7 +1787,7 @@ describe('chores route', function () {
                 .end((err, res) => {
                     res.should.have.status(500);
                     //res.body.should.have.property('message').eql('userId doesn\'t exist!');
-                    
+
                     done();
                 });
         });
@@ -1794,7 +1795,7 @@ describe('chores route', function () {
         after((done) => {
             UsersChores.destroy({
                 where:{
-                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             ChoreTypes.destroy({
@@ -1804,7 +1805,7 @@ describe('chores route', function () {
             });
             Users.destroy({
                 where: {
-                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             done();
@@ -1859,7 +1860,7 @@ describe('chores route', function () {
                 })
             })
         });
-    
+
         it('it should PUT general request successefuly', (done) => {
             chai.request(server)
                 .put('/api/chores/replacementRequests/generalRequest')
@@ -1880,7 +1881,7 @@ describe('chores route', function () {
         after((done) => {
             UsersChores.destroy({
                 where:{
-                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             ChoreTypes.destroy({
@@ -1890,7 +1891,7 @@ describe('chores route', function () {
             });
             Users.destroy({
                 where: {
-                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             done();
@@ -1942,12 +1943,12 @@ describe('chores route', function () {
                     }).then(r=>{
                         done();
                     })
-                        
-                    
+
+
                 })
             })
         });
-    
+
         it('it should put- change status replacement request successefuly', (done) => {
             chai.request(server)
                 .put('/api/chores/replacementRequests/changeStatus')
@@ -1970,7 +1971,7 @@ describe('chores route', function () {
         after((done) => {
             UsersChores.destroy({
                 where:{
-                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             ChoreTypes.destroy({
@@ -1980,7 +1981,7 @@ describe('chores route', function () {
             });
             Users.destroy({
                 where: {
-                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             done();
@@ -2032,12 +2033,12 @@ describe('chores route', function () {
                     }).then(r=>{
                         done();
                     })
-                        
-                    
+
+
                 })
             })
         });
-    
+
         it('it should put- execute replacement chores successefuly done', (done) => {
             chai.request(server)
                 .put('/api/chores/replacementRequests/replace')
@@ -2061,7 +2062,7 @@ describe('chores route', function () {
         after((done) => {
             UsersChores.destroy({
                 where:{
-                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId:{[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             ChoreTypes.destroy({
@@ -2071,7 +2072,7 @@ describe('chores route', function () {
             });
             Users.destroy({
                 where: {
-                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]} 
+                    userId: {[Op.or]:[userTest.userId,userTest2.userId ]}
                 }
             });
             done();

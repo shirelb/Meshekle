@@ -1,12 +1,26 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions, StackNavigator} from 'react-navigation';
+import {DrawerActions, NavigationActions} from 'react-navigation';
 import {View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
-import {Avatar, Icon, List, ListItem, SideMenu} from 'react-native-elements'
+import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'
+import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
+import usersStorage from "../../storage/usersStorage";
+import UserProfileForm from "../../components/userProfile/UserProfileForm";
+import {APP_SOCKET} from "../../shared/constants";
 
 export default class DrawerMenu extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            formModal: false,
+            infoModal: false,
+            userLoggedin: {},
+        };
+    }
+
     navigateToScreen = (route) => () => {
         const navigateAction = NavigationActions.navigate({
             routeName: route
@@ -21,12 +35,61 @@ export default class DrawerMenu extends Component {
             userId: null,
             userFullname: null
         })
-            .then(
-                // this.props.onLoginPress()
-                // this.props.navigation.navigate('MainScreen')
-                this.props.navigation.navigate('Auth')
-            )
+            .then(() => {
+                APP_SOCKET.emit('disconnectAppClient', {userId: this.userId});
+                this.props.navigation.navigate('Auth');
+            })
     };
+
+    componentWillMount() {
+        phoneStorage.get('userData')
+            .then(userData => {
+                // console.log('agenda componentDidMount userData ', userData);
+                this.userHeaders = {
+                    'Authorization': 'Bearer ' + userData.token
+                };
+                this.userId = userData.userId;
+                this.loadUser();
+            });
+    }
+
+    componentDidMount() {
+        APP_SOCKET.on("getUsers", this.loadUser.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUsers");
+    }
+
+    loadUser() {
+        usersStorage.getUserById(this.userId, this.userHeaders)
+            .then(user => {
+                console.log("DrawerMenu user ", user);
+                let userLoggedin = user.data[0];
+
+                this.setState({
+                    userLoggedin: userLoggedin,
+                    formModal: false,
+                    infoModal: false,
+                });
+            })
+    };
+
+    componentWillReceiveProps(nextProps, nextContext) {
+        this.setState({
+            formModal: false,
+            infoModal: false,
+            // userLoggedin: {},
+        });
+    }
+
+    setFormModalVisible = () => {
+        this.setState({
+            formModal: true,
+            infoModal: false,
+            // userLoggedin: {},
+        });
+    }
 
     render() {
         return (
@@ -35,19 +98,19 @@ export default class DrawerMenu extends Component {
                     <ListItem
                         containerStyle={{height: 150}}
                         roundAvatar
-                        // onPress={() => console.log('Pressed')}
-                        // avatar='https://cdn.iconscout.com/icon/free/png-256/avatar-373-456325.png'
+                        onPress={() => this.setState({infoModal: true})}
                         avatar={<Avatar
                             large
                             rounded
-                            source={{uri: "https://cdn.iconscout.com/icon/free/png-256/avatar-373-456325.png"}}
+                            source={{uri: this.state.userLoggedin.image}}
                             activeOpacity={0.7}
                         />}
                         // key={i}
-                        title="מנהל מנהל"
-                        subtitle="מנהל"
+                        title={this.state.userLoggedin.fullname}
+                        subtitle="צפייה בפרופיל"
                         // rightIcon=null
                         hideChevron
+                        titleStyle={{fontSize: 20}}
                     />
                     <ListItem
                         // roundAvatar
@@ -67,7 +130,7 @@ export default class DrawerMenu extends Component {
                         // key={i}
                         title={strings.drawerMenu.APPOINTMENTS_SCREEN_NAME}
                         // subtitle="test"
-                        leftIcon={{name: 'home'}}
+                        leftIcon={{name: 'insert-invitation'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
                         badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
@@ -78,7 +141,18 @@ export default class DrawerMenu extends Component {
                         // key={i}
                         title={strings.drawerMenu.CHORES_SCREEN_NAME}
                         // subtitle="test"
-                        leftIcon={{name: 'home'}}
+                        leftIcon={{name: 'transfer-within-a-station'}}
+                        rightIcon={<Icon name={'chevron-left'}/>}
+                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                    />
+                    <ListItem
+                        // roundAvatar
+                        onPress={this.navigateToScreen('PhoneBookScreen')}
+                        // avatar={l.avatar_url}
+                        // key={i}
+                        title={strings.drawerMenu.PhoneBook_SCREEN_NAME}
+                        // subtitle="test"
+                        leftIcon={{name: 'contacts'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
                         badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
@@ -94,123 +168,33 @@ export default class DrawerMenu extends Component {
                         hideChevron
                     />
                 </List>
+
+                {this.state.infoModal ?
+                    <UserProfileInfo
+                        modalVisible={this.state.infoModal}
+                        user={this.state.userLoggedin}
+                        openedFrom={"DrawerMenu"}
+                        userHeaders={this.userHeaders}
+                        setFormModalVisible={this.setFormModalVisible}
+                    />
+                    : null
+                }
+
+                {this.state.formModal ?
+                    <UserProfileForm
+                        modalVisible={this.state.formModal}
+                        user={this.state.userLoggedin}
+                        userHeaders={this.userHeaders}
+                        loadUser={this.loadUser.bind(this)}
+                    />
+                    : null
+                }
+
             </View>
-            /*<View style={styles.container}>
-                <ScrollView>
-                    <View >
-                        <View style={styles.menuItem}>
-                            <Text onPress={this.navigateToScreen('MainScreen')}>
-                                {strings.drawerMenu.MAIN_SCREEN_NAME}
-                            </Text>
-                        </View>
-                        <View style={styles.menuItem}>
-                            <Text onPress={this.navigateToScreen('AppointmentsScreen')}>
-                                {strings.drawerMenu.APPOINTMENTS_SCREEN_NAME}
-                            </Text>
-                        </View>
-                        <View style={styles.menuItem}>
-                            <Text onPress={this.navigateToScreen('ChoresScreen')}>
-                                {strings.drawerMenu.CHORES_SCREEN_NAME}
-                            </Text>
-                        </View>
-                        <View style={styles.menuItem}>
-                            <Text onPress={this.onLogoutPress.bind(this)}>
-                                {strings.drawerMenu.LOGOUT}
-                            </Text>
-                        </View>
-                    </View>
-                </ScrollView>
-            </View>*/
         );
     }
 }
 
-/* navigateToScreen = (route) => () => {
-     const navigateAction = NavigationActions.navigate({
-         routeName: route
-     });
-     this.props.navigation.dispatch(navigateAction);
- };
-
- render () {
-     return (
-         <View style={styles.container}>
-             <ScrollView>
-                 <View>
-                     <Text style={styles.sectionHeadingStyle}>
-                         Section 1
-                     </Text>
-                     <View style={styles.navSectionStyle}>
-                         <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page1')}>
-                             Page1
-                         </Text>
-                     </View>
-                 </View>
-                 <View>
-                     <Text style={styles.sectionHeadingStyle}>
-                         Section 2
-                     </Text>
-                     <View style={styles.navSectionStyle}>
-                         <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page2')}>
-                             Page2
-                         </Text>
-                         <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page3')}>
-                             Page3
-                         </Text>
-                     </View>
-                 </View>
-                 <View>
-                     <Text style={styles.sectionHeadingStyle}>
-                         Section 3
-                     </Text>
-                     <View style={styles.navSectionStyle}>
-                         <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page4')}>
-                             Page4
-                         </Text>
-                     </View>
-                 </View>
-             </ScrollView>
-             <View style={styles.footerContainer}>
-                 <Text>This is my fixed footer</Text>
-             </View>
-         </View>
-     );
- }
-}*/
-
 DrawerMenu.propTypes = {
     navigation: PropTypes.object
 };
-
-
-/*
-
-export default class DrawerMenu extends Component {
-    render() {
-        const {navigate} = this.props.navigation;
-        return (
-            <View>
-                {/!*<Profile name="John Doe" email="contact@example.com" />*!/}
-                {/!*<FlatList
-                    data={menuData}
-                    keyExtractor={item => item.key.toString()}
-                    renderItem={({ item }) => (
-                        <MenuItem
-                            title={item.name}
-                            navigation={this.props.navigation}
-                            screenName={item.screenName}
-                            icon={item.icon}
-                        />
-                    )}
-                />
-
-                <MenuItem
-                    icon="power-settings-new"
-                    title="Logout"
-                    logoutUser
-                    navigation={this.props.navigation}
-                />*!/}
-            </View>
-        );
-    }
-}*/

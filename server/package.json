@@ -14,15 +14,21 @@
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.16.0",
-    "from": "^0.1.7",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
     "jsonwebtoken": "^8.4.0",
     "mocha": "^5.2.0",
     "morgan": "~1.9.0",
+    "nodemailer": "^5.1.1",
     "npm": "^6.5.0",
-    "scratch": "0.0.0",
+    "selenium-webdriver": "^4.0.0-alpha.1",
     "sequelize": "^4.42.0",
+    "sinon": "^7.2.5",
+    "socket.io": "^2.2.0",
     "sqlite3": "^4.0.4"
+  },
+  "devDependencies": {
+    "sequelize-mock": "^0.10.2",
+    "sequelize-test-helpers": "^1.0.10"
   }
 }

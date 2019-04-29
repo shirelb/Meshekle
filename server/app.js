@@ -1,3 +1,4 @@
+process.dbMode='prod';
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -9,9 +10,13 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var serviceProvidersRouter = require('./routes/serviceProviders');
+var announcementsRouter = require('./routes/announcements');
 var managersRouter = require('./routes/managers');
 var permissionsRouter = require('./routes/permissions');
 var choresRouter = require('./routes/chores');
+var appointmentsRouter = require('./routes/appointments');
+var appointmentRequestsRouter = require('./routes/appointmentRequests');
+var incidentsRouter = require('./routes/incidents');
 
 var app = express();
 
@@ -24,16 +29,25 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+
 
 app.use('/api/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/serviceProviders', serviceProvidersRouter);
+app.use('/api/announcements', announcementsRouter);
 app.use('/api/managers', managersRouter);
 app.use('/api/permissions', permissionsRouter);
 app.use('/api/chores', choresRouter);
+app.use('/api/appointments', appointmentsRouter);
+app.use('/api/appointmentRequests', appointmentRequestsRouter);
+app.use('/api/incidents', incidentsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

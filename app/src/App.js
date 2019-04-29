@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Dimensions, Platform, TouchableOpacity} from 'react-native';
+import {Dimensions, Platform, TouchableOpacity, YellowBox} from 'react-native';
 import {
     createAppContainer,
     createDrawerNavigator,
@@ -21,9 +21,12 @@ import LoginScreen from './screens/loginScreen/LoginScreen';
 import MainScreen from './screens/mainScreen/MainScreen';
 import AppointmentsScreen from './screens/appointmentsScreen/AppointmentsScreen';
 import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest';
+import UserAppointmentRequests from './screens/userAppointmentRequests/UserAppointmentRequests';
 import ChoresScreen from './screens/choresScreen/ChoresScreen';
+import PhoneBookScreen from './screens/phoneBookScreen/PhoneBookScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
+import ForgotPasswordScreen from "./screens/forgotPasswordScreen/ForgotPasswordScreen";
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -31,6 +34,11 @@ const instructions = Platform.select({
         'Double tap R on your keyboard to reload,\n' +
         'Shake or press menu button for dev menu',
 });
+
+console.ignoredYellowBox = ['Remote debugger'];
+YellowBox.ignoreWarnings([
+    'Unrecognized WebSocket connection option(s) `agent`, `perMessageDeflate`, `pfx`, `key`, `passphrase`, `cert`, `ca`, `ciphers`, `rejectUnauthorized`. Did you mean to put these under `headers`?'
+]);
 
 const DrawerMenuNavigator = createDrawerNavigator(
     {
@@ -53,10 +61,22 @@ const DrawerMenuNavigator = createDrawerNavigator(
                 headerTitle: 'בקשת תור',
             },
         },
+        UserAppointmentRequests: {
+            screen: UserAppointmentRequests,
+            params: {
+                headerTitle: 'בקשות התורים שלי',
+            },
+        },
         ChoresScreen: {
             screen: ChoresScreen,
             params: {
                 headerTitle: 'התורנויות שלי',
+            },
+        },
+        PhoneBookScreen: {
+            screen: PhoneBookScreen,
+            params: {
+                headerTitle: 'ספר טלפונים',
             },
         },
     },
@@ -108,7 +128,7 @@ const AppNavigator = createStackNavigator(
             headerTitleStyle: {
                 fontWeight: 'bold',
             },
-        })
+        }),
     }
 );
 
@@ -117,6 +137,13 @@ const AuthNavigator = createStackNavigator(
     {
         LoginScreen: {
             screen: LoginScreen,
+            params: {},
+            /*navigationOptions: {
+                header: null,
+            }*/
+        },
+        ForgotPasswordScreen: {
+            screen: ForgotPasswordScreen,
             params: {},
             /*navigationOptions: {
                 header: null,

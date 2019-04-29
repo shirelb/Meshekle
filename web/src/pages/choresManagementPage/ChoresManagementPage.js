@@ -132,7 +132,7 @@ class ChoresManagementPage extends React.Component {
         usersStorage.getUsers()
             .then((response) => {
 
-                const users = response.data;
+                const users = response;
                 const totalPages = Math.ceil(users.length / TOTAL_PER_PAGE);
 
                 this.setState({

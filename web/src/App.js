@@ -10,13 +10,13 @@ class App extends Component {
 
         return (
             <Router>
-                <div className="app-routes">
+                {/*<div className="app-routes">*/}
                     <Switch>
                         <Route path="/login" component={LoginPage}/>
                         <Route path="/" component={MainPage}/>
                         <Redirect to="/login"/>
                     </Switch>
-                </div>
+                {/*</div>*/}
             </Router>
 
         );

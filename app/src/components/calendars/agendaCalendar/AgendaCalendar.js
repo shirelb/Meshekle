@@ -80,7 +80,7 @@ export default class AgendaCalendar extends Component {
                                 }
                             });
 
-                            console.log('newItems ', newItems);
+                            // console.log('newItems ', newItems);
                             this.setState({
                                 items: newItems
                             });

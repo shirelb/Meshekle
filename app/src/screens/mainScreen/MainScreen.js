@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import {ScrollView, Text} from 'react-native';
-
 import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
+import {connectToServerSocket} from "../../shared/constants";
+
+window.navigator.userAgent = "react-native";
 
 
 export default class MainScreen extends Component {
@@ -25,28 +27,19 @@ export default class MainScreen extends Component {
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
+
                 this.setState({
                     userId: userData.userId,
                     userFullname: userData.userFullname,
-                })
+                });
+
+                console.log('APP_SOCKET main page');
+                connectToServerSocket(userData.userId);
             })
             .catch(error => {
                 console.log('main componentDidMount ', error)
             })
     }
-
-    onLogoutPress = () => {
-        phoneStorage.update('userData', {
-            token: null,
-            userId: null,
-            userFullname: null
-        })
-            .then(
-                // this.props.onLoginPress()
-                // this.props.navigation.navigate('MainScreen')
-                this.props.navigation.navigate('Auth')
-            )
-    };
 
     render() {
         return (
@@ -57,16 +50,6 @@ export default class MainScreen extends Component {
                 <Text>
                     {this.state.userFullname}
                 </Text>
-
-                {/*<Button
-                    label={strings.mainScreenStrings.LOGOUT}
-                    onPress={this.onLogoutPress.bind(this)}
-                />*/}
-
-                {/* <Button
-                    label='get events'
-                    onPress={this.getUserEvents.bind(this)}
-                />*/}
 
                 <AgendaCalendar
                     userId={this.state.userId}

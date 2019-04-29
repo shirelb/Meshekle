@@ -15,12 +15,20 @@ const mainPageStrings = {
     LOGOUT: "התנתק",
     WELCOME: "ברוכים הבאים ",
     MAIN_PAGE_TITLE: "בית",
+    SETTINGS_PAGE_TITLE: "הגדרות",
+    REPORT_PAGE_TITLE: "דוח תורים",
     PHONE_BOOK_PAGE_TITLE: "ספר טלפונים",
     PHONE_BOOK_PAGE_USERS_TITLE: "משתמשים",
     PHONE_BOOK_PAGE_SERVICE_PROVIDERS_TITLE: "נותני שירות",
     APPOINTMENTS_PAGE_TITLE: "תורים",
+    BACK_TO_APPOINTMENTS_PAGE_TITLE: "חזור ללוח שנה",
     CHORES_PAGE_TITLE: "תורנויות",
-    ROLES_HairDresser: "ספר/ית",
+    ANNOUNCEMENTS_PAGE_TITLE: "לוח מודעות",
+    ROLES_HairDresser: "מספרה",
+    ROLES_Admin: "מנהלה",
+    ROLES_Dentist: "רפואת שיניים",
+    ROLES_Undefined: "לא נמצאו תפקידים מתאימים",
+
 };
 
 const phoneBookPageStrings = {
@@ -35,12 +43,12 @@ const phoneBookPageStrings = {
     CELLPHONE_HEADER: "פלאפון",
     PHONE_HEADER: "טלפון",
     BORN_DATE_HEADER: "תאריך לידה",
-    ACTIVE_HEADER: "קיים",
+    ACTIVE_HEADER: "פעיל",
     ACTIVE_ANSWER_YES: "כן",
     ACTIVE_ANSWER_NO: "לא",
     SERVICE_PROVIDER_ID_HEADER: "ת.ז. נותן שירות",
     SERVICE_PROVIDER_ROLE_HEADER: "תפקיד",
-    SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. יוזר",
+    SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. משתמש",
     SERVICE_PROVIDER_OPERATION_TIME_HEADER: "זמני פעילות",
     SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER: "דרך קביעת תורים",
 };
@@ -61,5 +69,71 @@ const appointmentsPageStrings = {
     OPTIONAL_TIMES: "זמנים אופציונאליים",
 };
 
+const announcementsPageStrings = {
+    ANNOUNCE_REQ_TITLE_TABLE: "מודעות המחכות לאישור",
+    ANNOUNCE_TITLE_TABLE: "מודעות באחריותך",
+    ANNOUNCE_NUMBER: "מספר מודעה",
+    ANNOUNCE_CATEGORY: "קטגוריה",
+    ANNOUNCE_TITLE: "נושא",
+    ANNOUNCE_CONTENT: "תוכן",
+    ANNOUNCE_STATUS: "סטטוס",
+    ANNOUNCE_DATE_OF_EVENT: "תאריך אירוע",
+    ANNOUNCE_EXPR_DATE: "תאריך תפוגה",
+    OPERATION_OPTIONS: "אפשרויות",
+    ADD_ANNOUNCEMENT: "פרסם מודעה חדשה",
+};
 
-export default {loginPageStrings, mainPageStrings, phoneBookPageStrings, appointmentsPageStrings};
+const roles = {
+    Admin: "מנהלה",
+    PhoneBookSecretary: "מזכירות ספר טלפונים",
+    ChoresSecretary: "מזכירות תורנויות",
+    AnnouncementsSecretary: "מזכירות לוח מודעות",
+
+    appointmentsHairDresser: "מספרה",
+    appointmentsDentist: "מרפאת שיניים",
+};
+
+const appointmentRoles = {
+    appointmentsHairDresser: "מספרה",
+    appointmentsDentist: "מרפאת שיניים",
+};
+
+const appointmentsWayType = {
+    Dialog: "בקשה ומענה",
+    Slots: "חלונות זמן",
+    Fault: "פתיחת תקלה",
+    Admin: "הכל",
+};
+
+const days = {
+    Sunday: "יום ראשון",
+    Monday: "יום שני",
+    Tuesday: "יום שלישי",
+    Wednesday: "יום רביעי",
+    Thursday: "יום חמישי",
+    Friday: "יום שישי",
+    Saturday: "יום שבת",
+    Undefined: "לא קיים",
+};
+
+const modulesIconsNames = {
+    home: "home",
+    phoneBook: "address book outline",
+    appointments: "calendar alternate outline",
+    chores: "industry",
+    announcements: "announcement",
+    logout: "power",
+};
+
+export default {
+    loginPageStrings,
+    mainPageStrings,
+    phoneBookPageStrings,
+    appointmentsPageStrings,
+    roles,
+    appointmentsWayType,
+    announcementsPageStrings,
+    days,
+    appointmentRoles,
+    modulesIconsNames,
+};

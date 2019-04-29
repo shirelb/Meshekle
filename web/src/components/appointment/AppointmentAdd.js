@@ -11,7 +11,14 @@ class AppointmentAdd extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {slotInfo: this.props.location.state.slotInfo};
+        if (this.props.location.state.slotInfo)
+            this.state = {
+                slotInfo: this.props.location.state.slotInfo
+            };
+        if (this.props.location.state.appointmentRequestDropped)
+            this.state = {
+                appointmentRequestEvent: this.props.location.state.appointmentRequestDropped
+            };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -24,15 +31,22 @@ class AppointmentAdd extends React.Component {
     }
 
     handleSubmit(appointment) {
+        var appointmentRequestEvent=this.state.appointmentRequestEvent;
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
-                let serviceProviderRoles = roles.map(role => mappers.rolesMapper(role));
+                let serviceProviderRoles = roles;
 
                 appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), serviceProviderRoles, this.serviceProviderHeaders)
                     .then((response) => {
+                        console.log(response);
+
+                        if (appointmentRequestEvent)
+                            this.props.approveAppointmentRequest(appointmentRequestEvent);
+
                         this.props.history.goBack()
                     })
-            })
+
+            });
     }
 
     handleCancel(e) {
@@ -42,9 +56,9 @@ class AppointmentAdd extends React.Component {
     }
 
     render() {
+
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
-                {/*<Page title="Add Appointment" columns={3}>*/}
                 <Helmet>
                     <title>Meshekle | Add Appointment</title>
                 </Helmet>
@@ -59,11 +73,11 @@ class AppointmentAdd extends React.Component {
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                             slotInfo={this.state.slotInfo}
-                            // appointment={}
+                            // announcement={}
+                            appointmentRequestEvent={this.state.appointmentRequestEvent}
                         />
                     </Grid.Column>
                 </Grid>
-                {/*</Page>*/}
             </Modal>
         );
     }

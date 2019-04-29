@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
-import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import {localConfig} from '../localConfig';
+// import {localConfig} from '../localConfig';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
-import {CheckBox, List, ListItem} from "react-native-elements";
-import Button from "../../../components/submitButton/Button";
 import appointmentsStorage from "../../../storage/appointmentsStorage";
+import {APP_SOCKET} from "../../../shared/constants";
+import AppointmentsDayInfo from "../../appointments/AppointmentsDayInfo";
+import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
 
 export default class AppointmentsCalendar extends Component {
     constructor(props) {
@@ -16,12 +17,11 @@ export default class AppointmentsCalendar extends Component {
             markedDates: {},
             selectedDate: '',
             dateModalVisible: false,
+            expanded: {}
         };
 
         this.userHeaders = {};
         this.userId = null;
-
-        this.onDayPress = this.onDayPress.bind(this);
     }
 
     componentDidMount() {
@@ -33,10 +33,16 @@ export default class AppointmentsCalendar extends Component {
                 this.userId = userData.userId;
                 this.loadAppointments();
             });
+
+        APP_SOCKET.on("getUserAppointments", this.loadAppointments.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUserAppointments‚");
     }
 
     loadAppointments() {
-        appointmentsStorage.getUserAppointments(this.userId,this.userHeaders)
+        appointmentsStorage.getUserAppointments(this.userId, this.userHeaders)
             .then(response => {
                 let markedDates = {};
 
@@ -51,17 +57,21 @@ export default class AppointmentsCalendar extends Component {
                 this.setState({
                     markedDates: markedDates
                 });
-
-                console.log('user  333  markedDates ', markedDates);
             })
     }
 
-    onDaySelect = (day) => {
-        console.log('this.state.selectedDate === \'\' ', this.state.selectedDate === '');
-        if (this.state.selectedDate !== '')
-            console.log('this.state.markedDates[selectedDate].appointments.length === 0 ', this.state.markedDates[this.state.selectedDate].appointments.length === 0);
+    afterCloseModalShowSelectDay = () => {
+        let updatedMarkedDates = this.state.markedDates;
 
-        console.log("in onDaySelect day ", day);
+        const selectedDay = updatedMarkedDates[this.state.selectedDate];
+        selectedDay.selected = true;
+        selectedDay.color = 'blue';
+        updatedMarkedDates[selectedDay] = selectedDay;
+
+        this.setState({markedDates: updatedMarkedDates, dateModalVisible: false})
+    };
+
+    onDaySelect = (day) => {
         let updatedMarkedDates = this.state.markedDates;
 
         if (this.state.selectedDate !== '') {
@@ -78,112 +88,42 @@ export default class AppointmentsCalendar extends Component {
         newMarkedDate.color = 'blue';
         updatedMarkedDates[selectedDay] = newMarkedDate;
 
-        this.setState({
-            selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
-            markedDates: updatedMarkedDates,
-            dateModalVisible: true,
-        });
+        let expanded = {};
+        if (updatedMarkedDates[selectedDay].appointments.length > 0)
+            updatedMarkedDates[selectedDay].appointments.forEach(appointment => {
+                serviceProvidersStorage.getServiceProviderUserDetails(appointment.AppointmentDetail.serviceProviderId, this.userHeaders)
+                    .then(user => {
+                        appointment.serviceProviderFullname = user.data.fullname;
+
+                        expanded[appointment.appointmentId] = false;
+
+                        this.setState({
+                            selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+                            markedDates: updatedMarkedDates,
+                            dateModalVisible: true,
+                            expanded: expanded,
+                        });
+                    });
+            });
+        else
+            this.setState({
+                selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+                markedDates: updatedMarkedDates,
+                dateModalVisible: true,
+                expanded: expanded,
+            });
     };
 
-    onDayPress = (date) => {
-        console.log('in day press ');
-        this.setState({
-            date: new Date(date.year, date.month - 1, date.day),
-        });
-    };
-
-    onDayChange = (date) => {
-        console.log('in day change ');
-        this.setState({
-            date: new Date(date.year, date.month - 1, date.day),
-        });
-    };
-
-
-    renderItem(item) {
-        return (
-            <View style={[styles.item, {height: item.height}]}>
-                <Text>{item.startTime} - {item.endTime}</Text>
-                <Text>{item.subject}</Text>
-                <Text>{item.serviceProviderId}</Text>
-                <Text>{item.role}</Text>
-            </View>
-        );
-    }
-
-    renderDay(day) {
-        // renderDay={(day, item) => (<Text>{day ? day.day : 'item'} {day ? day.month.toLocaleString() : 'item'} </Text>)}
-
-        return (
-            <View style={styles.dayMonthContainer}>
-                <Text style={styles.day}>{day ? day.day : null} </Text>
-                <Text
-                    style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].monthNamesShort[day.month - 1] : null} </Text>
-                <Text
-                    style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].dayNames[new Date(day.timestamp).getDay()] : null} </Text>
-            </View>
-        );
-    }
-
-    renderEmptyDate() {
-        return (
-            <View style={styles.emptyDate}><Text> </Text></View>
-        );
-    }
-
-    rowHasChanged(r1, r2) {
-        return r1.name !== r2.name;
-    }
-
-    getDateStringFromDateAndTime = (dateAndTime) => {
-        const date = new Date(dateAndTime);
-        return date.toISOString().split('T')[0];
-    };
-    getTimeStringFromDateAndTime = (dateAndTime) => {
-        const date = new Date(dateAndTime);
-        return date.toISOString().split('T')[1].split('.')[0].slice(0, -3);
-    };
-
-    renderSeparator = () => {
-        return (
-            <View
-                style={{
-                    height: 1,
-                    width: "86%",
-                    backgroundColor: "#CED0CE",
-                    marginLeft: "14%"
-                }}
-            />
-        );
-    };
-
-    renderRow = ({item}) => {
-        return (
-            <ListItem
-                roundAvatar
-                title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
-                subtitle={item.AppointmentDetail.role + ',' + item.AppointmentDetail.serviceProviderId}
-                description={item.AppointmentDetail.subject}
-                // avatar={{uri:item.avatar_url}}
-                // onPress={() => this.requestAppointment(item)}
-                containerStyle={{borderBottomWidth: 0}}
-                // rightIcon={<Icon name={'chevron-left'}/>}
-                // hideIcon
-            />
-        )
-    };
 
     render() {
         LocaleConfig.defaultLocale = 'il';
 
-        let currDay = new Date; // get current date
-        let currDayStr = new Date().toUTCString(); // get current date
-
         return (
-            <View>
+            <ScrollView>
                 <Calendar
                     markedDates={this.state.markedDates}
                     onDayPress={this.onDaySelect}
+                    onDayLongPress={this.onDaySelect}
                     style={styles.calendar}
                     // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
                     // monthFormat={'yyyy MM'}
@@ -215,59 +155,16 @@ export default class AppointmentsCalendar extends Component {
                         textDayHeaderFontSize: 16
                     }}
                 />
-                <Modal
-                    animationType="fade"
-                    transparent={false}
-                    visible={this.state.dateModalVisible}
-                    onRequestClose={() => {
-                        console.log('Modal has been closed.');
-                    }}>
-                    <View style={{marginTop: 22}}>
-                        <View>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    this.setState({dateModalVisible: false})
-                                }}>
-                                <Text>XXXXX</Text>
-                            </TouchableOpacity>
 
-                            <Text> {this.state.selectedDate} </Text>
-
-                            <CheckBox
-                                left
-                                title='הוסף תאריך ושעות'
-                                iconLeft
-                                iconType='material'
-                                checkedIcon='clear'
-                                uncheckedIcon='add'
-                                checkedColor='red'
-                                checked={this.state.checked}
-                                onPress={() => this.setState({checked: !this.state.checked})}
-                            />
-
-                            <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
-                                {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].appointments.length === 0 ?
-                                    <Text>אין תורים לתאריך זה</Text>
-                                    :
-                                    <FlatList
-                                        data={this.state.markedDates[this.state.selectedDate].appointments}
-                                        renderItem={this.renderRow}
-                                        keyExtractor={item => item.userId}
-                                        ItemSeparatorComponent={this.renderSeparator}
-                                    />
-                                }
-                            </List>
-
-                            <Button
-                                label='בקש תור'
-                                onPress={() => {
-                                    this.setModalVisible(!this.state.modalVisible);
-                                }}
-                            />
-                        </View>
-                    </View>
-                </Modal>
-            </View>
+                <AppointmentsDayInfo
+                    dateModalVisible={this.state.dateModalVisible}
+                    selectedDate={this.state.selectedDate}
+                    onAppointmentRequestPress={this.props.onAppointmentRequestPress}
+                    markedDates={this.state.markedDates}
+                    expanded={this.state.expanded}
+                    afterCloseModalShowSelectDay={this.afterCloseModalShowSelectDay}
+                />
+            </ScrollView>
         );
     }
 }
@@ -275,8 +172,8 @@ export default class AppointmentsCalendar extends Component {
 const styles = StyleSheet.create({
     calendar: {
         borderTopWidth: 2,
-        marginTop: 10,
-        paddingTop: 10,
+        // marginTop: 5,
+        paddingTop: 5,
         borderBottomWidth: 2,
         borderColor: '#eee',
         height: 350,
@@ -286,41 +183,5 @@ const styles = StyleSheet.create({
         borderColor: '#bbb',
         padding: 10,
         backgroundColor: '#eee'
-    },
-    item: {
-        backgroundColor: 'white',
-        flex: 1,
-        borderRadius: 5,
-        padding: 10,
-        marginRight: 10,
-        marginTop: 17
-    },
-    emptyDate: {
-        height: 15,
-        flex: 1,
-        paddingTop: 30,
-        borderTopWidth: 2,
-        borderTopColor: 'grey',
-        borderBottomWidth: 2,
-        borderBottomColor: 'grey',
-    },
-    dayMonthContainer: {
-        height: 100,
-        // borderTopWidth: 2,
-        // borderTopColor: 'grey',
-    },
-    day: {
-        fontSize: 20,
-        fontWeight: '300',
-        // color: appStyle.agendaDayMonthColor,
-        marginTop: -5,
-        backgroundColor: 'rgba(0,0,0,0)'
-    },
-    dayMonth: {
-        fontSize: 14,
-        fontWeight: '300',
-        // color: appStyle.agendaDayMonthColor,
-        marginTop: -5,
-        backgroundColor: 'rgba(0,0,0,0)'
     },
 });
