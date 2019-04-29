@@ -37,7 +37,8 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: './server/DBorm/sqlite.db'
+    //storage: './server/DBorm/sqlite.db'
+    storage: './DBorm/sqlite.db'
 });
 
 sequelize
@@ -138,11 +139,65 @@ UsersChoresTypes.belongsTo(Users, {
     targetKey:'userId'
 });
 
+Users.hasMany(UsersChores, {
+    foreignKey: 'userId', 
+    targetKey:'userId'
+});
+UsersChores.belongsTo(Users, {
+    foreignKey: 'userId', 
+    targetKey:'userId'
+});
+
+/*SwapRequests.hasMany(UsersChores, {
+    as: 'choreOfReceiver',
+    //foreignKey:'choreIdOfReceiver',  
+    //targetKey:'userChoreId', 
+    foreignKey: 'userChoreId', 
+    targetKey:'choreIdOfReceiver', 
+    //targetKey:'choreIdOfSender'
+});
+
+SwapRequests.hasMany(UsersChores, {
+    as:'choreOfSender',
+    //foreignKey: 'choreIdOfSender',
+    //targetKey:'userChoreId', 
+    foreignKey: 'userChoreId', 
+    targetKey:'choreIdOfSender',
+    //targetKey:'choreIdOfSender'
+});*/
+SwapRequests.belongsTo(UsersChores, {
+    as: 'choreOfReceiver',
+    foreignKey: 'choreIdOfReceiver', 
+    targetKey:'userChoreId'
+});
+SwapRequests.belongsTo(UsersChores, {
+    as:'choreOfSender',
+    foreignKey: 'choreIdOfSender', 
+    targetKey:'userChoreId'
+});
+
+/*UsersChores.hasMany(SwapRequests, {
+    foreignKey: 'userChoreId', 
+    targetKey:'choreIdOfSender'
+});
+UsersChores.hasMany(SwapRequests, {
+    foreignKey: 'userChoreId', 
+    targetKey:'choreIdOfReceiver'
+});
+SwapRequests.belongsTo(UsersChores, {
+    foreignKey: 'choreIdOfReceiver', 
+    targetKey:'userChoreId'
+},{as:'userChoreOfReceiver'});
+SwapRequests.belongsTo(UsersChores, {
+    foreignKey: 'choreIdOfSender', 
+    targetKey:'userChoreId'
+},{as:'userChoreOfSender'});*/
 
 
-sequelize.sync({force: true})
+
+sequelize.sync({force: false})
     .then(() => {
-        Users.create({
+        /*Users.create({
             userId: '1',
             fullname: 'Administrator Administrator',
             password: 'Admin123',
@@ -164,9 +219,9 @@ sequelize.sync({force: true})
                     active: true,
                 })
             })
-            .then(
+            .then(*/
                 console.log(`Database & tables created!`)
-            )
+            //)
     });
 
     

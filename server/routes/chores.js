@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {UsersChores, ChoreTypes, UsersChoresTypes, Users} = require('../DBorm/DBorm');
+const {UsersChores, ChoreTypes, UsersChoresTypes, Users, SwapRequests} = require('../DBorm/DBorm');
 const validations = require('./shared/validations');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
@@ -23,7 +23,7 @@ router.get('/usersChores/future/:future', function (req, res, next) {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send("Something went wrong: ", err);
+            res.status(500).send( err);
         })
   }
   else{
@@ -109,6 +109,8 @@ router.get('/userChores/userId/:userId/future/:future', function (req, res, next
             })
       }
       else{
+        if(req.params.future==="false")
+        {
             UsersChores.findAll({
               where: {
                 userId: req.params.userId,
@@ -131,6 +133,27 @@ router.get('/userChores/userId/:userId/future/:future', function (req, res, next
           res.status(500).send({"message":"Something went wrong ",err});
         })
       }
+      else{
+        UsersChores.findAll({
+          where: {
+            userId: req.params.userId,
+          }
+        })
+    .then(chores => {
+      if(chores && chores.length>0){
+        console.log(chores);
+        return res.status(200).send({"message":'Getting usersChores for user '+ chores.userId +' successfully done',chores});
+      }
+      else{
+        return res.status(200).send({"message":'no usersChores for this user',chores});
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({"message":"Something went wrong ",err});
+    })
+      }
+    }
   })
   .catch(err=>{
       res.status(400).send({"message":"user not exist", err});
@@ -267,17 +290,18 @@ router.get('/usersChores/type/:type/month/:month/year/:year', function (req, res
     if(type){
       if((typeof Number(req.params.month))==='number' && Number(req.params.month)>=1 && Number(req.params.month)<=12 && (typeof Number(req.params.year))==='number'){
         UsersChores.findAll({
+                        include: [{model: Users}],
                         where: {
                           choreTypeName: req.params.type,
-                          date: {
+                          /*date: {
                             [Op.gte]: new Date(req.params.year+"-"+req.params.month+"-01"),
                             [Op.lt]: new Date(req.params.year+"-"+(Number(req.params.month)+1)+"-01")
-                          }
+                          }*/
                         }
                       })
             .then(usersChores => {
-              console.log("\n\n\n: USRESCHORES:\n"+usersChores[0].dataValues.userId+"\n\n\n");
               if(usersChores && usersChores.length>0){
+                console.log("\n\n\napi4 usersChores:", usersChores);
                 res.status(200).send({"message":'getting users chores from choreType and month seccussfully done',usersChores});
               }
               else{
@@ -456,13 +480,14 @@ router.post('/add/choreType', function (req, res, next) {
       });
       }
       else{ //if choreType doesnt exist
-        if(!((req.body.choreTypeName && (typeof req.body.choreTypeName ==='string'))&&(req.body.days && (typeof req.body.days ==='string'))&&(req.body.numberOfWorkers && (typeof req.body.numberOfWorkers ==='number'))&&(req.body.frequency && (typeof req.body.frequency ==='number'))&&(req.body.startTime && (typeof req.body.startTime ==='string'))&&(req.body.endTime && (typeof req.body.endTime ==='string'))&&(req.body.color && (typeof req.body.color ==='string')))){
+        if(!((req.body.choreTypeName && (typeof req.body.choreTypeName ==='string'))&&(req.body.serviceProviderId )&&(req.body.days && (typeof req.body.days ==='string'))&&(req.body.numberOfWorkers && (typeof req.body.numberOfWorkers ==='number'))&&(req.body.frequency && (typeof req.body.frequency ==='number'))&&(req.body.startTime && (typeof req.body.startTime ==='string'))&&(req.body.endTime && (typeof req.body.endTime ==='string'))&&(req.body.color && (typeof req.body.color ==='string')))){
           return res.status(400).send({
             "message": "One or more field/s is in incorreck type",
         });
         }
         ChoreTypes.create({
           choreTypeName: req.body.choreTypeName,
+          serviceProviderId: req.body.serviceProviderId,
           days: req.body.days,//JSON.stringify(req.body.days),
           numberOfWorkers: req.body.numberOfWorkers,
           frequency: req.body.frequency,
@@ -588,6 +613,7 @@ router.post('/add/userChore', function (req, res, next) {
                         userId: req.body.userId,
                         choreTypeName: req.body.choreTypeName,
                         date: new Date( req.body.date),
+                        originDate: new Date( req.body.date),
                         isMark: req.body.isMark,
                       })
                           .then(newUserChore => {
@@ -739,6 +765,233 @@ router.delete('/userChoreId/:userChoreId/delete', function (req, res, next) {
   .catch(err=>{
     res.status(400).send({"message":"no such userChore in the future (cannot remove userchore that already executed)"});
   })
+});
+
+//api ?
+router.get('/replacementRequests/status/:status', function (req, res, next) {
+  SwapRequests.findAll({ 
+    where:{
+      status: req.params.status,
+    },
+        include:[{all:true, nested: true}]//{model: UsersChores }],
+      })
+          .then(requests => {
+              //console.log('getting userIds of choreType by choreTypeName seccussfully done'+usersChoreType);
+              if(requests && requests.length>0){
+                res.status(200).send({"message":"getting requests of replacements seccessfully done",requests});
+              }
+              else{
+                res.status(200).send({"message":"no requests for this choretype",requests});
+              }
+          })
+          .catch(err => {
+              console.log("\n\n\nhere\n\n\n");
+              res.status(500).send(err);
+          })
+ 
+});
+
+router.post('/replacementRequests/specificRequest', function (req, res, next) {
+  //TODO: check if the useschores are in the future
+  //TODO: check if the useschores are in the same type
+  validations.checkIfUserChoreExist(req.body.choreIdOfSender, res)
+  .then(choreSender=>{
+      if (choreSender){
+        validations.checkIfUserChoreExist(req.body.choreIdOfReceiver, res)
+        .then(choreReceiver=>{
+          if(choreReceiver){
+            date = new Date(choreSender.dataValues.date);
+            dateNow = Date.now();
+            if(date<dateNow){
+                res.status(400).send({
+                  "message": "לא ניתן לבקש החלפה עם תורנות עם תאריך בעבר",
+                });
+            }
+            else{
+              console.log("create new specific request:", choreReceiver.dataValues.choreTypeName, choreSender.dataValues.choreTypeName)
+              if(choreReceiver.dataValues.choreTypeName===choreSender.dataValues.choreTypeName){
+              //
+              SwapRequests.create({
+                choreIdOfSender: req.body.choreIdOfSender,
+                choreIdOfReceiver: req.body.choreIdOfReceiver,
+                status: req.body.status,
+              })
+                  .then(newRequest => {
+                      res.status(200).send({"message": "replacement request successfully added!",newRequest});
+                  })
+                  .catch(err => {
+                      console.log(err);
+                      res.status(500).send(err);
+                  })
+                  //
+                }
+                else{
+                  res.status(400).send({"message": "לא ניתן לבקש החלפה בין 2 תורנויות מסוגים שונים"});
+                }
+            }
+          }
+          else{
+            res.status(200).send({"message": "תורנות של מבקש הבקשה לא קיימת!",newRequest});
+           } 
+        })
+        .catch(err=>{
+          res.status(500).send({
+                  "message": "שגיאה!",
+                });
+        })
+        //date = new Date(req.body.date);
+        //dateNow = Date.now();
+        //if(date<dateNow){
+        //    res.status(400).send({
+        //      "message": "Cannot schedule a user chore at a past date",
+        //    });
+        //}else{
+        //  console.log("\n the date is OK!\n")
+        //  validations.checkIfUserExist(req.body.userId, res)
+        //  .then(user=>{
+            //check if the user have releases for that chore
+        //    checkIfUserDoChoreType(req.body.userId, req.body.choreTypeName, res)
+        //    .then(ans=>{
+        //      if(ans){
+                      
+             
+      }
+       else{
+        res.status(200).send({"message": "תורנות של שולח הבקשה לא קיימת!",newRequest});
+       } 
+      
+  })
+});
+
+router.put('/replacementRequests/generalRequest', function (req, res, next) {
+  //done: check if the useschores are in the future
+  validations.checkIfUserChoreExist(req.body.userChoreId, res)
+  .then(choreSender=>{
+      if (choreSender){
+            date = new Date(choreSender.dataValues.date);
+            dateNow = Date.now();
+            if(date<dateNow){
+                res.status(400).send({
+                  "message": "לא ניתן לבקש החלפה של תורנות עם תאריך בעבר",
+                });
+            }
+            else{
+              console.log("create new general request:", choreSender.dataValues.choreTypeName)
+              //
+              UsersChores.findOne({
+                where: {
+                  userChoreId: req.body.userChoreId
+                }
+              })
+              .then(userchore=>{
+                userchore.update({
+                  isMark: req.body.isMark,
+                })
+                    .then(newRequest => {
+                        res.status(200).send({"message": "general replacement request successfully added!",newRequest});
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+              })
+              
+                  //
+            }
+        
+        //date = new Date(req.body.date);
+        //dateNow = Date.now();
+        //if(date<dateNow){
+        //    res.status(400).send({
+        //      "message": "Cannot schedule a user chore at a past date",
+        //    });
+        //}else{
+        //  console.log("\n the date is OK!\n")
+        //  validations.checkIfUserExist(req.body.userId, res)
+        //  .then(user=>{
+            //check if the user have releases for that chore
+        //    checkIfUserDoChoreType(req.body.userId, req.body.choreTypeName, res)
+        //    .then(ans=>{
+        //      if(ans){
+                      
+             
+      }
+       else{
+        res.status(200).send({"message": "תורנות של שולח הבקשה לא קיימת!"});
+       } 
+      
+  })
+});
+
+router.put('/replacementRequests/changeStatus', function (req, res, next) {
+            SwapRequests.findOne({
+                where: {
+                  choreIdOfSender: req.body.choreIdOfSender,
+                  choreIdOfReceiver: req.body.choreIdOfReceiver,
+                }
+              })
+              .then(userchore=>{
+                userchore.update({
+                  status: req.body.status,
+                })
+                    .then(newRequest => {
+                        res.status(200).send({"message": "change status replacement request successfully done!",newRequest});
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+              })
+              
+});
+
+router.put('/replacementRequests/replace', function (req, res, next) {
+        UsersChores.findOne({
+            where: {
+              userChoreId: req.body.choreIdOfSender,
+            }
+          })
+          .then(userchoreSender=>{
+            let oldDateSender = userchoreSender.dataValues.date;
+            console.log("replace sender: ", userchoreSender );
+            UsersChores.findOne({
+              where: {
+                userChoreId: req.body.choreIdOfReceiver,
+              }
+            })
+            .then(userchoreReceiver=>{
+              let oldDateReceiver = userchoreReceiver.dataValues.date;
+              userchoreReceiver.update({
+                date: oldDateSender,
+              })
+                  .then(choreRec => {
+                    userchoreSender.update({
+                      date: oldDateReceiver,
+                    })
+                    .then(choreSen=>{
+                      res.status(200).send({"message": "change dates of receiver and sender chore replacement request successfully done!",choreRec, choreSen});
+                    })
+                    .catch(err=>{
+                      res.status(500).send(res);
+                    })
+                  })
+                  .catch(err => {
+                      console.log(err);
+                      res.status(500).send(err);
+                  })
+            })
+           /* userchore.update({
+              status: req.body.status,
+            })
+                .then(newRequest => {
+                    res.status(200).send({"message": "change status replacement request successfully done!",newRequest});
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })*/
+          })              
+
 });
 
 checkIfUserDoChoreType = function(userId, type, res){
