@@ -767,7 +767,7 @@ router.delete('/userChoreId/:userChoreId/delete', function (req, res, next) {
   })
 });
 
-//api ?
+//api 9
 router.get('/replacementRequests/status/:status', function (req, res, next) {
   SwapRequests.findAll({ 
     where:{
@@ -791,6 +791,7 @@ router.get('/replacementRequests/status/:status', function (req, res, next) {
  
 });
 
+//api 12
 router.post('/replacementRequests/specificRequest', function (req, res, next) {
   //TODO: check if the useschores are in the future
   //TODO: check if the useschores are in the same type
@@ -862,7 +863,7 @@ router.post('/replacementRequests/specificRequest', function (req, res, next) {
       
   })
 });
-
+//api11
 router.put('/replacementRequests/generalRequest', function (req, res, next) {
   //done: check if the useschores are in the future
   validations.checkIfUserChoreExist(req.body.userChoreId, res)
@@ -923,6 +924,7 @@ router.put('/replacementRequests/generalRequest', function (req, res, next) {
   })
 });
 
+//api10
 router.put('/replacementRequests/changeStatus', function (req, res, next) {
             SwapRequests.findOne({
                 where: {
@@ -944,7 +946,7 @@ router.put('/replacementRequests/changeStatus', function (req, res, next) {
               })
               
 });
-
+//api13
 router.put('/replacementRequests/replace', function (req, res, next) {
         UsersChores.findOne({
             where: {

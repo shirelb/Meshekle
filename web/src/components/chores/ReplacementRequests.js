@@ -56,7 +56,7 @@ class ReplacementRequests extends Component {
         requestsCanceled =[];
         let reqs = [];
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'requested'));
-        reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'denied'));
+        reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'deny'));
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'raplaced'));
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'canceled'));
         axios.all(reqs)

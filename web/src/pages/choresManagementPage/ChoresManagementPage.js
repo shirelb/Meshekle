@@ -536,14 +536,14 @@ class ChoresManagementPage extends React.Component {
         u=0;
         usersStorage.getUsers()
         .then(res=>{
-            allUsers = res.data;
-            console.log("responst getallusers:", usersInType, this.state.users)
-            for(u in res.data){
+            allUsers = res;
+            console.log("responst getallusers:", usersInType, this.state.users, res)
+            for(u in res){
                 if(usersInTypeNames.indexOf(allUsers[u].fullname)<0){
                     usersNotInType.push({id: allUsers[u].userId, key:"1", text:allUsers[u].fullname, value:allUsers[u].fullname});
                 }
                 
-                console.log("user: ", res.data[u],"is in type?", usersInTypeNames.indexOf(res.data[u].fullname), res.data[u].fullname);
+                console.log("user: ", res[u],"is in type?", usersInTypeNames.indexOf(res[u].fullname), res[u].fullname);
             }
 
             //this.setState({usersNotInType:usersNotInType});

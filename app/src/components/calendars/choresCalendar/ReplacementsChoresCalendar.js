@@ -121,7 +121,7 @@ export default class ReplacementsChoresCalendar extends Component {
         if (updatedMarkedDates[selectedDay] === undefined)
             updatedMarkedDates[selectedDay] = {marked: true, selected: false, userChores: []};
         let newMarkedDate = updatedMarkedDates[selectedDay];
-        newMarkedDate.selected = true;
+        //newMarkedDate.selected = true;
         newMarkedDate.color = 'blue';
         updatedMarkedDates[selectedDay] = newMarkedDate;
 
