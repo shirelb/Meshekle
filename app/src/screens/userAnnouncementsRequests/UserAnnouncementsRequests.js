@@ -192,7 +192,7 @@ export default class UserAnnouncementsRequests extends Component {
                 </ScrollView>
                 <Button
                     buttonStyle = {{width:400}}
-                    label="Back"
+                    label="חזור"
                     onPress={this.backButtonPress.bind(this)}
                 />
             </View>

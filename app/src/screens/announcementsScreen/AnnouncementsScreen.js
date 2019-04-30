@@ -11,6 +11,8 @@ import {Easing} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob'
 var RNFS = require('react-native-fs');
 import Button from "../../components/submitButton/Button"
+import {Platform} from "react-native";
+
 
 import Share from 'react-native-share';
 import {PermissionsAndroid} from 'react-native';
@@ -30,12 +32,12 @@ export default class AnnouncementsScreen extends Component {
             addAnnouncementsModal: false,
             refreshing: false,
             search: "",
-            categoryNameFilter:"Any",
+            categoryNameFilter:"הכל",
             activeSections: [],
             categoriesDisplay:[],
         };
-        //TODO: CHECK IF RUN IN ANDROID OR IPHONE
-        this.requestSaveFilePermission();
+        if(Platform.OS === 'android')
+            this.requestSaveFilePermission();
     }
 
     async requestSaveFilePermission() {
@@ -92,7 +94,7 @@ export default class AnnouncementsScreen extends Component {
                 let categories = response.data;
                 console.log("categories",categories);
 
-                let categoriesDisplay = [{value: "Any"}];
+                let categoriesDisplay = [{value: "הכל"}];
                 categoriesDisplay = categoriesDisplay.concat(categories.map(cat => {return {value : cat.categoryName}}));
                 this.setState({categories: categories,categoriesDisplay:categoriesDisplay});
 
@@ -119,7 +121,7 @@ export default class AnnouncementsScreen extends Component {
         this.loadOnAirAnnouncements();
         this.loadCategories();
 
-        this.setState({refreshing: false,categoryNameFilter:"Any",search:""});
+        this.setState({refreshing: false,categoryNameFilter:"הכל",search:""});
     };
 
     //Search bar filter
@@ -128,19 +130,19 @@ export default class AnnouncementsScreen extends Component {
 
         this.setState({filteredAnnouncements: this.state.announcements.filter(a => {
             return a.title.toLowerCase().includes(searchInput.toLowerCase()) &&
-            (this.state.categoryNameFilter === "Any" || categoriesWithFilterdName.includes(a.categoryId))
+            (this.state.categoryNameFilter === "הכל" || categoriesWithFilterdName.includes(a.categoryId))
             }), search:searchInput});
     };
 
     //Category dropdown filter
     updateDropdown = categoryName => {
         let categoriesWithFilterdName=[];
-        if(categoryName !== 'Any'){
+        if(categoryName !== 'הכל'){
             categoriesWithFilterdName = this.state.allCategories.filter(cat => cat.categoryName === categoryName).map(item => item.categoryId);
         }
         this.setState({filteredAnnouncements: this.state.announcements.filter(a => {
                 return a.title.toLowerCase().includes(this.state.search.toLowerCase()) &&
-                    (categoryName === "Any" || categoriesWithFilterdName.includes(a.categoryId))
+                    (categoryName === "הכל" || categoriesWithFilterdName.includes(a.categoryId))
             }), categoryNameFilter: categoryName});
     };
 
@@ -262,7 +264,7 @@ export default class AnnouncementsScreen extends Component {
     onNavigateOut = () => {
         this.setState({
             search: "",
-            categoryNameFilter: "Any",
+            categoryNameFilter: "הכל",
             announcements: this.state.announcements,
             filteredAnnouncements: this.state.announcements
         });

@@ -98,11 +98,11 @@ export default class UserAnnouncementsSettings extends Component {
                     keyExtractor={(item, index) => index.toString()}
                 />
                 <Button
-                    label="Submit"
+                    label="שלח"
                     onPress={this.saveChanges.bind(this)}
                 />
                 <Button
-                    label="Cancel"
+                    label="בטל"
                     onPress={this.cancelButtonClicked.bind(this)}
                 />
             </View>

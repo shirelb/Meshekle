@@ -216,7 +216,7 @@ export default class RequestAnnouncement extends Component {
                         onChange={this.onChange.bind(this)}
                     />
                     <Button
-                        label="Add File"
+                        label="הוסף קובץ (עד 1MB)"
                         onPress={this.uploadFile.bind(this)}
                     />
 
@@ -224,17 +224,17 @@ export default class RequestAnnouncement extends Component {
 
                     <Button
                         style={styles.button}
-                        label="Submit"
+                        label="שלח"
                         onPress={this.saveChanges.bind(this)}
                     />
                     <Button
                         style={styles.button}
-                        label="Clear"
+                        label="נקה"
                         onPress={this.clearForm.bind(this)}
                     />
                     <Button
                         style={styles.button}
-                        label="Cancel"
+                        label="בטל"
                         onPress={this.cancelChanges.bind(this)}
                     />
                 </ScrollView>
