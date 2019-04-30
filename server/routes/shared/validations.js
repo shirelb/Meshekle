@@ -85,6 +85,19 @@ module.exports = {
             }
         })
     },
+    getServiceProvidersByServiceProviderIdsPromise: function(serviceProvidersIds) {
+        return ServiceProviders.findAll({
+            where: {
+                serviceProviderId: {
+                    [Op.in]: serviceProvidersIds
+                },
+            }
+        })
+    },
+    getCategoriesPromise: function() {
+        return Categories.findAll({
+        })
+    },
     getSchedAppointmentByIdPromise: function(appointmentId) {
         return ScheduledAppointments.findAll({
             where: {

@@ -2,20 +2,19 @@ import React from 'react';
 import {Helmet} from 'react-helmet';
 import {Grid, Header, Message, Modal} from "semantic-ui-react";
 import store from "store";
-import mappers from "../../shared/mappers";
-import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
-import appointmentsStorage from "../../storage/appointmentsStorage";
-import AppointmentForm from "../appointment/AppointmentAdd";
-import AnnouncementForm from "./AnnouncementForm";
 import announcementsStorage from "../../storage/announcementsStorage";
+import CategoryForm from "./CategoryForm";
 
-class AnnouncementAdd extends React.Component {
+class CategoryAdd extends React.Component {
     constructor(props) {
         super(props);
         this.serviceProviderId = this.props.location.state.serviceProviderId;
         this.userId = this.props.location.state.userId;
         this.isUpdate = this.props.location.state.isUpdate;
-        this.state = {categories: [],formError: "",};
+        this.serProvsWithNames = this.props.location.state.serProvsWithNames;
+        this.catNames = this.props.location.state.catNames;
+
+        this.state = {formError: "",};
 
 
 
@@ -28,35 +27,34 @@ class AnnouncementAdd extends React.Component {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
 
-        this.getCategories();
     }
 
-    getCategories() {
-        announcementsStorage.getCategoriesByServiceProviderId(this.serviceProviderId,this.serviceProviderHeaders)
-            .then(response => this.setState({categories: response.data}));
-    };
 
-    handleSubmit(announcement) {
+    // categoryListExample = {cateogryName:"asaf",managers:[4,5,6],categoryOldName:"amit"}
+    handleSubmit(categoryList) {
+
+
+
         this.setState({formError:""});
-        const {getAnnouncements} = this.props;
-        var newAnnouncement = JSON.parse(JSON.stringify(announcement));
+        const {getAnnouncements,getAnnouncementsRequests,getCategories,getAllCategories} = this.props;
+        var newCategoryList = JSON.parse(JSON.stringify(categoryList));
         if(!this.isUpdate) {
 
-            newAnnouncement.serviceProviderId = store.get('serviceProviderId');
-            newAnnouncement.userId = store.get('userId');
-            newAnnouncement.creationTime = this.formatDate(new Date());
-            newAnnouncement.expirationTime = this.formatDate(newAnnouncement.expirationTime);
-            newAnnouncement.dateOfEvent = this.formatDate(newAnnouncement.dateOfEvent);
+            if(this.catNames.map(c=>c.toLowerCase()).includes(newCategoryList.categoryName.toLowerCase())){
+                this.setState({formError: "שם הקטגוריה כבר קיים"});
+                return false;
+            }
 
-            newAnnouncement.status = "On air";
-            announcementsStorage.addAnnouncement(newAnnouncement, this.serviceProviderHeaders)
+            announcementsStorage.addCategory(newCategoryList, this.serviceProviderHeaders)
                 .then((response) => {
                     if(response.status === 200) {
                         console.log(response);
 
                         getAnnouncements();
+                        getAnnouncementsRequests();
+                        getCategories();
+                        getAllCategories();
                         this.props.history.goBack();
-                        //this.props.history.reload()
                         return true;
                     }
                     else {
@@ -66,19 +64,21 @@ class AnnouncementAdd extends React.Component {
                 });
         }
         else{
+            if(this.catNames.map(c=>c.toLowerCase()).includes(newCategoryList.categoryName.toLowerCase()) && newCategoryList.categoryName !== newCategoryList.categoryOldName){
+                this.setState({formError: "שם הקטגוריה כבר קיים"});
+                return false;
+            }
 
-            newAnnouncement.expirationTime = this.formatDate(newAnnouncement.expirationTime);
-            newAnnouncement.dateOfEvent = this.formatDate(newAnnouncement.dateOfEvent);
-            newAnnouncement.announcementId = this.isUpdate.announcementId;
-
-            announcementsStorage.updateAnnouncement(newAnnouncement, this.serviceProviderHeaders)
+            announcementsStorage.updateCategory(newCategoryList, this.serviceProviderHeaders)
                 .then((response) => {
                     if(response.status === 200) {
                         console.log(response);
 
                         getAnnouncements();
+                        getAnnouncementsRequests();
+                        getCategories();
+                        getAllCategories();
                         this.props.history.goBack();
-                        //this.props.history.reload()
                         return true;
                     }
                     else {
@@ -94,22 +94,11 @@ class AnnouncementAdd extends React.Component {
 
         this.props.history.goBack()
     }
-    formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-
-        if (month.length < 2) month = '0' + month;
-        if (day.length < 2) day = '0' + day;
-
-        return [year, month, day].join('-');
-    }
 
 
     render() {
 
-        const {categories,formError} = this.state;
+        const {formError} = this.state;
 
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
@@ -120,11 +109,11 @@ class AnnouncementAdd extends React.Component {
                 <Grid padded>
                     <Grid.Column>
 
-                        <Header as="h1" floated="right">{this.isUpdate?"ערוך מודעה": "מודעה חדשה"}</Header>
-                        <AnnouncementForm
+                        <Header as="h1" floated="right">{this.isUpdate?"ערוך קטגוריה": "קטגוריה חדשה"}</Header>
+                        <CategoryForm
                             submitText="קבע"
-                            announcement = {this.isUpdate?this.isUpdate:null}
-                            categories = {categories}
+                            category = {this.isUpdate?this.isUpdate:null}
+                            serProvsWithNames = {this.serProvsWithNames}
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                         />
@@ -144,4 +133,4 @@ class AnnouncementAdd extends React.Component {
     }
 }
 
-export default AnnouncementAdd;
+export default CategoryAdd;

@@ -1,12 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Dropdown, Form, Message, Modal, TextArea} from 'semantic-ui-react';
+import {Button, Dropdown, Form, Image, Message, Modal, TextArea} from 'semantic-ui-react';
 import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import '../styles.css';
-import usersStorage from "../../storage/usersStorage";
-import announcementsStorage from "../../storage/announcementsStorage";
-
 
 
 
@@ -33,8 +30,10 @@ class AnnouncementForm extends Component {
                 title: announcement.title ? announcement.title : '',
                 content:announcement.content ? announcement.content : '',
                 categoryName:announcement.categoryName ? announcement.categoryName : '',
-                expirationTime:announcement.expirationTime ? announcement.expirationTime : '',
-                dateOfEvent:announcement.dateOfEvent ? announcement.dateOfEvent : '',
+                expirationTime:announcement.expirationTime ? announcement.expirationTime.substring(0,announcement.expirationTime.indexOf('T')) : '',
+                dateOfEvent:announcement.dateOfEvent ? announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T')) : '',
+                file:announcement.file ? announcement.file : '',
+                fileName:announcement.fileName ? announcement.fileName : '',
             }};
 
         console.log('constructor  state', this.state);
@@ -58,8 +57,9 @@ class AnnouncementForm extends Component {
             updatedAnnouncement.categoryId = (categoryOptions.filter(cat => cat.value === announcement.categoryName))[0].key;
             this.setState({announcement: updatedAnnouncement});
 
-            handleSubmit(updatedAnnouncement);
-            this.setState({announcement: {}});
+            let submit = handleSubmit(updatedAnnouncement);
+            if(submit)
+                this.setState({announcement: {}});
         } else {
             this.setState({formError: true});
         }
@@ -81,10 +81,13 @@ class AnnouncementForm extends Component {
                 categoryName: '',
                 expirationTime: '',
                 dateOfEvent: '',
+                file: '',
+                fileName: '',
             },
             formError: false,
             formComplete: false,
         });
+        this.refs.fileUpload.value = null;
     };
 
     onChangeExprTime = exprTime => {
@@ -97,6 +100,32 @@ class AnnouncementForm extends Component {
         let updatedAnnouncement = this.state.announcement;
         updatedAnnouncement.dateOfEvent = moment(dateOfEvent).toDate();
         this.setState({announcement: updatedAnnouncement})
+    };
+
+    handleChangeFile = e => {
+        e.preventDefault();
+
+        let file = e.target.files[0];
+        let fileName = file.name;
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        let updatedAnnouncement = JSON.parse(JSON.stringify(this.state.announcement));
+        let prevValue = updatedAnnouncement.fileName;
+        reader.onload = e => {
+            console.log("file", e.target.result);
+            let file = e.target.result;
+            updatedAnnouncement.file = file.substring(file.indexOf(",") + 1, file.length);
+            updatedAnnouncement.fileName = fileName;
+
+            this.setState({
+                announcement: updatedAnnouncement
+            });
+        };
+        // while(! (updatedAnnouncement.fileName === prevValue) && ! (updatedAnnouncement.file === ''));
+
+
+
+
     };
 
 
@@ -171,6 +200,9 @@ class AnnouncementForm extends Component {
                         onChange={this.onChangeDateOfEvent.bind(this)}
                     />
                 </Form.Group>
+
+                <input type='file' onChange={this.handleChangeFile}  ref="fileUpload"/>
+
 
                 {formError ?
                     <Message

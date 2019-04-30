@@ -4,10 +4,13 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
+    "create-react-class": "^15.6.3",
+    "fs": "0.0.1-security",
     "fullcalendar": "^3.10.0",
     "html2canvas": "^1.0.0-rc.1",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
+    "js-sha512": "^0.8.0",
     "jspdf": "^1.5.3",
     "lodash": "^4.17.11",
     "lodash.times": "^4.3.2",

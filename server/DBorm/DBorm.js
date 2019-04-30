@@ -37,7 +37,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: process.dbMode === "dev" ? './DBorm/sqliteTests.db' : './DBorm/sqlite.db'
+    storage: process.dbMode === "dev"? './DBorm/sqliteTests.db':'./DBorm/sqlite.db'
 });
 
 sequelize
@@ -130,12 +130,12 @@ AppointmentRequests.belongsTo(ScheduledAppointments, {
 });
 //
 Users.hasMany(UsersChoresTypes, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
+    foreignKey: 'userId', 
+    targetKey:'userId'
 });
 UsersChoresTypes.belongsTo(Users, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
+    foreignKey: 'userId', 
+    targetKey:'userId'
 });
 
 Users.hasMany(UsersChores, {
@@ -149,11 +149,11 @@ UsersChores.belongsTo(Users, {
 
 Users.hasMany(ServiceProviders, {
     foreignKey: 'userId',
-    targetKey: 'userId'
+    targetKey:'userId'
 });
 ServiceProviders.hasOne(Users, {
     foreignKey: 'userId',
-    targetKey: 'userId'
+    targetKey:'userId'
 });
 
 SwapRequests.belongsTo(UsersChores, {
@@ -229,6 +229,7 @@ if (process.dbMode === "dev") {
 }
 
 
+    
 module.exports = {
     sequelize,
     Users,

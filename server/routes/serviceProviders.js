@@ -6,11 +6,22 @@ var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
 var moment = require('moment');
 var router = express.Router();
+var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
+
+var sha512 = require('js-sha512');
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'meshekle2019@gmail.com',
+        pass: 'geralemeshekle'
+    }
+});
 
 
 //Login from service provider by userId and password
@@ -422,10 +433,11 @@ router.post('/users/add', function (req, res, next) {
             if (users.length !== 0)
                 return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
             const randomPassword = helpers.generateRandomPassword();
+            let hash = sha512.update(randomPassword);
             Users.create({
                 userId: req.body.userId,
                 fullname: req.body.fullname,
-                password: randomPassword,
+                password: hash.hex(),
                 email: req.body.email,
                 mailbox: req.body.mailbox,
                 cellphone: req.body.cellphone,
@@ -439,7 +451,7 @@ router.post('/users/add', function (req, res, next) {
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
                     helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                        "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + newUser.password + "\n" + constants.mailMessages.MAIL_END);
+                        "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + randomPassword + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -457,6 +469,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
             let newPassword = helpers.generateRandomPassword();
+            let hash = sha512.update(newPassword);
 
             Users.findOne(
                 {
@@ -467,7 +480,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                 .then(user => {
                     // user.dataValues.password = newPassword;
                     user.update({
-                        password: newPassword
+                        password: hash.hex()
                     })
                         .then(updatedUser => {
                             res.status(200).send({
@@ -475,7 +488,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + updatedUser.password + "\n" + constants.mailMessages.MAIL_END);
+                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + newPassword + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {

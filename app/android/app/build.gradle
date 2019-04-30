@@ -138,6 +138,10 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-share')
+    compile project(':rn-fetch-blob')
+    compile project(':react-native-fs')
+    compile project(':react-native-document-picker')
     implementation project(':react-native-image-crop-picker')
     compile project(':react-native-vector-icons')
     compile project(':react-native-gesture-handler')

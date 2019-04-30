@@ -24,9 +24,13 @@ import AppointmentRequest from './screens/appointmentRequest/AppointmentRequest'
 import UserAppointmentRequests from './screens/userAppointmentRequests/UserAppointmentRequests';
 import ChoresScreen from './screens/choresScreen/ChoresScreen';
 import PhoneBookScreen from './screens/phoneBookScreen/PhoneBookScreen';
+import AnnouncementsScreen from './screens/announcementsScreen/AnnouncementsScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
 import ForgotPasswordScreen from "./screens/forgotPasswordScreen/ForgotPasswordScreen";
+import UserAnnouncementsSettings from './screens/userAnnouncementsSettings/UserAnnouncementsSettings';
+import RequestAnnouncement from './screens/requestAnnouncement/RequestAnnouncement';
+import UserAnnouncementsRequests from './screens/userAnnouncementsRequests/UserAnnouncementsRequests';
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -79,6 +83,31 @@ const DrawerMenuNavigator = createDrawerNavigator(
                 headerTitle: 'ספר טלפונים',
             },
         },
+        RequestAnnouncement: {
+            screen: RequestAnnouncement,
+            params: {
+                headerTitle: 'מודעה חדשה',
+            },
+        },
+        UserAnnouncementsSettings: {
+            screen: UserAnnouncementsSettings,
+            params: {
+                headerTitle: 'מסך הגדרות מודעות',
+            },
+        },
+        UserAnnouncementsRequests: {
+            screen: UserAnnouncementsRequests,
+            params: {
+                headerTitle: 'בקשות קיימות',
+            },
+        },
+        AnnouncementsScreen: {
+            screen: AnnouncementsScreen,
+            params: {
+                headerTitle: 'לוח מודעות',
+            },
+        },
+
     },
     {
         initialRouteName: 'MainScreen',

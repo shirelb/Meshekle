@@ -21,6 +21,8 @@ const drawerMenu = {
     MAIN_SCREEN_NAME: "בית",
     APPOINTMENTS_SCREEN_NAME: "תורים",
     CHORES_SCREEN_NAME: "תורנויות",
+    ANNOUNCEMENTS_SCREEN_NAME: "לוח מודעות",
+
     PhoneBook_SCREEN_NAME: "ספר טלפונים",
 };
 

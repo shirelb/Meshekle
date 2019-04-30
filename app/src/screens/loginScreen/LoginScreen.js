@@ -10,6 +10,11 @@ import usersStorage from "../../storage/usersStorage";
 
 const imageLogo = require("../../images/logo4000.png");
 
+var sha512 = require('js-sha512');
+
+
+
+
 export default class LoginScreen extends Component {
     state = {
         userId: '',
@@ -62,7 +67,8 @@ export default class LoginScreen extends Component {
             console.log(errors);
             this.setState({err: errors});
         } else {
-            usersStorage.userLogin(this.state.userId, this.state.password)
+            let hash = sha512.update(this.state.password);
+            usersStorage.userLogin(this.state.userId, hash.hex())
                 .then((response) => {
                     console.log(response);
                     phoneStorage.update('userData', {
