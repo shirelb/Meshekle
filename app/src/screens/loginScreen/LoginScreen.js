@@ -129,6 +129,10 @@ export default class LoginScreen extends Component {
                         label={strings.loginScreenStrings.LOGIN}
                         onPress={this.onSubmitPress.bind(this)}
                     />
+                    <Button
+                        label={strings.loginScreenStrings.FORGOT_PASSWORD}
+                        onPress={()=>  this.props.navigation.navigate('ForgotPasswordScreen')}
+                    />
                     {this.state.err.map(error => (
                         <View key={error}>
                             <Text style={styles.errorText}>

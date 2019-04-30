@@ -6,6 +6,7 @@ import AppointmentRequestForm from "../../components/appointmentRequest/Appointm
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 import mappers from "../../shared/mappers";
+import strings from "../../shared/strings";
 
 
 export default class AppointmentRequest extends Component {
@@ -38,9 +39,9 @@ export default class AppointmentRequest extends Component {
     loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders(this.userHeaders)
             .then(serviceProviders => {
-                // let serviceProviders = response.data;
+                let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
 
-                serviceProviders.forEach(provider => {
+                appointmentsServiceProviders.forEach(provider => {
                     provider.role = mappers.serviceProviderRolesMapper(provider.role);
 
                     usersStorage.getUserById(provider.userId, this.userHeaders)
@@ -48,10 +49,10 @@ export default class AppointmentRequest extends Component {
                             provider.fullname = user.data[0].fullname;
 
                             this.setState({
-                                serviceProviders: serviceProviders,
+                                serviceProviders: appointmentsServiceProviders,
                             });
 
-                            this.serviceProviders = serviceProviders;
+                            this.serviceProviders = appointmentsServiceProviders;
                         })
                 })
             });
@@ -61,6 +62,14 @@ export default class AppointmentRequest extends Component {
         this.setState({
             formModal: true,
             serviceProviderSelected: serviceProvider
+        });
+        // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
+    };
+
+    closeAppointmentRequestForm = () => {
+        this.setState({
+            formModal: false,
+            serviceProviderSelected: {},
         });
         // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
     };
@@ -119,7 +128,7 @@ export default class AppointmentRequest extends Component {
         return (
             <ListItem
                 roundAvatar
-                title={item.role}
+                title={mappers.serviceProviderRolesMapper(item.role)}
                 subtitle={item.fullname}
                 // avatar={{uri:item.avatar_url}}
                 onPress={() => this.requestAppointment(item)}
@@ -137,7 +146,7 @@ export default class AppointmentRequest extends Component {
                         <FlatList
                             data={this.state.serviceProviders}
                             renderItem={this.renderRow}
-                            keyExtractor={item => item.userId}
+                            keyExtractor={item => item.serviceProviderId + "-" + item.role}
                             ItemSeparatorComponent={this.renderSeparator}
                             ListHeaderComponent={this.renderHeader}
                         />
@@ -149,6 +158,7 @@ export default class AppointmentRequest extends Component {
                     userId={this.userId}
                     serviceProvider={this.state.serviceProviderSelected}
                     selectedDate={this.props.navigation.state.params.selectedDate}
+                    closeAppointmentRequestForm={this.closeAppointmentRequestForm}
                 />
             </View>
         );

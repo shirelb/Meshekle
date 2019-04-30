@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {ChoreTypes,ServiceProviders, sequelize, Users, Announcements, ScheduledAppointments,Categories} = require('../../DBorm/DBorm');
+const {ChoreTypes,ServiceProviders, sequelize, Users,Announcements, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes,UsersChores, Events,Categories} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 
 module.exports = {
@@ -17,6 +17,20 @@ module.exports = {
                     return res.status(400).send({"message":"choreType is not exist",err});
                 })
     },
+
+    checkIfUserChoreExist: function (choreId, res){
+        return UsersChores.findOne({
+                       where: {
+                        userChoreId: choreId
+                       }
+                   })
+           .then(chore => {
+               return chore;
+           })
+           .catch(err => {
+               return res.status(400).send({"message":"chore is not exist",err});
+           })
+},
 
     checkIfUserExist: function (userId, res) {
         return Users.findOne({

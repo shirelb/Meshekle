@@ -5,6 +5,7 @@ import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import store from "store";
 import appointmentsStorage from "../../storage/appointmentsStorage";
+import mappers from "../../shared/mappers";
 
 
 class AppointmentRequestInfo extends React.Component {
@@ -36,7 +37,7 @@ class AppointmentRequestInfo extends React.Component {
             .then((response) => {
                 console.log('appointmentRequest handleDelete ', response);
             });
-        this.props.history.goBack();
+
     }
 
     render() {
@@ -55,9 +56,9 @@ class AppointmentRequestInfo extends React.Component {
                         <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointmentRequest.requestId}</p>
                         <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointmentRequest.clientName}</p>
                         <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointmentRequest.AppointmentDetail.serviceProviderId}</p>
-                        <p>{strings.appointmentsPageStrings.ROLE}: {appointmentRequest.AppointmentDetail.role}</p>
+                        <p>{strings.appointmentsPageStrings.ROLE}: {strings.roles[appointmentRequest.AppointmentDetail.role]}</p>
                         <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</p>
-                        <p>{strings.appointmentsPageStrings.STATUS}: {appointmentRequest.status}</p>
+                        <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentRequestStatusMapper(appointmentRequest.status)}</p>
                         <p>{strings.appointmentsPageStrings.REMARKS}: {appointmentRequest.notes}                         </p>
                         <div>
                             <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}: </p>

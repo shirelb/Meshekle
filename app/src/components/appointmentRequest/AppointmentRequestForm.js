@@ -75,6 +75,7 @@ export default class AppointmentRequestForm extends Component {
 
     setModalVisible(visible) {
         this.setState({modalVisible: visible});
+        this.props.closeAppointmentRequestForm();
     }
 
     groupButtonOnSelectedValuesChange(selectedValues) {

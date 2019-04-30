@@ -40,6 +40,7 @@ export default class UserProfileInfo extends Component {
         this.setState({modalVisible: visible});
     }
 
+
     render() {
         const user = this.state.user;
         // console.log('user ', user);

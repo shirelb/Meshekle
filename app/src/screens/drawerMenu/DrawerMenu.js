@@ -180,19 +180,26 @@ export default class DrawerMenu extends Component {
                     />
                 </List>
 
-                <UserProfileInfo
-                    modalVisible={this.state.infoModal}
-                    user={this.state.userLoggedin}
-                    openedFrom={"DrawerMenu"}
-                    setFormModalVisible={this.setFormModalVisible}
-                />
+                {this.state.infoModal ?
+                    <UserProfileInfo
+                        modalVisible={this.state.infoModal}
+                        user={this.state.userLoggedin}
+                        openedFrom={"DrawerMenu"}
+                        userHeaders={this.userHeaders}
+                        setFormModalVisible={this.setFormModalVisible}
+                    />
+                    : null
+                }
 
-                <UserProfileForm
-                    modalVisible={this.state.formModal}
-                    user={this.state.userLoggedin}
-                    userHeaders={this.userHeaders}
-                    loadUser={this.loadUser.bind(this)}
-                />
+                {this.state.formModal ?
+                    <UserProfileForm
+                        modalVisible={this.state.formModal}
+                        user={this.state.userLoggedin}
+                        userHeaders={this.userHeaders}
+                        loadUser={this.loadUser.bind(this)}
+                    />
+                    : null
+                }
 
             </View>
         );

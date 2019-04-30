@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {ScrollView, StyleSheet} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import {localConfig} from '../localConfig';
+// import {localConfig} from '../localConfig';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
 import appointmentsStorage from "../../../storage/appointmentsStorage";
@@ -60,6 +60,17 @@ export default class AppointmentsCalendar extends Component {
             })
     }
 
+    afterCloseModalShowSelectDay = () => {
+        let updatedMarkedDates = this.state.markedDates;
+
+        const selectedDay = updatedMarkedDates[this.state.selectedDate];
+        selectedDay.selected = true;
+        selectedDay.color = 'blue';
+        updatedMarkedDates[selectedDay] = selectedDay;
+
+        this.setState({markedDates: updatedMarkedDates, dateModalVisible: false})
+    };
+
     onDaySelect = (day) => {
         let updatedMarkedDates = this.state.markedDates;
 
@@ -78,21 +89,29 @@ export default class AppointmentsCalendar extends Component {
         updatedMarkedDates[selectedDay] = newMarkedDate;
 
         let expanded = {};
-        updatedMarkedDates[selectedDay].appointments.forEach(appointment => {
-            serviceProvidersStorage.getServiceProviderUserDetails(appointment.AppointmentDetail.serviceProviderId, this.userHeaders)
-                .then(user => {
-                    appointment.serviceProviderFullname = user.data.fullname;
+        if (updatedMarkedDates[selectedDay].appointments.length > 0)
+            updatedMarkedDates[selectedDay].appointments.forEach(appointment => {
+                serviceProvidersStorage.getServiceProviderUserDetails(appointment.AppointmentDetail.serviceProviderId, this.userHeaders)
+                    .then(user => {
+                        appointment.serviceProviderFullname = user.data.fullname;
 
-                    expanded[appointment.appointmentId] = false;
+                        expanded[appointment.appointmentId] = false;
 
-                    this.setState({
-                        selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
-                        markedDates: updatedMarkedDates,
-                        dateModalVisible: true,
-                        expanded: expanded,
+                        this.setState({
+                            selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+                            markedDates: updatedMarkedDates,
+                            dateModalVisible: true,
+                            expanded: expanded,
+                        });
                     });
-                });
-        });
+            });
+        else
+            this.setState({
+                selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+                markedDates: updatedMarkedDates,
+                dateModalVisible: true,
+                expanded: expanded,
+            });
     };
 
 
@@ -104,6 +123,7 @@ export default class AppointmentsCalendar extends Component {
                 <Calendar
                     markedDates={this.state.markedDates}
                     onDayPress={this.onDaySelect}
+                    onDayLongPress={this.onDaySelect}
                     style={styles.calendar}
                     // Month format in calendar title. Formatting values: http://arshaw.com/xdate/#Formatting
                     // monthFormat={'yyyy MM'}
@@ -142,6 +162,7 @@ export default class AppointmentsCalendar extends Component {
                     onAppointmentRequestPress={this.props.onAppointmentRequestPress}
                     markedDates={this.state.markedDates}
                     expanded={this.state.expanded}
+                    afterCloseModalShowSelectDay={this.afterCloseModalShowSelectDay}
                 />
             </ScrollView>
         );

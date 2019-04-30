@@ -108,7 +108,7 @@ class AppointmentsReportPage extends React.Component {
                                     clientId: appointment.AppointmentDetail.clientId,
                                     clientName: user.fullname,
                                     serviceProviderId: appointment.AppointmentDetail.serviceProviderId,
-                                    role: mappers.rolesMapper(appointment.AppointmentDetail.role),
+                                    role: strings.roles[appointment.AppointmentDetail.role],
                                     subject: JSON.parse(appointment.AppointmentDetail.subject).join(", "),
                                     status: mappers.appointmentStatusMapper(appointment.status),
                                     date: moment(appointment.startDateAndTime).format('DD/MM/YYYY'),
@@ -263,13 +263,13 @@ class AppointmentsReportPage extends React.Component {
                                 {strings.mainPageStrings.SETTINGS_PAGE_TITLE}
                             </Button>
                         </Link>
-                        <Link to='/appointments'>
-                            <Button positive icon>
-                                <Icon name="calendar alternate outline"/>
-                                &nbsp;&nbsp;
-                                {strings.mainPageStrings.BACK_TO_APPOINTMENTS_PAGE_TITLE}
-                            </Button>
-                        </Link>
+                        {/*<Link to='/appointments'>*/}
+                        <Button positive icon onClick={() => this.props.history.goBack()}>
+                            <Icon name="calendar alternate outline"/>
+                            &nbsp;&nbsp;
+                            {strings.mainPageStrings.BACK_TO_APPOINTMENTS_PAGE_TITLE}
+                        </Button>
+                        {/*</Link>*/}
 
                         <Button icon
                                 onClick={() => helpers.exportToPDF('MeshekleAppointmentsReport', 'divToPrint', 'landscape')}>
@@ -406,6 +406,18 @@ class AppointmentsReportPage extends React.Component {
                                         <Table.HeaderCell>
                                             <Icon link name='filter'
                                                   onClick={(e) => this.handleFilter('date', e)}
+                                            />
+                                            <Icon link name='x'
+                                                  onClick={(e) => {
+                                                      let filterColumnsAndTexts = this.state.filterColumnsAndTexts;
+                                                      filterColumnsAndTexts.date = "";
+                                                      this.setState({
+                                                          monthFilterSelected: null,
+                                                          dateFilterSelected: "",
+                                                          filterColumnsAndTexts: filterColumnsAndTexts,
+                                                      });
+                                                      this.handleFilter('', e);
+                                                  }}
                                             />
                                             <Datetime
                                                 inputProps={{style: {width: (100 + 'px')}}}

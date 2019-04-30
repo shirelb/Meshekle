@@ -11,6 +11,10 @@ module.exports = (sequelize, type) => {
             primaryKey: true,
             required: true
         },
+        serviceProviderId: {
+            type: type.STRING,
+            required: true
+        },
         days: {
             type: type.STRING,
             required: true

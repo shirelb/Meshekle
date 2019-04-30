@@ -1,11 +1,27 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, View, Button} from 'react-native';
+import ChoresCalendar from "../../components/calendars/choresCalendar/ChoresCalendar";
+
 
 export default class ChoresScreen extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Chores Screen</Text>
+                <Text>
+                    התורנויות שלי
+                </Text>
+
+                {/*<Button
+                    title="בקש תור חדש"
+                    onPress={this.onAppointmentRequestPress.bind(this)}
+                />*/}
+
+                {/* <Button
+                    label='get events'
+                    onPress={this.getUserEvents.bind(this)}
+                />*/}
+
+                <ChoresCalendar userId="1"/>
             </View>
         );
     }

@@ -7,6 +7,7 @@ import cl.json.RNSharePackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.rnfs.RNFSPackage;
 import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
+import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.facebook.react.ReactNativeHost;
@@ -36,6 +37,7 @@ public class MainApplication extends Application implements ReactApplication , S
             new RNFetchBlobPackage(),
             new RNFSPackage(),
             new ReactNativeDocumentPicker(),
+            new PickerPackage(),
             new VectorIconsPackage(),
             new RNGestureHandlerPackage()
       );

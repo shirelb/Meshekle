@@ -1,5 +1,6 @@
 const loginScreenStrings = {
     LOGIN: "התחבר",
+    FORGOT_PASSWORD: "שכחתי סיסמא",
     WELCOME_TO_LOGIN: "Welcome to the login screen!",
     USER_ID_PLACEHOLDER: "ת.ז.",
     PASSWORD_PLACEHOLDER: "סיסמא",
@@ -25,4 +26,9 @@ const drawerMenu = {
     PhoneBook_SCREEN_NAME: "ספר טלפונים",
 };
 
-export default {loginScreenStrings,mainScreenStrings,drawerMenu};
+const appointmentsServiceProviderRoles = [
+    "appointmentsHairDresser",
+    "appointmentsDentist",
+];
+
+export default {loginScreenStrings, mainScreenStrings, drawerMenu, appointmentsServiceProviderRoles};

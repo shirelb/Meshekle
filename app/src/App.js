@@ -27,6 +27,7 @@ import PhoneBookScreen from './screens/phoneBookScreen/PhoneBookScreen';
 import AnnouncementsScreen from './screens/announcementsScreen/AnnouncementsScreen';
 import AuthLoadingScreen from './screens/authLoadingScreen/AuthLoadingScreen';
 import DrawerMenu from './screens/drawerMenu/DrawerMenu';
+import ForgotPasswordScreen from "./screens/forgotPasswordScreen/ForgotPasswordScreen";
 import UserAnnouncementsSettings from './screens/userAnnouncementsSettings/UserAnnouncementsSettings';
 import RequestAnnouncement from './screens/requestAnnouncement/RequestAnnouncement';
 import UserAnnouncementsRequests from './screens/userAnnouncementsRequests/UserAnnouncementsRequests';
@@ -165,6 +166,13 @@ const AuthNavigator = createStackNavigator(
     {
         LoginScreen: {
             screen: LoginScreen,
+            params: {},
+            /*navigationOptions: {
+                header: null,
+            }*/
+        },
+        ForgotPasswordScreen: {
+            screen: ForgotPasswordScreen,
             params: {},
             /*navigationOptions: {
                 header: null,

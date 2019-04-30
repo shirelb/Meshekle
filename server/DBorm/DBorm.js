@@ -137,6 +137,16 @@ UsersChoresTypes.belongsTo(Users, {
     foreignKey: 'userId', 
     targetKey:'userId'
 });
+
+Users.hasMany(UsersChores, {
+    foreignKey: 'userId',
+    targetKey:'userId'
+});
+UsersChores.belongsTo(Users, {
+    foreignKey: 'userId',
+    targetKey:'userId'
+});
+
 Users.hasMany(ServiceProviders, {
     foreignKey: 'userId',
     targetKey:'userId'
@@ -146,7 +156,18 @@ ServiceProviders.hasOne(Users, {
     targetKey:'userId'
 });
 
-if(process.dbMode === "dev"){
+SwapRequests.belongsTo(UsersChores, {
+    as: 'choreOfReceiver',
+    foreignKey: 'choreIdOfReceiver',
+    targetKey:'userChoreId'
+});
+SwapRequests.belongsTo(UsersChores, {
+    as:'choreOfSender',
+    foreignKey: 'choreIdOfSender',
+    targetKey:'userChoreId'
+});
+
+if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
             Users.create({
@@ -175,6 +196,61 @@ if(process.dbMode === "dev"){
                 .then(
                     console.log(`Database & tables created!`)
                 )
+            RulesModules.bulkCreate([
+                {
+                    role: "Admin",
+                    module: "all",
+                },
+                {
+                    role: "appointmentsHairDresser",
+                    module: "appointments"
+                },
+                {
+                    role: "appointmentsDentist",
+                    module: "appointments"
+                },
+                {
+                    role: "PhoneBookSecretary",
+                    module: "phoneBook"
+                },
+                {
+                    role: "ChoresSecretary",
+                    module: "chores"
+                },
+                {
+                    role: "AnnouncementsSecretary",
+                    module: "announcements"
+                },
+            ])
+                .then(response => {
+                    Users.create({
+                        userId: '1',
+                        fullname: 'מנהל מערכת',
+                        password: 'Admin123',
+                        email: 'admin@gamil.com',
+                        mailbox: 1,
+                        cellphone: '0123456789',
+                        phone: '0123456789',
+                        bornDate: new Date('1992-11-25'),
+                        active: true,
+                    })
+                        .then(user => {
+                            ServiceProviders.create({
+                                serviceProviderId: 1,
+                                userId: user.userId,
+                                role: 'Admin',
+                                operationTime: 'all time',
+                                phoneNumber: '0123456789',
+                                appointmentWayType: 'Admin',
+                                subjects: "[\"הכל\"]",
+                                active: true,
+                            })
+                        })
+                        .then(
+                            console.log(`Database & tables created!`)
+                        )
+                })
+
         });
 }
 
