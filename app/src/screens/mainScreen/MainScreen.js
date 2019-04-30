@@ -43,11 +43,11 @@ export default class MainScreen extends Component {
 
     render() {
         return (
-            <ScrollView style={{padding: 20}}>
-                <Text>
+            <ScrollView style={{}}>
+                <Text style={{textAlign: "center",fontSize:16}}>
                     {strings.mainScreenStrings.WELCOME}
                 </Text>
-                <Text>
+                <Text style={{textAlign: "center",fontSize:20}}>
                     {this.state.userFullname}
                 </Text>
 

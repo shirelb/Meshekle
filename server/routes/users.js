@@ -214,6 +214,7 @@ router.get('/events/userId/:userId', function (req, res, next) {
                     where: {
                         userId: req.params.userId,
                     },
+                    include: [{all: true, nested: true}]
                 })
                     .then(userEvents => {
                         console.log(userEvents);
