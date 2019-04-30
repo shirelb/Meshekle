@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {ScrollView, StyleSheet} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-// import {localConfig} from '../localConfig';
+import '../localConfig';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
 import appointmentsStorage from "../../../storage/appointmentsStorage";
