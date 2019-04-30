@@ -18,6 +18,10 @@ module.exports = (sequelize, type) => {
             type: type.DATE,
             required: true
         },
+        originDate: {
+            type: type.DATE,
+            required: true
+        },
         isMark: {
             type: type.INTEGER,
             required: true

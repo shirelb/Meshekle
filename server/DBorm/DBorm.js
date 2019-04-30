@@ -137,6 +137,16 @@ UsersChoresTypes.belongsTo(Users, {
     foreignKey: 'userId',
     targetKey: 'userId'
 });
+
+Users.hasMany(UsersChores, {
+    foreignKey: 'userId',
+    targetKey:'userId'
+});
+UsersChores.belongsTo(Users, {
+    foreignKey: 'userId',
+    targetKey:'userId'
+});
+
 Users.hasMany(ServiceProviders, {
     foreignKey: 'userId',
     targetKey: 'userId'
@@ -144,6 +154,17 @@ Users.hasMany(ServiceProviders, {
 ServiceProviders.hasOne(Users, {
     foreignKey: 'userId',
     targetKey: 'userId'
+});
+
+SwapRequests.belongsTo(UsersChores, {
+    as: 'choreOfReceiver',
+    foreignKey: 'choreIdOfReceiver',
+    targetKey:'userChoreId'
+});
+SwapRequests.belongsTo(UsersChores, {
+    as:'choreOfSender',
+    foreignKey: 'choreIdOfSender',
+    targetKey:'userChoreId'
 });
 
 if (process.dbMode === "dev") {
