@@ -72,10 +72,10 @@
 		<string>Zocial.ttf</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>Meshekle would like to upload a photo.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Meshekle would like to take a photo.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Meshekle would like to use the microphone.</string>
+	<string>Meshekle would like to upload a photo.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Meshekle would like to take a photo.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Meshekle would like to use the microphone.</string>
 </dict>
 </plist>

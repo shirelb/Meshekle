@@ -1,21 +1,16 @@
 import React, {Component} from 'react';
-import {Platform, RefreshControl,Switch, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Easing, PermissionsAndroid, Platform, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
 import {Icon, SearchBar} from 'react-native-elements'
-import { Dropdown } from 'react-native-material-dropdown';
+import {Dropdown} from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 import ZoomImage from 'react-native-zoom-image';
-import {Easing} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob'
-var RNFS = require('react-native-fs');
 import Button from "../../components/submitButton/Button"
-import {Platform} from "react-native";
 
-
-import Share from 'react-native-share';
-import {PermissionsAndroid} from 'react-native';
+var RNFS = require('react-native-fs');
 
 
 export default class AnnouncementsScreen extends Component {

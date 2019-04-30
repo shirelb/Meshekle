@@ -8,6 +8,8 @@ import _ from "lodash";
 import usersStorage from "../../storage/usersStorage";
 import ImagePicker from 'react-native-image-crop-picker';
 
+var sha512 = require('js-sha512');
+
 
 export default class UserProfileForm extends Component {
     constructor(props) {
@@ -90,7 +92,9 @@ export default class UserProfileForm extends Component {
                 this.setState({errorMsg: 'סיסמא צריכה להכיל לפחות ספרה אחת ולפחות אות לועזית אחת', errorVisible: true})
                 return false;
             }
-            if (this.state.oldPassword !== this.state.user.password) {
+
+            let hash = sha512.update(this.state.oldPassword);
+            if (hash.hex() !== this.state.user.password) {
                 this.setState({errorMsg: 'הסיסמא שהזנת אינה תואמת לזו השמורה במערכת', errorVisible: true})
                 return false;
             }
@@ -144,7 +148,10 @@ export default class UserProfileForm extends Component {
             this.setModalVisible(!this.state.modalVisible);
 
             let userUpdated = this.state.user;
-            userUpdated.password = this.state.newPassword;
+            if (this.state.newPassword !== "") {
+                let hash = sha512.update(this.state.newPassword);
+                userUpdated.password = hash.hex();
+            }
             userUpdated = _.omitBy(userUpdated, (att) => att === "");
 
 
