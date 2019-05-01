@@ -9,10 +9,8 @@ var nodemailer = require('nodemailer');
 
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users,Announcements,AnnouncementSubscriptions,Categories} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Announcements, AnnouncementSubscriptions, Categories} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
-
-
 
 
 router.use(function (req, res, next) {
@@ -25,7 +23,6 @@ router.post('/validToken', function (req, res) {
         payload: req.decoded.payload
     });
 });
-
 
 
 // GET all announcements
@@ -63,10 +60,10 @@ router.get('/categories/serviceProviderId/:serviceProviderId', function (req, re
                     res.status(500).send(err);
                 })
         })
-    .catch(err => {
-        console.log(err);
-        res.status(500).send(err);
-    })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
 });
 
 
@@ -150,7 +147,6 @@ router.get('/categoryId/:categoryId', function (req, res, next) {
 });
 
 
-
 // GET all announcements of a specific user
 router.get('/userId/:userId', function (req, res, next) {
     validations.getUsersByUserIdPromise(req.params.userId)
@@ -181,8 +177,6 @@ router.get('/userId/:userId', function (req, res, next) {
 });
 
 
-
-
 // GET all announcements of a specific service provider
 router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
     validations.getServiceProvidersByServProIdPromise(req.params.serviceProviderId)
@@ -211,7 +205,6 @@ router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
         })
 
 });
-
 
 
 // GET all announcements of a specific user with a specific status
@@ -400,8 +393,6 @@ router.get('/status/:status', function (req, res, next) {
 });
 
 
-
-
 //GET all categories
 router.get('/categories', function (req, res, next) {
     Categories.findAll()
@@ -414,10 +405,6 @@ router.get('/categories', function (req, res, next) {
             res.status(500).send(err);
         })
 });
-
-
-
-
 
 
 // DELETE announcement by announcementId.
@@ -441,61 +428,60 @@ router.put('/delete/announcementId/:announcementId', function (req, res, next) {
 });
 
 
-
 // update announcement by announcementId.
 router.put('/update/announcementId/:announcementId', function (req, res, next) {
     validations.getAnnouncementByAnnounceIdPromise(req.params.announcementId)
-    .then(response => {
-        if (response.length === 0)
-            return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
+        .then(response => {
+            if (response.length === 0)
+                return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
 
-        let updateFields = {};
-        req.body.serviceProviderId ? updateFields.serviceProviderId = req.body.serviceProviderId : null;
-        req.body.userId ? updateFields.userId = req.body.userId : null;
-        req.body.categoryId ? updateFields.categoryId = req.body.categoryId : null;
-        req.body.content ? updateFields.content = req.body.content : null;
-        req.body.title ? updateFields.title = req.body.title : null;
-        req.body.file ? updateFields.file = req.body.file : null;
-        req.body.fileName ? updateFields.fileName = req.body.fileName : null;
-        req.body.creationTime ? updateFields.creationTime = req.body.creationTime : null;
+            let updateFields = {};
+            req.body.serviceProviderId ? updateFields.serviceProviderId = req.body.serviceProviderId : null;
+            req.body.userId ? updateFields.userId = req.body.userId : null;
+            req.body.categoryId ? updateFields.categoryId = req.body.categoryId : null;
+            req.body.content ? updateFields.content = req.body.content : null;
+            req.body.title ? updateFields.title = req.body.title : null;
+            req.body.file ? updateFields.file = req.body.file : null;
+            req.body.fileName ? updateFields.fileName = req.body.fileName : null;
+            req.body.creationTime ? updateFields.creationTime = req.body.creationTime : null;
 
-        if(req.body.status)
-            if (!isStatusExists(req.body.status))
-                return res.status(400).send({"message": announcementsRoute.STATUS_DOESNT_EXISTS});
-            else
-                updateFields.status = req.body.status;
+            if (req.body.status)
+                if (!isStatusExists(req.body.status))
+                    return res.status(400).send({"message": announcementsRoute.STATUS_DOESNT_EXISTS});
+                else
+                    updateFields.status = req.body.status;
 
             if (req.body.expirationTime)
-            if (!validateTime(req.body.expirationTime))
-                return res.status(400).send({"message": announcementsRoute.INVALID_EXP_TIME_INPUT});
-            else
-              updateFields.expirationTime = req.body.expirationTime;
+                if (!validateTime(req.body.expirationTime))
+                    return res.status(400).send({"message": announcementsRoute.INVALID_EXP_TIME_INPUT});
+                else
+                    updateFields.expirationTime = req.body.expirationTime;
 
             if (req.body.dateOfEvent && req.body.dateOfEvent !== "NaN-NaN-NaN" && req.body.dateOfEvent !== "" && !validateTime(req.body.dateOfEvent))
                 return res.status(400).send({"message": announcementsRoute.INVALID_DOE_INPUT});
             else
                 updateFields.dateOfEvent = req.body.dateOfEvent;
 
-        Announcements.update(
-            updateFields,
-            {
-                where: {
-                    announcementId: req.params.announcementId
-                }
-            })
-            .then(isUpdated => {
-                if (isUpdated[0] === 0)
-                    return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
-                res.status(200).send({
-                    "message": announcementsRoute.ANNOUNCEMENT_UPDATE_SUCCESS,
-                    "result": isUpdated[0]
-                });
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send(err);
-            })
-    });
+            Announcements.update(
+                updateFields,
+                {
+                    where: {
+                        announcementId: req.params.announcementId
+                    }
+                })
+                .then(isUpdated => {
+                    if (isUpdated[0] === 0)
+                        return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
+                    res.status(200).send({
+                        "message": announcementsRoute.ANNOUNCEMENT_UPDATE_SUCCESS,
+                        "result": isUpdated[0]
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
 });
 
 
@@ -534,51 +520,51 @@ router.post('/add', function (req, res, next) {
 router.post('/subscription/add', function (req, res, next) {
 
     validations.getUsersByUserIdPromise(req.body.userId)
-    .then(users => {
-            if(users.length === 0)
+        .then(users => {
+            if (users.length === 0)
                 return res.status(400).send({message: announcementsRoute.USER_NOT_FOUND});
-        validations.getCategoryByCategoryIdPromise(req.body.categoryId)
-            .then(categories => {
-                if (categories.length === 0) {
-                    return res.status(400).send({message: announcementsRoute.CATEGORY_NOT_FOUND});
-                }
-                AnnouncementSubscriptions.findAll(
-                    {
-                        where: {
-                            userId: req.body.userId,
-                            categoryId: req.body.categoryId
-                        }
+            validations.getCategoryByCategoryIdPromise(req.body.categoryId)
+                .then(categories => {
+                    if (categories.length === 0) {
+                        return res.status(400).send({message: announcementsRoute.CATEGORY_NOT_FOUND});
                     }
-                ).then(subs=>{
-                    if(subs.length>0)
-                        return res.status(400).send({message: announcementsRoute.SUB_ALREADY_EXISTS});
-                    AnnouncementSubscriptions.create(
+                    AnnouncementSubscriptions.findAll(
                         {
-                            userId: req.body.userId,
-                            categoryId: req.body.categoryId
+                            where: {
+                                userId: req.body.userId,
+                                categoryId: req.body.categoryId
+                            }
                         }
-                    ).then(newSub => {
-                        res.status(200).send({
-                            "message": announcementsRoute.SUB_ADDED_SUCC,
-                            "result": newSub.dataValues
-                        });
+                    ).then(subs => {
+                        if (subs.length > 0)
+                            return res.status(400).send({message: announcementsRoute.SUB_ALREADY_EXISTS});
+                        AnnouncementSubscriptions.create(
+                            {
+                                userId: req.body.userId,
+                                categoryId: req.body.categoryId
+                            }
+                        ).then(newSub => {
+                            res.status(200).send({
+                                "message": announcementsRoute.SUB_ADDED_SUCC,
+                                "result": newSub.dataValues
+                            });
 
+                        })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
                     })
                         .catch(err => {
                             console.log(err);
                             res.status(500).send(err);
                         })
-                })
-                    .catch(err => {
-                        console.log(err);
-                        res.status(500).send(err);
-                    })
 
-            })
-            .catch(err => {
-                console.log(err);
-                res.status(500).send(err);
-            })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
         })
         .catch(err => {
             console.log(err);
@@ -586,9 +572,6 @@ router.post('/subscription/add', function (req, res, next) {
         })
 
 });
-
-
-
 
 
 // DELETE category subscription
@@ -613,19 +596,18 @@ router.put('/subscription/delete', function (req, res, next) {
 });
 
 
-
 // update category subscription
 router.post('/subscription/update', function (req, res, next) {
 
     validations.getUsersByUserIdPromise(req.body.userId)
         .then(users => {
-            if(users.length === 0)
+            if (users.length === 0)
                 return res.status(400).send({message: announcementsRoute.USER_NOT_FOUND});
             validations.getCategoriesPromise()
                 .then(categories => {
                     categories = categories.map(c => c.categoryId);
                     req.body.categories.map(cat => {
-                        if(!categories.includes(cat.categoryId))
+                        if (!categories.includes(cat.categoryId))
                             return res.status(400).send({message: announcementsRoute.CATEGORY_NOT_FOUND});
                     });
                     AnnouncementSubscriptions.destroy(
@@ -636,16 +618,18 @@ router.post('/subscription/update', function (req, res, next) {
                         })
                         .then(() => {
                             AnnouncementSubscriptions.bulkCreate(
-                                req.body.categories.filter(c => c.switch).map(item => {return {userId: req.body.userId, categoryId: item.categoryId}})
+                                req.body.categories.filter(c => c.switch).map(item => {
+                                    return {userId: req.body.userId, categoryId: item.categoryId}
+                                })
                             ).then(updated =>
                                 res.status(200).send({
                                     "message": announcementsRoute.SUB_UPDATED_SUCC,
                                     "result": updated
                                 }))
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).send(err);
-                            })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
 
                         })
                         .catch(err => {
@@ -667,27 +651,25 @@ router.post('/subscription/update', function (req, res, next) {
 });
 
 
-
 // add announcement category
 router.post('/categories/add', function (req, res, next) {
 
     validations.getCategoriesPromise()
-        .then(categories =>
-        {
-            let catNames=categories.map((cat) => cat.dataValues.categoryName.toLowerCase());
-            if(catNames.includes(req.body.categoryName.toLowerCase()))
+        .then(categories => {
+            let catNames = categories.map((cat) => cat.dataValues.categoryName.toLowerCase());
+            if (catNames.includes(req.body.categoryName.toLowerCase()))
                 return res.status(400).send({"message": announcementsRoute.CATEGORY_ALREADY_EXISTS});
 
-            validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item =>item.serviceProviderId))
+            validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item => item.serviceProviderId))
                 .then(serviceProviders => {
-                    if(serviceProviders.length !== req.body.managers.length)
+                    if (serviceProviders.length < req.body.managers.length)
                         return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
                     Categories.findAll(
                         {
                             where: {
                                 categoryName: req.body.categoryName,
                                 serviceProviderId: {
-                                    [Op.in]: req.body.managers.map(item =>item.serviceProviderId)
+                                    [Op.in]: req.body.managers.map(item => item.serviceProviderId)
                                 },
                             }
                         })
@@ -695,10 +677,14 @@ router.post('/categories/add', function (req, res, next) {
                             if (categories.length > 0) {
                                 return res.status(400).send({message: announcementsRoute.CATEGORY_ALREADY_EXISTS});
                             }
-                            req.body.managers.push({serviceProviderId:"1"});
+                            req.body.managers.push({serviceProviderId: "1"});
                             Categories.bulkCreate(
-                                req.body.managers.map(item => {return {categoryName: req.body.categoryName, serviceProviderId: item.serviceProviderId}})
-
+                                req.body.managers.map(item => {
+                                    return {
+                                        categoryName: req.body.categoryName,
+                                        serviceProviderId: item.serviceProviderId
+                                    }
+                                })
                             ).then(newCat => {
                                 res.status(200).send({
                                     "message": announcementsRoute.CATEGORY_ADDED_SUCC,
@@ -730,10 +716,6 @@ router.post('/categories/add', function (req, res, next) {
 });
 
 
-
-
-
-
 // update category
 router.post('/categories/update', function (req, res, next) {
     validations.getCategoriesPromise()
@@ -745,22 +727,22 @@ router.post('/categories/update', function (req, res, next) {
                 return res.status(400).send({"message": announcementsRoute.CATEGORY_ALREADY_EXISTS});
 
             // checks if he want to update category that doesnt exists
-            if(!catNames.includes(req.body.categoryOldName.toLowerCase()))
+            if (!catNames.includes(req.body.categoryOldName.toLowerCase()))
                 return res.status(400).send({"message": announcementsRoute.CATEGORY_DOESNT_EXISTS});
 
-            validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item =>item.serviceProviderId))
+            validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item => item.serviceProviderId))
                 .then(serviceProviders => {
-                    if(serviceProviders.length !== req.body.managers.length)
+                    if (serviceProviders.length !== req.body.managers.length)
                         return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
 
                     // if (!isCategoryExists(req.body.categoryName))
                     //     return res.status(400).send({"message": announcementsRoute.CATEGORY_DOESNT_EXISTS});
                     Categories.findAll({
-                        where:{
+                        where: {
                             categoryName: req.body.categoryOldName,
                         }
                     })
-                        .then((categories)=> {
+                        .then((categories) => {
                             const removedCategoriesList = categories.map((cat) => cat.dataValues.categoryId);
                             Categories.destroy(
                                 {
@@ -777,7 +759,7 @@ router.post('/categories/update', function (req, res, next) {
                                                 serviceProviderId: item.serviceProviderId
                                             }
                                         })
-                                    ).then(updated =>{
+                                    ).then(updated => {
                                         Categories.findAll({
                                             where: {
                                                 categoryName: req.body.categoryName,
@@ -793,9 +775,8 @@ router.post('/categories/update', function (req, res, next) {
                                                             categoryId: {[Op.in]: removedCategoriesList}
                                                         }
                                                     }
-
                                                 )
-                                                    .then(()=> {
+                                                    .then(() => {
                                                         AnnouncementSubscriptions.update(
                                                             {categoryId: adminCategoryId},
                                                             {
@@ -803,9 +784,8 @@ router.post('/categories/update', function (req, res, next) {
                                                                     categoryId: {[Op.in]: removedCategoriesList}
                                                                 }
                                                             }
-
                                                         )
-                                                            .then(()=> {
+                                                            .then(() => {
 
                                                                 res.status(200).send({
                                                                     "message": announcementsRoute.CATEGORY_UPDATED_SUCC,
@@ -854,10 +834,6 @@ router.post('/categories/update', function (req, res, next) {
 });
 
 
-
-
-
-
 // DELETE announcement category.
 router.put('/categories/delete/categoryName/:categoryName', function (req, res, next) {
     Categories.destroy(
@@ -879,21 +855,18 @@ router.put('/categories/delete/categoryName/:categoryName', function (req, res, 
 });
 
 
-
-
-
 function validateTime(expirationTime) {
     let today = new Date();
-    let toCheck= new Date(expirationTime);
+    let toCheck = new Date(expirationTime);
     return toCheck >= today;
 }
 
 function isLegalTime(expirationTime) {
     let regEx = /^\d{4}-\d{2}-\d{2}$/;
-    if(!expirationTime.match(regEx)) return false;  // Invalid format
+    if (!expirationTime.match(regEx)) return false;  // Invalid format
     let d = new Date(expirationTime);
-    if(Number.isNaN(d.getTime())) return false; // Invalid date
-    return d.toISOString().slice(0,10) === expirationTime;
+    if (Number.isNaN(d.getTime())) return false; // Invalid date
+    return d.toISOString().slice(0, 10) === expirationTime;
 }
 
 function isStatusExists(statusToCheck) {
@@ -908,12 +881,12 @@ function isCategoryExists(categoryToCheck) {
 
 function isAnnouncementInputValid(announcementInput) {
 
-    if(!isLegalTime(announcementInput.expirationTime))
+    if (!isLegalTime(announcementInput.expirationTime))
         return announcementsRoute.ILLEGAL_EXP_TIME_INPUT;
     if (!validateTime(announcementInput.expirationTime))
         return announcementsRoute.INVALID_EXP_TIME_INPUT;
 
-    if(announcementInput.dateOfEvent && announcementInput.dateOfEvent !== "NaN-NaN-NaN" && announcementInput.dateOfEvent !== "") {
+    if (announcementInput.dateOfEvent && announcementInput.dateOfEvent !== "NaN-NaN-NaN" && announcementInput.dateOfEvent !== "") {
         if (!isLegalTime(announcementInput.dateOfEvent))
             return announcementsRoute.ILLEGAL_DOE_INPUT;
         if (!validateTime(announcementInput.dateOfEvent))
@@ -925,8 +898,6 @@ function isAnnouncementInputValid(announcementInput) {
 
     return "";
 }
-
-
 
 
 let takeValues = (dic) => {

@@ -381,7 +381,7 @@ class AnnouncementsManagementPage extends React.Component {
                                 (<Table.Row key={announcementReq.announcementId}>
                                     <Table.Cell>{announcementReq.announcementId}</Table.Cell>
                                     <Table.Cell>{users[0] ? users.filter(u => parseInt(u.userId) === announcementReq.userId)[0].fullname: ""}</Table.Cell>
-                                    <Table.Cell>{categoryNamesMap[0] ? categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0].name : ""}</Table.Cell>
+                                    <Table.Cell>{categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0] ? categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0].name : ""}</Table.Cell>
                                     <Table.Cell>{announcementReq.title}</Table.Cell>
                                     <Table.Cell>{announcementReq.content}</Table.Cell>
                                     <Table.Cell>{announcementReq.expirationTime.substring(0,announcementReq.expirationTime.indexOf('T'))}</Table.Cell>
