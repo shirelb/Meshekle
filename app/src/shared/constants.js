@@ -5,7 +5,7 @@ import io from "socket.io-client";
 const SERVER_URL = __DEV__ ?
     Platform.select({
         ios: "http://localhost:4000",
-        android: "http://132.73.193.65:4000"
+        android: "http://192.168.0.14:4000"
     }) :
     "https://my-production-url.com";
 
