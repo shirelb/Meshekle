@@ -78,10 +78,12 @@ class AppointmentsManagementPage extends React.Component {
         connectToServerSocket(store.get('serviceProviderId'));
 
         WEB_SOCKET.on("getServiceProviderAppointmentRequests", this.getServiceProviderAppointmentRequests.bind(this));
+        WEB_SOCKET.on("getServiceProviderAppointments", this.getServiceProviderAppointments.bind(this));
     }
 
     componentWillUnmount() {
         WEB_SOCKET.off("getServiceProviderAppointmentRequests");
+        WEB_SOCKET.off("getServiceProviderAppointments");
     }
 
     getServiceProviderAppointmentRequests() {
