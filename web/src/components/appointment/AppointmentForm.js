@@ -108,8 +108,7 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    getSubjectsOfServiceProviderRole = () => {
-        let currentRole = this.state.appointment.role;
+    getSubjectsOfServiceProviderRole = (currentRole) => {
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProviders => {
@@ -128,7 +127,6 @@ class AppointmentForm extends Component {
             this.setState({
                 appointment: {
                     date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
                     role: appointment.AppointmentDetail.role,
@@ -136,24 +134,19 @@ class AppointmentForm extends Component {
                     clientName: appointment.clientName,
                     remarks: appointment.remarks,
                 },
-            })
+            });
+
+            this.getSubjectsOfServiceProviderRole(appointment.AppointmentDetail.role);
         }
         if (appointmentRequestEvent) {
             this.setState({
-                /* appointment: {
-                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                     // date: moment(appointment.startDateAndTime),
-                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
-                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
-                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
-                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
-                     remarks: appointmentRequestEvent.appointmentRequest.notes,
-                 },*/
                 appointmentRequestEvent: appointmentRequestEvent,
-            })
+            });
+
+            this.getSubjectsOfServiceProviderRole(this.state.appointment.role);
         }
 
-        this.getSubjectsOfServiceProviderRole();
+
 
         console.log('will recive props  ', this.state.appointment);
         console.log('will recive props  ', appointment);
@@ -200,7 +193,7 @@ class AppointmentForm extends Component {
         this.setState({appointment: {...appointment, [name]: value}});
 
         if (name === "role")
-            this.getSubjectsOfServiceProviderRole();
+            this.getSubjectsOfServiceProviderRole(value);
     }
 
     handleClear = (e) => {
