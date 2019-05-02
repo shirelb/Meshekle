@@ -43,7 +43,6 @@ export default class DraggableAppointmentRequest extends React.Component {
             <List animated selection divided verticalAlign='middle'>
                 {this.props.appointmentRequests.map((appointmentRequestEvent, i) => {
                     let appointmentRequest = appointmentRequestEvent.appointmentRequest;
-                    console.log("colorCardByRole[appointmentRequest.AppointmentDetail.role] ",appointmentRequest)
                     return (
                         <div className='fc-event' data-event={JSON.stringify(appointmentRequestEvent)}
                              key={appointmentRequest.requestId}>

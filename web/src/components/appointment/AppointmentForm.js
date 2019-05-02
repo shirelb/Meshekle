@@ -95,7 +95,7 @@ class AppointmentForm extends Component {
                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
                     remarks: appointmentRequestEvent.appointmentRequest.notes,
-                    role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
+                    role: Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
                 },
                 appointmentRequestEvent: appointmentRequestEvent,
                 subjectOptions: [],
@@ -109,10 +109,11 @@ class AppointmentForm extends Component {
     }
 
     getSubjectsOfServiceProviderRole = () => {
+        let currentRole = this.state.appointment.role;
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProviders => {
-                let serviceProvider = serviceProviders.filter(provider => provider.role === this.state.appointment.role)[0];
+                let serviceProvider = serviceProviders.filter(provider => provider.role === currentRole)[0];
                 JSON.parse(serviceProvider.subjects).map((subject, index) => {
                     subjectOptions.push({key: index, text: subject, value: subject});
                 });
