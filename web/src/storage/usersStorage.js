@@ -3,7 +3,9 @@ import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import store from "store";
 
 const serviceProviderHeaders = {
-    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+    'Authorization': 'Bearer ' + store.get('serviceProviderToken'),
+    //'Access-Control-Allow-Credentials': true,
+    //'Access-Control-Allow-Origin':'*'
 };
 
 var getUserByUserID = (userId, headers) => {

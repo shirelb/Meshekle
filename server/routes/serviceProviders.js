@@ -426,10 +426,12 @@ router.delete('/userId/:userId/delete', function (req, res, next) {
 //Add user
 router.post('/users/add', function (req, res, next) {
     let isInputValid = isUserInputValid(req.body);
+    console.log("\nadding user :: \n", req.body)
     if (isInputValid !== '')
         return res.status(400).send({"message": isInputValid});
     validations.getUsersByUserIdPromise(req.body.userId)
         .then(users => {
+            console.log("\nmessage :: :: \n", users.length)
             if (users.length !== 0)
                 return res.status(400).send({"message": constants.serviceProvidersRoute.USER_ALREADY_EXISTS});
             const randomPassword = helpers.generateRandomPassword();

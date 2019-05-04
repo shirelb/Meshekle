@@ -178,7 +178,7 @@ SwapRequests.belongsTo(UsersChores, {
     targetKey:'userChoreId'
 });
 
-if (process.dbMode === "dev") {
+//if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
             RulesModules.bulkCreate([
@@ -237,7 +237,7 @@ if (process.dbMode === "dev") {
                 })
 
         });
-}
+//}
 
 
     

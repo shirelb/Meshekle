@@ -548,7 +548,7 @@ class ChoresManagementPage extends React.Component {
 
             //this.setState({usersNotInType:usersNotInType});
         });
-            content.push(<Select placeholder='בחר משתמש להוספה' options={usersNotInType}
+            content.push(<Select search placeholder='בחר משתמש להוספה' options={usersNotInType}
              onChange={this.handleUserToAddChange} text={this.state.userNameToAddToType}
              />);
              content.push(<Button onClick={this.addUserToChoreType}>הוסף</Button>);
@@ -590,7 +590,7 @@ class ChoresManagementPage extends React.Component {
                 {!(String(window.location).includes('settings')||String(window.location).includes('newChoreType'))?//String(window.location)==='http://localhost:3000/chores'?
                 <div>
                 <Header>{/*String(window.location)*/}</Header>
-                <Select placeholder='בחר סוג תורנות' options={this.state.choreTypesOptions}
+                <Select search placeholder='בחר סוג תורנות' options={this.state.choreTypesOptions}
                 onChange={this.handleChange} /*value={this.state.choreTypeSelected}*/
                  />
                  <Button onClick={() => this.props.history.push(`${this.props.match.path}/newChoreType`)}  positive>{"צור סוג תורנות חדש"}</Button>

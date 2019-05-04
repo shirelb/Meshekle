@@ -216,7 +216,7 @@ export default class ChoresCalendar extends Component {
             }
             console.log("usersOfType1: ", usersOfType1);
             for(var i=0;i<loopTimes;i++){
-                ans.push(<Select placeholder='בחר תורן' options={usersOfType1}
+                ans.push(<Select search placeholder='בחר תורן' options={usersOfType1}
                 onChange={this.handleWorkerChange}  name={i}
                 />);
             }
