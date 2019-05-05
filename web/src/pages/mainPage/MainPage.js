@@ -15,6 +15,7 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import AppointmentsReportPage from "../appointmentsManagementPage/AppointmentsReportPage";
+import PageNotFound from "../pageNotFound404/PageNotFound";
 
 const handleLogout = history => () => {
     WEB_SOCKET.emit('disconnectWebClient', {serviceProviderId: store.get('serviceProviderId')});
@@ -242,6 +243,7 @@ class MainPage extends Component {
                         <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                         <Route path={`/chores`} component={ChoresManagementPage}/>
                         <Route path={`/announcements`} component={AnnouncementsManagementPage}/>
+                        <Route component={PageNotFound} />
                         <Redirect to={`/home`}/>
                     </Switch>
                     {/*</Router>*/}
