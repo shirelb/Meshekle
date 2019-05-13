@@ -331,12 +331,11 @@ class PhoneBookManagementPage extends React.Component {
                                 found = true;
                         });
                         return found;
-                    } else if (col === 'appointmentWayType'){
-                        if(o[col] === null )
+                    } else if (col === 'appointmentWayType') {
+                        if (o[col] === null)
                             return false;
                         return strings.appointmentsWayType[o[col]] ? strings.appointmentsWayType[o[col]].includes(serviceProvidersFilterColumnsAndTexts[col]) : false;
-                    }
-                    else if (col === 'role')
+                    } else if (col === 'role')
                         return strings.roles[o[col]].includes(serviceProvidersFilterColumnsAndTexts[col]);
                     else if (_.isBoolean(o[col]))
                         return o[col].toString() === serviceProvidersFilterColumnsAndTexts[col].toString();
@@ -599,9 +598,12 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Link to={{pathname: `${this.props.match.url}/user/add`}}>
-                        <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
-                    </Link>
+                    {this.props.hasPhoneBookPermissions ?
+                        <Link to={{pathname: `${this.props.match.url}/user/add`}}>
+                            <Button positive>{strings.phoneBookPageStrings.ADD_USER}</Button>
+                        </Link>
+                        : null
+                    }
                 </Page>
 
                 <Page children={serviceProviders}
@@ -780,7 +782,6 @@ class PhoneBookManagementPage extends React.Component {
                                                 }}>
                                                     {serviceProvider.serviceProviderId}
                                                 </Link>
-                                                {/*<Header.Subheader>Human Resources</Header.Subheader>*/}
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
@@ -824,7 +825,6 @@ class PhoneBookManagementPage extends React.Component {
                                     <Table.Cell>{serviceProvider.phoneNumber}</Table.Cell>
                                     <Table.Cell>{strings.appointmentsWayType[serviceProvider.appointmentWayType]}</Table.Cell>
                                     <Table.Cell>{serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
-                                    {/*<Table.Cell>{serviceProvider.image}</Table.Cell>*/}
                                 </Table.Row>),
                             )}
                         </Table.Body>
@@ -851,30 +851,33 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Footer>
                     </Table>
-                    <Link to={{pathname: `${this.props.match.url}/serviceProvider/add`, state: {users: users}}}>
-                        <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
-                    </Link>
+                    {this.props.hasPhoneBookPermissions ?
+                        <Link to={{pathname: `${this.props.match.url}/serviceProvider/add`, state: {users: users}}}>
+                            <Button positive>{strings.phoneBookPageStrings.ADD_SERVICE_PROVIDER}</Button>
+                        </Link>
+                        : null
+                    }
                 </Page>
 
                 <div>
-                    {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.path}/user/add`}
                                component={UserAdd}/>
                         <Route exec path={`${this.props.match.path}/user/:userId`}
-                               component={UserInfo}/>
+                               render={props => <UserInfo {...props}
+                                                          hasPhoneBookPermissions={this.props.hasPhoneBookPermissions}/>}/>
                         <Route exec path={`${this.props.match.path}/user/:userId/edit`}
                                component={UserEdit}/>
 
                         <Route exec path={`${this.props.match.path}/serviceProvider/add`}
                                component={ServiceProviderAdd}/>
                         <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId`}
-                               component={ServiceProviderInfo}/>
+                               render={props => <ServiceProviderInfo {...props}
+                                                                     hasPhoneBookPermissions={this.props.hasPhoneBookPermissions}/>}/>
                         <Route exec path={`${this.props.match.path}/serviceProvider/:serviceProviderId/edit`}
                                component={ServiceProviderEdit}/>
                         {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
-                    {/*</Router>*/}
                 </div>
             </div>
         );

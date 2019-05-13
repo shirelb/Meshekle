@@ -18,9 +18,6 @@ import AppointmentsReportPage from "../appointmentsManagementPage/AppointmentsRe
 import PageNotFound from "../pageNotFound404/PageNotFound";
 
 
-
-
-
 class Home extends Component {
     constructor(props) {
         super(props);
@@ -169,6 +166,13 @@ class MainPage extends Component {
             this.forceUpdate();
     };
 
+    hasPhoneBookPermissions = () => {
+        if (Array.isArray(this.state.serviceProviderPermissions))
+            if (this.state.serviceProviderPermissions.includes("phoneBook") ||
+                this.state.serviceProviderPermissions.includes("all"))
+                return true;
+        return false;
+    };
 
     render() {
         console.log('main page props ', this.props);
@@ -189,16 +193,10 @@ class MainPage extends Component {
                             <Icon name={strings.modulesIconsNames["home"]}/>
                             {strings.mainPageStrings.MAIN_PAGE_TITLE}
                         </Menu.Item>
-                        {Array.isArray(this.state.serviceProviderPermissions) ?
-                            this.state.serviceProviderPermissions.includes("phoneBook") ||
-                            this.state.serviceProviderPermissions.includes("all") ?
-                                <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
-                                    <Icon name={strings.modulesIconsNames["phoneBook"]}/>
-                                    {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
-                                </Menu.Item>
-                                : null
-                            : null
-                        }
+                        <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
+                            <Icon name={strings.modulesIconsNames["phoneBook"]}/>
+                            {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
+                        </Menu.Item>
                         {Array.isArray(this.state.serviceProviderPermissions) ?
                             this.state.serviceProviderPermissions.includes("appointments") ||
                             this.state.serviceProviderPermissions.includes("all") ?
@@ -237,12 +235,13 @@ class MainPage extends Component {
                     <div className="mainBody">
                         <Switch>
                             <Route exec path="/home" render={() => <Home userId={store.get('userId')}
-                                                                     serviceProviderId={store.get('serviceProviderId')}
-                                                                     userFullname={this.state.userFullname}
-                                                                     serviceProviderPermissions={this.state.serviceProviderPermissions}
-                                                                     serviceProviderRoles={this.state.serviceProviderRoles}
+                                                                         serviceProviderId={store.get('serviceProviderId')}
+                                                                         userFullname={this.state.userFullname}
+                                                                         serviceProviderPermissions={this.state.serviceProviderPermissions}
+                                                                         serviceProviderRoles={this.state.serviceProviderRoles}
                             />}/>
-                            <Route exec path={`/phoneBook`} component={PhoneBookManagementPage}/>
+                            <Route exec path={`/phoneBook`} render={props => <PhoneBookManagementPage {...props}
+                                                                                                      hasPhoneBookPermissions={this.hasPhoneBookPermissions()}/>}/>
                             <Route exec path={`/appointments/report`} component={AppointmentsReportPage}/>
                             <Route path={`/appointments`} component={AppointmentsManagementPage}/>
                             <Route path={`/chores`} component={ChoresManagementPage}/>
