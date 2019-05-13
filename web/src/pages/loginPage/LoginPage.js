@@ -102,7 +102,6 @@ class LoginPage extends Component {
                     console.log("you're logged in. yay!");
                     this.setState({isLoggedIn: true});
                 })
-
                 .catch((error) => {
                     if (error.response) {
                         let msg = mappers.loginPageMapper(error.response.data.message);
@@ -120,7 +119,7 @@ class LoginPage extends Component {
     render() {
         if (this.state.isLoggedIn) {
             console.log("isLoggedIn === true");
-            return <Redirect to="/"/>;
+            return <Redirect to="/home"/>;
         }
 
         const {error} = this.state;

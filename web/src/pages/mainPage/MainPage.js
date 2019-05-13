@@ -185,7 +185,7 @@ class MainPage extends Component {
                     </Helmet>
 
                     <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
-                        <Menu.Item name="home" as={NavLink} to="/">
+                        <Menu.Item name="home" as={NavLink} to="/home">
                             <Icon name={strings.modulesIconsNames["home"]}/>
                             {strings.mainPageStrings.MAIN_PAGE_TITLE}
                         </Menu.Item>
@@ -230,17 +230,13 @@ class MainPage extends Component {
                             : null
                         }
                         <Menu.Item name="logout" onClick={this.handleLogout(this.props.history)}>
-                            {/*() => {
-                            this.setState({isLoggedIn: false});
-                            handleLogout(this.props.history);
-                        }}>*/}
                             <Icon name={strings.modulesIconsNames["logout"]}/>
                             {strings.mainPageStrings.LOGOUT}
                         </Menu.Item>
                     </Sidebar>
                     <div className="mainBody">
                         <Switch>
-                            <Route exec path="/" render={() => <Home userId={store.get('userId')}
+                            <Route exec path="/home" render={() => <Home userId={store.get('userId')}
                                                                      serviceProviderId={store.get('serviceProviderId')}
                                                                      userFullname={this.state.userFullname}
                                                                      serviceProviderPermissions={this.state.serviceProviderPermissions}
