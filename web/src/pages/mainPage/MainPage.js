@@ -17,22 +17,11 @@ import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import AppointmentsReportPage from "../appointmentsManagementPage/AppointmentsReportPage";
 import PageNotFound from "../pageNotFound404/PageNotFound";
 
-const handleLogout = history => () => {
-    WEB_SOCKET.emit('disconnectWebClient', {serviceProviderId: store.get('serviceProviderId')});
-    store.remove('serviceProviderToken');
-    store.remove('serviceProviderId');
-    store.remove('userId');
-    console.log('you have been logged out. boo!');
-    history.push('/login');
-};
 
-const serviceProviderHeaders = {
-    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
-};
+
 
 
 class Home extends Component {
-// const Home = ({userId, serviceProviderId}) => {
     constructor(props) {
         super(props);
 
@@ -49,7 +38,6 @@ class Home extends Component {
     }
 
     render() {
-
         console.log("serviceProviderRoles  ", this.state.serviceProviderRoles);
         return (
             <div className={"landing-image"}>
@@ -130,33 +118,36 @@ class MainPage extends Component {
     componentDidMount() {
         isLoggedIn()
             .then(answer => {
-                console.log('hhhh compooooo abs ', answer);
-                this.setState({isLoggedIn: answer});
+                console.log('in MainPage isLoggedIn then ', answer);
 
-                if (answer)
+                if (answer) {
                     this.getServiceProviderHomeDetails();
+                }
+
+                this.serviceProviderHeaders = {
+                    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+                };
             })
             .catch(answer => {
-                console.log('hhhh compooooo abs ', answer);
-                this.setState({isLoggedIn: answer});
+                console.log('in MainPage isLoggedIn catch ', answer);
             });
     }
 
     getServiceProviderHomeDetails = () => {
-        usersStorage.getUserByUserID(store.get('userId'), serviceProviderHeaders)
+        usersStorage.getUserByUserID(store.get('userId'), this.serviceProviderHeaders)
             .then(user => {
                 if (user !== null && user !== undefined)
                     this.setState({
                         userFullname: user.fullname,
                     })
-            })
+            });
         serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
             .then(modulesPermitted => {
                 if (modulesPermitted !== null && modulesPermitted !== undefined)
                     this.setState({
                         serviceProviderPermissions: modulesPermitted,
                     })
-            })
+            });
         serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
             .then(roles => {
                 if (roles !== null && roles !== undefined)
@@ -164,92 +155,108 @@ class MainPage extends Component {
                         serviceProviderRoles: roles,
                     })
             })
-    }
+    };
+
+    handleLogout = history => () => {
+        WEB_SOCKET.emit('disconnectWebClient', {serviceProviderId: store.get('serviceProviderId')});
+        store.remove('serviceProviderToken');
+        store.remove('serviceProviderId');
+        store.remove('userId');
+        console.log('you have been logged out. boo!');
+        if (history)
+            history.push('/login');
+        else
+            this.forceUpdate();
+    };
 
 
     render() {
         console.log('main page props ', this.props);
 
-        if (!this.state.isLoggedIn)
+        // if (!this.state.isLoggedIn)
+        if (!store.get('serviceProviderToken'))
             return <Redirect to="/login"/>;
 
-        return (
-            <div>
-                <Helmet>
-                    <title>Meshekle</title>
-                </Helmet>
+        else {
+            return (
+                <div>
+                    <Helmet>
+                        <title>Meshekle</title>
+                    </Helmet>
 
-                <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
-                    <Menu.Item name="home" as={NavLink} to="/home">
-                        <Icon name={strings.modulesIconsNames["home"]}/>
-                        {strings.mainPageStrings.MAIN_PAGE_TITLE}
-                    </Menu.Item>
-                    {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("phoneBook") ||
-                        this.state.serviceProviderPermissions.includes("all") ?
-                            <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
-                                <Icon name={strings.modulesIconsNames["phoneBook"]}/>
-                                {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
-                            </Menu.Item>
+                    <Sidebar as={Menu} inverted visible vertical width="thin" icon="labeled" direction="right">
+                        <Menu.Item name="home" as={NavLink} to="/">
+                            <Icon name={strings.modulesIconsNames["home"]}/>
+                            {strings.mainPageStrings.MAIN_PAGE_TITLE}
+                        </Menu.Item>
+                        {Array.isArray(this.state.serviceProviderPermissions) ?
+                            this.state.serviceProviderPermissions.includes("phoneBook") ||
+                            this.state.serviceProviderPermissions.includes("all") ?
+                                <Menu.Item name="phoneBook" as={NavLink} to="/phoneBook">
+                                    <Icon name={strings.modulesIconsNames["phoneBook"]}/>
+                                    {strings.mainPageStrings.PHONE_BOOK_PAGE_TITLE}
+                                </Menu.Item>
+                                : null
                             : null
-                        : null
-                    }
-                    {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("appointments") ||
-                        this.state.serviceProviderPermissions.includes("all") ?
-                            <Menu.Item name={"appointments"} as={NavLink} to={"/appointments"}>
-                                <Icon name={strings.modulesIconsNames["appointments"]}/>
-                                {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
-                            </Menu.Item>
+                        }
+                        {Array.isArray(this.state.serviceProviderPermissions) ?
+                            this.state.serviceProviderPermissions.includes("appointments") ||
+                            this.state.serviceProviderPermissions.includes("all") ?
+                                <Menu.Item name={"appointments"} as={NavLink} to={"/appointments"}>
+                                    <Icon name={strings.modulesIconsNames["appointments"]}/>
+                                    {strings.mainPageStrings.APPOINTMENTS_PAGE_TITLE}
+                                </Menu.Item>
+                                : null
                             : null
-                        : null
-                    }
-                    {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("chores") ||
-                        this.state.serviceProviderPermissions.includes("all") ?
-                            <Menu.Item name="chores" as={NavLink} to="/chores">
-                                <Icon name={strings.modulesIconsNames["chores"]}/>
-                                {strings.mainPageStrings.CHORES_PAGE_TITLE}
-                            </Menu.Item>
+                        }
+                        {Array.isArray(this.state.serviceProviderPermissions) ?
+                            this.state.serviceProviderPermissions.includes("chores") ||
+                            this.state.serviceProviderPermissions.includes("all") ?
+                                <Menu.Item name="chores" as={NavLink} to="/chores">
+                                    <Icon name={strings.modulesIconsNames["chores"]}/>
+                                    {strings.mainPageStrings.CHORES_PAGE_TITLE}
+                                </Menu.Item>
+                                : null
                             : null
-                        : null
-                    }
-                    {Array.isArray(this.state.serviceProviderPermissions) ?
-                        this.state.serviceProviderPermissions.includes("announcements") ||
-                        this.state.serviceProviderPermissions.includes("all") ?
-                            <Menu.Item name="announcements" as={NavLink} to="/announcements">
-                                <Icon name={strings.modulesIconsNames["announcements"]}/>
-                                {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
-                            </Menu.Item>
+                        }
+                        {Array.isArray(this.state.serviceProviderPermissions) ?
+                            this.state.serviceProviderPermissions.includes("announcements") ||
+                            this.state.serviceProviderPermissions.includes("all") ?
+                                <Menu.Item name="announcements" as={NavLink} to="/announcements">
+                                    <Icon name={strings.modulesIconsNames["announcements"]}/>
+                                    {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
+                                </Menu.Item>
+                                : null
                             : null
-                        : null
-                    }
-                    <Menu.Item name="logout" onClick={handleLogout(this.props.history)}>
-                        <Icon name={strings.modulesIconsNames["logout"]}/>
-                        {strings.mainPageStrings.LOGOUT}
-                    </Menu.Item>
-                </Sidebar>
-                <div className="mainBody">
-                    {/*<Router>*/}
-                    <Switch>
-                        <Route path={`/home`} render={() => <Home userId={store.get('userId')}
-                                                                  serviceProviderId={store.get('serviceProviderId')}
-                                                                  userFullname={this.state.userFullname}
-                                                                  serviceProviderPermissions={this.state.serviceProviderPermissions}
-                                                                  serviceProviderRoles={this.state.serviceProviderRoles}
-                        />}/>
-                        <Route path={`/phoneBook`} component={PhoneBookManagementPage}/>
-                        <Route exec path={`/appointments/report`} component={AppointmentsReportPage}/>
-                        <Route path={`/appointments`} component={AppointmentsManagementPage}/>
-                        <Route path={`/chores`} component={ChoresManagementPage}/>
-                        <Route path={`/announcements`} component={AnnouncementsManagementPage}/>
-                        <Route component={PageNotFound} />
-                        <Redirect to={`/home`}/>
-                    </Switch>
-                    {/*</Router>*/}
+                        }
+                        <Menu.Item name="logout" onClick={this.handleLogout(this.props.history)}>
+                            {/*() => {
+                            this.setState({isLoggedIn: false});
+                            handleLogout(this.props.history);
+                        }}>*/}
+                            <Icon name={strings.modulesIconsNames["logout"]}/>
+                            {strings.mainPageStrings.LOGOUT}
+                        </Menu.Item>
+                    </Sidebar>
+                    <div className="mainBody">
+                        <Switch>
+                            <Route exec path="/" render={() => <Home userId={store.get('userId')}
+                                                                     serviceProviderId={store.get('serviceProviderId')}
+                                                                     userFullname={this.state.userFullname}
+                                                                     serviceProviderPermissions={this.state.serviceProviderPermissions}
+                                                                     serviceProviderRoles={this.state.serviceProviderRoles}
+                            />}/>
+                            <Route exec path={`/phoneBook`} component={PhoneBookManagementPage}/>
+                            <Route exec path={`/appointments/report`} component={AppointmentsReportPage}/>
+                            <Route path={`/appointments`} component={AppointmentsManagementPage}/>
+                            <Route path={`/chores`} component={ChoresManagementPage}/>
+                            <Route path={`/announcements`} component={AnnouncementsManagementPage}/>
+                            <Route component={PageNotFound}/>
+                        </Switch>
+                    </div>
                 </div>
-            </div>
-        )
+            )
+        }
     }
 }
 
