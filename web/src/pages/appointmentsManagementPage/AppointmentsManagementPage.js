@@ -20,6 +20,7 @@ import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import helpers from "../../shared/helpers";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -30,11 +31,10 @@ const colorEventByRole = {
 
 
 const hex2rgba = (hex, alpha = 1) => {
-    try{
+    try {
         const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
         return `rgba(${r},${g},${b},${alpha})`;
-    }
-    catch (e) {
+    } catch (e) {
         return hex;
     }
 
@@ -56,10 +56,6 @@ class AppointmentsManagementPage extends React.Component {
             appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
         };
 
-        this.incrementPage = this.incrementPage.bind(this);
-        this.decrementPage = this.decrementPage.bind(this);
-        this.setPage = this.setPage.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
         this.updateAfterMoveOrResizeEvent = this.updateAfterMoveOrResizeEvent.bind(this);
 
         this.serviceProviderHeaders = '';
@@ -72,6 +68,7 @@ class AppointmentsManagementPage extends React.Component {
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
 
+        this.getServiceProviderRoles();
         this.getServiceProviderAppointments();
         this.getServiceProviderAppointmentRequests();
 
@@ -200,31 +197,21 @@ class AppointmentsManagementPage extends React.Component {
             });
     }
 
-    setPage(page) {
-        return () => {
-            this.setState({page});
-        };
-    }
+    getServiceProviderRoles = () => {
+        let serviceProviderRoles = {};
+        this.setState({serviceProviderRoles: {}});
 
-    decrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page - 1});
-    }
-
-    incrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page + 1});
-    }
-
-    handleDelete(appointmentId) {
-        const {appointments} = this.state;
-
-        this.setState({
-            appointments: appointments.filter(a => a.id !== appointmentId),
-        });
-    }
+        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+            .then(serviceProvidersFound => {
+                console.log('serviceProvidersFound ', serviceProvidersFound);
+                if (Array.isArray(serviceProvidersFound)) {
+                    serviceProviderRoles = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item) =>
+                        item.role
+                    );
+                    this.setState({serviceProviderRoles: serviceProviderRoles})
+                }
+            });
+    };
 
     hoverOnAppointmentRequest = (appointmentRequest) => {
         let isAppointmentsWithOptional = this.state.appointments.filter(obj => obj.id === appointmentRequest.requestId && obj.status === 'optional');
@@ -394,17 +381,19 @@ class AppointmentsManagementPage extends React.Component {
                         <Grid.Column width={3}></Grid.Column>
 
                         <div className={"right floated five"}>
-                            {Object.keys(colorEventByRole).map(role => {
-                                return <Label style={{
-                                    color: "white",
-                                    backgroundColor: `${colorEventByRole[role]}`,
-                                    marginLeft: 10
-                                }}>
-                                    {strings.roles[role]}
-                                    &nbsp;&nbsp;
-                                    <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
-                                </Label>
-                            })
+                            {Array.isArray(this.state.serviceProviderRoles) ?
+                                this.state.serviceProviderRoles.map(role => {
+                                    return <Label style={{
+                                        color: "white",
+                                        backgroundColor: `${colorEventByRole[role]}`,
+                                        marginLeft: 10
+                                    }}>
+                                        {strings.roles[role]}
+                                        &nbsp;&nbsp;
+                                        <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
+                                    </Label>
+                                })
+                                : null
                             }
                         </div>
 
