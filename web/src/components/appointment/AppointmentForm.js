@@ -26,22 +26,6 @@ usersStorage.getUsers()
     });
 
 
-let rolesOptions = {};
-
-serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
-    .then(serviceProvidersFound => {
-        console.log('serviceProvidersFound ', serviceProvidersFound);
-        if (Array.isArray(serviceProvidersFound))
-            rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
-                ({
-                    key: index,
-                    text: strings.roles[item.role],
-                    value: item.role
-                })
-            )
-    });
-
-
 class AppointmentForm extends Component {
 
     constructor(props) {
@@ -71,6 +55,7 @@ class AppointmentForm extends Component {
                 },
                 subjectOptions: [],
             };
+            this.getServiceProviderRoles();
         } else if (appointment) {
             this.state = {
                 appointment: {
@@ -147,7 +132,6 @@ class AppointmentForm extends Component {
         }
 
 
-
         console.log('will recive props  ', this.state.appointment);
         console.log('will recive props  ', appointment);
     }
@@ -185,6 +169,26 @@ class AppointmentForm extends Component {
             this.setState({formError: true});
         }
     }
+
+    getServiceProviderRoles = () => {
+        let rolesOptions = {};
+        this.setState({rolesOptions: {}})
+
+        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+            .then(serviceProvidersFound => {
+                console.log('serviceProvidersFound ', serviceProvidersFound);
+                if (Array.isArray(serviceProvidersFound)) {
+                    rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
+                        ({
+                            key: index,
+                            text: strings.roles[item.role],
+                            value: item.role
+                        })
+                    );
+                    this.setState({rolesOptions: rolesOptions})
+                }
+            });
+    };
 
     handleChange(e, {name, value}) {
         const {appointment} = this.state;
@@ -293,7 +297,7 @@ class AppointmentForm extends Component {
                     // search
                     selection
                     autoComplete='on'
-                    options={rolesOptions}
+                    options={this.state.rolesOptions}
                     value={appointment.role}
                     onChange={this.handleChange}
                     name='role'
