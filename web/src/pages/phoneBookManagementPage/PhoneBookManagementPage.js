@@ -22,6 +22,8 @@ import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import _ from "lodash";
 import Datetime from 'react-datetime';
 import helpers from "../../shared/helpers";
+import {CSVLink} from "react-csv";
+
 
 const TOTAL_PER_PAGE = 40;
 
@@ -60,7 +62,10 @@ class PhoneBookManagementPage extends React.Component {
                 phone: "",
                 appointmentWayType: "",
                 active: "",
-            }
+            },
+
+            usersCSV: [],
+            serviceProvidersCSV: [],
         };
 
         this.handleDelete = this.handleDelete.bind(this);
@@ -104,22 +109,53 @@ class PhoneBookManagementPage extends React.Component {
                 const users = response;
                 const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 
+                this.serviceProviders.forEach(provider => {
+                    users.forEach(user => {
+                        if (user.userId === provider.userId) {
+                            provider.fullname = user.fullname;
+                            provider.image = user.image;
+                        }
+                    })
+                });
+
                 this.setState({
                     users: users,
                     pageUsers: 0,
                     totalPagesUsers,
+                    serviceProviders: this.serviceProviders,
                 });
 
                 this.users = users;
             });
     }
 
+    pickUserAttributesForCSV = () => {
+        return this.state.users.map(user => {
+            user.bornDate = user.bornDate.length > 10 ? moment(user.bornDate).format("DD/MM/YYYY") : user.bornDate;
+            user.active = typeof user.active === 'boolean' ?
+                user.active ?
+                    strings.phoneBookPageStrings.ACTIVE_ANSWER_YES
+                    : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO
+                : user.active;
+            return _.pick(user, ['userId', 'fullname', 'email', 'mailbox', 'cellphone', 'phone', 'bornDate', 'active'])
+        });
+    };
+
     loadServiceProviders() {
+        let users = this.users;
         serviceProvidersStorage.getServiceProviders()
             .then(serviceProviders => {
-
                 // const serviceProviders = response.data;
                 const totalPagesServiceProviders = Math.ceil(serviceProviders.length / TOTAL_PER_PAGE);
+
+                serviceProviders.forEach(provider => {
+                    users.forEach(user => {
+                        if (user.userId === provider.userId) {
+                            provider.fullname = user.fullname;
+                            provider.image = user.image;
+                        }
+                    })
+                });
 
                 this.setState({
                     serviceProviders: serviceProviders,
@@ -127,21 +163,37 @@ class PhoneBookManagementPage extends React.Component {
                     totalPagesServiceProviders,
                 });
 
-
-                serviceProviders.forEach(provider => {
-                    serviceProvidersStorage.getServiceProviderUserDetails(provider.serviceProviderId)
-                        .then(userDetails => {
-                            provider.fullname = userDetails.data.fullname;
-                            provider.image = userDetails.data.image;
-                            this.setState({
-                                serviceProviders: serviceProviders
-                            })
-
-                            this.serviceProviders = serviceProviders;
-                        })
-                })
-            });
+                this.serviceProviders = serviceProviders;
+            })
     }
+
+    pickServiceProviderAttributesForCSV = () => {
+        let serviceProviders = JSON.parse(JSON.stringify(this.state.serviceProviders));
+        return serviceProviders.map(provider => {
+            provider.role = provider.role.length > 0 ?
+                strings.roles[provider.role] === undefined ?
+                    provider.role :
+                    strings.roles[provider.role]
+                : provider.role;
+            provider.appointmentWayType = provider.appointmentWayType.length > 0 ?
+                strings.appointmentsWayType[provider.appointmentWayType] === undefined ?
+                    provider.appointmentWayType :
+                    strings.appointmentsWayType[provider.appointmentWayType]
+                : provider.appointmentWayType;
+            provider.subjects = provider.subjects.length > 0 ?
+                JSON.parse(provider.subjects).join("; ").toString()
+                : provider.subjects;
+            provider.operationTime = provider.operationTime.length > 0 ?
+                provider.operationTime.replace(/,/g, ';')
+                : provider.operationTime;
+            provider.active = typeof provider.active === 'boolean' ?
+                provider.active ?
+                    strings.phoneBookPageStrings.ACTIVE_ANSWER_YES
+                    : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO
+                : provider.active;
+            return _.pick(provider, ['serviceProviderId', 'fullname', 'role', 'subjects', 'operationTime', 'phoneNumber', 'appointmentWayType', 'active'])
+        });
+    };
 
 
     setPageUsers = (page) => {
@@ -224,7 +276,7 @@ class PhoneBookManagementPage extends React.Component {
         this.setState({
             users: users.reverse(),
             usersDirection: usersDirection === 'ascending' ? 'descending' : 'ascending',
-        })
+        });
     };
 
     handleFilter = (clickedColumn, e) => {
@@ -304,7 +356,7 @@ class PhoneBookManagementPage extends React.Component {
         this.setState({
             serviceProviders: serviceProviders.reverse(),
             serviceProvidersDirection: serviceProvidersDirection === 'ascending' ? 'descending' : 'ascending',
-        })
+        });
     };
 
     handleServiceProviderFilter = (clickedColumn, e) => {
@@ -370,6 +422,29 @@ class PhoneBookManagementPage extends React.Component {
         const {usersColumn, usersDirection, users, pageUsers, totalPagesUsers, serviceProvidersColumn, serviceProvidersDirection, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
         const startIndexUsers = pageUsers * TOTAL_PER_PAGE;
         const startIndexServiceProvider = pageServiceProviders * TOTAL_PER_PAGE;
+        const usersCSVHeaders = [
+            {label: strings.phoneBookPageStrings.USER_ID_HEADER, key: "userId"},
+            {label: strings.phoneBookPageStrings.FULLNAME_HEADER, key: "fullname"},
+            {label: strings.phoneBookPageStrings.EMAIL_HEADER, key: "email"},
+            {label: strings.phoneBookPageStrings.MAILBOX_HEADER, key: "mailbox"},
+            {label: strings.phoneBookPageStrings.CELLPHONE_HEADER, key: "cellphone"},
+            {label: strings.phoneBookPageStrings.PHONE_HEADER, key: "phone"},
+            {label: strings.phoneBookPageStrings.BORN_DATE_HEADER, key: "bornDate"},
+            {label: strings.phoneBookPageStrings.ACTIVE_HEADER, key: "active"},
+        ];
+        const serviceProvidersCSVHeaders = [
+            {label: strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER, key: "serviceProviderId"},
+            {label: strings.phoneBookPageStrings.FULLNAME_HEADER, key: "fullname"},
+            {label: strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER, key: "role"},
+            {label: strings.phoneBookPageStrings.SERVICE_PROVIDER_SUBJECTS_HEADER, key: "subjects"},
+            {label: strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER, key: "operationTime"},
+            {label: strings.phoneBookPageStrings.PHONE_HEADER, key: "phone"},
+            {
+                label: strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER,
+                key: "appointmentWayType"
+            },
+            {label: strings.phoneBookPageStrings.ACTIVE_HEADER, key: "active"},
+        ];
 
         return (
             <div>
@@ -386,11 +461,23 @@ class PhoneBookManagementPage extends React.Component {
                         יצא לPDF
                     </Button>
 
+                    <Button icon style={{width: 120}}>
+                        <CSVLink style={{color: '#5a5a5a'}} data={this.state.usersCSV} headers={usersCSVHeaders}
+                                 filename={"MesheklePhoneBookUsers.csv"}
+                                 onClick={() => {
+                                     this.setState({usersCSV: this.pickUserAttributesForCSV()});
+                                 }}>
+                            <Icon name="file excel outline"/>
+                            &nbsp;&nbsp;
+                            יצא לExcel
+                        </CSVLink>
+                    </Button>
+
+
                     <Table celled striped textAlign='right' selectable sortable compact={"very"} collapsing>
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell
-                                    style={{width: 100}}
                                     sorted={usersColumn === 'userId' ? usersDirection : null}
                                     onClick={this.handleUsersSort('userId')}
                                 >
@@ -567,7 +654,7 @@ class PhoneBookManagementPage extends React.Component {
                             {users.slice(startIndexUsers, startIndexUsers + TOTAL_PER_PAGE).map(user =>
                                 (<Table.Row key={user.userId}>
                                     <Table.Cell>{user.userId}</Table.Cell>
-                                    <Table.Cell style={{width: 100}}>
+                                    <Table.Cell>
                                         <Header as='h4' image>
                                             <Image
                                                 src={user.image}
@@ -585,14 +672,12 @@ class PhoneBookManagementPage extends React.Component {
                                         </Header>
                                     </Table.Cell>
                                     {/*<Table.Cell>{user.password}</Table.Cell>*/}
-                                    <Table.Cell style={{width: 200}}>{user.email}</Table.Cell>
-                                    <Table.Cell style={{width: 50}}>{user.mailbox}</Table.Cell>
-                                    <Table.Cell style={{width: 100}}>{user.cellphone}</Table.Cell>
-                                    <Table.Cell style={{width: 100}}>{user.phone}</Table.Cell>
-                                    <Table.Cell
-                                        style={{width: 100}}>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
-                                    <Table.Cell
-                                        style={{width: 50}}>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
+                                    <Table.Cell>{user.email}</Table.Cell>
+                                    <Table.Cell>{user.mailbox}</Table.Cell>
+                                    <Table.Cell>{user.cellphone}</Table.Cell>
+                                    <Table.Cell>{user.phone}</Table.Cell>
+                                    <Table.Cell>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
+                                    <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                 </Table.Row>),
                             )}
                         </Table.Body>
@@ -638,6 +723,20 @@ class PhoneBookManagementPage extends React.Component {
                         יצא לPDF
                     </Button>
 
+                    <Button icon style={{width: 120}}>
+                        <CSVLink style={{color: '#5a5a5a'}} data={this.state.serviceProvidersCSV}
+                                 headers={serviceProvidersCSVHeaders}
+                                 filename={"MesheklePhoneBookServiceProviders.csv"}
+                                 onClick={() => {
+                                     this.setState({serviceProvidersCSV: this.pickServiceProviderAttributesForCSV()});
+                                 }}>
+                            <Icon name="file excel outline"/>
+                            &nbsp;&nbsp;
+                            יצא לExcel
+                        </CSVLink>
+                    </Button>
+
+
                     <Table celled striped textAlign='right' selectable sortable compact={"very"}>
                         <Table.Header>
                             <Table.Row>
@@ -659,6 +758,12 @@ class PhoneBookManagementPage extends React.Component {
                                 >
                                     {strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}
                                 </Table.HeaderCell>
+                                <Table.HeaderCell
+                                    sorted={serviceProvidersColumn === 'subjects' ? serviceProvidersDirection : null}
+                                    onClick={this.handleServiceProvidersSort('subjects')}
+                                >
+                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_SUBJECTS_HEADER}
+                                </Table.HeaderCell>
                                 {/*<Table.HeaderCell
                                 sorted=serviceProviderssColumn === 'userId' ?serviceProviderssDirection : null}
                                     onClick={this.handlServiceProviderssSort('userId')}
@@ -672,7 +777,7 @@ class PhoneBookManagementPage extends React.Component {
                                     {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}
                                 </Table.HeaderCell>
                                 <Table.HeaderCell
-                                    sorted={serviceProvidersColumn === 'phone' ? serviceProvidersDirection : null}
+                                    sorted={serviceProvidersColumn === 'phoneNumber' ? serviceProvidersDirection : null}
                                     onClick={this.handleServiceProvidersSort('phoneNumber')}
                                 >
                                     {strings.phoneBookPageStrings.PHONE_HEADER}
@@ -713,6 +818,14 @@ class PhoneBookManagementPage extends React.Component {
                                     />
                                     <Input placeholder='סנן...' className={"filterInput"}
                                            onChange={(e) => this.handleServiceProviderFilter('role', e)}
+                                    />
+                                </Table.HeaderCell>
+                                <Table.HeaderCell>
+                                    <Icon link name='filter'
+                                          onClick={(e) => this.handleServiceProviderFilter('subjects', e)}
+                                    />
+                                    <Input placeholder='סנן...' className={"filterInput"}
+                                           onChange={(e) => this.handleServiceProviderFilter('subjects', e)}
                                     />
                                 </Table.HeaderCell>
                                 <Table.HeaderCell>
@@ -818,6 +931,7 @@ class PhoneBookManagementPage extends React.Component {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>{strings.roles[serviceProvider.role]}</Table.Cell>
+                                    <Table.Cell>{serviceProvider.subjects.length === 0 ? serviceProvider.subjects : JSON.parse(serviceProvider.subjects).join(", ")}</Table.Cell>
                                     {/*<Table.Cell>{serviceProvider.userId}</Table.Cell>*/}
                                     <Table.Cell>
                                         {
@@ -851,7 +965,7 @@ class PhoneBookManagementPage extends React.Component {
                         </Table.Body>
                         <Table.Footer>
                             <Table.Row>
-                                <Table.HeaderCell colSpan={8}>
+                                <Table.HeaderCell colSpan={9}>
                                     <Menu floated="left" pagination>
                                         {pageServiceProviders !== 0 &&
                                         <Menu.Item as="a" icon onClick={this.decrementPageServiceProviders}>
@@ -905,4 +1019,6 @@ class PhoneBookManagementPage extends React.Component {
     }
 }
 
-export {PhoneBookManagementPage}
+export {
+    PhoneBookManagementPage
+}
