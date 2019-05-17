@@ -23,7 +23,7 @@ import _ from "lodash";
 import Datetime from 'react-datetime';
 import helpers from "../../shared/helpers";
 
-const TOTAL_PER_PAGE = 10;
+const TOTAL_PER_PAGE = 40;
 
 class PhoneBookManagementPage extends React.Component {
     constructor(props) {
@@ -63,9 +63,6 @@ class PhoneBookManagementPage extends React.Component {
             }
         };
 
-        this.incrementPage = this.incrementPage.bind(this);
-        this.decrementPage = this.decrementPage.bind(this);
-        this.setPage = this.setPage.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
 
         this.serviceProviderHeaders = '';
@@ -147,23 +144,42 @@ class PhoneBookManagementPage extends React.Component {
     }
 
 
-    setPage(page) {
+    setPageUsers = (page) => {
         return () => {
-            this.setState({page});
+            this.setState({pageUsers: page});
         };
-    }
+    };
 
-    decrementPage() {
+    setPageServiceProviders = (page) => {
+        return () => {
+            this.setState({pageServiceProviders: page});
+        };
+    };
+
+
+    decrementPageUsers = () => {
         const {pageUsers} = this.state;
 
         this.setState({pageUsers: pageUsers - 1});
-    }
+    };
 
-    incrementPage() {
+    decrementPageServiceProviders = () => {
+        const {pageServiceProviders} = this.state;
+
+        this.setState({pageServiceProviders: pageServiceProviders - 1});
+    };
+
+    incrementPageUsers = () => {
         const {pageUsers} = this.state;
 
         this.setState({pageUsers: pageUsers + 1});
-    }
+    };
+
+    incrementPageServiceProviders = () => {
+        const {pageServiceProviders} = this.state;
+
+        this.setState({pageServiceProviders: pageServiceProviders + 1});
+    };
 
     handleDelete(userId) {
         const {users} = this.state;
@@ -352,7 +368,8 @@ class PhoneBookManagementPage extends React.Component {
         // console.log('dayyyyyy app props ', moment().day('שני').format("e"));
 
         const {usersColumn, usersDirection, users, pageUsers, totalPagesUsers, serviceProvidersColumn, serviceProvidersDirection, serviceProviders, pageServiceProviders, totalPagesServiceProviders, activeIndex} = this.state;
-        const startIndex = pageUsers * TOTAL_PER_PAGE;
+        const startIndexUsers = pageUsers * TOTAL_PER_PAGE;
+        const startIndexServiceProvider = pageServiceProviders * TOTAL_PER_PAGE;
 
         return (
             <div>
@@ -373,6 +390,7 @@ class PhoneBookManagementPage extends React.Component {
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell
+                                    style={{width: 100}}
                                     sorted={usersColumn === 'userId' ? usersDirection : null}
                                     onClick={this.handleUsersSort('userId')}
                                 >
@@ -546,10 +564,10 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {users.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(user =>
+                            {users.slice(startIndexUsers, startIndexUsers + TOTAL_PER_PAGE).map(user =>
                                 (<Table.Row key={user.userId}>
                                     <Table.Cell>{user.userId}</Table.Cell>
-                                    <Table.Cell>
+                                    <Table.Cell style={{width: 100}}>
                                         <Header as='h4' image>
                                             <Image
                                                 src={user.image}
@@ -567,12 +585,14 @@ class PhoneBookManagementPage extends React.Component {
                                         </Header>
                                     </Table.Cell>
                                     {/*<Table.Cell>{user.password}</Table.Cell>*/}
-                                    <Table.Cell>{user.email}</Table.Cell>
-                                    <Table.Cell>{user.mailbox}</Table.Cell>
-                                    <Table.Cell>{user.cellphone}</Table.Cell>
-                                    <Table.Cell>{user.phone}</Table.Cell>
-                                    <Table.Cell>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
-                                    <Table.Cell>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
+                                    <Table.Cell style={{width: 200}}>{user.email}</Table.Cell>
+                                    <Table.Cell style={{width: 50}}>{user.mailbox}</Table.Cell>
+                                    <Table.Cell style={{width: 100}}>{user.cellphone}</Table.Cell>
+                                    <Table.Cell style={{width: 100}}>{user.phone}</Table.Cell>
+                                    <Table.Cell
+                                        style={{width: 100}}>{moment(user.bornDate).format("DD/MM/YYYY")}</Table.Cell>
+                                    <Table.Cell
+                                        style={{width: 50}}>{user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</Table.Cell>
                                 </Table.Row>),
                             )}
                         </Table.Body>
@@ -580,17 +600,18 @@ class PhoneBookManagementPage extends React.Component {
                             <Table.Row>
                                 <Table.HeaderCell colSpan={8}>
                                     <Menu floated="left" pagination>
-                                        {pageUsers !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
+                                        {pageUsers !== 0 &&
+                                        <Menu.Item as="a" icon onClick={this.decrementPageUsers}>
                                             <Icon name="right chevron"/>
                                         </Menu.Item>}
                                         {times(totalPagesUsers, n =>
                                             (<Menu.Item as="a" key={n} active={n === pageUsers}
-                                                        onClick={this.setPage(n)}>
+                                                        onClick={this.setPageUsers(n)}>
                                                 {n + 1}
                                             </Menu.Item>),
                                         )}
                                         {pageUsers !== (totalPagesUsers - 1) &&
-                                        <Menu.Item as="a" icon onClick={this.incrementPage}>
+                                        <Menu.Item as="a" icon onClick={this.incrementPageUsers}>
                                             <Icon name="left chevron"/>
                                         </Menu.Item>}
                                     </Menu>
@@ -771,7 +792,7 @@ class PhoneBookManagementPage extends React.Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {serviceProviders.slice(startIndex, startIndex + TOTAL_PER_PAGE).map((serviceProvider, index) =>
+                            {serviceProviders.slice(startIndexServiceProvider, startIndexServiceProvider + TOTAL_PER_PAGE).map((serviceProvider, index) =>
                                 (<Table.Row key={index}>
                                     <Table.Cell>
                                         <Header as='h4' image>
@@ -833,17 +854,17 @@ class PhoneBookManagementPage extends React.Component {
                                 <Table.HeaderCell colSpan={8}>
                                     <Menu floated="left" pagination>
                                         {pageServiceProviders !== 0 &&
-                                        <Menu.Item as="a" icon onClick={this.decrementPage}>
+                                        <Menu.Item as="a" icon onClick={this.decrementPageServiceProviders}>
                                             <Icon name="right chevron"/>
                                         </Menu.Item>}
                                         {times(totalPagesServiceProviders, n =>
                                             (<Menu.Item as="a" key={n} active={n === pageServiceProviders}
-                                                        onClick={this.setPage(n)}>
+                                                        onClick={this.setPageServiceProviders(n)}>
                                                 {n + 1}
                                             </Menu.Item>),
                                         )}
                                         {pageServiceProviders !== (totalPagesServiceProviders - 1) &&
-                                        <Menu.Item as="a" icon onClick={this.incrementPage}>
+                                        <Menu.Item as="a" icon onClick={this.incrementPageServiceProviders}>
                                             <Icon name="left chevron"/>
                                         </Menu.Item>}
                                     </Menu>
