@@ -80,6 +80,11 @@ Events.belongsTo(ScheduledAppointments, {
     targetKey: 'appointmentId'
 });
 
+Events.belongsTo(UsersChores, {
+    foreignKey: 'eventId',
+    targetKey: 'userChoreId'
+});
+
 /*ScheduledAppointments.hasOne(Events, {
     foreignKey: 'eventId',
     targetKey: 'appointmentId'
@@ -179,9 +184,9 @@ SwapRequests.belongsTo(UsersChores, {
 });
 
 //if (process.dbMode === "dev") {
-    sequelize.sync({force: true})
+    sequelize.sync({force: false})
         .then(() => {
-            RulesModules.bulkCreate([
+            /*RulesModules.bulkCreate([
                 {
                     role: "Admin",
                     module: "all",
@@ -231,10 +236,10 @@ SwapRequests.belongsTo(UsersChores, {
                                 active: true,
                             })
                         })
-                        .then(
+                        .then(*/
                             console.log(`Database & tables created!`)
-                        )
-                })
+             //           )
+             //   })
 
         });
 //}

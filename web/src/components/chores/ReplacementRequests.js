@@ -10,15 +10,18 @@ import choresStorage from "../../storage/choresStorage";
 import store from 'store';
 import times from 'lodash.times';
 import axios from "axios";
+import NumericInput from 'react-numeric-input';
+
 
 
 
 const TOTAL_PER_PAGE = 8;
 
-var requestsRequested = [];
-var requestsDenied = [];
-var requestsReplaced = [];
-var requestsCanceled =[];
+var requestsRequested = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+var requestsDenied = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+var requestsReplaced = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+var requestsCanceled ={1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+var month = 1;
 class ReplacementRequests extends Component {
 
     constructor(props) {
@@ -35,6 +38,8 @@ class ReplacementRequests extends Component {
             requestsDenied:[],
             requestsReplaced:this.props.requestsReplaced,
             choreType:this.props.choreType,
+            deviation:false,
+            month:'',
 
         };
         this.incrementPage = this.incrementPage.bind(this);
@@ -50,10 +55,10 @@ class ReplacementRequests extends Component {
     }
 
     getRequests(){
-        requestsRequested = [];
-        requestsDenied = [];
-        requestsReplaced = [];
-        requestsCanceled =[];
+        requestsRequested = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+        requestsDenied = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+        requestsReplaced ={1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
+        requestsCanceled = {1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],11:[],12:[]};
         let reqs = [];
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'requested'));
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'deny'));
@@ -61,10 +66,13 @@ class ReplacementRequests extends Component {
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'canceled'));
         axios.all(reqs)
         .then(res=>{
-            res[0].data.requests.map(re=>{
-                if(re.choreOfSender.choreTypeName===this.props.choreType){
-                    console.log("re.choreOfSender.choreTypeName:", re.choreOfSender.choreTypeName);
-                    requestsRequested.push(re);
+            res[0].data.requests.map(re_=>{
+                if(re_.choreOfSender.choreTypeName===this.props.choreType ){
+                    if(Number(moment(re_.choreOfSender.date).format('MM'))===Number(month)|| Number(moment(re_.choreOfReceiver.date).format('MM'))===Number(month)){
+                        
+                        requestsRequested[month].push(re_);
+                    }
+                    console.log("re.choreOfSender.requestsRequested[month]:",requestsRequested[month], Number(moment(re_.choreOfSender.date).format('MM'))===Number(month));
                 }
             })
             //requestsDenied = res[1].data.requests;
@@ -72,13 +80,13 @@ class ReplacementRequests extends Component {
             res[1].data.requests.map(re=>{
                 if(re.choreOfSender.choreTypeName===this.props.choreType){
                     console.log("re.choreOfSender.choreTypeName:", re.choreOfSender.choreTypeName);
-                    requestsDenied.push(re);
+                    requestsDenied[month].push(re);
                 }
             })
             res[2].data.requests.map(re=>{
                 if(re.choreOfSender.choreTypeName===this.props.choreType){
                     console.log("re.choreOfSender.choreTypeName:", re.choreOfSender.choreTypeName);
-                    requestsReplaced.push(re);
+                    requestsReplaced[month].push(re);
                 }
             })
             res[3].data.requests.map(re=>{
@@ -121,9 +129,10 @@ class ReplacementRequests extends Component {
     tabContent(requests){
         const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
-        console.log("in tabcontent : " , requests);
+        console.log("in tabcontent : " ,moment().format('YYYY') ,requests);
+        this.getRequests();
         if(requests.length===undefined){
-            requests = requestsRequested;
+            requests = requestsRequested[month];
         }
         return (<Tab.Pane><Table >
                     <Table.Header>
@@ -175,62 +184,29 @@ class ReplacementRequests extends Component {
     render() {
         const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
-        /*var tabContent = (<Table >
-            <Table.Header>
-                
-            </Table.Header>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell>{"המבקש"}</Table.HeaderCell>
-                                <Table.HeaderCell>{"תאריך המבקש"}</Table.HeaderCell>
-                                <Table.HeaderCell>{"מקבל הבקשה"}</Table.HeaderCell>
-                                <Table.HeaderCell>{"תאריך מקבל הבקשה"}</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.requests.slice(startIndex, startIndex + TOTAL_PER_PAGE).map(req =>
-                                (<Table.Row >
-                                    <Table.Cell>{req.choreOfSender.User.fullname}</Table.Cell>
-                                    <Table.Cell>{moment(req.choreOfSender.date).format('DD-MM-YYYY')}</Table.Cell>
-                                    <Table.Cell>{req.choreOfReceiver.User.fullname}</Table.Cell>
-                                    <Table.Cell>{moment(req.choreOfReceiver.date).format('DD-MM-YYYY')}</Table.Cell>
-                                </Table.Row>),
-                            )}
-                        </Table.Body>
-                        <Table.Footer>
-                            <Table.Row>
-                                <Table.HeaderCell colSpan={8}>
-                                    <Menu floated="left" pagination>
-                                        {pageUsers !== 0 && <Menu.Item as="a" icon onClick={this.decrementPage}>
-                                            <Icon name="right chevron"/>
-                                        </Menu.Item>}
-                                        {times(totalPagesUsers, n =>
-                                            (<Menu.Item as="a" key={n} active={n === pageUsers}
-                                                        onClick={this.setPage(n)}>
-                                                {n + 1}
-                                            </Menu.Item>),
-                                        )}
-                                        {pageUsers !== (totalPagesUsers - 1) &&
-                                        <Menu.Item as="a" icon onClick={this.incrementPage}>
-                                            <Icon name="left chevron"/>
-                                        </Menu.Item>}
-                                    </Menu>
-                                </Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Footer>
-                    </Table>
-        );*/
+        
         const panes = [
-            { menuItem: 'הוחלפו', render: () => {return this.tabContent(this.props.requestsReplaced)} },
-            { menuItem: 'פתוחות', render: () =>{return this.tabContent(requestsRequested)}},
-            { menuItem: 'נסגרו', render: () =>{return this.tabContent(requestsCanceled)}},
-            { menuItem: 'נדחו', render: () => {return this.tabContent(requestsDenied)} },
+            //{ menuItem: 'הוחלפו', render: () => {return this.tabContent(requestsReplaced[month].length===0?this.props.requestsReplaced:requestsReplaced)} },
+            { menuItem: 'הוחלפו', render: () => {return this.tabContent(requestsReplaced[month])} },
+            { menuItem: 'פתוחות', render: () =>{return this.tabContent(requestsRequested[month])}},
+            { menuItem: 'נסגרו', render: () =>{return this.tabContent(requestsCanceled[month])}},
+            { menuItem: 'נדחו', render: () => {return this.tabContent(requestsDenied[month])} },
           ]
 
         return (
-            
-            <Tab panes={panes} defaultActiveIndex={0} />
-            
+            <div>
+        <NumericInput number min={1} max={12}  name='month' onChange={(value)=>{
+        console.log("handlechange: ", 'month', value)
+        if(value>12){
+            this.setState({deviation:true})
+        }
+        else{
+        this.setState({deviation: false,  month: value});
+        month = value;
+        console.log("after set state ", month);}}}/>
+                <label style={{color:'red'}}>{this.state.deviation?"חריגה" : ""}</label>
+            <Tab panes={panes} defaultActiveIndex={0} renderActiveOnly/>
+            </div>
         )
     }
 }

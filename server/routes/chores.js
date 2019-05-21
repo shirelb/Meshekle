@@ -1,11 +1,23 @@
 var express = require('express');
 var router = express.Router();
-const {UsersChores, ChoreTypes, UsersChoresTypes, Users, SwapRequests} = require('../DBorm/DBorm');
+const {UsersChores, ChoreTypes, UsersChoresTypes, Users, SwapRequests, Events} = require('../DBorm/DBorm');
 const validations = require('./shared/validations');
+const authentications = require('./shared/authentications');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var constants = require('./shared/constants');
 
+
+router.use(function (req, res, next) {
+  authentications.verifyToken(req, res, next);
+});
+
+// router.post('/validToken', function (req, res) {
+//   res.status(200).send({
+//       message: constants.usersRoute.VALID_TOKEN,
+//       payload: req.decoded.payload
+//   });
+// });
 
 /* GET users chores listing. api1 */
 router.get('/usersChores/future/:future', function (req, res, next) {
@@ -996,6 +1008,37 @@ router.put('/replacementRequests/replace', function (req, res, next) {
 
 });
 
+/* POST event userChore (related to api18). */
+  router.post('/add/event/userChore', function (req, res, next) {
+            console.log("\n the date is OK!\n")
+            validations.checkIfUserExist(req.body.userId, res)
+            .then(user=>{
+                if(user){
+                        Events.create({
+                          userId: req.body.userId,
+                          eventType: req.body.eventType,
+                          eventId: req.body.eventId,
+                        })
+                            .then(newEvent => {
+                                res.status(200).send({"message": "event successfully added!",newEvent});
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                      }
+                
+                else{
+                  res.status(400).send({"message":"user not do this chore"});
+                }
+              
+            })
+            .catch(err=>{
+              res.status(404).send({"message":constants.usersRoute.USER_NOT_FOUND,err});
+            })
+        
+  });
+
 checkIfUserDoChoreType = function(userId, type, res){
   return UsersChoresTypes.findOne({
     where: {
@@ -1018,4 +1061,6 @@ checkIfUserDoChoreType = function(userId, type, res){
         });
     })
 }
+
+
 module.exports = router;

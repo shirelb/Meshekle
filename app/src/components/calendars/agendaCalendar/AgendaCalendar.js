@@ -13,13 +13,13 @@ moment.locale('he');
 
 const module2color = {
     Appointments: 'purple', //'#00adf5',
-    Chores:'red',
+    UsersChores:'red',
     Announcements:'green',
 };
 
 const module2selectedDotColor = {
     Appointments: 'purple',
-    Chores:'red',
+    UsersChores:'red',
     Announcements:'green',
 };
 
@@ -81,6 +81,7 @@ export default class AgendaCalendar extends Component {
         let serviceProviderUserDetails = this.serviceProviders;
         usersStorage.getUserEvents(this.userId, this.userHeaders)
             .then(response => {
+                console.log("load items")
                 let events = response.data;
                 if (events.length > 0) {
                     events.forEach((event) => {
@@ -105,7 +106,28 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
-                            // TODO add case of chores here
+                            case 'UsersChores':
+                            console.log("load items-> userschores", this.state.items)
+                            let chore = event['UsersChore'];
+                            item.type = event.eventType;
+                            item.date = moment(chore.date).format("YYYY-MM-DD");
+                            ///item.itemId = chore.userChoreId;
+                            ////item.date = moment(chore.date).format("YYYY-MM-DD");
+                            item.title = chore.choreTypeName;
+                            item.startTime = moment(chore.date).format("HH:mm");
+                            item.endTime = moment(chore.date).format("HH:mm");
+                            //item.role = mappers.serviceProviderRolesMapper(appointment.AppointmentDetail.role);
+                            //item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
+                            //item.subject = JSON.parse(appointment.AppointmentDetail.subject).join(", ");
+                            //let serviceProvider = serviceProviderUserDetails.filter(provider => provider.userId === appointment.AppointmentDetail.serviceProviderId.toString())[0];
+                            //item.serviceProviderFullname = serviceProvider.fullname;
+                            //item.serviceProviderImage = serviceProvider.image;
+                            if (newItems[item.date]) {
+                                newItems[item.date].push(item);
+                            } else {
+                                newItems[item.date] = [item];
+                            }
+                            break;
                         }
                     });
                     this.setState({
@@ -148,7 +170,24 @@ export default class AgendaCalendar extends Component {
                         <Text h3>{item.subject}</Text>
                     </Card>
                 );
-            //TODO add chores case to render item
+               // break;
+                case 'UsersChores':
+                return (
+                    <Card
+                        title={`תורנות`}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.title}</Text>
+
+                           
+                        </View>
+                    </Card>
+                );
         }
     };
 
@@ -197,6 +236,7 @@ export default class AgendaCalendar extends Component {
         const to_date = today.endOf('week');
 
         return (
+            <View><Text>{"aaaaaaaaaaaaaaa"+this.state.items[moment(new Date('22-05-2019'))]}</Text>
             <Agenda
                 items={this.state.items}
                 // loadItemsForMonth={this.loadItems.bind(this)}
@@ -254,6 +294,7 @@ export default class AgendaCalendar extends Component {
                     agendaBackgroundColor: '#424242',
                 }}
             />
+            </View>
         );
     }
 }

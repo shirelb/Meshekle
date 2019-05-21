@@ -120,6 +120,7 @@ io.on("connection", socket => {
     require('../sockets/appointments')(socket, pushToWebClient, pushToAppClient);
     require('../sockets/serviceProviders')(socket, pushToWebClient, pushToAllAppClient);
     require('../sockets/users')(socket, pushToAllWebClient, pushToAllAppClient);
+    require('../sockets/chores')(socket, pushToAllWebClient, pushToAllAppClient);
 
     return io;
 });

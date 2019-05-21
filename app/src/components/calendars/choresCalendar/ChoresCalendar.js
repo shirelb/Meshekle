@@ -12,6 +12,7 @@ import { createStackNavigator, createAppContainer } from 'react-navigation';
 import axios from "axios";
 import ReplacementRequests from '../../choresComponents/ReplacementRequests';
 import ClosedReplacementRequests from '../../choresComponents/ClosedReplacementRequests';
+import {APP_SOCKET} from "../../../shared/constants";
 
 
 
@@ -50,6 +51,12 @@ export default class ChoresCalendar extends Component {
                 this.userId = userData.userId;
                 this.loadUserChores();
             });
+            APP_SOCKET.on("getUserChore", this.loadUserChores);
+
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUserChore");
     }
 
     loadUserChores() {

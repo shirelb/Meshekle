@@ -8,6 +8,7 @@ import usersStorage from "../../storage/usersStorage";
 import choresStorage from "../../storage/choresStorage";
 import DaysTags from "./DaysTags";
 import store from 'store';
+import NumericInput from 'react-numeric-input';
 
 class EditChoreTypeSettings extends Component {
 
@@ -16,7 +17,8 @@ class EditChoreTypeSettings extends Component {
 
 
         this.state = {
-            newSettings:props.settings
+            newSettings:props.settings,
+            deviation:false,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -46,7 +48,7 @@ class EditChoreTypeSettings extends Component {
         };
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
-        choresStorage.editChoreTypeSetting(this.serviceProviderId, this.headers, this.state.newSettings)
+        choresStorage.editChoreTypeSetting(this.serviceProviderId, this.serviceProviderHeaders, this.state.newSettings)
         .then(res=>{
             console.log("settings updated to ",  this.state.newSettings);
             
@@ -94,17 +96,15 @@ class EditChoreTypeSettings extends Component {
                 <DaysTags settings={this.props.settings} onChange={this.onChange}/>
                 <Form.Field inline>
                     <label> מספר עובדים</label>
-                    <Input
-                        
-                        placeholder={this.props.settings.numberOfWorkers}
-                        
-                        autoComplete='on'
-                        defaultValue={this.props.settings.numberOfWorkers}
-                        onChange={this.handleChange}
-                        name='numberOfWorkers'
-                        width='10%'
-                        type= 'number'
-                    />
+                    <NumericInput required number min={1} max={20} defaultValue={2} name='numberOfWorkers' onChange={(value)=>{const {newSettings} = this.state;
+        console.log("handlechange: ", 'numberOfWorkers', value)
+        if(value>20){
+            this.setState({deviation:true})
+        }
+        else{
+        this.setState({deviation: false, newSettings: {...newSettings, numberOfWorkers: value}});
+        console.log("after set state ", this.state.newSettings);}}}/>
+        <label style={{color:'red'}}>{this.state.deviation?"חריגה" : ""}</label>
                 </Form.Field>
                 <Form.Field inline>
                 <label> תדירות</label>
@@ -120,7 +120,7 @@ class EditChoreTypeSettings extends Component {
                     margin="50%"
                 />
                 </Form.Field>
-                <Form.Group widths='equal'>
+                <Form.Group widths='2cm' width='4cm'>
                     <label>שעת התחלה</label>
                     <Form.Field
                         as={Datetime}
@@ -163,7 +163,7 @@ class EditChoreTypeSettings extends Component {
                 }
 
                 <Form.Group>
-                    <Form.Button  newSettings={this.state.newSettings} type="submit">{submitText}</Form.Button>
+                    <Form.Button disabled={this.state.deviation}  newSettings={this.state.newSettings} type="submit">{submitText}</Form.Button>
                     <Form.Button onClick={this.handleCancel}>בטל</Form.Button>
                 </Form.Group>
 

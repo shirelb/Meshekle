@@ -11,13 +11,17 @@ import 'jquery/dist/jquery.min';
 import "jquery-ui/ui/widgets/draggable";
 import "jquery-ui/ui/widgets/droppable";
 import {Button, Header, Icon, Menu, Table, Modal, Select, Label,Portal,Segment,Grid} from 'semantic-ui-react';
+import helpers from "../../shared/helpers";
+import choresStorage from "../../storage/choresStorage";
+
+
 
 
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
 // import './bootstrap.min.css';
-
+var userschores = [];
 export default class ChoresCalendar extends Component {
     constructor(props) {
         super(props);
@@ -86,6 +90,8 @@ export default class ChoresCalendar extends Component {
             portalNeedToDeleteUserChores:false,
             usersChoosedNames:[],
             calendarDisplay: this.props.calendarDisplay,
+            choreTypeName: props.choreTypeName,
+            userschores:[],
             
         }
 
@@ -95,7 +101,7 @@ export default class ChoresCalendar extends Component {
         this.handleWorkerChange = this.handleWorkerChange.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.createUserChoresRequest = this.createUserChoresRequest.bind(this);
-        
+        this.getUserschoresForType = this.getUserschoresForType.bind(this);
         
     }
 
@@ -108,11 +114,28 @@ export default class ChoresCalendar extends Component {
     //console.log("this.fullcalendarConfig.events; ", this.fullcalendarConfig.events);
     }
 
+    componentWillMount(){
+        this.getUserschoresForType();
+    }
+
+    getUserschoresForType(){
+        choresStorage.getUserChoresForType(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName )
+        .then(res=>{
+            let usrChores = res.data.usersChores;
+            this.setState({settings:this.props.settings,
+                           userschores:usrChores });
+                           //this.forceUpdate();
+                           userschores = usrChores;
+                           console.log("in component wiil mount:", userschores )
+        })
+    }
+
     componentDidMount() {
         this.fullcalendarConfig.events = this.props.events;
         console.log("this.props.events;",this.props.events);
         this.fullcalendarConfig.select = this.onSelectSlot;
-        this.setState({settings:this.props.settings});
+        
+
         /*this.fullcalendarConfig.dayClick= function(event, jsEvent, view) {
             $('#calendarModal').modal('show');
         }*/
@@ -171,28 +194,38 @@ export default class ChoresCalendar extends Component {
             this.setState({usersChoosed:[], usersChoosedNames:[]});
             console.log("back from create user chores request:", this.state.usersChoosed, this.state.usersChoosedNames)
         //})
+        //this.getUserschoresForType();
     }
 
     workersToChoose(event){
+        this.getUserschoresForType();
         let ans = [];
         let past = moment(event).isBefore(moment().format('YYYY-MM-DD'));
-        //console.log("workersToChoose event:",moment().format('DD-MM-YYYY'),past);
-        let usrChores = this.props.events;
+        let settings = this.props.settings;
+        console.log("workersToChoose event:settings.choreTypeName", this.props.choreTypeName, this.props.getUserChoresForType( this.props.choreTypeName));
+        let usrChores =userschores;
+        
+            //usrChores = res.data.usersChoress;
+            console.log("workersToChoose event:ודרCיםרקד", usrChores);
+
         let workersDay = [];
         usrChores.map(chore=> { if(moment(chore.date).format('DD-MM-YYYY')===(moment(event).format('DD-MM-YYYY'))){ workersDay.push(chore)}});
         if(past){
             ans.push(<Header>תורנים:</Header>);
             console.log("usrChores after filter past:",workersDay);
-            for(var j=0;j<workersDay.length;j++){
-                ans.push(<h4><br/>{workersDay[j].title} <br/></h4>);
+            let j=0;
+            for( j=0;j<workersDay.length;j++){
+                ans.push(<h4><br/>{workersDay[j].title}&nbsp;&nbsp;&nbsp;&nbsp;{"( תאריך מקורי: " +moment(workersDay[j].originDate).format('DD-MM-YYYY')+")"} <br/></h4>);
             }
         }
         else
         {
             ans.push(<Header>יש לבחור {String(this.props.settings.numberOfWorkers)} תורנים:</Header>);
             console.log("usrChores after filter:",workersDay,  this.props.usersOfType);
-            for(var j=0;j<workersDay.length;j++){
-                ans.push(<h4><br/>{workersDay[j].title} <Button choreId={workersDay[j].id} onClick={this.props.deleteUserChore}>הסר תורן</Button><br/></h4>)
+            let j=0;
+            for( j=0;j<workersDay.length;j++){
+                console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", workersDay[j])
+                ans.push(<h4><br/>{workersDay[j].title}&nbsp;&nbsp;&nbsp;&nbsp;{"( תאריך מקורי: " +moment(workersDay[j].originDate).format('DD-MM-YYYY')+")"} <Button choreId={workersDay[j].userChoreId} onClick={this.props.deleteUserChore}>הסר תורן</Button><br/></h4>)
             }
 
             var loopTimes = (this.props.settings.numberOfWorkers)-j;
@@ -205,8 +238,8 @@ export default class ChoresCalendar extends Component {
             console.log("workersDay, usersOfType-", workersDay, usersOfType);
             for(j=0; j<workersDay.length ; j++){
                 for( j1=0; j1<usersOfType.length;j1++){
-                    console.log("usersOfType[j1].id , workersDay[j1].user.id:", usersOfType[j1].id, workersDay[j].user.id )
-                    if(usersOfType[j1].id !==workersDay[j].user.userId){
+                    console.log("usersOfType[j1].id , workersDay[j1].user.id:", usersOfType[j1].id, workersDay[j] )
+                    if(usersOfType[j1].id !==workersDay[j].User.userId){
                         usersOfType1.push(usersOfType[j1]);
                     }
                 }
@@ -230,6 +263,7 @@ export default class ChoresCalendar extends Component {
     }
         ans.push(<Button onClick={this.closeModal} >סגור</Button>);
         return <Table.Body >{ans}</Table.Body>
+    //})
     }
 
     closeModal(){
@@ -246,8 +280,17 @@ export default class ChoresCalendar extends Component {
 
        console.log("renser this.props.events;",( String(window.location).includes("setting")));
     return (
-    <div id='calendar' hidden={(String(window.location).includes("settings"))||(String(window.location).includes("newChoreType"))} >
+        <div>
+            <Button icon
+                                    onClick={() => helpers.exportToPDF('MeshekleAppointmentsCalendar', 'calendar', 'landscape')}>
+                                <Icon name="file pdf outline"/>
+                                &nbsp;&nbsp;
+                                יצא לPDF
+                            </Button>
+        
+    <div id='calendar'  hidden={(String(window.location).includes("settings"))||(String(window.location).includes("newChoreType"))} >
                     <Header>{this.props.match}</Header>
+                    
     {/* String(window.location).includes("settings")? this.setState({calendarDisplay: ""}) : this.setState({calendarDisplay: "calendar"})*/}
 {/*console.log("rnderrrrrrrrrrrrrrr:", this.props.calendarDisplay)*/}
     <Modal id="calendarModal" open= {this.state.openModal}
@@ -255,7 +298,7 @@ export default class ChoresCalendar extends Component {
     <Modal.Header> תורנות ליום {String(moment(this.state.modalDate).format("dddd : DD-MM-YYYY"))}</Modal.Header>
     <Modal.Content>
     
-        {this.workersToChoose(this.state.modalDate)}
+        {this.state.openModal? this.workersToChoose(this.state.modalDate): <div></div>}
         
       {/*<EditChoreTypeSettings onClose={() => this.props.history.goBack()}  settings={this.state.settings}/>*/}
       
@@ -312,7 +355,7 @@ export default class ChoresCalendar extends Component {
           <div></div>
 
       }
-        
+      </div>  
 </div>
             );
     }

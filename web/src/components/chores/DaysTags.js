@@ -146,8 +146,8 @@ export default class DaysTags extends Component {
   render() {
     const { tags, suggestions, unchoosedTags } = this.state;
     return (
-      <div id="app">
-        <h4>ימים</h4>
+      <div  id="app">
+        <h4>ימים שנבחרו:</h4>
         <ReactTags
         readOnly= {true}
           tags={tags}
@@ -156,7 +156,7 @@ export default class DaysTags extends Component {
           handleAddition={this.handleAddition}
           handleDrag={this.handleDrag}
           handleTagClick={this.handleEnTagClick}
-        /><h4>הוסף לימים</h4><ReactTags
+        /><h4>הוסף לימים:</h4><ReactTags
         readOnly= {true}
           tags={unchoosedTags}
           suggestions={suggestions}
@@ -166,6 +166,7 @@ export default class DaysTags extends Component {
           handleDrag={this.handleDrag}
           handleTagClick={this.handleDisTagClick}
         />
+        <h5>יש ללחוץ על יום כדי להוסיפו או להסירו מימי ביצוע התורנות</h5>
         
 
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Menu, Table, Modal, Label, List, View} from 'semantic-ui-react';
+import {Button, Header, Icon, Menu, Table, Modal, Label, List, View, Checkbox, Dropdown} from 'semantic-ui-react';
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
@@ -18,15 +18,17 @@ import moment from 'moment';
 import axios from "axios";
 import EditChoreTypeSettings from '../../components/chores/EditChoreTypeSettings';
 import ReplacementRequests from '../../components/chores/ReplacementRequests';
+//import {CheckBox, FormInput, FormLabel, Text} from "react-native-elements";
 
 
 const TOTAL_PER_PAGE = 10;
 var choreTypesOptions = [];
+
 const serviceProviderHeaders = {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
 const serviceProviderId = store.get('serviceProviderId');
-
+var usersToAddToType = [];
 
 class ChoresManagementPage extends React.Component {
     constructor(props) {
@@ -50,17 +52,18 @@ class ChoresManagementPage extends React.Component {
                 users:[],
             },
             isOpenModalUsers:false,
-            userToAddToType: '',
-            userNameToAddToType:'',
+            usersToAddToType: [],
+            userNameToAddToType:[],
             usersNotInType:[],
             openModal:false,
             contentModal:'',
             calendarDisplay:'calendar',
             requestsReplaced:[],
+            choreTypeName: '',
         };
 
         
-
+        
         this.serviceProviderHeaders = {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
@@ -114,6 +117,7 @@ class ChoresManagementPage extends React.Component {
     }
     
     componentDidMount() {
+        
         this.serviceProviderHeaders = {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
@@ -202,7 +206,13 @@ class ChoresManagementPage extends React.Component {
     } 
 
     getUserChoresForType(type) {
-        choresStorage.getUserChoresForType(this.serviceProviderId, this.serviceProviderHeaders, type )
+        console.log("in GETUSERCHORESFORTYPE: type:", type);
+          choresStorage.getUserChoresForType(this.serviceProviderId, serviceProviderHeaders, type )
+         .then(res=>{
+            console.log("in GETUSERCHORESFORTYPE: res:", res);
+
+             return res.data
+         })
             /*.then((response) => {
                 this.setState({userChores: []});
 
@@ -315,6 +325,7 @@ class ChoresManagementPage extends React.Component {
                                 end:'',
                                 userChore:null,
                                 date:Date.now(),
+                                originDate:Date.now(),
                                 isMark: false,
                             };
                             //userchore.userName = user.fullname;
@@ -326,6 +337,7 @@ class ChoresManagementPage extends React.Component {
                             userChoreEvent.endTime = this.state.settings.endTime;
                             userChoreEvent.userChore = userchore;
                             userChoreEvent.date = userchore.date;
+                            userChoreEvent.originDate = userchore.originDate;
                             userChoreEvent.isMark = userchore.isMark;
 
                             //let userChoreEvents = this.state.userChores;
@@ -366,7 +378,7 @@ class ChoresManagementPage extends React.Component {
         let requests = [];
         let i =0;
         for(i in usersChoosed){
-            requests.push(choresStorage.createNewUserChore(serviceProviderId, serviceProviderHeaders, this.state.settings.choreTypeName, usersChoosed[i], moment(date).format('YYYY-MM-DD')));
+            requests.push(choresStorage.createNewUserChore(serviceProviderId, this.serviceProviderHeaders, this.state.settings.choreTypeName, usersChoosed[i], moment(date).format('YYYY-MM-DD')));
         }
         axios.all(requests)
         //axios.all(choresStorage.createNewUserChore(serviceProviderId, serviceProviderHeaders, this.state.settings.choreTypeName, usersChoosed[0], moment(date).format('YYYY-MM-DD')),
@@ -387,7 +399,9 @@ class ChoresManagementPage extends React.Component {
                     console.log("index: ",index, usersChoosedNames[index]);
                     resultUsers= resultUsers+', '+usersChoosedNames[index];
                     getUsersRequests.push(usersStorage.getUserByUserID(res[chore].data.newUserChore.userId, this.serviceProviderHeaders));
-                    
+                    //creat event to userchore was added:
+                    getUsersRequests.push(choresStorage.createUserchoreEvent(serviceProviderId, serviceProviderHeaders,  res[chore].data.newUserChore.userId, res[chore].data.newUserChore.userChoreId));
+
                 }
             }
             console.log("getUsersRequests:",getUsersRequests);
@@ -397,21 +411,24 @@ class ChoresManagementPage extends React.Component {
                 let r = 0;
                 for(r in response){
                     let user = response[r];
-                    console.log('getUserByUserID ', response[r]);
-                    updateUserchores.push(
-                        {
-                            allDay:false,
-                            date:res[chore].data.newUserChore.date,
-                            endTime:this.state.settings.endTime,
-                            startTime:this.state.settings.startTime,
-                            id: res[chore].data.newUserChore.userChoreId,
-                            isMark:false,
-                            title: user.fullname,
-                            user: user,
-                            userChore:res[chore].data.newUserChore,
-                        });
+                    if(user.fullname!==undefined){
+                        console.log('getUserByUserID ', response[r]);
+                        updateUserchores.push(
+                            {
+                                allDay:false,
+                                date:res[chore].data.newUserChore.date,
+                                endTime:this.state.settings.endTime,
+                                startTime:this.state.settings.startTime,
+                                id: res[chore].data.newUserChore.userChoreId,
+                                isMark:false,
+                                title: user.fullname,
+                                user: user,
+                                userChore:res[chore].data.newUserChore,
+                            });
+    
+                    }
 
-                }
+                    }
                 this.setState({userChores: updateUserchores});
                 this.forceUpdate();
             })
@@ -478,9 +495,10 @@ class ChoresManagementPage extends React.Component {
                         let removed= usersInType.splice(ur,1);
                         usersNotInType.push(removed[0]);
                         console.log("removed :",removed[0]);
-                        this.setState({users:usersInType, usersNotInType:usersNotInType });
                     }
                 }
+                this.setState({users:usersInType, usersNotInType:usersNotInType });
+                //this.modalUsersBuild();
             }
             else{
                 this.setState({openModal:true, contentModal:'לא ניתן להסיר משתמש מהתורנות מאחר ויש לו תורנויות עתידיות. \n יש למחוק אותן תחילה.'});
@@ -489,38 +507,58 @@ class ChoresManagementPage extends React.Component {
     }
 
     addUserToChoreType(e, {userId}){
-        console.log("this.state.userToAddToType: ", this.state.userToAddToType);
-        choresStorage.addUserToChoreType(serviceProviderId, serviceProviderHeaders,this.state.userToAddToType, this.state.choreTypeSelected)
+        console.log("this.state.userToAddToType: ", this.state.usersToAddToType);
+        let addUsersRequests = [];
+        let usersToAdd = usersToAddToType//this.state.usersToAddToType;
+        let user = 0;
+        for(user in usersToAdd){
+            addUsersRequests.push(choresStorage.addUserToChoreType(serviceProviderId, serviceProviderHeaders,usersToAdd[user], this.state.choreTypeSelected));
+        }
+        axios.all(addUsersRequests)
         .then(res=>{
-            console.log("response addUserToChoreType", res.data);
+            console.log("response addUserToChoreType", res[0].data);
             let usersInType= this.state.users;
             let usersNotInType = this.state.usersNotInType;
             console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere1", usersNotInType);
             let ur =0;
+            let userAdded = 0;
+            let usersAdded = usersToAddToType//this.state.usersToAddToType;
+            for (userAdded in usersAdded){
             for(ur in usersNotInType){
-                if(usersNotInType[ur].id===this.state.userToAddToType){
+                if(usersNotInType[ur].id===usersAdded[userAdded]){
                     console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere2")
                     let added= usersNotInType.splice(ur,1);
                    usersInType.push(added[0]);
                     console.log("added :",added[0]);
-                    this.setState({users:usersInType, usersNotInType:usersNotInType });
                 }
             }
+        }
+        this.setState({users:usersInType, usersNotInType:usersNotInType });
             //usersInType.push();
+            usersToAddToType = [];
             //this.setState({users: usersInType});
         });
     }
 
-    handleUserToAddChange(e, {value, options}){
-        console.log("handleUsertToAddChange user value",e.nativeEvent.currentTarget, "val:", value,  options)
-        e.nativeEvent.srcElement.innerText = value;
-        this.setState({userToAddToType: e.target.id,userNameToAddToType:value, usersNotInType:options});
+    handleUserToAddChange(e, data){
+        //console.log("handleUsertToAddChange user value",e.nativeEvent.currentTarget, "val:", value,  options, e, open)
+        console.log("handleUsertToAddChange user value", e.target.id==='')
+        //e.nativeEvent.srcElement.innerText = value[value.length-1];
+        //let usersToAddToType = this.state.usersToAddToType;
+        //let userNameToAddToType = this.state.userNameToAddToType;
+        if(e.target.id!==''){
+            usersToAddToType.push(e.target.id);
+        }
+        //userNameToAddToType.push(value);
+        //this.setState({usersToAddToType: usersToAddToType,userNameToAddToType:e.target.innerText, usersNotInType:data.options});
     }
 
     handleUserToAdd(e, {userId}){
     }
 
     modalUsersBuild(){
+        console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere0", this.state.usersNotInType);
+
         let usr = 0;
         let u = 0;
         let us = 0 ;
@@ -540,23 +578,24 @@ class ChoresManagementPage extends React.Component {
             console.log("responst getallusers:", usersInType, this.state.users, res)
             for(u in res){
                 if(usersInTypeNames.indexOf(allUsers[u].fullname)<0){
-                    usersNotInType.push({id: allUsers[u].userId, key:"1", text:allUsers[u].fullname, value:allUsers[u].fullname});
+                    usersNotInType.push({id: allUsers[u].userId, key:"1", text:allUsers[u].fullname, value:allUsers[u].fullname });
                 }
                 
                 console.log("user: ", res[u],"is in type?", usersInTypeNames.indexOf(res[u].fullname), res[u].fullname);
             }
 
-            //this.setState({usersNotInType:usersNotInType});
+            this.setState({usersNotInType:usersNotInType});
         });
-            content.push(<Select search placeholder='בחר משתמש להוספה' options={usersNotInType}
-             onChange={this.handleUserToAddChange} text={this.state.userNameToAddToType}
+            content.push(<Dropdown multiple search fluid  selection placeholder='בחר משתמש להוספה' options={this.state.usersNotInType}
+              labeled text ={this.state.userNameToAddToType} scrolling onChange={this.handleUserToAddChange}
              />);
              content.push(<Button onClick={this.addUserToChoreType}>הוסף</Button>);
-        for(usr in users){
-            content.push(<Label userId={users[usr].id} name={usr}>{users[usr].value}<Button onClick={this.deleteUserFromChoreType} userId={users[usr].id}>הסר תורן</Button></Label>)
-            console.log("usr:",users[usr])
+             content.push(<br/>)
+        for(usr in usersInType){
+            content.push(<Label userId={users[usr].id} name={usr} onClick={this.deleteUserFromChoreType}>{users[usr].value}  </Label>)
         }
-        content.push(<Button value={false} onClick={this.openModalUsers}>סגור</Button>)
+        content.push(<br/>)
+        content.push(<h5 >יש ללחוץ על משתמש להסרתו מסוג תורנות</h5>)
         return (<div>{content}</div>)
     }
 
@@ -611,6 +650,7 @@ class ChoresManagementPage extends React.Component {
                    {/*this.getUserChoresForType*/}
                    <ChoresCalendar 
                         events={this.state.userChores}
+                        getUserChoresForType={this.getUserChoresForType}
                         onSelectSlot= {this.onSelectSlot}
                         usersOfType={this.state.users}
                         settings = {this.state.settings}
@@ -618,6 +658,9 @@ class ChoresManagementPage extends React.Component {
                         deleteUserChore = {this.deleteUserChore}
                         createUserChoreResult = {this.state.createUserChoreResult}
                         handleClosePortal = {this.handleClosePortal}
+                        choreTypeName = {this.state.choreTypeSelected}
+                        serviceProviderHeaders = {serviceProviderHeaders}
+                        serviceProviderId = {serviceProviderId}
                         //calendarDisplay = {this.state.calendarDisplay}
                         //calendarDisplay =  {String(window.location).includes("settings")? this.setState({calendarDisplay: ""}) : this.setState({calendarDisplay: "calendar"})}
                         //calendarDisplay =  {String(window.location).includes("settings")? "" :  "calendar"}
@@ -626,10 +669,12 @@ class ChoresManagementPage extends React.Component {
                         />
 
                     <Modal  open= {this.state.isOpenModalUsers} >
-                 <Modal.Header>עריכת תורנים עבור תורנות: {this.state.choreTypeSelected}</Modal.Header>
+                 <Modal.Header>עריכת תורנים עבור תורנות: {this.state.choreTypeSelected}
+                 <Button  value={false} onClick={this.openModalUsers}>סגור</Button>
+</Modal.Header>
                     <Modal.Content>
-                    
-                        {this.modalUsersBuild()}
+                     {this.state.isOpenModalUsers? this.modalUsersBuild(): <div></div>}
+                       
                                             
                     </Modal.Content>
                 </Modal>
