@@ -13,6 +13,8 @@ import AnnouncementAdd from "../../components/announcement/AnnouncementAdd";
 import announcementsStorage from "../../storage/announcementsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import CategoryAdd from "../../components/announcement/CategoryAdd";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import Modal from 'react-awesome-modal';
 
 const TOTAL_PER_PAGE = 10;
 
@@ -36,6 +38,8 @@ class AnnouncementsManagementPage extends React.Component {
             categoriesToManage: [],
             pageCategories: 0,
             totalPagesCategories: 0,
+            visible: false,
+            content: "",
            };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -62,10 +66,16 @@ class AnnouncementsManagementPage extends React.Component {
         this.getAnnouncementsRequests();
         this.getAnnouncements();
 
+
     }
     componentDidMount() {
+        connectToServerSocket(store.get('serviceProviderId'));
 
+        WEB_SOCKET.on("getAnnouncementsRequests", this.getAnnouncementsRequests.bind(this));
+    }
 
+    componentWillUnmount() {
+        WEB_SOCKET.off("getAnnouncementsRequests");
     }
 
     componentWillReceiveProps({location = {}}) {
@@ -189,7 +199,7 @@ class AnnouncementsManagementPage extends React.Component {
         this.props.history.push(`${this.props.match.path}/addCategory`, {
             serviceProviderId: this.serviceProviderId,
             userId: this.userId,
-            serProvsWithNames: this.state.serviceProviders.map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}}),
+            serProvsWithNames: this.state.serviceProviders.filter(s=>s.active).map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}}),
             catNames: this.state.categoriesToManage.map(c=>c.categoryName),
         });
     };
@@ -207,7 +217,7 @@ class AnnouncementsManagementPage extends React.Component {
 
 
     handleEditCategoryButton = (category,names) => {
-        let serProvsWithNames = this.state.serviceProviders.map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}});
+        let serProvsWithNames = this.state.serviceProviders.filter(s=>s.active).map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}});
         this.props.history.push(`${this.props.match.path}/updateCategory`, {
             serviceProviderId: this.serviceProviderId,
             userId: this.userId,
@@ -341,6 +351,33 @@ class AnnouncementsManagementPage extends React.Component {
         return ans.substring(1);
     };
 
+    getCategoryActiveManagers = (name, providers,usersList) => {
+        let serProvIds = this.state.categoriesToManage.filter(item => item.categoryName === name && !["1",1].includes(item.serviceProviderId)).map(item => item.serviceProviderId);
+        serProvIds = serProvIds.map(item => {
+            //let provs = this.state.serviceProviders;
+            let userID = providers.filter(s => s.serviceProviderId === String(item) && s.active)[0]?providers.filter(s => s.serviceProviderId === String(item)&& s.active)[0].userId:"";
+            //let users = this.state.users;
+            return usersList.filter(u => u.userId === userID)[0]?usersList.filter(u => u.userId === userID)[0].fullname: "";
+        });
+
+        let ans = serProvIds.reduce((acc,cur) => {return acc+","+cur}, "");
+        return ans.substring(1,ans.length-1);
+    };
+
+    openModal(content) {
+        this.setState({
+            visible : true,
+            content : content,
+        });
+    }
+
+    closeModal() {
+        this.setState({
+            visible : false,
+            content: "",
+        });
+    }
+
     render() {
         console.log('app props ', this.props);
 
@@ -380,10 +417,10 @@ class AnnouncementsManagementPage extends React.Component {
                             {filteredAnnouncementsRequests.slice(startIndexReq, startIndexReq + TOTAL_PER_PAGE).map(announcementReq =>
                                 (<Table.Row key={announcementReq.announcementId}>
                                     <Table.Cell>{announcementReq.announcementId}</Table.Cell>
-                                    <Table.Cell>{users[0] ? users.filter(u => parseInt(u.userId) === announcementReq.userId)[0].fullname: ""}</Table.Cell>
+                                    <Table.Cell>{users[0] ? users.filter(u => u.userId === ''+announcementReq.userId)[0].fullname: ""}</Table.Cell>
                                     <Table.Cell>{categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0] ? categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0].name : ""}</Table.Cell>
                                     <Table.Cell>{announcementReq.title}</Table.Cell>
-                                    <Table.Cell>{announcementReq.content}</Table.Cell>
+                                    <Table.Cell><a onClick={()=>this.openModal(announcementReq.content)}>תוכן המודעה</a></Table.Cell>
                                     <Table.Cell>{announcementReq.expirationTime.substring(0,announcementReq.expirationTime.indexOf('T'))}</Table.Cell>
                                     <Table.Cell>{announcementReq.dateOfEvent?announcementReq.dateOfEvent.substring(0,announcementReq.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell><a className="btn btn-default" download={announcementReq.fileName}
@@ -455,10 +492,10 @@ class AnnouncementsManagementPage extends React.Component {
                             {filteredAnnouncements.slice(startIndexAnn, startIndexAnn + TOTAL_PER_PAGE).map(announcement =>
                                 (<Table.Row key={announcement.announcementId}>
                                     <Table.Cell>{announcement.announcementId}</Table.Cell>
-                                    <Table.Cell>{users[0] ? users.filter(u => parseInt(u.userId) === announcement.userId)[0].fullname : ""}</Table.Cell>
+                                    <Table.Cell>{users[0] ? users.filter(u => u.userId === ''+announcement.userId)[0].fullname : ""}</Table.Cell>
                                     <Table.Cell>{categoryNamesMap.filter(cat => cat.id === announcement.categoryId)[0] ? categoryNamesMap.filter(cat => cat.id === announcement.categoryId)[0].name : ""}</Table.Cell>
                                     <Table.Cell>{announcement.title}</Table.Cell>
-                                    <Table.Cell>{announcement.content}</Table.Cell>
+                                    <Table.Cell><a onClick={()=>this.openModal(announcement.content)}>תוכן המודעה</a></Table.Cell>
                                     <Table.Cell>{announcement.expirationTime.substring(0,announcement.expirationTime.indexOf('T'))}</Table.Cell>
                                     <Table.Cell>{announcement.dateOfEvent?announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell>{announcement.status}</Table.Cell>
@@ -524,7 +561,7 @@ class AnnouncementsManagementPage extends React.Component {
 
                                             <Table.Cell>{cat.categoryId}</Table.Cell>
                                             <Table.Cell>{cat.categoryName}</Table.Cell>
-                                            <Table.Cell>{this.getCategoryManagers(cat.categoryName,JSON.parse(JSON.stringify(serviceProviders)),JSON.parse(JSON.stringify(users)))}</Table.Cell>
+                                            <Table.Cell>{this.getCategoryActiveManagers(cat.categoryName,JSON.parse(JSON.stringify(serviceProviders)),JSON.parse(JSON.stringify(users)))}</Table.Cell>
                                             <Table.Cell>
                                                 <button className="ui icon button" onClick={()=>this.handleEditCategoryButton(cat,this.getCategoryManagers(cat.categoryName,JSON.parse(JSON.stringify(serviceProviders)),JSON.parse(JSON.stringify(users))))}>
                                                     <i className="edit icon"></i>
@@ -564,7 +601,23 @@ class AnnouncementsManagementPage extends React.Component {
                     >{strings.announcementsPageStrings.ADD_CATEGORY}</Button>
                         </div>
                             : null}
+
+                    <Modal
+                        visible={this.state.visible}
+                        width="400"
+                        height="300"
+                        effect="fadeInUp"
+                        onClickAway={() => this.closeModal()}
+                    >
+                        <div>
+                            <h1>תוכן המודעה</h1>
+                            <br></br>
+                            <p>{this.state.content}</p>
+                            <a href="javascript:void(0);" onClick={() => this.closeModal()}>סגור</a>
+                        </div>
+                    </Modal>
                     </Page>
+
 
                 <div>
                     {/*<Router>*/}

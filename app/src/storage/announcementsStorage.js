@@ -138,6 +138,7 @@ var addAnnouncement = (announcement,headers) => {
         {headers: headers}
     )
         .then((response) => {
+            APP_SOCKET.emit('userPostAnnouncementsRequest', {});
             return response;
         })
         .catch((error)=>{
@@ -152,6 +153,29 @@ var addAnnouncement = (announcement,headers) => {
         });
 };
 
+
+var addEvent = (userId,announcementId,headers) => {
+    return axios.post(`${SERVER_URL}/api/announcements/event/add`,
+        {userId: userId, announcementId: announcementId},
+        {headers: headers}
+    )
+        .then((response) => {
+            return response;
+        })
+        .catch((error)=>{
+            Alert.alert(
+                'אופס, יש בעיה',
+                error.response.data.message,
+                [
+                    {text: 'אישור', style: 'cancel'},
+                ]
+            );
+            return error.response;
+        });
+};
+
+
+
 export default {
     getOnAirAnnouncements,
     getCategories,
@@ -162,4 +186,5 @@ export default {
     addAnnouncement,
     getUserAnnouncements,
     getUniqueCategories,
+    addEvent,
 };

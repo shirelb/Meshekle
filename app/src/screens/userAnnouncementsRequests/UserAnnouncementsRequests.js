@@ -1,5 +1,15 @@
 import React, {Component} from 'react';
-import {Platform, RefreshControl,Switch, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+    Platform,
+    RefreshControl,
+    Switch,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    BackHandler
+} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
 import {Icon, SearchBar} from 'react-native-elements'
@@ -31,6 +41,7 @@ export default class UserAnnouncementsRequests extends Component {
 
 
     componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.backButtonPress);
         phoneStorage.get('userData')
             .then(userData => {
                 // console.log('agenda componentDidMount userData ', userData);
@@ -162,6 +173,7 @@ export default class UserAnnouncementsRequests extends Component {
 
     backButtonPress = () => {
         this.props.navigation.navigate('AnnouncementsScreen');
+        return true;
     };
 
     render() {

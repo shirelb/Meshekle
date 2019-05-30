@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, StyleSheet, View, Switch} from 'react-native';
+import {FlatList, StyleSheet, View, Switch, BackHandler} from 'react-native';
 import {Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
 import Button from "../../components/submitButton/Button"
@@ -21,6 +21,7 @@ export default class UserAnnouncementsSettings extends Component {
     }
 
     componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.cancelButtonClicked);
         phoneStorage.get('userData')
             .then(userData => {
                 // console.log('agenda componentDidMount userData ', userData);
@@ -77,6 +78,7 @@ export default class UserAnnouncementsSettings extends Component {
     cancelButtonClicked = () => {
         this.loadCategories();
         this.props.navigation.navigate('AnnouncementsScreen');
+        return true;
     };
 
     listItem = ({item, index}) => (

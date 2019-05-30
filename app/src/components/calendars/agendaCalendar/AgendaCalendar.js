@@ -86,7 +86,7 @@ export default class AgendaCalendar extends Component {
                     events.forEach((event) => {
                         let item = {};
                         switch (event.eventType) {
-                            case 'Appointments':
+                            case 'Appointments': {
                                 let appointment = event['ScheduledAppointment'];
                                 item.type = event.eventType;
                                 item.itemId = appointment.appointmentId;
@@ -105,7 +105,22 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
-                            // TODO add case of chores here
+                            }
+                            case 'Announcements': {
+                                let announcement = event['Announcement'];
+                                item.type = event.eventType;
+                                item.itemId = announcement.announcementId;
+                                item.date = moment(announcement.dateOfEvent).format("YYYY-MM-DD");
+                                item.title = announcement.title;
+                                item.content = announcement.content;
+
+                                if (newItems[item.date]) {
+                                    newItems[item.date].push(item);
+                                } else {
+                                    newItems[item.date] = [item];
+                                }
+                                break;
+                            }
                         }
                     });
                     this.setState({
@@ -125,7 +140,7 @@ export default class AgendaCalendar extends Component {
 
     renderItem = (item) => {
         switch (item.type) {
-            case 'Appointments':
+            case 'Appointments': {
                 return (
                     <Card
                         title={`${item.role} - ${item.serviceProviderFullname}`}
@@ -148,7 +163,28 @@ export default class AgendaCalendar extends Component {
                         <Text h3>{item.subject}</Text>
                     </Card>
                 );
-            //TODO add chores case to render item
+            }
+
+            case 'Announcements': {
+                return (
+                    <Card
+                        title={`אירוע שנשמר מלוח המודעות - ${item.title} `}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.dateOfEvent}</Text>
+
+
+                        </View>
+                        <Text h3>{item.content}</Text>
+                    </Card>
+                );
+            }
+
         }
     };
 

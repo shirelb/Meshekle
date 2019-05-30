@@ -1672,171 +1672,8 @@ describe('announcements route', function () {
 
 
 
-
-//Add announcement category
-    describe('/POST add announcement category', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createCategory(categoryTest1)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-        });
-        it('it should ADD the announcement category ', (done) => {
-            chai.request(server)
-                .post('/api/announcements/categories/add')
-                .set('Authorization', tokenTest)
-                .send(categoryTest2)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_ADDED_SUCC);
-                    Categories.findAll({
-                        where: categoryTest2
-                    }).then(categories => {
-                        categories.length.should.be.eql(1);
-                        categories[0].categoryId.should.be.eql(categoryTest2.categoryId);
-                        categories[0].serviceProviderId.should.be.eql(categoryTest2.serviceProviderId);
-                        categories[0].categoryName.should.be.eql(categoryTest2.categoryName);
-                    });
-                    done()
-                });
-        });
-
-        it('it should send an error that the category doesnt exists', (done) => {
-            categoryTest1.categoryName = "doesnt exists name";
-            chai.request(server)
-                .post('/api/announcements/categories/add')
-                .set('Authorization', tokenTest)
-                .send(categoryTest1)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_DOESNT_EXISTS);
-                    categoryTest1.categoryName = constants.categories.CULTURE_CATEGORY;
-                    done();
-                });
-        });
-        it('it should send an error that the service provider not found', (done) => {
-            categoryTest1.serviceProviderId = "123";
-            chai.request(server)
-                .post('/api/announcements/categories/add')
-                .set('Authorization', tokenTest)
-                .send(categoryTest1)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    categoryTest1.serviceProviderId = "123456789";
-                    done();
-                });
-        });
-        it('it should send an error that the announcement category is already exists', (done) => {
-            chai.request(server)
-                .post('/api/announcements/categories/add')
-                .set('Authorization', tokenTest)
-                .send(categoryTest1)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_ALREADY_EXISTS);
-                    done();
-                });
-        });
-
-
-        after((done) => {
-            deleteAnnouncementsSubscription(subscriptionTest1)
-                .then(
-                    deleteAnnouncementsSubscription(subscriptionTest2)
-                        .then(
-                            deleteCategory(categoryTest1)
-                                .then(
-                                    deleteServiceProvider(serviceProviderTest)
-                                        .then(
-                                            deleteUser(userTest)
-                                                .then(
-                                                    deleteUser(userTest1)
-                                                        .then(
-                                                            done()
-                                                        )
-                                                )
-                                        )
-                                )
-                        )
-                )
-        });
-    });
-
-
-
-
-
-
-
-
-// DELETE announcement category by categoryId.
-    describe('/ Delete announcement category.\n', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            createCategory(categoryTest1)
-                                .then(
-                                    done()
-                                )
-                        )
-                );
-
-        });
-        it('it should DELETE the announcement category', (done) => {
-            chai.request(server)
-                .put('/api/announcements/categories/delete/categoryId/1/serviceProviderId/123456789')
-                .set('Authorization', tokenTest)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_DELETED_SUCC);
-                    res.body.result.should.be.eql(1);
-                    Categories.findAll({
-                        where: categoryTest1
-                    })
-                        .then(categories => {
-                            categories.length.should.be.eql(0);
-                            done();
-                        });
-                });
-        });
-        it('it should GET a category not found error', (done) => {
-            chai.request(server)
-                .put('/api/announcements/categories/delete/categoryId/1/serviceProviderId/123456789')
-                .set('Authorization', tokenTest)
-                .send(subscriptionTest2)
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_NOT_FOUND);
-                    done();
-                });
-        });
-
-        after((done) => {
-                deleteServiceProvider(serviceProviderTest)
-                    .then(
-                        deleteUser(userTest)
-                            .then(
-                                done()
-                            )
-                    )
-        });
-    });
-
-
-
-
 //
-//
-// //TODO THE REAL Add announcement category
+// //Add announcement category
 //     describe('/POST add announcement category', () => {
 //         before((done) => {
 //             createUser(userTest)
@@ -1854,140 +1691,37 @@ describe('announcements route', function () {
 //             chai.request(server)
 //                 .post('/api/announcements/categories/add')
 //                 .set('Authorization', tokenTest)
-//                 .send(newCategoryTest)
+//                 .send(categoryTest2)
 //                 .end((err, res) => {
 //                     res.should.have.status(200);
 //                     res.body.message.should.be.eql(announcementsRoute.CATEGORY_ADDED_SUCC);
 //                     Categories.findAll({
-//                         where: categoryTest3
+//                         where: categoryTest2
 //                     }).then(categories => {
 //                         categories.length.should.be.eql(1);
-//                         categories[0].categoryId.should.be.eql(categoryTest3.categoryId);
-//                         categories[0].serviceProviderId.should.be.eql(categoryTest3.serviceProviderId);
-//                         categories[0].categoryName.should.be.eql(categoryTest3.categoryName);
+//                         categories[0].categoryId.should.be.eql(categoryTest2.categoryId);
+//                         categories[0].serviceProviderId.should.be.eql(categoryTest2.serviceProviderId);
+//                         categories[0].categoryName.should.be.eql(categoryTest2.categoryName);
 //                     });
 //                     done()
 //                 });
 //         });
 //
 //         it('it should send an error that the category doesnt exists', (done) => {
-//             newCategoryTest.categoryName = "doesnt exists name";
+//             categoryTest1.categoryName = "doesnt exists name";
 //             chai.request(server)
 //                 .post('/api/announcements/categories/add')
 //                 .set('Authorization', tokenTest)
-//                 .send(newCategoryTest)
+//                 .send(categoryTest1)
 //                 .end((err, res) => {
 //                     res.should.have.status(400);
 //                     res.body.message.should.be.eql(announcementsRoute.CATEGORY_DOESNT_EXISTS);
-//                     newCategoryTest.categoryName = constants.categories.GYM_CATEGORY;
+//                     categoryTest1.categoryName = constants.categories.CULTURE_CATEGORY;
 //                     done();
 //                 });
 //         });
 //         it('it should send an error that the service provider not found', (done) => {
-//             newCategoryTest.managers[0].serviceProviderId = "123";
-//             chai.request(server)
-//                 .post('/api/announcements/categories/add')
-//                 .set('Authorization', tokenTest)
-//                 .send(newCategoryTest)
-//                 .end((err, res) => {
-//                     res.should.have.status(400);
-//                     res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
-//                     newCategoryTest.managers[0].serviceProviderId = "123456789";
-//                     done();
-//                 });
-//         });
-//         it('it should send an error that the announcement category is already exists', (done) => {
-//             chai.request(server)
-//                 .post('/api/announcements/categories/add')
-//                 .set('Authorization', tokenTest)
-//                 .send(newCategoryTest)
-//                 .end((err, res) => {
-//                     res.should.have.status(400);
-//                     res.body.message.should.be.eql(announcementsRoute.CATEGORY_ALREADY_EXISTS);
-//                     done();
-//                 });
-//         });
-//
-//
-//         after((done) => {
-//                 deleteCategory(categoryTest3)
-//                     .then(
-//                         deleteCategory(categoryTest1)
-//                             .then(
-//                                 deleteServiceProvider(serviceProviderTest)
-//                                     .then(
-//                                         deleteUser(userTest)
-//                                             .then(
-//                                                done()
-//                                             )
-//                                     )
-//                             )
-//                     )
-//         });
-//     });
-//
-//
-//
-// //TODO: THE REAL Update announcement category
-//     describe('/POST update announcement category', () => {
-//         before((done) => {
-//             createUser(userTest)
-//                 .then(
-//                     createServiceProvider(serviceProviderTest)
-//                         .then(
-//                             createServiceProvider(serviceProviderTest1)
-//                                 .then(
-//                                     createCategory(categoryTest3)
-//                                         .then(
-//                                             done()
-//                                         )
-//                                     )
-//                         )
-//                 );
-//         });
-//         it('it should UPDATE the announcement category ', (done) => {
-//             newCategoryTest.managers[0].serviceProviderId='123123123';
-//             newCategoryTest.managers[0].userId='222222222';
-//             newCategoryTest.managers[0].name='roy elia';
-//             categoryTest3.serviceProviderId='123123123';
-//             chai.request(server)
-//                 .post('/api/announcements/categories/update')
-//                 .set('Authorization', tokenTest)
-//                 .send(newCategoryTest)
-//                 .end((err, res) => {
-//                     res.should.have.status(200);
-//                     res.body.message.should.be.eql(announcementsRoute.CATEGORY_UPDATED_SUCC);
-//                     Categories.findAll({
-//                         where: categoryTest3
-//                     }).then(categories => {
-//                         categories.length.should.be.eql(1);
-//                         categories[0].categoryId.should.be.eql(categoryTest3.categoryId);
-//                         categories[0].serviceProviderId.should.be.eql(categoryTest3.serviceProviderId);
-//                         categories[0].categoryName.should.be.eql(categoryTest3.categoryName);
-//                         newCategoryTest.managers[0].serviceProviderId='123456789';
-//                         newCategoryTest.managers[0].userId='222222222';
-//                         newCategoryTest.managers[0].name='Amit mazuz';
-//                         categoryTest3.serviceProviderId='123456789';
-//                     });
-//                     done()
-//                 });
-//         });
-//
-//         it('it should send an error that the category doesnt exists', (done) => {
-//             newCategoryTest.categoryName = "doesnt exists name";
-//             chai.request(server)
-//                 .post('/api/announcements/categories/add')
-//                 .set('Authorization', tokenTest)
-//                 .send(newCategoryTest)
-//                 .end((err, res) => {
-//                     res.should.have.status(400);
-//                     res.body.message.should.be.eql(announcementsRoute.CATEGORY_DOESNT_EXISTS);
-//                     newCategoryTest.categoryName = constants.categories.GYM_CATEGORY;
-//                     done();
-//                 });
-//         });
-//         it('it should send an error that the service provider not found', (done) => {
-//             newCategoryTest.managers[0].serviceProviderId = "123";
+//             categoryTest1.serviceProviderId = "123";
 //             chai.request(server)
 //                 .post('/api/announcements/categories/add')
 //                 .set('Authorization', tokenTest)
@@ -1995,7 +1729,7 @@ describe('announcements route', function () {
 //                 .end((err, res) => {
 //                     res.should.have.status(400);
 //                     res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
-//                     categoryTest1.managers[0].serviceProviderId = "123456789";
+//                     categoryTest1.serviceProviderId = "123456789";
 //                     done();
 //                 });
 //         });
@@ -2013,15 +1747,21 @@ describe('announcements route', function () {
 //
 //
 //         after((done) => {
-//             deleteCategory(categoryTest3)
+//             deleteAnnouncementsSubscription(subscriptionTest1)
 //                 .then(
-//                     deleteCategory(categoryTest3)
+//                     deleteAnnouncementsSubscription(subscriptionTest2)
 //                         .then(
-//                             deleteServiceProvider(serviceProviderTest)
+//                             deleteCategory(categoryTest1)
 //                                 .then(
-//                                     deleteUser(userTest)
+//                                     deleteServiceProvider(serviceProviderTest)
 //                                         .then(
-//                                             done()
+//                                             deleteUser(userTest)
+//                                                 .then(
+//                                                     deleteUser(userTest1)
+//                                                         .then(
+//                                                             done()
+//                                                         )
+//                                                 )
 //                                         )
 //                                 )
 //                         )
@@ -2032,7 +1772,11 @@ describe('announcements route', function () {
 //
 //
 //
-// // THE REAL DELETE announcement category by category name.
+//
+//
+//
+//
+// // DELETE announcement category by categoryId.
 //     describe('/ Delete announcement category.\n', () => {
 //         before((done) => {
 //             createUser(userTest)
@@ -2049,7 +1793,7 @@ describe('announcements route', function () {
 //         });
 //         it('it should DELETE the announcement category', (done) => {
 //             chai.request(server)
-//                 .put('/api/announcements/categories/delete/categoryName/'+constants.categories.CULTURE_CATEGORY)
+//                 .put('/api/announcements/categories/delete/categoryId/1/serviceProviderId/123456789')
 //                 .set('Authorization', tokenTest)
 //                 .end((err, res) => {
 //                     res.should.have.status(200);
@@ -2066,8 +1810,9 @@ describe('announcements route', function () {
 //         });
 //         it('it should GET a category not found error', (done) => {
 //             chai.request(server)
-//                 .put('/api/announcements/categories/delete/categoryName/dontExistsCategory')
+//                 .put('/api/announcements/categories/delete/categoryId/1/serviceProviderId/123456789')
 //                 .set('Authorization', tokenTest)
+//                 .send(subscriptionTest2)
 //                 .end((err, res) => {
 //                     res.should.have.status(400);
 //                     res.body.message.should.be.eql(announcementsRoute.CATEGORY_NOT_FOUND);
@@ -2076,17 +1821,274 @@ describe('announcements route', function () {
 //         });
 //
 //         after((done) => {
-//             deleteServiceProvider(serviceProviderTest)
-//                 .then(
-//                     deleteUser(userTest)
-//                         .then(
-//                             done()
-//                         )
-//                 )
+//                 deleteServiceProvider(serviceProviderTest)
+//                     .then(
+//                         deleteUser(userTest)
+//                             .then(
+//                                 done()
+//                             )
+//                     )
 //         });
 //     });
-//
-//
+
+
+
+
+
+    describe('/POST add announcement category', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createCategory(categoryTest1)
+                                .then(
+                                    done()
+                                )
+                        )
+                );
+        });
+        it('it should ADD the announcement category ', (done) => {
+            chai.request(server)
+                .post('/api/announcements/categories/add')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_ADDED_SUCC);
+                    Categories.findAll({
+                        where: categoryTest3
+                    }).then(categories => {
+                        categories.length.should.be.eql(1);
+                        categories[0].categoryId.should.be.eql(categoryTest3.categoryId);
+                        categories[0].serviceProviderId.should.be.eql(parseInt(categoryTest3.serviceProviderId));
+                        categories[0].categoryName.should.be.eql(categoryTest3.categoryName);
+                    });
+                    done()
+                });
+        });
+
+        it('it should send an error that the service provider not found', (done) => {
+            newCategoryTest.managers[0].serviceProviderId = "123";
+            newCategoryTest.categoryName=constants.categories.INFRASTRUCTURE_CATEGORY;
+            chai.request(server)
+                .post('/api/announcements/categories/add')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    newCategoryTest.managers[0].serviceProviderId = "123456789";
+                    newCategoryTest.categoryName=constants.categories.GYM_CATEGORY;
+                    done();
+                });
+        });
+
+        it('it should send an error that the announcement category is already exists', (done) => {
+            chai.request(server)
+                .post('/api/announcements/categories/add')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_ALREADY_EXISTS);
+                    done();
+                });
+        });
+
+
+        after((done) => {
+                deleteCategory(categoryTest3)
+                    .then(
+                        deleteCategory(categoryTest1)
+                            .then(
+                                deleteServiceProvider(serviceProviderTest)
+                                    .then(
+                                        deleteUser(userTest)
+                                            .then(
+                                               done()
+                                            )
+                                    )
+                            )
+                    )
+        });
+    });
+
+
+
+    describe('/POST update announcement category', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createUser(userTest1)
+                        .then(
+                            createServiceProvider(serviceProviderTest)
+                                .then(
+                                    createServiceProvider(serviceProviderTest1)
+                                        .then(
+                                            createCategory(categoryTest3)
+                                                .then(
+                                                    done()
+                                                )
+                                            )
+                                )
+                            )
+                );
+        });
+
+        it('it should UPDATE the announcement category ', (done) => {
+            newCategoryTest.managers[0].serviceProviderId='123123123';
+            newCategoryTest.managers[0].userId='222222222';
+            newCategoryTest.managers[0].name='roy elia';
+            categoryTest3.serviceProviderId='123123123';
+            chai.request(server)
+                .post('/api/announcements/categories/update')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_UPDATED_SUCC);
+                    Categories.findAll({
+                        where: {
+                            categoryName:categoryTest3.categoryName,
+                            serviceProviderId:categoryTest3.serviceProviderId
+                            }
+                    }).then(categories => {
+                        categories.length.should.be.eql(1);
+                        categories[0].serviceProviderId.should.be.eql(parseInt(categoryTest3.serviceProviderId));
+                        categories[0].categoryName.should.be.eql(categoryTest3.categoryName);
+                        newCategoryTest.managers[0].serviceProviderId='123456789';
+                        newCategoryTest.managers[0].userId='222222222';
+                        newCategoryTest.managers[0].name='Amit mazuz';
+                        categoryTest3.serviceProviderId='123456789';
+                    });
+                    done()
+                });
+        });
+
+        it('it should send an error that the category doesnt exists', (done) => {
+            newCategoryTest.categoryOldName = "doesnt exists old name";
+            newCategoryTest.categoryName = "doesnt exists name";
+            chai.request(server)
+                .post('/api/announcements/categories/update')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_DOESNT_EXISTS);
+                    newCategoryTest.categoryOldName = constants.categories.GYM_CATEGORY;
+                    newCategoryTest.categoryName = constants.categories.GYM_CATEGORY;
+                    done();
+                });
+        });
+
+        it('it should send an error that the service provider not found', (done) => {
+            newCategoryTest.managers[0].serviceProviderId = "123";
+            chai.request(server)
+                .post('/api/announcements/categories/update')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    newCategoryTest.managers[0].serviceProviderId = "123456789";
+                    done();
+                });
+        });
+
+        it('it should send an error that the announcement category is already exists', (done) => {
+            newCategoryTest.categoryOldName = "randomized name";
+            chai.request(server)
+                .post('/api/announcements/categories/update')
+                .set('Authorization', tokenTest)
+                .send(newCategoryTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_ALREADY_EXISTS);
+                    newCategoryTest.categoryOldName = constants.categories.GYM_CATEGORY;
+                    done();
+                });
+        });
+
+
+        after((done) => {
+            deleteCategory(categoryTest3)
+                .then(
+                    deleteServiceProvider(serviceProviderTest)
+                        .then(
+                            deleteServiceProvider(serviceProviderTest1)
+                                .then(
+                                    deleteUser(userTest1)
+                                        .then(
+                                            deleteUser(userTest)
+                                                .then(
+                                                    done()
+                                                )
+                                        )
+                                )
+                        )
+                )
+        });
+    });
+
+
+
+
+// THE REAL DELETE announcement category by category name.
+    describe('/ Delete announcement category.\n', () => {
+        before((done) => {
+            createUser(userTest)
+                .then(
+                    createServiceProvider(serviceProviderTest)
+                        .then(
+                            createCategory(categoryTest1)
+                                .then(
+                                    done()
+                                )
+                        )
+                );
+
+        });
+        it('it should DELETE the announcement category', (done) => {
+            chai.request(server)
+                .put('/api/announcements/categories/delete/categoryName/'+constants.categories.CULTURE_CATEGORY)
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_DELETED_SUCC);
+                    res.body.result.should.be.eql(1);
+                    Categories.findAll({
+                        where: categoryTest1
+                    })
+                        .then(categories => {
+                            categories.length.should.be.eql(0);
+                            done();
+                        });
+                });
+        });
+        it('it should GET a category not found error', (done) => {
+            chai.request(server)
+                .put('/api/announcements/categories/delete/categoryName/dontExistsCategory')
+                .set('Authorization', tokenTest)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(announcementsRoute.CATEGORY_NOT_FOUND);
+                    done();
+                });
+        });
+
+        after((done) => {
+            deleteServiceProvider(serviceProviderTest)
+                .then(
+                    deleteUser(userTest)
+                        .then(
+                            done()
+                        )
+                )
+        });
+    });
+
+
 
 
 

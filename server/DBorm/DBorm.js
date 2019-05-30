@@ -37,7 +37,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: process.dbMode === "dev"? './DBorm/sqliteTests.db':'./DBorm/sqlite.db'
+    storage: process.dbMode === "dev"? './server/DBorm/sqliteTests.db':'./DBorm/sqlite.db'
 });
 
 sequelize
@@ -75,10 +75,21 @@ const Events = EventsModel(sequelize, Sequelize);
 const Logs = LogsModel(sequelize, Sequelize);
 
 
-Events.belongsTo(ScheduledAppointments, {
+/*Events.belongsTo(ScheduledAppointments, {
     foreignKey: 'eventId',
     targetKey: 'appointmentId'
+});*/
+
+Events.belongsTo(Announcements, {
+    foreignKey: 'eventId',
+    targetKey: 'announcementId'
 });
+
+Users.hasMany(Events, {
+    foreignKey: 'userId',
+    targetKey: 'userId'
+});
+
 
 /*ScheduledAppointments.hasOne(Events, {
     foreignKey: 'eventId',
@@ -90,10 +101,7 @@ Events.belongsTo(ScheduledAppointments, {
     targetKey: 'userId'
 });*/
 
-Users.hasMany(Events, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
-});
+
 
 Users.hasMany(AppointmentDetails, {
     foreignKey: 'userId',
@@ -178,7 +186,7 @@ SwapRequests.belongsTo(UsersChores, {
     targetKey:'userChoreId'
 });
 
-if (process.dbMode === "dev") {
+ if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
             RulesModules.bulkCreate([
@@ -237,7 +245,7 @@ if (process.dbMode === "dev") {
                 })
 
         });
-}
+ }
 
 
     
