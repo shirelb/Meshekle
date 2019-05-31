@@ -38,7 +38,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 
     // SQLite only
     storage: process.dbMode === "dev" ?
-        './server/DBorm/sqliteTests.db' :
+        './DBorm/sqliteTests.db' :
         process.argv[2] === "feDev" ?
             './DBorm/sqliteFEtests.db' :
             './DBorm/sqlite.db'
