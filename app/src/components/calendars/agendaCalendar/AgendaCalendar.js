@@ -28,8 +28,10 @@ export default class AgendaCalendar extends Component {
     constructor(props) {
         super(props);
 
+        let items={};
+        items[moment().format("YYYY-MM-DD")]=[];
         this.state = {
-            items: {}
+            items: items
             /* '2018-12-30': [{text: 'item 30 - any js object'}],
              '2018-12-31': [{text: 'item 31 - any js object'}],
              '2019-01-01': [{text: 'item 1 - any js object'}],
