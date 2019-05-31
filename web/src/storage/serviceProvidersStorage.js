@@ -18,9 +18,9 @@ var getServiceProviders = function () {
         });
 };
 
-var getRolesOfServiceProvider = (serviceProviderId) => {
+var getRolesOfServiceProvider = (serviceProviderId, headers = null) => {
     return axios.get(`${SERVER_URL}/api/serviceProviders/roles/serviceProviderId/${serviceProviderId}`,
-        {headers: serviceProviderHeaders}
+        {headers: headers ? headers : serviceProviderHeaders}
     )
         .then((response) => {
             let roles = response.data;
@@ -49,9 +49,9 @@ var serviceProviderValidToken = function (token) {
     );
 }
 
-var getServiceProviderPermissionsById = (serviceProviderId) => {
+var getServiceProviderPermissionsById = (serviceProviderId, headers = null) => {
     return axios.get(`${SERVER_URL}/api/serviceProviders/serviceProviderId/${serviceProviderId}/permissions`,
-        {headers: serviceProviderHeaders}
+        {headers: headers ? headers : serviceProviderHeaders}
     )
         .then((response) => {
             let permissions = response.data;
@@ -241,10 +241,9 @@ var getServiceProviderUserDetails = function (serviceProviderId) {
 };
 
 
-var renewUserPassword = function (userId, serviceProviderHeaders){
+var renewUserPassword = function (userId, serviceProviderHeaders) {
     return axios.put(`${SERVER_URL}/api/serviceProviders/users/renewPassword/userId/${userId}`,
-        {
-        },
+        {},
         {headers: serviceProviderHeaders}
     )
         .then(response => {

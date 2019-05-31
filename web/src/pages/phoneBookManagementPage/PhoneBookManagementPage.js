@@ -105,7 +105,7 @@ class PhoneBookManagementPage extends React.Component {
     loadUsers() {
         usersStorage.getUsers()
             .then((response) => {
-                console.log('response ', response);
+                // console.log('response ', response);
                 const users = response;
                 const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 

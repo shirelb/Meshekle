@@ -5,18 +5,24 @@ import 'fullcalendar/dist/locale/he.js';
 
 import moment from 'moment';
 import 'moment/min/moment.min';
-
-import $ from 'jquery';
-import 'jquery/dist/jquery.min';
-import "jquery-ui/ui/widgets/draggable";
-import "jquery-ui/ui/widgets/droppable";
 import {Button, Header, Icon, Menu, Table, Modal, Select, Label,Portal,Segment,Grid} from 'semantic-ui-react';
 
 
+const $ = require('jquery');
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
 // import './bootstrap.min.css';
+
+window.jQuery = $;
+require('jquery-ui/ui/version');
+require('jquery-ui/ui/plugin');
+require('jquery-ui/ui/widget');
+require('jquery-ui/ui/widgets/mouse');
+require('jquery-ui/ui/widgets/resizable');
+require("jquery-ui/ui/widgets/draggable");
+require("jquery-ui/ui/widgets/droppable");
+
 
 export default class ChoresCalendar extends Component {
     constructor(props) {

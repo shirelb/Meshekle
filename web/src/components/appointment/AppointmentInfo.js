@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles.css';
-import {Modal,Button} from 'semantic-ui-react';
+import {Button, Modal} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import store from "store";
@@ -88,7 +88,13 @@ class AppointmentInfo extends React.Component {
                 <div>
                     <Switch>
                         <Route exec path={`${this.props.match.url}/edit`}
-                               component={AppointmentEdit}/>
+                               render={(props) => (
+                                   <AppointmentEdit
+                                       {...props}
+                                       userOptions={this.props.userOptions}
+                                       serviceProviderRoles={this.props.serviceProviderRoles}
+                                   />
+                               )}/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
                 </div>

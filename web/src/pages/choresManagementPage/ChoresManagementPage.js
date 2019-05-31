@@ -664,7 +664,7 @@ class ChoresManagementPage extends React.Component {
                                 
                                    />
                                )}/>/>
-                        <Redirect to={`${this.props.match.path}`}/>
+                        {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
                     {/*<Switch>
                         <Route exec path={`${this.props.match.path}/settings`}

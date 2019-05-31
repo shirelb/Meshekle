@@ -112,9 +112,10 @@ class LoginPage extends Component {
         }
     }
 
-    handleChange(e, {name, value}) {
+    handleChange(e) {
+        const {name, value} = e.target;
         this.setState({[name]: value});
-    }
+    };
 
     render() {
         if (this.state.isLoggedIn) {

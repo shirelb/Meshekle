@@ -48,6 +48,7 @@ const phoneBookPageStrings = {
     ACTIVE_ANSWER_NO: "לא",
     SERVICE_PROVIDER_ID_HEADER: "ת.ז. נותן שירות",
     SERVICE_PROVIDER_ROLE_HEADER: "תפקיד",
+    SERVICE_PROVIDER_SUBJECTS_HEADER: "נושאים",
     SERVICE_PROVIDER_USER_ID_HEADER: "ת.ז. משתמש",
     SERVICE_PROVIDER_OPERATION_TIME_HEADER: "זמני פעילות",
     SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER: "דרך קביעת תורים",

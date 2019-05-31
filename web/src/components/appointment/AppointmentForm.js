@@ -4,15 +4,14 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import '../styles.css';
-import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 import strings from "../../shared/strings";
 
 
-let userOptions = {};
+/*let userOptions = {};
 
-usersStorage.getUsers()
+/!*usersStorage.getUsers()
     .then(users => {
         console.log('users ', users);
         if (Array.isArray(users))
@@ -23,7 +22,7 @@ usersStorage.getUsers()
                     value: item.fullname
                 })
             )
-    });
+    });*!/*/
 
 
 class AppointmentForm extends Component {
@@ -44,7 +43,8 @@ class AppointmentForm extends Component {
 
         if (slotInfo) {
             console.log('slotInfo ', slotInfo);
-            this.state = {
+            // this.state = {
+            Object.assign(this.state, {
                 appointment: {
                     date: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format('YYYY-MM-DD') : '',
                     startTime: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format("HH:mm") : '',
@@ -54,10 +54,10 @@ class AppointmentForm extends Component {
                     role: '',
                 },
                 subjectOptions: [],
-            };
-            this.getServiceProviderRoles();
+            });
         } else if (appointment) {
-            this.state = {
+            // this.state = {
+            Object.assign(this.state, {
                 appointment: {
                     date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
                     // date: moment(appointment.startDateAndTime),
@@ -69,23 +69,31 @@ class AppointmentForm extends Component {
                     remarks: appointment.remarks,
                 },
                 subjectOptions: [],
-            };
+            });
         } else if (appointmentRequestEvent) {
-            this.state = {
+            // let role = strings.roles[appointmentRequestEvent.appointmentRequest.AppointmentDetail.role];
+            // this.state = {
+            Object.assign(this.state, {
                 appointment: {
                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
                     remarks: appointmentRequestEvent.appointmentRequest.notes,
-                    role: Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
+                    role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
+                        // Object.keys(strings.roles).find(role =>
+                        // strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role) === undefined ?
+                        // strings.roles[appointmentRequestEvent.appointmentRequest.AppointmentDetail.role]
+                        // :
+                        // Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
                 },
                 appointmentRequestEvent: appointmentRequestEvent,
                 subjectOptions: [],
-            };
+            });
         }
+
+        // this.getServiceProviderRoles();
 
         console.log('constructor  state', this.state);
 
@@ -93,7 +101,7 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    getSubjectsOfServiceProviderRole = (currentRole) => {
+    getSubjectsOfServiceProviderRole = (currentRole, calledFromConstructor) => {
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProviders => {
@@ -101,12 +109,18 @@ class AppointmentForm extends Component {
                 JSON.parse(serviceProvider.subjects).map((subject, index) => {
                     subjectOptions.push({key: index, text: subject, value: subject});
                 });
-                this.setState({subjectOptions: subjectOptions})
+
+                calledFromConstructor ?
+                    Object.assign(this.state, {subjectOptions: subjectOptions})
+                    :
+                    this.setState({subjectOptions: subjectOptions})
             });
     };
 
     componentWillReceiveProps(nextProps) {
         const {appointment, appointmentRequestEvent} = nextProps;
+
+        // this.getServiceProviderRoles();
 
         if (appointment) {
             this.setState({
@@ -121,14 +135,14 @@ class AppointmentForm extends Component {
                 },
             });
 
-            this.getSubjectsOfServiceProviderRole(appointment.AppointmentDetail.role);
+            this.getSubjectsOfServiceProviderRole(appointment.AppointmentDetail.role, false);
         }
         if (appointmentRequestEvent) {
             this.setState({
                 appointmentRequestEvent: appointmentRequestEvent,
             });
 
-            this.getSubjectsOfServiceProviderRole(this.state.appointment.role);
+            this.getSubjectsOfServiceProviderRole(appointmentRequestEvent.appointmentRequest.AppointmentDetail.role, false);
         }
 
 
@@ -140,7 +154,7 @@ class AppointmentForm extends Component {
         e.preventDefault();
 
         const {appointment} = this.state;
-        const {handleSubmit} = this.props;
+        const {handleSubmit, userOptions} = this.props;
 
         if (appointment.clientName !== '' &&
             appointment.role !== '' &&
@@ -170,26 +184,6 @@ class AppointmentForm extends Component {
         }
     }
 
-    getServiceProviderRoles = () => {
-        let rolesOptions = {};
-        this.setState({rolesOptions: {}})
-
-        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
-            .then(serviceProvidersFound => {
-                console.log('serviceProvidersFound ', serviceProvidersFound);
-                if (Array.isArray(serviceProvidersFound)) {
-                    rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
-                        ({
-                            key: index,
-                            text: strings.roles[item.role],
-                            value: item.role
-                        })
-                    );
-                    this.setState({rolesOptions: rolesOptions})
-                }
-            });
-    };
-
     handleChange(e, {name, value}) {
         const {appointment} = this.state;
 
@@ -197,7 +191,7 @@ class AppointmentForm extends Component {
         this.setState({appointment: {...appointment, [name]: value}});
 
         if (name === "role")
-            this.getSubjectsOfServiceProviderRole(value);
+            this.getSubjectsOfServiceProviderRole(value, false);
     }
 
     handleClear = (e) => {
@@ -267,7 +261,15 @@ class AppointmentForm extends Component {
 
     render() {
         const {appointment, formError, formComplete} = this.state;
-        const {handleCancel, submitText} = this.props;
+        const {handleCancel, submitText, userOptions, serviceProviderRoles} = this.props;
+
+        const rolesOptions = serviceProviderRoles.map((item, index) =>
+            ({
+                key: index,
+                text: strings.roles[item],
+                value: item
+            })
+        );
 
         console.log('sasaaads ', this.state);
 
@@ -297,7 +299,7 @@ class AppointmentForm extends Component {
                     // search
                     selection
                     autoComplete='on'
-                    options={this.state.rolesOptions}
+                    options={rolesOptions}
                     value={appointment.role}
                     onChange={this.handleChange}
                     name='role'

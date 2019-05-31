@@ -32,7 +32,7 @@ class AppointmentEdit extends React.Component {
     }
 
     handleSubmit(appointment) {
-        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
+        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'),this.serviceProviderHeaders)
             .then(roles => {
                 appointment.appointmentId = this.state.appointment.appointmentId;
                 appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
@@ -72,6 +72,8 @@ class AppointmentEdit extends React.Component {
                             handleCancel={this.handleCancel}
                             // slotInfo={}
                             appointment={appointment}
+                            userOptions={this.props.userOptions}
+                            serviceProviderRoles={this.props.serviceProviderRoles}
                         />
 
                     </Grid.Column>
