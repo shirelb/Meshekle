@@ -32,7 +32,7 @@ class AppointmentEdit extends React.Component {
     }
 
     handleSubmit(appointment) {
-        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'),this.serviceProviderHeaders)
+        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'), this.serviceProviderHeaders)
             .then(roles => {
                 appointment.appointmentId = this.state.appointment.appointmentId;
                 appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
@@ -47,7 +47,7 @@ class AppointmentEdit extends React.Component {
     handleCancel(e) {
         e.preventDefault();
 
-        console.log('you have canceled');
+        // console.log('you have canceled');
 
         this.props.history.goBack();
     }
@@ -58,7 +58,7 @@ class AppointmentEdit extends React.Component {
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | ערוך תור מס {appointment.appointmentId.toString()}</title>
+                    <title>Meshekle | ערוך תור מס {appointment ? appointment.appointmentId.toString() : ""}</title>
                 </Helmet>
 
                 <Grid padded>

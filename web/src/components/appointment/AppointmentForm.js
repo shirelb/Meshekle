@@ -9,22 +9,6 @@ import store from "store";
 import strings from "../../shared/strings";
 
 
-/*let userOptions = {};
-
-/!*usersStorage.getUsers()
-    .then(users => {
-        console.log('users ', users);
-        if (Array.isArray(users))
-            userOptions = users.filter(u => u.active).map(item =>
-                ({
-                    key: item.userId,
-                    text: item.fullname,
-                    value: item.fullname
-                })
-            )
-    });*!/*/
-
-
 class AppointmentForm extends Component {
 
     constructor(props) {
@@ -42,7 +26,7 @@ class AppointmentForm extends Component {
 
 
         if (slotInfo) {
-            console.log('slotInfo ', slotInfo);
+            // console.log('slotInfo ', slotInfo);
             // this.state = {
             Object.assign(this.state, {
                 appointment: {
@@ -52,6 +36,7 @@ class AppointmentForm extends Component {
                     subject: [],
                     clientName: '',
                     role: '',
+                    remarks: '',
                 },
                 subjectOptions: [],
             });
@@ -95,7 +80,7 @@ class AppointmentForm extends Component {
 
         // this.getServiceProviderRoles();
 
-        console.log('constructor  state', this.state);
+        // console.log('constructor  state', this.state);
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -146,8 +131,8 @@ class AppointmentForm extends Component {
         }
 
 
-        console.log('will recive props  ', this.state.appointment);
-        console.log('will recive props  ', appointment);
+        // console.log('will recive props  ', this.state.appointment);
+        // console.log('will recive props  ', appointment);
     }
 
     handleSubmit(e) {
@@ -184,7 +169,8 @@ class AppointmentForm extends Component {
         }
     }
 
-    handleChange(e, {name, value}) {
+    handleChange(e) {
+        const {name, value} = e.target;
         const {appointment} = this.state;
 
         this.setState({formError: false, formComplete: false});
@@ -271,7 +257,7 @@ class AppointmentForm extends Component {
             })
         );
 
-        console.log('sasaaads ', this.state);
+        // console.log('sasaaads ', this.state);
 
         return (
             <Form onSubmit={this.handleSubmit} error={formError}>

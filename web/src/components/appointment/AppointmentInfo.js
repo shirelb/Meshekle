@@ -59,24 +59,27 @@ class AppointmentInfo extends React.Component {
             <div>
                 <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                     <Helmet>
-                        <title>Meshekle | {appointment.clientName}</title>
+                        <title>Meshekle | פרטי תור {appointment ? appointment.clientName : ""}</title>
                     </Helmet>
 
-                    <Modal.Header>{appointment.clientName}</Modal.Header>
+                    <Modal.Header>{appointment ? appointment.clientName : ""}</Modal.Header>
                     <Modal.Content image>
                         {/*<Image wrapped size="small" src={`https://api.adorable.io/avatars/250/${user.email}`}/>*/}
-                        <Modal.Description>
-                            <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointment.appointmentId}</p>
-                            <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointment.clientName}</p>
-                            <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointment.AppointmentDetail.serviceProviderId}</p>
-                            <p>{strings.appointmentsPageStrings.ROLE}: {strings.roles[appointment.AppointmentDetail.role]}</p>
-                            <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointment.AppointmentDetail.subject).join(", ")}</p>
-                            <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentStatusMapper(appointment.status)}</p>
-                            <p>{strings.appointmentsPageStrings.DATE}: {moment(appointment.startDateAndTime).format('DD.MM.YYYY')}</p>
-                            <p>{strings.appointmentsPageStrings.START_TIME}: {moment(appointment.startDateAndTime).format("HH:mm")} </p>
-                            <p>{strings.appointmentsPageStrings.END_TIME}: {moment(appointment.endDateAndTime).format("HH:mm")}</p>
-                            <p>{strings.appointmentsPageStrings.REMARKS}: {appointment.remarks}</p>
-                        </Modal.Description>
+                        {appointment ?
+                            <Modal.Description>
+                                <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointment.appointmentId}</p>
+                                <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointment.clientName}</p>
+                                <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointment.AppointmentDetail.serviceProviderId}</p>
+                                <p>{strings.appointmentsPageStrings.ROLE}: {strings.roles[appointment.AppointmentDetail.role]}</p>
+                                <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointment.AppointmentDetail.subject).join(", ")}</p>
+                                <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentStatusMapper(appointment.status)}</p>
+                                <p>{strings.appointmentsPageStrings.DATE}: {moment(appointment.startDateAndTime).format('DD.MM.YYYY')}</p>
+                                <p>{strings.appointmentsPageStrings.START_TIME}: {moment(appointment.startDateAndTime).format("HH:mm")} </p>
+                                <p>{strings.appointmentsPageStrings.END_TIME}: {moment(appointment.endDateAndTime).format("HH:mm")}</p>
+                                <p>{strings.appointmentsPageStrings.REMARKS}: {appointment.remarks}</p>
+                            </Modal.Description> :
+                            <Modal.Description/>
+                        }
                     </Modal.Content>
                     <Modal.Actions className='alignLeft'>
                         <Button positive onClick={this.handleEdit}>ערוך</Button>

@@ -3,7 +3,6 @@ import {Helmet} from 'react-helmet';
 import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
 import store from "store";
-import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 
@@ -73,7 +72,6 @@ class AppointmentAdd extends React.Component {
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                             slotInfo={this.state.slotInfo}
-                            // announcement={}
                             appointmentRequestEvent={this.state.appointmentRequestEvent}
                             userOptions={this.props.userOptions}
                             serviceProviderRoles={this.props.serviceProviderRoles}
