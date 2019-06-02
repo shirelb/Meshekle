@@ -45,11 +45,24 @@
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
-    "jest": "23.6.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.13.2",
+    "enzyme-to-json": "^3.3.5",
+    "jest": "^23.6.0",
     "metro-react-native-babel-preset": "0.51.0",
+    "react-dom": "^16.8.6",
     "react-test-renderer": "16.6.1"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "transform": {
+      "^.+\\.(js)$": "./node_modules/react-native/jest/preprocessor.js"
+    },
+    "setupFiles": [
+      "./src/setupTests.js"
+    ]
   }
 }
