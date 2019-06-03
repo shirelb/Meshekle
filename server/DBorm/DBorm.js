@@ -38,7 +38,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 
     // SQLite only
     storage: process.dbMode === "dev" ?
-        './server/DBorm/sqliteTests.db' :
+        './DBorm/sqliteTests.db' :
         process.argv[2] === "feDev" ?
             './DBorm/sqliteFEtests.db' :
             './DBorm/sqlite.db'
@@ -271,6 +271,52 @@ if (process.dbMode === "dev") {
                     })
             });
         });
+} else if (process.argv[2] === "galedDB") {
+    const csv = require("csvtojson");
+
+    sequelize.sync({force: true})
+        .then(() => {
+            csv().fromFile('./DBorm/galedPopulationUTF8.csv')
+                .then((jsobObj) => {
+                    Users.bulkCreate(jsobObj)
+                        .then(response =>
+                            console.log(response)
+                        )
+                        .catch(error =>
+                            console.log(error)
+                        )
+                });
+
+            RulesModules.create({
+                role: "Admin",
+                module: "all",
+            })
+                .then(response => {
+                    Users.create({
+                        userId: '1',
+                        fullname: 'מנהל מערכת',
+                        password: '4d0b24ccade22df6d154778cd66baf04288aae26df97a961f3ea3dd616fbe06dcebecc9bbe4ce93c8e12dca21e5935c08b0954534892c568b8c12b92f26a2448',
+                        email: 'admin@gamil.com',
+                        mailbox: 1,
+                        cellphone: '0123456789',
+                        phone: '0123456789',
+                        bornDate: new Date('1992-11-25'),
+                        active: true,
+                    })
+                        .then(user => {
+                            ServiceProviders.create({
+                                serviceProviderId: 1,
+                                userId: user.userId,
+                                role: 'Admin',
+                                operationTime: 'all time',
+                                phoneNumber: '0123456789',
+                                appointmentWayType: 'Admin',
+                                subjects: "[\"הכל\"]",
+                                active: true,
+                            })
+                        })
+                })
+        })
 }
 
 

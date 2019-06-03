@@ -35,7 +35,7 @@ class Home extends Component {
     }
 
     render() {
-        console.log("serviceProviderRoles  ", this.state.serviceProviderRoles);
+        // console.log("serviceProviderRoles  ", this.state.serviceProviderRoles);
         return (
             <div className={"landing-image"}>
                 <Grid stretched textAlign={"center"}>
@@ -104,8 +104,6 @@ class MainPage extends Component {
         super(props);
 
         this.state = {
-            isLoggedIn: true,
-
             userFullname: "",
             serviceProviderPermissions: "",
             serviceProviderRoles: "",
@@ -115,43 +113,64 @@ class MainPage extends Component {
     componentDidMount() {
         isLoggedIn()
             .then(answer => {
-                console.log('in MainPage isLoggedIn then ', answer);
+                // console.log('in MainPage isLoggedIn then ', answer);
 
                 if (answer) {
-                    this.getServiceProviderHomeDetails();
-                }
+                    this.serviceProviderHeaders = {
+                        'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+                    };
 
-                this.serviceProviderHeaders = {
-                    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
-                };
+                    this.getServiceProviderHomeDetails();
+                } else {
+                    store.remove('serviceProviderToken');
+                }
             })
             .catch(answer => {
-                console.log('in MainPage isLoggedIn catch ', answer);
+                // console.log('in MainPage isLoggedIn catch ', answer);
+                store.remove('serviceProviderToken');
             });
     }
 
     getServiceProviderHomeDetails = () => {
-        usersStorage.getUserByUserID(store.get('userId'), this.serviceProviderHeaders)
+        const userId = store.get('userId');
+        const serviceProviderId = store.get('serviceProviderId');
+
+        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
             .then(user => {
                 if (user !== null && user !== undefined)
                     this.setState({
                         userFullname: user.fullname,
-                    })
+                    });
+                else
+                    store.remove('serviceProviderToken');
+            })
+            .catch(error => {
+                store.remove('serviceProviderToken');
             });
-        serviceProvidersStorage.getServiceProviderPermissionsById(store.get('serviceProviderId'))
+        serviceProvidersStorage.getServiceProviderPermissionsById(serviceProviderId, this.serviceProviderHeaders)
             .then(modulesPermitted => {
                 if (modulesPermitted !== null && modulesPermitted !== undefined)
                     this.setState({
                         serviceProviderPermissions: modulesPermitted,
-                    })
+                    });
+                else
+                    store.remove('serviceProviderToken');
+            })
+            .catch(error => {
+                store.remove('serviceProviderToken');
             });
-        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
+        serviceProvidersStorage.getRolesOfServiceProvider(serviceProviderId, this.serviceProviderHeaders)
             .then(roles => {
                 if (roles !== null && roles !== undefined)
                     this.setState({
                         serviceProviderRoles: roles,
-                    })
+                    });
+                else
+                    store.remove('serviceProviderToken');
             })
+            .catch(error => {
+                store.remove('serviceProviderToken');
+            });
     };
 
     handleLogout = history => () => {
@@ -175,9 +194,8 @@ class MainPage extends Component {
     };
 
     render() {
-        console.log('main page props ', this.props);
+        // console.log('main page props ', this.props);
 
-        // if (!this.state.isLoggedIn)
         if (!store.get('serviceProviderToken'))
             return <Redirect to="/login"/>;
 

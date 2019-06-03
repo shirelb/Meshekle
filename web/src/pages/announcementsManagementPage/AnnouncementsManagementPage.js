@@ -384,7 +384,7 @@ class AnnouncementsManagementPage extends React.Component {
     }
 
     render() {
-        console.log('app props ', this.props);
+        // console.log('app props ', this.props);
 
         const {serviceProviders ,categoriesToManage, announcementsRequests,filteredAnnouncementsRequests, pageAnnouncementsRequests, totalPagesAnnouncementsRequests, announcements, filteredAnnouncements, pageAnnouncements, totalPagesAnnouncements, categories, users,  pageCategories, totalPagesCategories} = this.state;
         const startIndexReq = pageAnnouncementsRequests * TOTAL_PER_PAGE;

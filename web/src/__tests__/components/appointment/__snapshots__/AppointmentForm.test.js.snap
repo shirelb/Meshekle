@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppointmentForm should match snapshot with appointment 1`] = `undefined`;
+
+exports[`AppointmentForm should match snapshot with appointmentRequest 1`] = `undefined`;
+
+exports[`AppointmentForm should match snapshot with slotInfo 1`] = `undefined`;

@@ -1,16 +1,26 @@
 import React from "react";
 import {Card, Icon, List} from 'semantic-ui-react';
 
-import $ from 'jquery';
-import 'jquery/dist/jquery.min';
-import "jquery-ui/ui/widgets/draggable";
-import "jquery-ui/ui/widgets/droppable";
+const $ = require('jquery');
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
+window.jQuery = $;
+require('jquery-ui/ui/version');
+require('jquery-ui/ui/plugin');
+require('jquery-ui/ui/widget');
+require('jquery-ui/ui/widgets/mouse');
+require('jquery-ui/ui/widgets/resizable');
+require("jquery-ui/ui/widgets/draggable");
+require("jquery-ui/ui/widgets/droppable");
+
+
 const colorCardByRole = {
     "מספרה": "blue",
+    appointmentsHairDresser: "blue",
+
     "מרפאת שיניים": "olive",
+    appointmentsDentist: "olive",
 };
 
 export default class DraggableAppointmentRequest extends React.Component {

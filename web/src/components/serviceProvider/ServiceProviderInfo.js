@@ -80,8 +80,8 @@ class ServiceProviderInfo extends React.Component {
             <div>
                 <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                     <Helmet>
-                        <title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>
-                        {/*<title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>*/}
+                        <title>Meshekle |
+                            ServiceProvider {serviceProvider.fullname ? serviceProvider.fullname : serviceProvider.serviceProviderId}</title>
                     </Helmet>
 
                     <Modal.Header>{serviceProvider.fullname}</Modal.Header>

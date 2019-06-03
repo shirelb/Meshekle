@@ -1,0 +1,184 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppointmentRequestForm should match snapshot 1`] = `
+<Component
+  animationType="slide"
+  hardwareAccelerated={false}
+  onRequestClose={[Function]}
+  transparent={false}
+  visible={true}
+>
+  <View
+    style={
+      Object {
+        "marginTop": 20,
+      }
+    }
+  >
+    <ScrollViewMock>
+      <TextElement
+        h4={true}
+        style={
+          Object {
+            "color": "#050505",
+            "fontWeight": "bold",
+            "textAlign": "center",
+          }
+        }
+      >
+        בקשת תור
+      </TextElement>
+      <FormLabel>
+        *נותן שירות
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      />
+      <FormLabel>
+         *ענף
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      >
+        appointmentsHairDresser
+      </TextElement>
+      <FormLabel>
+         *תאריכים ושעות אופציונאליים
+      </FormLabel>
+      <withTheme(List.Section) />
+      <CheckBox
+        center={false}
+        checked={false}
+        checkedColor="green"
+        checkedIcon="clear"
+        iconLeft={true}
+        iconRight={false}
+        iconType="material"
+        left={true}
+        onPress={[Function]}
+        right={false}
+        size={24}
+        title="הוסף תאריך ושעות"
+        uncheckedColor="#bfbfbf"
+        uncheckedIcon="add"
+      />
+      <CustomDatePickerIOS
+        cancelTextIOS="Cancel"
+        confirmTextIOS="Confirm"
+        date={2019-06-03T15:05:19.737Z}
+        is24Hour={true}
+        isVisible={false}
+        mode="date"
+        neverDisableConfirmIOS={false}
+        onCancel={[Function]}
+        onConfirm={[Function]}
+        onDateChange={[Function]}
+        onHideAfterConfirm={[Function]}
+        reactNativeModalPropsIOS={Object {}}
+        title="תאריך"
+        titleIOS="Pick a date"
+      />
+      <CustomDatePickerIOS
+        cancelTextIOS="Cancel"
+        confirmTextIOS="Confirm"
+        date={2019-06-03T15:06:39.303Z}
+        is24Hour={true}
+        isVisible={false}
+        mode="time"
+        neverDisableConfirmIOS={false}
+        onCancel={[Function]}
+        onConfirm={[Function]}
+        onDateChange={[Function]}
+        onHideAfterConfirm={[Function]}
+        reactNativeModalPropsIOS={Object {}}
+        title="זמן התחלה"
+        titleIOS="Pick a date"
+      />
+      <CustomDatePickerIOS
+        cancelTextIOS="Cancel"
+        confirmTextIOS="Confirm"
+        date={2019-06-03T15:06:39.303Z}
+        is24Hour={true}
+        isVisible={false}
+        mode="time"
+        neverDisableConfirmIOS={false}
+        onCancel={[Function]}
+        onConfirm={[Function]}
+        onDateChange={[Function]}
+        onHideAfterConfirm={[Function]}
+        reactNativeModalPropsIOS={Object {}}
+        title="זמן סיום"
+        titleIOS="Pick a date"
+      />
+      <FormLabel>
+        *נושא
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      />
+      <SelectMultipleGroupButton
+        containerViewStyle={
+          Object {
+            "justifyContent": "flex-start",
+          }
+        }
+        group={Array []}
+        highLightStyle={
+          Object {
+            "backgroundColor": "transparent",
+            "backgroundTintColor": "transparent",
+            "borderColor": "gray",
+            "borderTintColor": "#007AFF",
+            "textColor": "gray",
+            "textTintColor": "#007AFF",
+          }
+        }
+        multiple={true}
+        onSelectedValuesChange={[Function]}
+        singleTap={[Function]}
+      />
+      <FormLabel>
+        הערות
+      </FormLabel>
+      <FormInput
+        editable={true}
+        maxLength={40}
+        multiline={true}
+        normalizeFontSize={true}
+        onChangeText={[Function]}
+        onFocus={[Function]}
+        placeholder="כתוב הערות נוספות כאן"
+        value=""
+      />
+      <View
+        style={
+          Object {
+            "marginTop": 20,
+          }
+        }
+      >
+        <Button
+          label="שלח"
+          onPress={[Function]}
+        />
+        <Button
+          label="חזור"
+          onPress={[Function]}
+        />
+      </View>
+    </ScrollViewMock>
+  </View>
+</Component>
+`;

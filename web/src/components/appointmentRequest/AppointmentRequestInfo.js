@@ -36,8 +36,8 @@ class AppointmentRequestInfo extends React.Component {
         appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest, this.serviceProviderHeaders)
             .then((response) => {
                 console.log('appointmentRequest handleDelete ', response);
+                this.props.history.goBack();
             });
-
     }
 
     render() {
@@ -46,52 +46,56 @@ class AppointmentRequestInfo extends React.Component {
         return (
             <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | {appointmentRequest.clientName}</title>
+                    <title>Meshekle | {appointmentRequest ? appointmentRequest.clientName : "פרטי בקשה"}</title>
                 </Helmet>
 
-                <Modal.Header>{appointmentRequest.clientName}</Modal.Header>
+                <Modal.Header>{appointmentRequest ? appointmentRequest.clientName : ""}</Modal.Header>
                 <Modal.Content image>
                     {/*<Image wrapped size="small" src={`https://api.adorable.io/avatars/250/${user.email}`}/>*/}
-                    <Modal.Description>
-                        <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointmentRequest.requestId}</p>
-                        <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointmentRequest.clientName}</p>
-                        <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointmentRequest.AppointmentDetail.serviceProviderId}</p>
-                        <p>{strings.appointmentsPageStrings.ROLE}: {appointmentRequest.AppointmentDetail.role}</p>
-                        <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</p>
-                        <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentRequestStatusMapper(appointmentRequest.status)}</p>
-                        <p>{strings.appointmentsPageStrings.REMARKS}: {appointmentRequest.notes}                         </p>
-                        <div>
-                            <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}: </p>
-                            <List>
-                                {Array.isArray(appointmentRequest.optionalTimes) &&
-                                appointmentRequest.optionalTimes.map((datesTimes, j) =>
-                                    (
-                                        <List.Item key={j}>
-                                            <List.Content>
-                                                <List.Description>{datesTimes.date}</List.Description>
-                                                <List.Description>
-                                                    {Array.isArray(datesTimes.hours) &&
-                                                    datesTimes.hours.map((time, k) =>
-                                                        (
-                                                            <List.Item key={k}>
-                                                                <List.Content>
-                                                                    <List.Description>      {time.startHour}-{time.endHour}</List.Description>
-                                                                </List.Content>
-                                                            </List.Item>
-                                                        ),
-                                                    )}
-                                                </List.Description>
-                                            </List.Content>
-                                        </List.Item>
-                                    ),
-                                )}
-                            </List>
-                        </div>
-                    </Modal.Description>
+                    {appointmentRequest ?
+                        <Modal.Description>
+                            <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointmentRequest.requestId}</p>
+                            <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointmentRequest.clientName}</p>
+                            <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointmentRequest.AppointmentDetail.serviceProviderId}</p>
+                            <p>{strings.appointmentsPageStrings.ROLE}: {strings.roles[appointmentRequest.AppointmentDetail.role]}</p>
+                            <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</p>
+                            <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentRequestStatusMapper(appointmentRequest.status)}</p>
+                            <p>{strings.appointmentsPageStrings.REMARKS}: {appointmentRequest.notes} </p>
+                            <div>
+                                <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}: </p>
+                                <List>
+                                    {Array.isArray(appointmentRequest.optionalTimes) &&
+                                    appointmentRequest.optionalTimes.map((datesTimes, j) =>
+                                        (
+                                            <List.Item key={j}>
+                                                <List.Content>
+                                                    <List.Description>{datesTimes.date}</List.Description>
+                                                    <List.Description>
+                                                        {Array.isArray(datesTimes.hours) &&
+                                                        datesTimes.hours.map((time, k) =>
+                                                            (
+                                                                <List.Item key={k}>
+                                                                    <List.Content>
+                                                                        <List.Description>      {time.startHour}-{time.endHour}</List.Description>
+                                                                    </List.Content>
+                                                                </List.Item>
+                                                            ),
+                                                        )}
+                                                    </List.Description>
+                                                </List.Content>
+                                            </List.Item>
+                                        ),
+                                    )}
+                                </List>
+                            </div>
+                        </Modal.Description>
+                        :
+                        <Modal.Description/>
+                    }
                 </Modal.Content>
                 <Modal.Actions className='alignLeft'>
-                    <Button negative onClick={this.handleDelete}>Delete</Button>
-                    <Button positive onClick={() => this.props.history.goBack()}>OK</Button>
+                    <Button positive onClick={() => this.props.history.goBack()}>סגור</Button>
+                    <Button negative onClick={this.handleDelete}>מחק</Button>
                 </Modal.Actions>
             </Modal>
         );

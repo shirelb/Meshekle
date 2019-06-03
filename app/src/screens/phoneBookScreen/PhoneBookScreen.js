@@ -49,7 +49,7 @@ export default class PhoneBookScreen extends Component {
     loadUsers() {
         usersStorage.getUsers(this.userHeaders)
             .then(users => {
-                console.log("phonebook users ", users);
+                // console.log("phonebook users ", users);
 
                 users.forEach(user => {
                     if (user.ServiceProviders.length > 0) {
@@ -144,7 +144,7 @@ export default class PhoneBookScreen extends Component {
     };
 
     renderRow = ({item}) => {
-        console.log("item ", item);
+        // console.log("item ", item);
 
         if (item.image !== null)
             return (

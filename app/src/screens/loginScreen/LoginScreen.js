@@ -13,8 +13,6 @@ const imageLogo = require("../../images/logo4000.png");
 var sha512 = require('js-sha512');
 
 
-
-
 export default class LoginScreen extends Component {
     state = {
         userId: '',
@@ -23,7 +21,7 @@ export default class LoginScreen extends Component {
     };
 
     validate = (userId, password) => {
-        console.log('in validate func');
+        // console.log('in validate func');
         const errors = [];
         let item = strings.loginScreenStrings.WRONG_CREDENTIALS;
 
@@ -58,7 +56,7 @@ export default class LoginScreen extends Component {
     };
 
     onSubmitPress = () => {
-        console.log("in onSubmitPress");
+        // console.log("in onSubmitPress");
         const userId = this.state.userId;
         const password = this.state.password;
 
@@ -70,7 +68,7 @@ export default class LoginScreen extends Component {
             let hash = sha512.update(this.state.password);
             usersStorage.userLogin(this.state.userId, hash.hex())
                 .then((response) => {
-                    console.log(response);
+                    // console.log(response);
                     phoneStorage.update('userData', {
                         token: response.data.token
                     })
@@ -146,8 +144,3 @@ export default class LoginScreen extends Component {
         )
     }
 }
-
-/*
-LoginScreen.propTypes = {
-    onLogoutPress: PropTypes.func,
-};*/

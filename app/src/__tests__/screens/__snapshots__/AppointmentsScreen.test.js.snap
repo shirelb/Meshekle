@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppointmentsScreen should match snapshot 1`] = `
+<View>
+  <Button
+    label="בקשות התורים שלי"
+    onPress={[Function]}
+  />
+  <Button
+    label="בקש תור חדש"
+    onPress={[Function]}
+  />
+  <AppointmentsCalendar
+    onAppointmentRequestPress={[Function]}
+  />
+</View>
+`;

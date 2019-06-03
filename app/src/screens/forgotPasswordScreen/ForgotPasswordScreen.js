@@ -16,7 +16,7 @@ export default class ForgotPasswordScreen extends Component {
             user: {},
 
             errorMsg: '',
-            errorVisible: true
+            errorVisible: false
         };
     }
 
@@ -66,7 +66,7 @@ export default class ForgotPasswordScreen extends Component {
             return false;
         }
 
-        if (user.cellphone & !(/^\d*$/.test(user.cellphone))) {
+        if (user.cellphone && !(/^\d*$/.test(user.cellphone))) {
             this.setState({
                 formError: true,
                 errorMsg: "הפלאפון לא וואלידי",
@@ -75,7 +75,7 @@ export default class ForgotPasswordScreen extends Component {
             return false;
         }
 
-        if (user.phone & !(/^\d*$/.test(user.phone))) {
+        if (user.phone && !(/^\d*$/.test(user.phone))) {
             this.setState({
                 formError: true,
                 errorMsg: "הטלפון לא וואלידי",
@@ -84,7 +84,7 @@ export default class ForgotPasswordScreen extends Component {
             return false;
         }
 
-        if (!user.bornDate ||  user.bornDate === null) {
+        if (!user.bornDate || user.bornDate === null) {
             this.setState({
                 formError: true,
                 errorMsg: "תאריך הלידה חסר",
@@ -94,7 +94,7 @@ export default class ForgotPasswordScreen extends Component {
         }
 
         return true;
-    }
+    };
 
     handleForgetPassword = (e) => {
         if (!this.validateForm()) {
@@ -106,8 +106,7 @@ export default class ForgotPasswordScreen extends Component {
                 console.log('forgetPassword response ', response);
                 if (!response) {
                     this.setState({showError: true});
-                }
-                else {
+                } else {
                     Alert.alert(
                         'התראה',
                         'במידה והפרטים נכונים תישלח אלייך סיסמא חדשה למייל. בבקשה לשנות אותה ברגע כניסה לאפליקציה',
@@ -142,7 +141,7 @@ export default class ForgotPasswordScreen extends Component {
                                     userId: text
                                 }
                             })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
+                            onFocus={() => this.setState({errorVisible: false, showError: false, errorMsg: ''})}
                             underlineColorAndroid="#4aba91"
                             style={styles.textInput}
                             // autoComplete={"email"}
@@ -162,7 +161,7 @@ export default class ForgotPasswordScreen extends Component {
                                     email: text
                                 }
                             })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
+                            onFocus={() => this.setState({errorVisible: false, showError: false, errorMsg: ''})}
                             underlineColorAndroid="#4aba91"
                             style={styles.textInput}
                             autoComplete={"email"}
@@ -182,7 +181,7 @@ export default class ForgotPasswordScreen extends Component {
                                     mailbox: text
                                 }
                             })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
+                            onFocus={() => this.setState({errorVisible: false, showError: false, errorMsg: ''})}
                             underlineColorAndroid="#4aba91"
                             style={styles.textInput}
                             keyboardType={"number-pad"}
@@ -200,7 +199,7 @@ export default class ForgotPasswordScreen extends Component {
                                     cellphone: text
                                 }
                             })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
+                            onFocus={() => this.setState({errorVisible: false, showError: false, errorMsg: ''})}
                             underlineColorAndroid="#4aba91"
                             style={styles.textInput}
                             autoComplete={"tel"}
@@ -220,7 +219,7 @@ export default class ForgotPasswordScreen extends Component {
                                     phone: text
                                 }
                             })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
+                            onFocus={() => this.setState({errorVisible: false, showError: false, errorMsg: ''})}
                             underlineColorAndroid="#4aba91"
                             style={styles.textInput}
                             autoComplete={"tel"}
@@ -234,7 +233,11 @@ export default class ForgotPasswordScreen extends Component {
                         <TextInput
                             value={user.bornDate ? moment(user.bornDate).format("DD/MM/YYYY") : ""}
                             // placeholder={moment(user.bornDate).format("DD/MM/YYYY")}
-                            onFocus={() => this.setState({errorVisible: false, isDateTimePickerVisible: true,showError:false})}
+                            onFocus={() => this.setState({
+                                errorVisible: false,
+                                isDateTimePickerVisible: true,
+                                showError: false
+                            })}
                             underlineColorAndroid="#4aba91"
                             style={styles.textInput}
                         />

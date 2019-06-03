@@ -17,7 +17,7 @@ router.post('/login/authenticate', function (req, res) {
     } else {
         validations.checkIfUserExist(req.body.userId, res)
             .then(user => {
-                if (user.dataValues) {
+                if (user !== undefined && user.dataValues) {
                     var payload = {
                         userId: user.userId,
                         userFullname: user.fullname,

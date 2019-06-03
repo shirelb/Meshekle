@@ -59,7 +59,7 @@ export default class AppointmentRequestInfo extends Component {
 
                         <FormLabel> ענף</FormLabel>
                         <Text style={{marginLeft: 10}}>
-                            {appointmentRequest.AppointmentDetail.role}
+                            {mappers.serviceProviderRolesMapper(appointmentRequest.AppointmentDetail.role)}
                         </Text>
 
                         <FormLabel> סטאטוס</FormLabel>

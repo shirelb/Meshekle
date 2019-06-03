@@ -8,7 +8,7 @@ const serviceProviderHeaders = {
 
 var getUserByUserID = (userId, headers) => {
     return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-        {headers: serviceProviderHeaders}
+        {headers: headers}
     )
         .then((response) => {
             return response.data[0];

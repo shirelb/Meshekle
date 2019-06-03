@@ -33,7 +33,7 @@ export default class AppointmentRequestForm extends Component {
             startTimeClicked: '',
             endTimeClicked: '',
             errorMsg: '',
-            errorVisible: true
+            errorVisible: false
         };
 
         this.handleDatePicked = this.handleDatePicked.bind(this);
