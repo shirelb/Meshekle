@@ -13,6 +13,8 @@ import AnnouncementAdd from "../../components/announcement/AnnouncementAdd";
 import announcementsStorage from "../../storage/announcementsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import CategoryAdd from "../../components/announcement/CategoryAdd";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import Modal from 'react-awesome-modal';
 
 const TOTAL_PER_PAGE = 10;
 
@@ -36,6 +38,8 @@ class AnnouncementsManagementPage extends React.Component {
             categoriesToManage: [],
             pageCategories: 0,
             totalPagesCategories: 0,
+            visible: false,
+            content: "",
            };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -54,24 +58,30 @@ class AnnouncementsManagementPage extends React.Component {
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
         this.getUsers();
-        if(this.serviceProviderId === '1') {
-            this.getAllServiceProviders();
-            this.getAllCategories();
-        }
+        this.getAllServiceProviders();
+        // if(this.serviceProviderId === '1' || this.role === 'AnnouncementsSecretary') {
+        //     this.getAllCategories();
+        //}
         this.getCategories();
         this.getAnnouncementsRequests();
-        this.getAnnouncements();
+        this.getAnsweredAnnouncements();
+
 
     }
     componentDidMount() {
+        connectToServerSocket(store.get('serviceProviderId'));
 
+        WEB_SOCKET.on("getAnnouncementsRequests", this.getAnnouncementsRequests.bind(this));
+    }
 
+    componentWillUnmount() {
+        WEB_SOCKET.off("getAnnouncementsRequests");
     }
 
     componentWillReceiveProps({location = {}}) {
         if (location.pathname === '/chores' && location.pathname !== this.props.location.pathname) {
             this.getAnnouncementsRequests();
-            this.getAnnouncements();
+            this.getAnsweredAnnouncements();
         }
     }
 
@@ -82,7 +92,11 @@ class AnnouncementsManagementPage extends React.Component {
 
     getAllServiceProviders(){
       serviceProvidersStorage.getServiceProviders(this.serviceProviderHeaders)
-          .then(response => this.setState({serviceProviders: response}));
+          .then(response => {
+              this.setState({serviceProviders: response})
+              if(this.state.serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary')
+                  this.getAllCategories();
+          });
     };
 
     getAllCategories(){
@@ -122,8 +136,9 @@ class AnnouncementsManagementPage extends React.Component {
             });
     }
 
-    getAnnouncements() {
-        announcementsStorage.getAnnouncements(this.serviceProviderId,this.serviceProviderHeaders)
+
+    getAnsweredAnnouncements() {
+        announcementsStorage.getAnsweredAnnouncements(this.serviceProviderId,this.serviceProviderHeaders)
             .then((response) => {
 
                 const announcements = response.data;
@@ -189,14 +204,14 @@ class AnnouncementsManagementPage extends React.Component {
         this.props.history.push(`${this.props.match.path}/addCategory`, {
             serviceProviderId: this.serviceProviderId,
             userId: this.userId,
-            serProvsWithNames: this.state.serviceProviders.map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}}),
+            serProvsWithNames: this.state.serviceProviders.filter(s=>s.active).map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}}),
             catNames: this.state.categoriesToManage.map(c=>c.categoryName),
         });
     };
 
     handleUpdate = (announcement) => {
 
-        announcement.categoryName = this.state.categories.filter(cat => cat.categoryId === announcement.categoryId)[0].categoryName;
+        announcement.categoryName = this.state.categoriesToManage.filter(cat => cat.categoryId === announcement.categoryId)[0].categoryName;
 
         this.props.history.push(`${this.props.match.path}/updateAnnouncement`, {
             serviceProviderId: this.serviceProviderId,
@@ -207,7 +222,7 @@ class AnnouncementsManagementPage extends React.Component {
 
 
     handleEditCategoryButton = (category,names) => {
-        let serProvsWithNames = this.state.serviceProviders.map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}});
+        let serProvsWithNames = this.state.serviceProviders.filter(s=>s.active).map(item=> {return {serviceProviderId: item.serviceProviderId, userId: item.userId, name: this.state.users.filter(u=> u.userId === item.userId)[0].fullname}});
         this.props.history.push(`${this.props.match.path}/updateCategory`, {
             serviceProviderId: this.serviceProviderId,
             userId: this.userId,
@@ -299,7 +314,7 @@ class AnnouncementsManagementPage extends React.Component {
                     }
                     this.getCategories();
                     this.getAnnouncementsRequests();
-                    this.getAnnouncements();
+                    this.getAnsweredAnnouncements();
                 }
             });
 
@@ -341,6 +356,33 @@ class AnnouncementsManagementPage extends React.Component {
         return ans.substring(1);
     };
 
+    getCategoryActiveManagers = (name, providers,usersList) => {
+        let serProvIds = this.state.categoriesToManage.filter(item => item.categoryName === name && !["1",1].includes(item.serviceProviderId)).map(item => item.serviceProviderId);
+        serProvIds = serProvIds.map(item => {
+            //let provs = this.state.serviceProviders;
+            let userID = providers.filter(s => s.serviceProviderId === String(item) && s.active)[0]?providers.filter(s => s.serviceProviderId === String(item)&& s.active)[0].userId:"";
+            //let users = this.state.users;
+            return usersList.filter(u => u.userId === userID)[0]?usersList.filter(u => u.userId === userID)[0].fullname: "";
+        });
+
+        let ans = serProvIds.reduce((acc,cur) => {return acc+","+cur}, "");
+        return ans.substring(1);
+    };
+
+    openModal(content) {
+        this.setState({
+            visible : true,
+            content : content,
+        });
+    }
+
+    closeModal() {
+        this.setState({
+            visible : false,
+            content: "",
+        });
+    }
+
     render() {
         // console.log('app props ', this.props);
 
@@ -348,7 +390,7 @@ class AnnouncementsManagementPage extends React.Component {
         const startIndexReq = pageAnnouncementsRequests * TOTAL_PER_PAGE;
         const startIndexAnn = pageAnnouncements * TOTAL_PER_PAGE;
         const startIndexCat = pageCategories * TOTAL_PER_PAGE;
-        const categoryNamesMap = categories.map(cat => ({id: cat.categoryId,name: cat.categoryName}));
+        const categoryNamesMap = categoriesToManage.map(cat => ({id: cat.categoryId,name: cat.categoryName}));
         return (
             <div>
                 <Page children={announcementsRequests} title={strings.announcementsPageStrings.ANNOUNCE_REQ_TITLE_TABLE}>
@@ -380,10 +422,10 @@ class AnnouncementsManagementPage extends React.Component {
                             {filteredAnnouncementsRequests.slice(startIndexReq, startIndexReq + TOTAL_PER_PAGE).map(announcementReq =>
                                 (<Table.Row key={announcementReq.announcementId}>
                                     <Table.Cell>{announcementReq.announcementId}</Table.Cell>
-                                    <Table.Cell>{users[0] ? users.filter(u => parseInt(u.userId) === announcementReq.userId)[0].fullname: ""}</Table.Cell>
+                                    <Table.Cell>{users[0] ? users.filter(u => u.userId === ''+announcementReq.userId)[0].fullname: ""}</Table.Cell>
                                     <Table.Cell>{categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0] ? categoryNamesMap.filter(cat => cat.id === announcementReq.categoryId)[0].name : ""}</Table.Cell>
                                     <Table.Cell>{announcementReq.title}</Table.Cell>
-                                    <Table.Cell>{announcementReq.content}</Table.Cell>
+                                    <Table.Cell><a onClick={()=>this.openModal(announcementReq.content)}>תוכן המודעה</a></Table.Cell>
                                     <Table.Cell>{announcementReq.expirationTime.substring(0,announcementReq.expirationTime.indexOf('T'))}</Table.Cell>
                                     <Table.Cell>{announcementReq.dateOfEvent?announcementReq.dateOfEvent.substring(0,announcementReq.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell><a className="btn btn-default" download={announcementReq.fileName}
@@ -455,10 +497,10 @@ class AnnouncementsManagementPage extends React.Component {
                             {filteredAnnouncements.slice(startIndexAnn, startIndexAnn + TOTAL_PER_PAGE).map(announcement =>
                                 (<Table.Row key={announcement.announcementId}>
                                     <Table.Cell>{announcement.announcementId}</Table.Cell>
-                                    <Table.Cell>{users[0] ? users.filter(u => parseInt(u.userId) === announcement.userId)[0].fullname : ""}</Table.Cell>
+                                    <Table.Cell>{users[0] ? users.filter(u => u.userId === ''+announcement.userId)[0].fullname : ""}</Table.Cell>
                                     <Table.Cell>{categoryNamesMap.filter(cat => cat.id === announcement.categoryId)[0] ? categoryNamesMap.filter(cat => cat.id === announcement.categoryId)[0].name : ""}</Table.Cell>
                                     <Table.Cell>{announcement.title}</Table.Cell>
-                                    <Table.Cell>{announcement.content}</Table.Cell>
+                                    <Table.Cell><a onClick={()=>this.openModal(announcement.content)}>תוכן המודעה</a></Table.Cell>
                                     <Table.Cell>{announcement.expirationTime.substring(0,announcement.expirationTime.indexOf('T'))}</Table.Cell>
                                     <Table.Cell>{announcement.dateOfEvent?announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell>{announcement.status}</Table.Cell>
@@ -502,7 +544,7 @@ class AnnouncementsManagementPage extends React.Component {
                             onClick={this.onClick.bind(this)}
                     >{strings.announcementsPageStrings.ADD_ANNOUNCEMENT}</Button>
 
-                    {this.serviceProviderId === '1' ?
+                    {(this.serviceProviderId === '1' || (serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0] && serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary') ) ?
                         <div>
                         <Page children={categoriesToManage} title={strings.announcementsPageStrings.ANNOUNCE_CATEGORIES_TABLE}>
                             <Helmet>
@@ -524,7 +566,7 @@ class AnnouncementsManagementPage extends React.Component {
 
                                             <Table.Cell>{cat.categoryId}</Table.Cell>
                                             <Table.Cell>{cat.categoryName}</Table.Cell>
-                                            <Table.Cell>{this.getCategoryManagers(cat.categoryName,JSON.parse(JSON.stringify(serviceProviders)),JSON.parse(JSON.stringify(users)))}</Table.Cell>
+                                            <Table.Cell>{this.getCategoryActiveManagers(cat.categoryName,JSON.parse(JSON.stringify(serviceProviders)),JSON.parse(JSON.stringify(users)))}</Table.Cell>
                                             <Table.Cell>
                                                 <button className="ui icon button" onClick={()=>this.handleEditCategoryButton(cat,this.getCategoryManagers(cat.categoryName,JSON.parse(JSON.stringify(serviceProviders)),JSON.parse(JSON.stringify(users))))}>
                                                     <i className="edit icon"></i>
@@ -564,28 +606,44 @@ class AnnouncementsManagementPage extends React.Component {
                     >{strings.announcementsPageStrings.ADD_CATEGORY}</Button>
                         </div>
                             : null}
+
+                    <Modal
+                        visible={this.state.visible}
+                        width="400"
+                        height="300"
+                        effect="fadeInUp"
+                        onClickAway={() => this.closeModal()}
+                    >
+                        <div>
+                            <h1>תוכן המודעה</h1>
+                            {/*<br></br>*/}
+                            <h3>{this.state.content}</h3>
+                            <Button href="javascript:void(0);" onClick={() => this.closeModal()}>סגור</Button>
+                        </div>
+                    </Modal>
                     </Page>
+
 
                 <div>
                     {/*<Router>*/}
                     <Switch>
                         <Route exec path={`${this.props.match.path}/addAnnouncement`} render={(props) => (
                             <AnnouncementAdd {...props}
-                                getAnnouncements = {() => this.getAnnouncements()}
+                                getAnnouncements = {() => this.getAnsweredAnnouncements()}
                             />
                         )}/>
                     </Switch>
                     <Switch>
                         <Route exec path={`${this.props.match.path}/updateAnnouncement`} render={(props) => (
                             <AnnouncementAdd {...props}
-                                getAnnouncements = {() => this.getAnnouncements()}
+                                getAnnouncements = {() => this.getAnsweredAnnouncements()}
                             />
                         )}/>
                     </Switch>
                     <Switch>
                         <Route exec path={`${this.props.match.path}/addCategory`} render={(props) => (
                             <CategoryAdd {...props}
-                                getAnnouncements = {() => this.getAnnouncements()}
+                                getAnnouncements = {() => this.getAnsweredAnnouncements()}
                                 getAnnouncementsRequests = {() => this.getAnnouncementsRequests()}
                                 getCategories = {() => this.getCategories()}
                                 getAllCategories = {() => this.getAllCategories()}
@@ -595,7 +653,7 @@ class AnnouncementsManagementPage extends React.Component {
                     <Switch>
                         <Route exec path={`${this.props.match.path}/updateCategory`} render={(props) => (
                             <CategoryAdd {...props}
-                                         getAnnouncements = {() => this.getAnnouncements()}
+                                         getAnnouncements = {() => this.getAnsweredAnnouncements()}
                                          getAnnouncementsRequests = {() => this.getAnnouncementsRequests()}
                                          getCategories = {() => this.getCategories()}
                                          getAllCategories = {() => this.getAllCategories()}

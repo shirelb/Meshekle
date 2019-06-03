@@ -29,6 +29,15 @@ var getAnnouncements = (serviceProviderId,headers) => {
         });
 };
 
+var getAnsweredAnnouncements = (serviceProviderId,headers) => {
+    return axios.get(`${SERVER_URL}/api/announcements/answeredRequests/serviceProviderId/${serviceProviderId}`,
+        {headers: headers}
+    )
+        .then((response) => {
+            return response;
+        });
+};
+
 var getAnnouncementsRequests = (serviceProviderId,headers) => {
     return axios.get(`${SERVER_URL}/api/announcements/requests/serviceProviderId/${serviceProviderId}`,
         {headers: headers}
@@ -132,4 +141,4 @@ var updateCategory = function (categoryList,userHeaders) {
         .catch(error => error.response);
 };
 
-export default {getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement, updateAnnouncement, removeAnnouncement, getUsers, getCategories,addCategory,updateCategory,removeCategory};
+export default {getAnsweredAnnouncements, getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement, updateAnnouncement, removeAnnouncement, getUsers, getCategories,addCategory,updateCategory,removeCategory};

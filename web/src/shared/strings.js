@@ -13,6 +13,7 @@ const loginPageStrings = {
 
 const mainPageStrings = {
     LOGOUT: "התנתק",
+    REPORT: "דווח על תקלה",
     WELCOME: "ברוכים הבאים ",
     MAIN_PAGE_TITLE: "בית",
     SETTINGS_PAGE_TITLE: "הגדרות",
@@ -131,6 +132,7 @@ const modulesIconsNames = {
     chores: "industry",
     announcements: "announcement",
     logout: "power",
+    report: "exclamation circle"
 };
 
 export default {

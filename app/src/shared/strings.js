@@ -18,6 +18,7 @@ const mainScreenStrings = {
 
 const drawerMenu = {
     LOGOUT: "התנתק",
+    REPORT: "דווח על תקלה",
     MAIN_SCREEN_NAME: "בית",
     APPOINTMENTS_SCREEN_NAME: "תורים",
     CHORES_SCREEN_NAME: "תורנויות",
