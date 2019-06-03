@@ -8,11 +8,10 @@ const serviceProviderHeaders = {
 
 var getUserByUserID = (userId, headers) => {
     return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-        {headers: headers}
+        {headers: serviceProviderHeaders}
     )
         .then((response) => {
-            let user = response.data[0];
-            return user;
+            return response.data[0];
         })
         .catch((error) => {
             console.log('getUserByUserID ', userId, ' error ', error);
@@ -95,7 +94,7 @@ var updateUserById = function (updatedUser, serviceProviderHeaders) {
             return response;
         })
         .catch(error => {
-            console.log('updateUserById error ', error)
+            console.log('updateUserById error ', error);
             return null;
         });
 };

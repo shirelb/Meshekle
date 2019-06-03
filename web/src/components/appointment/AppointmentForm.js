@@ -26,22 +26,6 @@ usersStorage.getUsers()
     });
 
 
-let rolesOptions = {};
-
-serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
-    .then(serviceProvidersFound => {
-        console.log('serviceProvidersFound ', serviceProvidersFound);
-        if (Array.isArray(serviceProvidersFound))
-            rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
-                ({
-                    key: index,
-                    text: strings.roles[item.role],
-                    value: item.role
-                })
-            )
-    });
-
-
 class AppointmentForm extends Component {
 
     constructor(props) {
@@ -71,6 +55,7 @@ class AppointmentForm extends Component {
                 },
                 subjectOptions: [],
             };
+            this.getServiceProviderRoles();
         } else if (appointment) {
             this.state = {
                 appointment: {
@@ -95,7 +80,7 @@ class AppointmentForm extends Component {
                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
                     remarks: appointmentRequestEvent.appointmentRequest.notes,
-                    role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
+                    role: Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
                 },
                 appointmentRequestEvent: appointmentRequestEvent,
                 subjectOptions: [],
@@ -108,11 +93,11 @@ class AppointmentForm extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    getSubjectsOfServiceProviderRole = () => {
+    getSubjectsOfServiceProviderRole = (currentRole) => {
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProviders => {
-                let serviceProvider = serviceProviders.filter(provider => provider.role === this.state.appointment.role)[0];
+                let serviceProvider = serviceProviders.filter(provider => provider.role === currentRole)[0];
                 JSON.parse(serviceProvider.subjects).map((subject, index) => {
                     subjectOptions.push({key: index, text: subject, value: subject});
                 });
@@ -127,7 +112,6 @@ class AppointmentForm extends Component {
             this.setState({
                 appointment: {
                     date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
                     role: appointment.AppointmentDetail.role,
@@ -135,24 +119,18 @@ class AppointmentForm extends Component {
                     clientName: appointment.clientName,
                     remarks: appointment.remarks,
                 },
-            })
+            });
+
+            this.getSubjectsOfServiceProviderRole(appointment.AppointmentDetail.role);
         }
         if (appointmentRequestEvent) {
             this.setState({
-                /* appointment: {
-                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                     // date: moment(appointment.startDateAndTime),
-                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
-                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
-                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
-                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
-                     remarks: appointmentRequestEvent.appointmentRequest.notes,
-                 },*/
                 appointmentRequestEvent: appointmentRequestEvent,
-            })
+            });
+
+            this.getSubjectsOfServiceProviderRole(this.state.appointment.role);
         }
 
-        this.getSubjectsOfServiceProviderRole();
 
         console.log('will recive props  ', this.state.appointment);
         console.log('will recive props  ', appointment);
@@ -192,6 +170,26 @@ class AppointmentForm extends Component {
         }
     }
 
+    getServiceProviderRoles = () => {
+        let rolesOptions = {};
+        this.setState({rolesOptions: {}})
+
+        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+            .then(serviceProvidersFound => {
+                console.log('serviceProvidersFound ', serviceProvidersFound);
+                if (Array.isArray(serviceProvidersFound)) {
+                    rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
+                        ({
+                            key: index,
+                            text: strings.roles[item.role],
+                            value: item.role
+                        })
+                    );
+                    this.setState({rolesOptions: rolesOptions})
+                }
+            });
+    };
+
     handleChange(e, {name, value}) {
         const {appointment} = this.state;
 
@@ -199,7 +197,7 @@ class AppointmentForm extends Component {
         this.setState({appointment: {...appointment, [name]: value}});
 
         if (name === "role")
-            this.getSubjectsOfServiceProviderRole();
+            this.getSubjectsOfServiceProviderRole(value);
     }
 
     handleClear = (e) => {
@@ -299,7 +297,7 @@ class AppointmentForm extends Component {
                     // search
                     selection
                     autoComplete='on'
-                    options={rolesOptions}
+                    options={this.state.rolesOptions}
                     value={appointment.role}
                     onChange={this.handleChange}
                     name='role'

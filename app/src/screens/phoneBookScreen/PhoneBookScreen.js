@@ -63,7 +63,7 @@ export default class PhoneBookScreen extends Component {
                 });
 
                 this.setState({
-                    users: users.filter(user => user.active === true),
+                    users: users.filter(user => user.active === true).sort((a, b) => a.fullname !== b.fullname ? a.fullname < b.fullname ? -1 : 1 : 0),
                 });
 
                 this.users = users;
@@ -163,7 +163,7 @@ export default class PhoneBookScreen extends Component {
                 <ListItem
                     roundAvatar
                     title={item.fullname}
-                    subtitle={roles.join(", ")}
+                    subtitle={item.roles ? item.roles.join(", ") : ""}
                     avatar={{uri: "https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png"}}
                     onPress={() => this.openUserInfo(item)}
                     containerStyle={{borderBottomWidth: 0}}

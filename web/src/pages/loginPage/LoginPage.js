@@ -14,7 +14,6 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 var sha512 = require('js-sha512');
 
 
-
 class LoginPage extends Component {
 
     constructor(props) {
@@ -34,18 +33,16 @@ class LoginPage extends Component {
     }
 
     componentDidMount() {
-        console.log('compooooo');
         isLoggedIn()
             .then(answer => {
-                console.log('compooooo abs ', answer);
+                console.log('in LoginPage isLoggedIn then ', answer);
                 this.setState({isLoggedIn: answer});
             })
             .catch(answer => {
-                console.log('compooooo err ', answer);
+                console.log('in LoginPage isLoggedIn catch ', answer);
                 this.setState({isLoggedIn: answer});
             });
     }
-
 
 
     validate = (userId, password) => {
@@ -87,7 +84,7 @@ class LoginPage extends Component {
         e.preventDefault();
 
         const {userId, password} = this.state;
-        const {history} = this.props;
+        // const {history} = this.props;
 
         this.setState({error: false});
 
@@ -98,29 +95,18 @@ class LoginPage extends Component {
             this.setState({err: errors});
         } else {
             let hash = sha512.update(this.state.password);
-            serviceProvidersStorage.serviceProviderLogin(this.state.userId,  hash.hex())
+            serviceProvidersStorage.serviceProviderLogin(this.state.userId, hash.hex())
                 .then((response) => {
                     console.log(response);
                     store.set('serviceProviderToken', response.data.token);
-                    serviceProvidersStorage.serviceProviderValidToken(response.data.token)
-                        .then((validTokenResponse) => {
-                            console.log(validTokenResponse);
-                            store.set('serviceProviderId', validTokenResponse.data.payload.serviceProviderId);
-                            store.set('userId', validTokenResponse.data.payload.userId);
-                            console.log("you're logged in. yay!");
-                            this.setState({isLoggedIn: true});
-                            history.push('/home');
-                        })
-                        .catch((error) => {
-                            let msg = mappers.loginPageMapper(error.response.data.message);
-                            this.setState({err: [msg]});
-                            this.setState({error: true});
-                        });
+                    console.log("you're logged in. yay!");
+                    this.setState({isLoggedIn: true});
                 })
-
                 .catch((error) => {
-                    let msg = mappers.loginPageMapper(error.response.data.message);
-                    this.setState({err: [msg]});
+                    if (error.response) {
+                        let msg = mappers.loginPageMapper(error.response.data.message);
+                        this.setState({err: [msg]});
+                    }
                     this.setState({error: true});
                 });
         }

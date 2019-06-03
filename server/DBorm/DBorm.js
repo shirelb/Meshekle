@@ -37,7 +37,11 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: process.dbMode === "dev"? './server/DBorm/sqliteTests.db':'./DBorm/sqlite.db'
+    storage: process.dbMode === "dev" ?
+        './server/DBorm/sqliteTests.db' :
+        process.argv[2] === "feDev" ?
+            './DBorm/sqliteFEtests.db' :
+            './DBorm/sqlite.db'
 });
 
 sequelize
@@ -75,21 +79,15 @@ const Events = EventsModel(sequelize, Sequelize);
 const Logs = LogsModel(sequelize, Sequelize);
 
 
-/*Events.belongsTo(ScheduledAppointments, {
+Events.belongsTo(ScheduledAppointments, {
     foreignKey: 'eventId',
     targetKey: 'appointmentId'
-});*/
+});
 
 Events.belongsTo(Announcements, {
     foreignKey: 'eventId',
     targetKey: 'announcementId'
 });
-
-Users.hasMany(Events, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
-});
-
 
 /*ScheduledAppointments.hasOne(Events, {
     foreignKey: 'eventId',
@@ -101,7 +99,10 @@ Users.hasMany(Events, {
     targetKey: 'userId'
 });*/
 
-
+/*Users.hasMany(Events, {
+    foreignKey: 'userId',
+    targetKey: 'userId'
+});*/
 
 Users.hasMany(AppointmentDetails, {
     foreignKey: 'userId',
@@ -147,46 +148,46 @@ AppointmentRequests.belongsTo(ScheduledAppointments, {
     foreignKey: 'requestId',
     targetKey: 'appointmentId'
 });
-//
+
 Users.hasMany(UsersChoresTypes, {
-    foreignKey: 'userId', 
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 UsersChoresTypes.belongsTo(Users, {
-    foreignKey: 'userId', 
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 Users.hasMany(UsersChores, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 UsersChores.belongsTo(Users, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 
 Users.hasMany(ServiceProviders, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 ServiceProviders.hasOne(Users, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 
 SwapRequests.belongsTo(UsersChores, {
     as: 'choreOfReceiver',
     foreignKey: 'choreIdOfReceiver',
-    targetKey:'userChoreId'
+    targetKey: 'userChoreId'
 });
 SwapRequests.belongsTo(UsersChores, {
-    as:'choreOfSender',
+    as: 'choreOfSender',
     foreignKey: 'choreIdOfSender',
-    targetKey:'userChoreId'
+    targetKey: 'userChoreId'
 });
 
- if (process.dbMode === "dev") {
+if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
             RulesModules.bulkCreate([
@@ -245,10 +246,34 @@ SwapRequests.belongsTo(UsersChores, {
                 })
 
         });
- }
+} else if (process.argv[2] === "feDev") {
+    const fs = require('fs');
+    const csv = require("csvtojson");
+    let promises = [];
+
+    sequelize.sync({force: true})
+        .then(() => {
+            fs.readdir('./DBorm/fakeData', (err, files) => {
+                files.forEach(csvFile => {
+                    promises.push(csv().fromFile('./DBorm/fakeData/' + csvFile));
+                });
+                Promise.all(promises)
+                    .then((jsonArrayObjects) => {
+                        jsonArrayObjects.forEach((jsobObj, index) => {
+                            sequelize.models[files[index].split('.')[1]].bulkCreate(jsobObj)
+                                .then(response =>
+                                    console.log(response)
+                                )
+                                .catch(error =>
+                                    console.log(error)
+                                )
+                        })
+                    })
+            });
+        });
+}
 
 
-    
 module.exports = {
     sequelize,
     Users,
