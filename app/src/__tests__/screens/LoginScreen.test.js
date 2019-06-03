@@ -3,7 +3,6 @@ import React from 'react';
 import {shallow} from "enzyme/build";
 import LoginScreen from "../../screens/loginScreen/LoginScreen";
 import strings from "../../shared/strings";
-import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 import phoneStorage from "react-native-simple-store";
 import users from "../jsons/users";
@@ -17,24 +16,25 @@ describe("LoginScreen should", () => {
     let wrapper = null;
     let componentInstance = null;
     const props = {};
-    const userIdTest = "549963652";
+    const userIdTest = "972350803";
+    const userFullnameTest = "Dion Revance";
     const passwordTest = "Qw345678";
 
     const navigation = {navigate: jest.fn()};
-    usersStorage.getUsers.mockResolvedValue(users);
-    phoneStorage.get.mockImplementation((key) => Promise.resolve(mockStore[key]));
-    phoneStorage.update.mockImplementation((key, value) => Promise.resolve(mockStore[key] = value));
+    usersStorage.getUsers = jest.fn().mockResolvedValue(users);
+    phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
+    phoneStorage.update = jest.fn().mockImplementation((key, value) => Promise.resolve(mockStore[key] = value));
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    test('match snapshot', async () => {
+    it('match snapshot', async () => {
         wrapper = shallow(<LoginScreen/>);
         expect(wrapper).toMatchSnapshot();
     });
 
-    test("render what the user see", async () => {
+    it("render what the user see", async () => {
         wrapper = shallow(<LoginScreen/>);
         componentInstance = wrapper.instance();
 
@@ -56,7 +56,7 @@ describe("LoginScreen should", () => {
         expect(componentInstance.state.password).toEqual('');
     });
 
-    test("handle change of userId", async () => {
+    it("handle change of userId", async () => {
         wrapper = shallow(<LoginScreen/>);
         componentInstance = wrapper.instance();
 
@@ -66,7 +66,7 @@ describe("LoginScreen should", () => {
         expect(componentInstance.state.userId).toEqual(userIdTest);
     });
 
-    test("handle change of password", async () => {
+    it("handle change of password", async () => {
         wrapper = shallow(<LoginScreen/>);
         componentInstance = wrapper.instance();
 
@@ -76,7 +76,7 @@ describe("LoginScreen should", () => {
         expect(componentInstance.state.password).toEqual(passwordTest);
     });
 
-    test("validate userId and password", async () => {
+    it("validate userId and password", async () => {
         wrapper = shallow(<LoginScreen/>);
         componentInstance = wrapper.instance();
 
@@ -117,7 +117,7 @@ describe("LoginScreen should", () => {
         expect(validateResponse.length).toEqual(0);
     });
 
-    test("submit login form with wrong credentials", async () => {
+    it("submit login form with wrong credentials", async () => {
         wrapper = shallow(<LoginScreen/>);
         componentInstance = wrapper.instance();
         const onSubmitPressSpy = jest.spyOn(componentInstance, 'onSubmitPress');
@@ -135,17 +135,17 @@ describe("LoginScreen should", () => {
         expect(wrapper.find('Text').at(2).props().children).toEqual(strings.loginScreenStrings.EMPTY_PASSWORD);
     });
 
-    test("submit login form with right credentials", async () => {
-        usersStorage.userLogin.mockResolvedValue({
+    it("submit login form with right credentials", async () => {
+        usersStorage.userLogin = jest.fn().mockResolvedValue({
             "success": true,
             "message": "Token generated successfully !",
             "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXJ2aWNlUHJvdmlkZXJJZCI6IjU0OTk2MzY1MiIsInVzZXJJZCI6IjU0OTk2MzY1MiIsImlhdCI6MTU1ODYyNjk3MSwiZXhwIjoxNTU4NjYyOTcxfQ.r4oH3N4qvGwRVAFMMRsH5Ls7hC1SQGDme7Gw_bipOc0"
         });
-        usersStorage.userValidToken.mockResolvedValue({
+        usersStorage.userValidToken = jest.fn().mockResolvedValue({
             data: {
                 payload: {
-                    userId: "549963652",
-                    userFullname: "Padget Creaser",
+                    userId: userIdTest,
+                    userFullname: userFullnameTest,
                 }
             }
         });
@@ -158,10 +158,7 @@ describe("LoginScreen should", () => {
         const validateSpy = jest.spyOn(componentInstance, 'validate');
         validateSpy.mockReturnValue([]);
 
-        await wrapper.find('Button').at(0).simulate('click', {
-            preventDefault() {
-            }
-        });
+        await wrapper.find('Button').at(0).props().onPress();
 
         expect(onSubmitPressSpy).toHaveBeenCalled();
 

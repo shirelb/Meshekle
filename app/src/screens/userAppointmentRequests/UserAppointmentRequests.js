@@ -44,16 +44,12 @@ export default class UserAppointmentRequests extends Component {
         APP_SOCKET.off("getUserAppointmentRequests");
     }
 
-    /*    componentWillReceiveProps(nextProps, nextContext) {
-            this.loadMyAppointmentsRequests();
-        }*/
-
     loadMyAppointmentsRequests() {
         appointmentsStorage.getUserAppointmentRequests(this.userId, this.userHeaders)
             .then((response) => {
                 let userAppointmentRequests = response.data;
 
-                console.log('userAppointmentRequests ', userAppointmentRequests);
+                //console.log('userAppointmentRequests ', userAppointmentRequests);
 
                 if (userAppointmentRequests.length === 0) {
                     this.setState({
@@ -64,6 +60,8 @@ export default class UserAppointmentRequests extends Component {
                     userAppointmentRequests.forEach(appointmentRequest => {
                         serviceProvidersStorage.getServiceProviderUserDetails(appointmentRequest.AppointmentDetail.serviceProviderId, this.userHeaders)
                             .then(user => {
+                                console.log('userAppointmentRequests ', user);
+
                                 appointmentRequest.serviceProviderFullname = user.data.fullname;
                                 appointmentRequest.expanded = false;
 
@@ -189,7 +187,7 @@ export default class UserAppointmentRequests extends Component {
                                 <View style={{width: 70 + '%'}}>
                                     <List.Accordion
                                         // title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
-                                        title={item.AppointmentDetail.role}
+                                        title={mappers.serviceProviderRolesMapper(item.AppointmentDetail.role)}
                                         description={item.serviceProviderFullname}
                                         // left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
                                         // left={props => <Icon {...props}

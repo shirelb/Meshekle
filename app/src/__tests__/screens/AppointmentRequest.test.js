@@ -1,175 +1,159 @@
-import React, {Component} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
-import {Icon, List, ListItem, SearchBar} from 'react-native-elements/src/index';
-import phoneStorage from "react-native-simple-store";
-import AppointmentRequestForm from "../../components/appointmentRequest/AppointmentRequestForm";
+import React from 'react';
+
+import {FlatList} from 'react-native';
+import {List} from 'react-native-elements';
+
+import {shallow} from "enzyme/build";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
-import mappers from "../../shared/mappers";
-import strings from "../../shared/strings";
+import users from "../jsons/users";
+import serviceProviders from "../jsons/serviceProviders";
+import AppointmentRequest from "../../screens/appointmentRequest/AppointmentRequest";
+import phoneStorage from "react-native-simple-store";
+
+jest.mock("react-native-simple-store");
+jest.mock("../../storage/usersStorage");
+jest.mock("../../storage/serviceProvidersStorage");
 
 
-export default class AppointmentRequest extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            serviceProviders: [],
-            formModal: false,
-            serviceProviderSelected: {},
-            noServiceProviderFound: false,
-        };
-
-        this.serviceProviders = [];
-        this.requestAppointment = this.requestAppointment.bind(this);
-    }
-
-    componentDidMount() {
-        phoneStorage.get('userData')
-            .then(userData => {
-                // console.log('agenda componentDidMount userData ', userData);
-                this.userHeaders = {
-                    'Authorization': 'Bearer ' + userData.token
-                };
-                this.userId = userData.userId;
-                this.loadServiceProviders();
-            });
-    }
-
-    loadServiceProviders() {
-        serviceProvidersStorage.getServiceProviders(this.userHeaders)
-            .then(serviceProviders => {
-                let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
-
-                appointmentsServiceProviders.forEach(provider => {
-                    provider.role = mappers.serviceProviderRolesMapper(provider.role);
-
-                    usersStorage.getUserById(provider.userId, this.userHeaders)
-                        .then(user => {
-                            provider.fullname = user.data[0].fullname;
-
-                            this.setState({
-                                serviceProviders: appointmentsServiceProviders,
-                            });
-
-                            this.serviceProviders = appointmentsServiceProviders;
-                        })
-                })
-            });
+describe("AppointmentRequest should", () => {
+    let wrapper = null;
+    let componentInstance = null;
+    const props = {};
+    const serviceProviderTest = serviceProviders[41];
+    const mockStore = {
+        userData: {
+            serviceProviderId: "549963652",
+            userId: "549963652",
+            token: "some token"
+        }
     };
-
-    requestAppointment = (serviceProvider) => {
-        this.setState({
-            formModal: true,
-            serviceProviderSelected: serviceProvider
-        });
-        // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
-    };
-
-    closeAppointmentRequestForm = () => {
-        this.setState({
-            formModal: false,
-            serviceProviderSelected: {},
-        });
-        // console.log('pressed on serviceProvider ', this.state.formModal, this.state.serviceProviderSelected);
-    };
-
-    renderSeparator = () => {
-        return (
-            <View
-                style={{
-                    height: 1,
-                    width: "86%",
-                    backgroundColor: "#CED0CE",
-                    marginLeft: "14%"
-                }}
-            />
-        );
-    };
-
-    updateSearch = search => {
-        console.log("in search ", search);
-        // this.setState({search});
-        let searchText = search.toLowerCase();
-        let serviceProviders = this.state.serviceProviders;
-        let filteredByNameOrRole = serviceProviders.filter((item) => {
-            return item.fullname.toLowerCase().match(searchText) || item.role.toLowerCase().match(searchText);
-        });
-        // let filteredByRole = serviceProviders.filter((item) => {
-        //     return item.role.toLowerCase().match(searchText)
-        // });
-        if (!searchText || searchText === '') {
-            this.setState({
-                serviceProviders: this.serviceProviders
-            })
-        } else if (!Array.isArray(filteredByNameOrRole) && !filteredByNameOrRole.length) {
-            // set no data flag to true so as to render flatlist conditionally
-            this.setState({
-                noServiceProviderFound: true
-            })
-        } else if (Array.isArray(filteredByNameOrRole)) {
-            this.setState({
-                noServiceProviderFound: false,
-                serviceProviders: filteredByNameOrRole
-            })
+    const navigation = {
+        navigate: jest.fn(),
+        state: {
+            params: {
+                selectedDate: "2019-06-03"
+            }
         }
     };
 
-    renderHeader = () => {
-        return <SearchBar
-            placeholder="חפש..."
-            lightTheme
-            onChangeText={this.updateSearch.bind(this)}
-            // round
-        />;
-    };
+    phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
+    usersStorage.getUsers = jest.fn().mockImplementation(() => Promise.resolve(users));
+    usersStorage.getUserByUserID = jest.fn().mockImplementation((userId) => Promise.resolve(users.filter(user => user.userId === userId)[0]));
+    serviceProvidersStorage.getServiceProviders = jest.fn().mockImplementation(() => Promise.resolve(serviceProviders));
+    serviceProvidersStorage.getServiceProviderUserDetails = jest.fn().mockImplementation((serviceProviderId) => Promise.resolve({data: users.filter(user => user.userId === serviceProviderId)[0]}));
+    serviceProvidersStorage.getServiceProviderById = jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(serviceProviders.filter(provider =>
+        provider.serviceProviderId === serviceProviderId)));
 
-    renderRow = ({item}) => {
-        return (
-            <ListItem
-                roundAvatar
-                title={mappers.serviceProviderRolesMapper(item.role)}
-                subtitle={item.fullname}
-                // avatar={{uri:item.avatar_url}}
-                onPress={() => this.requestAppointment(item)}
-                containerStyle={{borderBottomWidth: 0}}
-                rightIcon={<Icon name={'chevron-left'}/>}
-            />
-        )
-    };
 
-    render() {
-        return (
-            <View>
-                <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
-                    {this.state.noServiceProviderFound ? <Text>לא נמצאו תוצאות</Text> :
-                        <FlatList
-                            data={this.state.serviceProviders}
-                            renderItem={this.renderRow}
-                            keyExtractor={item => item.serviceProviderId + "-" + item.role}
-                            ItemSeparatorComponent={this.renderSeparator}
-                            ListHeaderComponent={this.renderHeader}
-                        />
-                    }
-                </List>
-                <AppointmentRequestForm
-                    modalVisible={this.state.formModal}
-                    userHeaders={this.userHeaders}
-                    userId={this.userId}
-                    serviceProvider={this.state.serviceProviderSelected}
-                    selectedDate={this.props.navigation.state.params.selectedDate}
-                    closeAppointmentRequestForm={this.closeAppointmentRequestForm}
-                />
-            </View>
-        );
-    }
-}
+    beforeAll(async (done) => {
+    });
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
+    afterAll(() => {
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    afterEach(() => {
+    });
+
+    it('match snapshot', async () => {
+        wrapper = shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    it("mounted with the right data", async (done) => {
+        wrapper = await mount(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        // await componentInstance.loadServiceProviders();
+        await wrapper.update();
+        // await usersStorage.getUserById();
+
+        // await new Promise(resolve => setImmediate(resolve));
+
+        setTimeout(function () {
+            // process.nextTick(() => {
+            // setImmediate(() => {
+            try {
+            expect(componentInstance.state.serviceProviders.length).toEqual(400);
+            expect(componentInstance.state.formModal).toEqual(false);
+            expect(componentInstance.state.serviceProviderSelected).toEqual({});
+            expect(componentInstance.state.noServiceProviderFound).toEqual(false);
+            // });
+                done()
+            } catch (e) {
+                done.fail(e)
+            }
+        }, 100);
+    });
+
+    it("render with what the user see", async () => {
+        wrapper = shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        expect(wrapper.find(List)).toHaveLength(1);
+        expect(wrapper.find('AppointmentRequestForm')).toHaveLength(1);
+        expect(wrapper.find(FlatList)).toHaveLength(1);
+    });
+
+    it("search for serviceProviders with name that has ra", async () => {
+        wrapper = await shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        await wrapper.update();
+
+        const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
+
+        await componentInstance.updateSearch('ra');
+
+        expect(updateSearchSpy).toHaveBeenCalled();
+        expect(componentInstance.state.serviceProviders.length).toEqual(1000);
+    });
+
+    it("search for serviceProviders with role מספרה", async () => {
+        wrapper = await shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        await wrapper.update();
+
+        const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
+
+        await componentInstance.updateSearch('מספרה');
+
+        expect(updateSearchSpy).toHaveBeenCalled();
+        expect(componentInstance.state.serviceProviders.length).toEqual(1000);
+    });
+
+    it("open AppointmentRequestForm on click serviceProvider", async () => {
+        wrapper = shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        const requestAppointmentSpy = jest.spyOn(componentInstance, 'requestAppointment');
+
+        componentInstance.requestAppointment(serviceProviderTest);
+
+        expect(requestAppointmentSpy).toHaveBeenCalled();
+        expect(requestAppointmentSpy).toHaveBeenCalledWith(serviceProviderTest);
+        expect(componentInstance.state.formModal).toEqual(true);
+        expect(componentInstance.state.serviceProviderSelected).toEqual(serviceProviderTest);
+    });
+
+    it("close AppointmentRequestForm", async () => {
+        wrapper = shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+
+        const closeAppointmentRequestFormSpy = jest.spyOn(componentInstance, 'closeAppointmentRequestForm');
+
+        componentInstance.closeAppointmentRequestForm();
+
+        expect(closeAppointmentRequestFormSpy).toHaveBeenCalled();
+        expect(componentInstance.state.formModal).toEqual(false);
+        expect(componentInstance.state.serviceProviderSelected).toEqual({});
+    });
+
 });
-

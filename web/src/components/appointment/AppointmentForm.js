@@ -67,11 +67,11 @@ class AppointmentForm extends Component {
                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
                     remarks: appointmentRequestEvent.appointmentRequest.notes,
                     role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
-                        // Object.keys(strings.roles).find(role =>
-                        // strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role) === undefined ?
-                        // strings.roles[appointmentRequestEvent.appointmentRequest.AppointmentDetail.role]
-                        // :
-                        // Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
+                    // Object.keys(strings.roles).find(role =>
+                    // strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role) === undefined ?
+                    // strings.roles[appointmentRequestEvent.appointmentRequest.AppointmentDetail.role]
+                    // :
+                    // Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
                 },
                 appointmentRequestEvent: appointmentRequestEvent,
                 subjectOptions: [],
@@ -169,8 +169,7 @@ class AppointmentForm extends Component {
         }
     }
 
-    handleChange(e) {
-        const {name, value} = e.target;
+    handleChange(e,{name, value}) {
         const {appointment} = this.state;
 
         this.setState({formError: false, formComplete: false});

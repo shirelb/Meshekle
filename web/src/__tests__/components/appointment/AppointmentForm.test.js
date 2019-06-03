@@ -266,12 +266,13 @@ describe("AppointmentForm should", () => {
         wrapper = arrResponse[0];
         componentInstance = arrResponse[1];
 
-        await wrapper.find('AppointmentForm').find('FormField').at(3).props().onChange({
-            target: {
+        await wrapper.find('AppointmentForm').find('FormField').at(3).props().onChange(
+            {},
+            {
                 name: 'remarks',
                 value: 'this is the remarks'
-            },
-        });
+            }
+        );
 
         expect(handleChangeSpy).toHaveBeenCalled();
         expect(handleChangeSpy.mock.instances[0].state.appointment.remarks).toEqual('this is the remarks');

@@ -1,262 +1,168 @@
-import React, {Component} from 'react';
-import {Button, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
-import {List} from "react-native-paper";
-import phoneStorage from "react-native-simple-store";
-import appointmentsStorage from "../../storage/appointmentsStorage";
+import React from 'react';
+
+import {FlatList} from 'react-native';
+
+import {shallow} from "enzyme/build";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
-import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
-import {APP_SOCKET} from "../../shared/constants";
-import {Icon, SearchBar} from "react-native-elements";
-import mappers from "../../shared/mappers";
+import usersStorage from "../../storage/usersStorage";
+import user013637605AppointmentRequests from "../jsons/user013637605AppointmentRequests";
+import users from "../jsons/users";
+import serviceProviders from "../jsons/serviceProviders";
+import UserAppointmentRequests from "../../screens/userAppointmentRequests/UserAppointmentRequests";
+import phoneStorage from "react-native-simple-store";
+import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
+import appointmentsStorage from "../../storage/appointmentsStorage";
 
 
-export default class UserAppointmentRequests extends Component {
-    constructor(props) {
-        super(props);
+jest.mock("react-native-simple-store");
+jest.mock("../../storage/usersStorage");
+jest.mock("../../storage/serviceProvidersStorage");
+jest.mock("../../storage/appointmentsStorage");
 
-        this.state = {
-            userAppointmentRequests: [],
-            appointmentRequestSelected: {},
-            formModal: false,
-            infoModal: false,
-            appointmentRequestDetails: {},
-            noAppointmentRequestsFound: false,
-            refreshing: false,
-        };
 
-    }
+var scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout;
 
-    componentDidMount() {
-        phoneStorage.get('userData')
-            .then(userData => {
-                // console.log('agenda componentDidMount userData ', userData);
-                this.userHeaders = {
-                    'Authorization': 'Bearer ' + userData.token
-                };
-                this.userId = userData.userId;
-                this.loadMyAppointmentsRequests();
-            });
+const flushPromises = function () {
+    return new Promise(function (resolve) {
+        scheduler(resolve);
+    });
+};
 
-        APP_SOCKET.on("getUserAppointmentRequests", this.loadMyAppointmentsRequests.bind(this));
-    }
+const flushAllPromises = () => new Promise(resolve => setImmediate(resolve()));
 
-    componentWillUnmount() {
-        APP_SOCKET.off("getUserAppointmentRequests");
-    }
 
-    /*    componentWillReceiveProps(nextProps, nextContext) {
-            this.loadMyAppointmentsRequests();
-        }*/
-
-    loadMyAppointmentsRequests() {
-        appointmentsStorage.getUserAppointmentRequests(this.userId, this.userHeaders)
-            .then((response) => {
-                let userAppointmentRequests = response.data;
-
-                console.log('userAppointmentRequests ', userAppointmentRequests);
-
-                if (userAppointmentRequests.length === 0) {
-                    this.setState({
-                        userAppointmentRequests: userAppointmentRequests,
-                    });
-                    this.userAppointmentRequests = userAppointmentRequests
-                } else
-                    userAppointmentRequests.forEach(appointmentRequest => {
-                        serviceProvidersStorage.getServiceProviderUserDetails(appointmentRequest.AppointmentDetail.serviceProviderId, this.userHeaders)
-                            .then(user => {
-                                appointmentRequest.serviceProviderFullname = user.data.fullname;
-                                appointmentRequest.expanded = false;
-
-                                this.setState({
-                                    userAppointmentRequests: userAppointmentRequests,
-                                });
-
-                                this.userAppointmentRequests = userAppointmentRequests
-                            })
-                    });
-
-                this.setState({refreshing: false});
-            })
-            .catch(err => console.log("loadMyAppointmentsRequests error ", err))
-    };
-
-    renderSeparator = () => {
-        return (
-            <View
-                style={{
-                    height: 1,
-                    width: "86%",
-                    backgroundColor: "#CED0CE",
-                    marginLeft: "14%"
-                }}
-            />
-        );
-    };
-
-    updateSearch = search => {
-        console.log("in search ", search);
-        // this.setState({search});
-        let searchText = search.toLowerCase();
-        let userAppointmentRequests = this.state.userAppointmentRequests;
-        let filteredByNameOrRole = userAppointmentRequests.filter((item) => {
-            return item.serviceProviderFullname.toLowerCase().match(searchText) || item.AppointmentDetail.role.toLowerCase().match(searchText);
-        });
-        // let filteredByRole = userAppointmentRequests.filter((item) => {
-        //     return item.role.toLowerCase().match(searchText)
-        // });
-        if (!searchText || searchText === '') {
-            this.setState({
-                userAppointmentRequests: this.userAppointmentRequests
-            })
-        } else if (!Array.isArray(filteredByNameOrRole) && !filteredByNameOrRole.length) {
-            // set no data flag to true so as to render flatlist conditionally
-            this.setState({
-                noAppointmentRequestsFound: true
-            })
-        } else if (Array.isArray(filteredByNameOrRole)) {
-            this.setState({
-                noAppointmentRequestsFound: false,
-                userAppointmentRequests: filteredByNameOrRole
-            })
+describe("UserAppointmentRequests should", () => {
+    let wrapper = null;
+    let componentInstance = null;
+    const props = {};
+    const userTest = users[698];
+    const mockStore = {
+        userData: {
+            serviceProviderId: "549963652",
+            userId: "549963652",
+            token: "some token"
         }
     };
 
-    cancelAppointmentRequest = (appointmentRequest) => {
-        appointmentsStorage.cancelAppointmentRequestById(appointmentRequest, this.userHeaders)
-            .then(response => {
-                console.log("user cancelAppointmentRequest ", response);
-                this.loadMyAppointmentsRequests();
-            })
-    };
+    phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
+    usersStorage.getUsers = jest.fn().mockImplementation(() => Promise.resolve(users));
+    usersStorage.getUserByUserID = jest.fn().mockImplementation((userId) => Promise.resolve(users.filter(user => user.userId === userId)[0]));
+    serviceProvidersStorage.getServiceProviders = jest.fn().mockResolvedValue(serviceProviders);
+    serviceProvidersStorage.getServiceProviderUserDetails= jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(
+        {data: users.filter(user => user.userId === serviceProviderId)[0]}));
+    serviceProvidersStorage.getServiceProviderById = jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(serviceProviders.filter(provider =>
+        provider.serviceProviderId === serviceProviderId)));
+    appointmentsStorage.getUserAppointmentRequests = jest.fn().mockResolvedValue({data: user013637605AppointmentRequests});
 
-    onRefresh = () => {
-        this.setState({refreshing: true});
+    beforeAll(async (done) => {
 
-        this.loadMyAppointmentsRequests();
-    };
+        done();
+    });
 
-    closeAppointmentRequestInfo = () => {
-        this.setState({
-            appointmentRequestDetails: {},
-            infoModal: false,
-        })
-    };
+    afterAll(() => {
+    });
 
-    render() {
-        return (
-            <ScrollView refreshControl={
-                <RefreshControl
-                    refreshing={this.state.refreshing}
-                    onRefresh={this.onRefresh}
-                />
-            }>
-                <Button
-                    title="בקש תור חדש"
-                    onPress={() => {
-                        this.props.navigation.state.params.onAppointmentRequestPress();
-                    }}
-                />
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-                <SearchBar
-                    placeholder="חפש..."
-                    lightTheme
-                    onChangeText={this.updateSearch.bind(this)}
-                    // round
-                />
+    afterEach(() => {
+    });
 
-                {/*{this.state.noAppointmentRequestsFound ?*/}
-                {this.state.userAppointmentRequests.length === 0 ?
-                    <Text>אין לך בקשות תורים</Text>
-                    :
-                    <List.Section>
-                        {Array.isArray(this.state.userAppointmentRequests) &&
-                        this.state.userAppointmentRequests.map((item) => {
-                            return <View key={item.requestId} style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                                justifyContent: 'flex-start',
-                                alignItems: 'center',
-                            }}>
-                                <View style={{width: 30 + '%'}}>
-                                    <Icon
-                                        name="delete-forever"
-                                        color={'red'}
-                                        // containerStyle={{marginLeft: 10}}
-                                        // raised
-                                        onPress={() => this.cancelAppointmentRequest(item)}
-                                    />
-                                </View>
-                                <View style={{width: 70 + '%'}}>
-                                    <List.Accordion
-                                        // title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
-                                        title={item.AppointmentDetail.role}
-                                        description={item.serviceProviderFullname}
-                                        // left={props => <List.Icon {...props} icon="perm-contact-calendar"/>}
-                                        // left={props => <Icon {...props}
-                                        //                      name="delete-forever"
-                                        //                      color={'red'}
-                                        //                      containerStyle={{marginLeft: 10}}
-                                        //                      raised
-                                        //
-                                        //                      onPress={() => this.cancelAppointmentRequest(item)}/>}
-                                        // style={{marginLeft: 10, width: 100+"%",}}
-                                        expanded={item.expanded}
-                                        onPress={() => {
-                                            // let expanded = this.state.expanded;
-                                            // expanded[item.date] = !expanded[item.date];
-                                            // this.setState({expanded: expanded})
-                                            let appointmentRequestSelected = item;
-                                            appointmentRequestSelected.expanded = !appointmentRequestSelected.expanded;
-                                            this.setState({
-                                                appointmentRequestSelected: appointmentRequestSelected,
-                                                appointmentRequestDetails: {}
-                                            })
-                                        }}
-                                    >
-                                        <List.Item
-                                            // key={item.requestId+'0'}
-                                            title={"סטאטוס: " + mappers.appointmentRequestStatusMapper(item.status)}
-                                            // description={item.notes + ' \n ' + item.optionalTimes.toString()}
-                                            containerStyle={{borderBottomWidth: 0}}
-                                            // onPress={() => console.log("item was presssed!!  ", item)}
-                                        />
-                                        <List.Item
-                                            // key={item.requestId+'1'}
-                                            title={"נושא: " + JSON.parse(item.AppointmentDetail.subject).join(", ")}
-                                            // description={item.notes + ' \n ' + item.optionalTimes.toString()}
-                                            description={"לפרטים נוספים הקש כאן"}
-                                            containerStyle={{borderBottomWidth: 0}}
-                                            onPress={() => {
-                                                this.setState({appointmentRequestDetails: item, infoModal: true})
-                                            }}
-                                        />
-                                    </List.Accordion>
-                                </View>
-                            </View>
-                        })
-                        }
-                    </List.Section>
-                }
+    it('match snapshot', async () => {
+        wrapper = await shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
 
-                {this.state.appointmentRequestDetails.requestId ?
-                    <AppointmentRequestInfo
-                        appointmentRequest={this.state.appointmentRequestDetails}
-                        modalVisible={this.state.infoModal}
-                        cancelAppointmentRequest={this.cancelAppointmentRequest}
-                        closeAppointmentRequestInfo={this.closeAppointmentRequestInfo}
-                    />
-                    : null
-                }
-            </ScrollView>
-        );
-    }
-}
+        await wrapper.update();
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    it("mounted with the right data", async () => {
+        wrapper = await shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
+
+        // await flushAllPromises();
+        await wrapper.update();
+        await flushAllPromises();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+
+        expect(componentInstance.state.userAppointmentRequests.length).toEqual(2);
+        expect(componentInstance.state.formModal).toEqual(false);
+        expect(componentInstance.state.infoModal).toEqual(false);
+        expect(componentInstance.state.appointmentRequestSelected).toEqual({});
+        expect(componentInstance.state.appointmentRequestDetails).toEqual({});
+        expect(componentInstance.state.noAppointmentRequestsFound).toEqual(false);
+    });
+
+    it("render with what the user see", async () => {
+        wrapper = shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
+
+        expect(wrapper.find(UserProfileInfo)).toHaveLength(1);
+        expect(wrapper.find(FlatList)).toHaveLength(1);
+        expect(wrapper.find('Button')).toHaveLength(1);
+        expect(wrapper.find('Button').props().title).toEqual('בקש תור חדש');
+        expect(wrapper.find('SearchBar')).toHaveLength(1);
+        expect(wrapper.find('SearchBar').props().placeholder).toEqual("חפש...");
+        expect(wrapper.find('Text')).toHaveLength(0);
+        expect(wrapper.find('ListSection')).toHaveLength(1);
+        expect(wrapper.find('ListAccordion')).toHaveLength(2);
+        expect(wrapper.find('ListItem')).toHaveLength(4);
+        expect(wrapper.find('AppointmentRequestInfo')).toHaveLength(0);
+    });
+
+    it("search for appointment requests with service provider with name that has ra", async () => {
+        wrapper = await shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
+
+        await wrapper.update();
+        const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
+
+        await componentInstance.updateSearch('ra');
+
+        expect(updateSearchSpy).toHaveBeenCalled();
+        expect(componentInstance.state.userAppointmentRequests.length).toEqual(39);
+    });
+
+    it("search for appointment requests with service provider with role מספרה", async () => {
+        wrapper = await shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
+
+        await wrapper.update();
+
+        const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
+
+        await componentInstance.updateSearch('מספרה');
+
+        expect(updateSearchSpy).toHaveBeenCalled();
+        expect(componentInstance.state.userAppointmentRequests.length).toEqual(39);
+    });
+
+    it("cancel Appointment Request on click erase icon", async () => {
+        wrapper = shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
+
+        const cancelAppointmentRequestSpy = jest.spyOn(componentInstance, 'cancelAppointmentRequest');
+
+        componentInstance.cancelAppointmentRequest(userTest);
+
+        expect(cancelAppointmentRequestSpy).toHaveBeenCalled();
+        expect(cancelAppointmentRequestSpy).toHaveBeenCalledWith(userTest);
+    });
+
+    it("close Appointment Request Info", async () => {
+        wrapper = shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
+
+        const closeAppointmentRequestInfoSpy = jest.spyOn(componentInstance, 'closeAppointmentRequestInfo');
+
+        componentInstance.closeAppointmentRequestInfo(userTest);
+
+        expect(closeAppointmentRequestInfoSpy).toHaveBeenCalled();
+        expect(componentInstance.state.infoModal).toEqual(false);
+        expect(componentInstance.state.appointmentRequestDetails).toEqual({});
+    });
+
 });
-

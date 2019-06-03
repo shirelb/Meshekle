@@ -132,7 +132,7 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'insert-invitation'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                        // badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
                     <ListItem
                         // roundAvatar
@@ -143,7 +143,7 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'transfer-within-a-station'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                        // badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
                     <ListItem
                         // roundAvatar
@@ -154,7 +154,7 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'contacts'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                        // badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
                     <ListItem
                         // roundAvatar
@@ -165,7 +165,7 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'insert-comment'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        badge={{value: 3, textStyle: {color: 'orange'}}}
+                        // badge={{value: 3, textStyle: {color: 'orange'}}}
                     />
                     <ListItem
                         // roundAvatar

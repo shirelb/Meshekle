@@ -1,330 +1,226 @@
-import React, {Component} from 'react';
-import {Alert, ScrollView, StyleSheet, TextInput, View} from "react-native";
-import {FormLabel, FormValidationMessage, Text} from "react-native-elements";
-import DateTimePicker from 'react-native-modal-datetime-picker';
-import Button from "../../components/submitButton/Button";
+import React from 'react';
+
 import moment from 'moment';
+
+import {ScrollView, TextInput} from "react-native";
+import Button from "../../components/submitButton/Button";
+import {FormLabel, FormValidationMessage, Text} from "react-native-elements";
+
+import {shallow} from "enzyme/build";
+
+import ForgotPasswordScreen from "../../screens/forgotPasswordScreen/ForgotPasswordScreen";
 import usersStorage from "../../storage/usersStorage";
-import colors from "../../shared/colors";
+import phoneStorage from "react-native-simple-store";
+import users from "../jsons/users";
+
+jest.mock("../../storage/serviceProvidersStorage");
+jest.mock("../../storage/usersStorage");
+jest.mock("react-native-simple-store");
 
 
-export default class ForgotPasswordScreen extends Component {
-    constructor(props) {
-        super(props);
+describe("ForgotPasswordScreen should", () => {
+    let wrapper = null;
+    let componentInstance = null;
+    const props = {};
+    const userTest = users[2];
+    const userIdTest = "972350803";
+    const userFullnameTest = "Dion Revance";
 
-        this.state = {
-            user: {},
-
-            errorMsg: '',
-            errorVisible: true
-        };
-    }
-
-    // componentWillReceiveProps(nextProps, nextContext) {
-    //     this.setState({
-    //         isDateTimePickerVisible: false,
-    //         errorMsg: '',
-    //         errorVisible: true
-    //     });
-    // }
-
-    validateForm = () => {
-        let user = this.state.user;
-        if (user.userId === '' || !(/^\d*$/.test(user.userId))) {
-            this.setState({
-                formError: true,
-                errorMsg: "ת.ז. חסר וצריך להכיל רק ספרות",
-                errorVisible: true
-            });
-            return false;
+    const mockStore = {
+        userData: {
+            token: "some token",
+            userId: userIdTest,
+            userFullname: userFullnameTest,
         }
-
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
-            this.setState({
-                formError: true,
-                errorMsg: "אימייל חסר או לא וואלידי",
-                errorVisible: true
-            });
-            return false;
-        }
-
-        if (!user.mailbox || !(/^\d*$/.test(user.mailbox))) {
-            this.setState({
-                formError: true,
-                errorMsg: "תיבת דואר חסרה וצריכה להכיל רק ספרות",
-                errorVisible: true
-            });
-            return false;
-        }
-
-        if (!user.cellphone && !user.phone) {
-            this.setState({
-                formError: true,
-                errorMsg: "עלייך למלא פלאפון או טלפון",
-                errorVisible: true
-            });
-            return false;
-        }
-
-        if (user.cellphone & !(/^\d*$/.test(user.cellphone))) {
-            this.setState({
-                formError: true,
-                errorMsg: "הפלאפון לא וואלידי",
-                errorVisible: true
-            });
-            return false;
-        }
-
-        if (user.phone & !(/^\d*$/.test(user.phone))) {
-            this.setState({
-                formError: true,
-                errorMsg: "הטלפון לא וואלידי",
-                errorVisible: true
-            });
-            return false;
-        }
-
-        if (!user.bornDate ||  user.bornDate === null) {
-            this.setState({
-                formError: true,
-                errorMsg: "תאריך הלידה חסר",
-                errorVisible: true
-            });
-            return false;
-        }
-
-        return true;
-    }
-
-    handleForgetPassword = (e) => {
-        if (!this.validateForm()) {
-            return;
-        }
-
-        usersStorage.forgetPassword(this.state.user)
-            .then(response => {
-                console.log('forgetPassword response ', response);
-                if (!response) {
-                    this.setState({showError: true});
-                }
-                else {
-                    Alert.alert(
-                        'התראה',
-                        'במידה והפרטים נכונים תישלח אלייך סיסמא חדשה למייל. בבקשה לשנות אותה ברגע כניסה לאפליקציה',
-                    );
-                    this.props.navigation.navigate('LoginScreen');
-                }
-            })
-            .catch(response => {
-                this.setState({showError: true});
-            })
     };
 
+    const navigation = {navigate: jest.fn()};
+    usersStorage.getUsers = jest.fn().mockResolvedValue(users);
+    phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
+    phoneStorage.update = jest.fn().mockImplementation((key, value) => Promise.resolve(mockStore[key] = value));
 
-    render() {
-        let user = this.state.user;
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-        return (
-            <View style={{marginTop: 20}}>
-                <ScrollView>
+    xit('match snapshot', async () => {
+        wrapper = shallow(<ForgotPasswordScreen/>);
+        expect(wrapper).toMatchSnapshot();
+    });
 
-                    <Text h4 style={styles.textTitle}>שכחתי סיסמא</Text>
+    it("render what the user see", async () => {
+        wrapper = shallow(<ForgotPasswordScreen/>);
+        componentInstance = wrapper.instance();
 
+        expect(wrapper.find(ScrollView)).toHaveLength(1);
+        expect(wrapper.find(Text)).toHaveLength(1);
+        expect(wrapper.find(Text).props().children).toEqual("שכחתי סיסמא");
+        expect(wrapper.find('FormLabel')).toHaveLength(6);
+        expect(wrapper.find('FormLabel').at(0).props().children).toEqual('*ת.ז.');
+        expect(wrapper.find('FormLabel').at(1).props().children).toEqual('*אימייל');
+        expect(wrapper.find('FormLabel').at(2).props().children).toEqual(' תיבת דואר');
+        expect(wrapper.find('FormLabel').at(3).props().children).toEqual('פלאפון');
+        expect(wrapper.find('FormLabel').at(4).props().children).toEqual(' טלפון');
+        expect(wrapper.find('FormLabel').at(5).props().children).toEqual(' תאריך לידה');
+        expect(wrapper.find('TextInput')).toHaveLength(6);
+        expect(wrapper.find('TextInput').at(0).props().value).toBeUndefined();
+        expect(wrapper.find('TextInput').at(1).props().value).toBeUndefined();
+        expect(wrapper.find('TextInput').at(2).props().value).toEqual('');
+        expect(wrapper.find('TextInput').at(3).props().value).toBeUndefined();
+        expect(wrapper.find('TextInput').at(4).props().value).toBeUndefined();
+        expect(wrapper.find('TextInput').at(5).props().value).toEqual('');
+        expect(wrapper.find('Button')).toHaveLength(2);
+        expect(wrapper.find('Button').at(0).props().label).toEqual('שחזר סיסמא');
+        expect(wrapper.find('Button').at(1).props().label).toEqual('חזור');
 
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
-                        <FormLabel labelStyle={styles.formText}>*ת.ז.</FormLabel>
-                        <TextInput
-                            value={user.userId}
-                            // placeholder={user.email}
-                            onChangeText={(text) => this.setState({
-                                user: {
-                                    ...this.state.user,
-                                    userId: text
-                                }
-                            })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
-                            underlineColorAndroid="#4aba91"
-                            style={styles.textInput}
-                            // autoComplete={"email"}
-                            keyboardType={"number-pad"}
-                            // textContentType={'emailAddress'}
-                        />
-                    </View>
+        expect(componentInstance.state.user).toEqual({});
+        expect(componentInstance.state.errorMsg).toEqual('');
+        expect(componentInstance.state.errorVisible).toEqual(false);
+    });
 
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
-                        <FormLabel labelStyle={styles.formText}>*אימייל</FormLabel>
-                        <TextInput
-                            value={user.email}
-                            // placeholder={user.email}
-                            onChangeText={(text) => this.setState({
-                                user: {
-                                    ...this.state.user,
-                                    email: text
-                                }
-                            })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
-                            underlineColorAndroid="#4aba91"
-                            style={styles.textInput}
-                            autoComplete={"email"}
-                            keyboardType={"email-address"}
-                            textContentType={'emailAddress'}
-                        />
-                    </View>
+    it("handle change of userId", async () => {
+        wrapper = shallow(<ForgotPasswordScreen/>);
+        componentInstance = wrapper.instance();
 
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
-                        <FormLabel labelStyle={styles.formText}> תיבת דואר</FormLabel>
-                        <TextInput
-                            value={user.mailbox ? user.mailbox.toString() : ""}
-                            // placeholder={user.mailbox ? user.mailbox.toString() : ""}
-                            onChangeText={(text) => this.setState({
-                                user: {
-                                    ...this.state.user,
-                                    mailbox: text
-                                }
-                            })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
-                            underlineColorAndroid="#4aba91"
-                            style={styles.textInput}
-                            keyboardType={"number-pad"}
-                        />
-                    </View>
+        await wrapper.find('TextInput').at(0).props().onChangeText(userIdTest);
+        expect(componentInstance.state.user.userId).toEqual(userIdTest);
+    });
 
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
-                        <FormLabel labelStyle={styles.formText}>פלאפון</FormLabel>
-                        <TextInput
-                            value={user.cellphone}
-                            // placeholder={user.cellphone}
-                            onChangeText={(text) => this.setState({
-                                user: {
-                                    ...this.state.user,
-                                    cellphone: text
-                                }
-                            })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
-                            underlineColorAndroid="#4aba91"
-                            style={styles.textInput}
-                            autoComplete={"tel"}
-                            keyboardType={"phone-pad"}
-                            textContentType={'telephoneNumber'}
-                        />
-                    </View>
+    it("handle change of email", async () => {
+        wrapper = shallow(<ForgotPasswordScreen/>);
+        componentInstance = wrapper.instance();
 
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between',}}>
-                        <FormLabel labelStyle={styles.formText}> טלפון</FormLabel>
-                        <TextInput
-                            value={user.phone}
-                            // placeholder={user.phone}
-                            onChangeText={(text) => this.setState({
-                                user: {
-                                    ...this.state.user,
-                                    phone: text
-                                }
-                            })}
-                            onFocus={() => this.setState({errorVisible: false,showError:false})}
-                            underlineColorAndroid="#4aba91"
-                            style={styles.textInput}
-                            autoComplete={"tel"}
-                            keyboardType={"phone-pad"}
-                            textContentType={'telephoneNumber'}
-                        />
-                    </View>
+        await wrapper.find('TextInput').at(1).props().onChangeText(userTest.email);
+        expect(componentInstance.state.user.email).toEqual(userTest.email);
+    });
 
-                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start',}}>
-                        <FormLabel labelStyle={styles.formText}> תאריך לידה</FormLabel>
-                        <TextInput
-                            value={user.bornDate ? moment(user.bornDate).format("DD/MM/YYYY") : ""}
-                            // placeholder={moment(user.bornDate).format("DD/MM/YYYY")}
-                            onFocus={() => this.setState({errorVisible: false, isDateTimePickerVisible: true,showError:false})}
-                            underlineColorAndroid="#4aba91"
-                            style={styles.textInput}
-                        />
-                        <DateTimePicker
-                            isVisible={this.state.isDateTimePickerVisible}
-                            onConfirm={(date) => this.setState({
-                                user: {
-                                    ...this.state.user,
-                                    bornDate: moment(date).format()
-                                },
-                                isDateTimePickerVisible: false
-                            })}
-                            onCancel={() => this.setState({isDateTimePickerVisible: false})}
-                            is24Hour={true}
-                            mode={'date'}
-                            datePickerModeAndroid={'spinner'}
-                            title='תאריך לידה'
-                        />
-                    </View>
+    it("validate form of forgot password", async () => {
+        wrapper = shallow(<ForgotPasswordScreen/>);
+        componentInstance = wrapper.instance();
 
-                    {
-                        this.state.errorVisible === true ?
-                            <FormValidationMessage>{this.state.errorMsg}</FormValidationMessage>
-                            : null
-                    }
+        componentInstance.setState({
+            user: {
+                "userId": "972350d803",
+            }
+        });
+        let validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(false);
+        expect(componentInstance.state.errorMsg).toEqual("ת.ז. חסר וצריך להכיל רק ספרות");
+        expect(componentInstance.state.errorVisible).toEqual(true);
 
-                    <View style={{marginTop: 20}}>
-                        <Button
-                            label='שחזר סיסמא'
-                            onPress={this.handleForgetPassword}
-                        />
+        componentInstance.setState({
+            user: {
+                "userId": userIdTest,
+                "email": "972350d803",
+            }
+        });
+        validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(false);
+        expect(componentInstance.state.errorMsg).toEqual("אימייל חסר או לא וואלידי");
+        expect(componentInstance.state.errorVisible).toEqual(true);
 
-                        <Button
-                            label='חזור'
-                            onPress={() => {
-                                this.props.navigation.navigate('LoginScreen');
-                            }}
-                        />
-                    </View>
+        componentInstance.setState({
+            user: {
+                "userId": userIdTest,
+                email: userTest.email,
+                "mailbox": "972350d803",
+            }
+        });
+        validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(false);
+        expect(componentInstance.state.errorMsg).toEqual("תיבת דואר חסרה וצריכה להכיל רק ספרות");
+        expect(componentInstance.state.errorVisible).toEqual(true);
 
-                    {this.state.showError ?
-                        <View>
-                            <Text style={styles.errorText}>
-                                ישנם פרטים שאינם נכונים לפי המידע השמור במערכת או שהמשתמש אינו קיים
-                            </Text>
-                        </View>
-                        : null
-                    }
+        componentInstance.setState({
+            user: {
+                "userId": userIdTest,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+            }
+        });
+        validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(false);
+        expect(componentInstance.state.errorMsg).toEqual("עלייך למלא פלאפון או טלפון");
+        expect(componentInstance.state.errorVisible).toEqual(true);
 
-                </ScrollView>
-            </View>
-        );
-    }
-}
+        componentInstance.setState({
+            user: {
+                "userId": userIdTest,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+                "phone": "dddddd",
+            }
+        });
+        validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(false);
+        expect(componentInstance.state.errorMsg).toEqual("הטלפון לא וואלידי");
+        expect(componentInstance.state.errorVisible).toEqual(true);
 
-const styles = StyleSheet.create({
-    errorText: {
-        textAlign: 'center',
-        color: colors.TORCH_RED,
-    },
+        componentInstance.setState({
+            user: {
+                "userId": userIdTest,
+                email: userTest.email,
+                mailbox: userTest.mailbox,
+                phone: userTest.phone,
+                "bornDate": null,
+            }
+        });
+        validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(false);
+        expect(componentInstance.state.errorMsg).toEqual("תאריך הלידה חסר");
+        expect(componentInstance.state.errorVisible).toEqual(true);
 
-    textTitle: {
-        textAlign: 'center',
-        color: '#050505',
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
+        componentInstance.setState({
+            errorMsg: "",
+            errorVisible: false,
+            user: {
+                "userId": "972350803",
+                "email": "drevance2@google.fr",
+                "mailbox": 3,
+                "cellphone": "0538274431",
+                "phone": "041748647",
+                "bornDate": moment("1966-07-30T10:19:42.000Z"),
+            }
+        });
+        validateFormResponse = componentInstance.validateForm();
+        expect(validateFormResponse).toEqual(true);
+        expect(componentInstance.state.errorMsg).toEqual("");
+        expect(componentInstance.state.errorVisible).toEqual(false);
 
-    formText: {
-        fontSize: 16
-    },
+    });
 
-    formInputContainer: {
-        borderBottomWidth: 1,
-        width: 180,
-        marginRight: 40,
-    },
+    it("submit forgot password form with wrong data", async () => {
+        wrapper = shallow(<ForgotPasswordScreen/>);
+        componentInstance = wrapper.instance();
+        const handleForgetPasswordSpy = jest.spyOn(componentInstance, 'handleForgetPassword');
 
-    textInput: {
-        height: 50,
-        width: 200,
-        // borderRadius: 10 ,
-        // borderWidth: 2,
-        // borderColor: '#009688',
-        backgroundColor: "#FFF",
-        // marginBottom: 10,
-        // color: '#bbbbbb',
-        fontSize: 16,
-        // textAlign: 'center',
-        marginLeft: 20,
-        marginRight: 20,
-    }
+        await componentInstance.setState({user: {userId: "7j"}});
+        await wrapper.find('Button').at(0).props().onPress();
+
+        expect(handleForgetPasswordSpy).toHaveBeenCalled();
+        expect(componentInstance.state.errorMsg).toEqual("ת.ז. חסר וצריך להכיל רק ספרות");
+        expect(componentInstance.state.errorVisible).toEqual(true);
+        expect(wrapper.find('FormValidationMessage')).toHaveLength(1);
+        expect(wrapper.find('FormValidationMessage').props().children).toEqual("ת.ז. חסר וצריך להכיל רק ספרות");
+    });
+
+    it("submit forgot password form with right data", async () => {
+        usersStorage.forgetPassword = jest.fn().mockResolvedValue('response of usersStorage forgot password');
+
+        wrapper = shallow(<ForgotPasswordScreen navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+        const handleForgetPasswordSpy = jest.spyOn(componentInstance, 'handleForgetPassword');
+
+        await componentInstance.setState({user: userTest});
+        // const validateFormSpy = jest.spyOn(componentInstance, 'validateForm');
+        // validateFormSpy.mockReturnValue(true);
+
+        await wrapper.find(Button).at(0).props().onPress();
+
+        expect(handleForgetPasswordSpy).toHaveBeenCalled();
+
+        expect(wrapper.find(FormValidationMessage)).toHaveLength(0);
+        expect(componentInstance.state.errorMsg).toEqual('');
+        expect(componentInstance.state.errorVisible).toEqual(false);
+    });
 });

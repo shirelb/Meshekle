@@ -1,0 +1,166 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppointmentRequestInfo should match snapshot 1`] = `
+<Component
+  animationType="slide"
+  hardwareAccelerated={false}
+  onRequestClose={[Function]}
+  transparent={false}
+  visible={true}
+>
+  <View
+    style={
+      Object {
+        "marginTop": 20,
+      }
+    }
+  >
+    <ScrollViewMock>
+      <TextElement
+        h4={true}
+        style={
+          Object {
+            "color": "#050505",
+            "fontWeight": "bold",
+            "textAlign": "center",
+          }
+        }
+      >
+        בקשת תור
+      </TextElement>
+      <FormLabel>
+        נותן שירות
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      />
+      <FormLabel>
+         ענף
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      >
+        מספרה
+      </TextElement>
+      <FormLabel>
+         סטאטוס
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      >
+        נדחה
+      </TextElement>
+      <FormLabel>
+        נושא
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      >
+        פן, תספורת, צבע, גוונים
+      </TextElement>
+      <FormLabel>
+         תאריכים ושעות אופציונאליים
+      </FormLabel>
+      <withTheme(List.Section)>
+        <withTheme(List.Accordion)
+          key="0"
+          onPress={[Function]}
+          title="2019-03-29"
+        >
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            key="0"
+            onPress={[Function]}
+            title="4:51-20:55"
+          />
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            key="1"
+            onPress={[Function]}
+            title="7:24-23:41"
+          />
+        </withTheme(List.Accordion)>
+        <withTheme(List.Accordion)
+          key="1"
+          onPress={[Function]}
+          title="2018-06-28"
+        >
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            key="0"
+            onPress={[Function]}
+            title="8:45-22:50"
+          />
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            key="1"
+            onPress={[Function]}
+            title="1:21-17:10"
+          />
+        </withTheme(List.Accordion)>
+      </withTheme(List.Section)>
+      <FormLabel>
+        הערות
+      </FormLabel>
+      <TextElement
+        style={
+          Object {
+            "marginLeft": 10,
+          }
+        }
+      >
+        Nulla tempus.
+      </TextElement>
+      <View
+        style={
+          Object {
+            "marginTop": 20,
+          }
+        }
+      >
+        <Button
+          color="#F8262F"
+          label="מחק"
+          onPress={[Function]}
+        />
+        <Button
+          label="חזור"
+          onPress={[Function]}
+        />
+      </View>
+    </ScrollViewMock>
+  </View>
+</Component>
+`;

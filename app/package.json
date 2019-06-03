@@ -44,11 +44,15 @@
     "tcomb-form-native": "^0.6.20"
   },
   "devDependencies": {
-    "babel-jest": "23.6.0",
+    "@babel/preset-flow": "^7.0.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^24.8.0",
     "enzyme": "^3.9.0",
     "enzyme-adapter-react-16": "^1.13.2",
     "enzyme-to-json": "^3.3.5",
-    "jest": "^23.6.0",
+    "jest": "^24.8.0",
+    "jest-enzyme": "^7.0.2",
+    "jsdom": "^15.1.1",
     "metro-react-native-babel-preset": "0.51.0",
     "react-dom": "^16.8.6",
     "react-test-renderer": "16.6.1"
@@ -63,6 +67,9 @@
     },
     "setupFiles": [
       "./src/setupTests.js"
-    ]
+    ],
+    "globals": {
+      "window": true
+    }
   }
 }
