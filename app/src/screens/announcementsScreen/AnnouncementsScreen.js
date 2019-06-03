@@ -263,7 +263,6 @@ export default class AnnouncementsScreen extends Component {
                             let date = new Date();
                             console.log(section);
                             let dir = RNFS.ExternalStorageDirectoryPath+'/Pictures';
-                            console.warn(dir);
                             // let path = dir + "/me"+Math.floor(date.getTime() + date.getSeconds() / 2);
                             let path = dir + '/'+section.fileName;
 

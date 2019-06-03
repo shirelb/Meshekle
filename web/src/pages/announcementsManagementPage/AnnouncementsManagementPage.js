@@ -58,13 +58,13 @@ class AnnouncementsManagementPage extends React.Component {
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
         this.getUsers();
-        if(this.serviceProviderId === '1') {
-            this.getAllServiceProviders();
-            this.getAllCategories();
-        }
+        this.getAllServiceProviders();
+        // if(this.serviceProviderId === '1' || this.role === 'AnnouncementsSecretary') {
+        //     this.getAllCategories();
+        //}
         this.getCategories();
         this.getAnnouncementsRequests();
-        this.getAnnouncements();
+        this.getAnsweredAnnouncements();
 
 
     }
@@ -81,7 +81,7 @@ class AnnouncementsManagementPage extends React.Component {
     componentWillReceiveProps({location = {}}) {
         if (location.pathname === '/chores' && location.pathname !== this.props.location.pathname) {
             this.getAnnouncementsRequests();
-            this.getAnnouncements();
+            this.getAnsweredAnnouncements();
         }
     }
 
@@ -92,7 +92,11 @@ class AnnouncementsManagementPage extends React.Component {
 
     getAllServiceProviders(){
       serviceProvidersStorage.getServiceProviders(this.serviceProviderHeaders)
-          .then(response => this.setState({serviceProviders: response}));
+          .then(response => {
+              this.setState({serviceProviders: response})
+              if(this.state.serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary')
+                  this.getAllCategories();
+          });
     };
 
     getAllCategories(){
@@ -132,8 +136,9 @@ class AnnouncementsManagementPage extends React.Component {
             });
     }
 
-    getAnnouncements() {
-        announcementsStorage.getAnnouncements(this.serviceProviderId,this.serviceProviderHeaders)
+
+    getAnsweredAnnouncements() {
+        announcementsStorage.getAnsweredAnnouncements(this.serviceProviderId,this.serviceProviderHeaders)
             .then((response) => {
 
                 const announcements = response.data;
@@ -206,7 +211,7 @@ class AnnouncementsManagementPage extends React.Component {
 
     handleUpdate = (announcement) => {
 
-        announcement.categoryName = this.state.categories.filter(cat => cat.categoryId === announcement.categoryId)[0].categoryName;
+        announcement.categoryName = this.state.categoriesToManage.filter(cat => cat.categoryId === announcement.categoryId)[0].categoryName;
 
         this.props.history.push(`${this.props.match.path}/updateAnnouncement`, {
             serviceProviderId: this.serviceProviderId,
@@ -309,7 +314,7 @@ class AnnouncementsManagementPage extends React.Component {
                     }
                     this.getCategories();
                     this.getAnnouncementsRequests();
-                    this.getAnnouncements();
+                    this.getAnsweredAnnouncements();
                 }
             });
 
@@ -361,7 +366,7 @@ class AnnouncementsManagementPage extends React.Component {
         });
 
         let ans = serProvIds.reduce((acc,cur) => {return acc+","+cur}, "");
-        return ans.substring(1,ans.length-1);
+        return ans.substring(1);
     };
 
     openModal(content) {
@@ -385,7 +390,7 @@ class AnnouncementsManagementPage extends React.Component {
         const startIndexReq = pageAnnouncementsRequests * TOTAL_PER_PAGE;
         const startIndexAnn = pageAnnouncements * TOTAL_PER_PAGE;
         const startIndexCat = pageCategories * TOTAL_PER_PAGE;
-        const categoryNamesMap = categories.map(cat => ({id: cat.categoryId,name: cat.categoryName}));
+        const categoryNamesMap = categoriesToManage.map(cat => ({id: cat.categoryId,name: cat.categoryName}));
         return (
             <div>
                 <Page children={announcementsRequests} title={strings.announcementsPageStrings.ANNOUNCE_REQ_TITLE_TABLE}>
@@ -539,7 +544,7 @@ class AnnouncementsManagementPage extends React.Component {
                             onClick={this.onClick.bind(this)}
                     >{strings.announcementsPageStrings.ADD_ANNOUNCEMENT}</Button>
 
-                    {this.serviceProviderId === '1' ?
+                    {(this.serviceProviderId === '1' || (serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0] && serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary') ) ?
                         <div>
                         <Page children={categoriesToManage} title={strings.announcementsPageStrings.ANNOUNCE_CATEGORIES_TABLE}>
                             <Helmet>
@@ -611,9 +616,9 @@ class AnnouncementsManagementPage extends React.Component {
                     >
                         <div>
                             <h1>תוכן המודעה</h1>
-                            <br></br>
-                            <p>{this.state.content}</p>
-                            <a href="javascript:void(0);" onClick={() => this.closeModal()}>סגור</a>
+                            {/*<br></br>*/}
+                            <h3>{this.state.content}</h3>
+                            <Button href="javascript:void(0);" onClick={() => this.closeModal()}>סגור</Button>
                         </div>
                     </Modal>
                     </Page>
@@ -624,21 +629,21 @@ class AnnouncementsManagementPage extends React.Component {
                     <Switch>
                         <Route exec path={`${this.props.match.path}/addAnnouncement`} render={(props) => (
                             <AnnouncementAdd {...props}
-                                getAnnouncements = {() => this.getAnnouncements()}
+                                getAnnouncements = {() => this.getAnsweredAnnouncements()}
                             />
                         )}/>
                     </Switch>
                     <Switch>
                         <Route exec path={`${this.props.match.path}/updateAnnouncement`} render={(props) => (
                             <AnnouncementAdd {...props}
-                                getAnnouncements = {() => this.getAnnouncements()}
+                                getAnnouncements = {() => this.getAnsweredAnnouncements()}
                             />
                         )}/>
                     </Switch>
                     <Switch>
                         <Route exec path={`${this.props.match.path}/addCategory`} render={(props) => (
                             <CategoryAdd {...props}
-                                getAnnouncements = {() => this.getAnnouncements()}
+                                getAnnouncements = {() => this.getAnsweredAnnouncements()}
                                 getAnnouncementsRequests = {() => this.getAnnouncementsRequests()}
                                 getCategories = {() => this.getCategories()}
                                 getAllCategories = {() => this.getAllCategories()}
@@ -648,7 +653,7 @@ class AnnouncementsManagementPage extends React.Component {
                     <Switch>
                         <Route exec path={`${this.props.match.path}/updateCategory`} render={(props) => (
                             <CategoryAdd {...props}
-                                         getAnnouncements = {() => this.getAnnouncements()}
+                                         getAnnouncements = {() => this.getAnsweredAnnouncements()}
                                          getAnnouncementsRequests = {() => this.getAnnouncementsRequests()}
                                          getCategories = {() => this.getCategories()}
                                          getAllCategories = {() => this.getAllCategories()}

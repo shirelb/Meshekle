@@ -84,7 +84,7 @@ export default class UserAnnouncementsRequests extends Component {
         this.setState({refreshing: true});
 
         this.loadUserAnnouncements();
-        this.loadCategories();
+        this.loadAllCategories();
 
         this.setState({refreshing: false});
     };

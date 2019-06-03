@@ -335,10 +335,10 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                             categoryName: {[Op.in]: categoriesNames}
                         }
                     })
-                        .then(categories => {
+                        .then(categories2 => {
 
 
-                            var categoriesIDs = categories.map((cat) => cat.dataValues.categoryId);
+                            var categoriesIDs = categories2.map((cat) => cat.dataValues.categoryId);
 
                             Announcements.findAll({
                                 where: {
@@ -346,6 +346,63 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                                         [Op.in]: categoriesIDs
                                     },
                                     status: constants.statueses.REQUEST_STATUS
+                                }
+                            })
+                                .then(announcements => {
+                                    console.log(announcements);
+                                    res.status(200).send(announcements);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+// GET all Announcements that relevant for a specific service provider and got answered already
+router.get('/answeredRequests/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    validations.getServiceProvidersByServProIdPromise(parseInt(req.params.serviceProviderId))
+        .then(serviceProvider => {
+            if (serviceProvider.length === 0) {
+                return res.status(400).send({"message": announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            Categories.findAll({
+                where: {
+                    serviceProviderId: parseInt(req.params.serviceProviderId)
+                }
+            })
+                .then(categories => {
+                    var categoriesNames = categories.map((cat) => cat.dataValues.categoryName);
+
+                    Categories.findAll({
+                        where: {
+                            categoryName: {[Op.in]: categoriesNames}
+                        }
+                    })
+                        .then(categories2 => {
+
+
+                            var categoriesIDs = categories2.map((cat) => cat.dataValues.categoryId);
+
+                            Announcements.findAll({
+                                where: {
+                                    categoryId: {
+                                        [Op.in]: categoriesIDs
+                                    },
                                 }
                             })
                                 .then(announcements => {
