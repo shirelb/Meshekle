@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {DrawerActions, NavigationActions} from 'react-navigation';
-import {View} from 'react-native';
+import {View,Linking } from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'
@@ -166,6 +166,17 @@ export default class DrawerMenu extends Component {
                         leftIcon={{name: 'insert-comment'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
                         badge={{value: 3, textStyle: {color: 'orange'}}}
+                    />
+                    <ListItem
+                        // roundAvatar
+                        onPress={() => Linking.openURL('https://docs.google.com/forms/d/e/1FAIpQLSf6LE1pu78hgel5GWB_JxOtoJ8kcIuDXi4KOtGXydGE7ZMhFA/viewform?usp=sf_link')}
+                        // avatar={l.avatar_url}
+                        // key={i}
+                        title={strings.drawerMenu.REPORT}
+                        // subtitle="test"
+                        leftIcon={{name: 'error'}}
+                        // rightIcon=null
+                        hideChevron
                     />
                     <ListItem
                         // roundAvatar

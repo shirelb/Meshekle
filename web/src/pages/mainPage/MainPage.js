@@ -227,6 +227,10 @@ class MainPage extends Component {
                                 : null
                             : null
                         }
+                        <Menu.Item name="report" onClick={()=>{}} target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSf6LE1pu78hgel5GWB_JxOtoJ8kcIuDXi4KOtGXydGE7ZMhFA/viewform?usp=sf_link"  >
+                            <Icon name={strings.modulesIconsNames["report"]} />
+                            {strings.mainPageStrings.REPORT}
+                        </Menu.Item>
                         <Menu.Item name="logout" onClick={this.handleLogout(this.props.history)}>
                             <Icon name={strings.modulesIconsNames["logout"]}/>
                             {strings.mainPageStrings.LOGOUT}

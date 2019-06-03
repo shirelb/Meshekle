@@ -84,10 +84,10 @@ Events.belongsTo(ScheduledAppointments, {
     targetKey: 'appointmentId'
 });
 
-/*Events.belongsTo(Users, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
-});*/
+Events.belongsTo(Announcements, {
+    foreignKey: 'eventId',
+    targetKey: 'announcementId'
+});
 
 /*ScheduledAppointments.hasOne(Events, {
     foreignKey: 'eventId',
