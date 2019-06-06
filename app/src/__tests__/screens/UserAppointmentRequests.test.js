@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {FlatList} from 'react-native';
+import {List} from "react-native-paper";
 
 import {shallow} from "enzyme/build";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
@@ -10,7 +11,6 @@ import users from "../jsons/users";
 import serviceProviders from "../jsons/serviceProviders";
 import UserAppointmentRequests from "../../screens/userAppointmentRequests/UserAppointmentRequests";
 import phoneStorage from "react-native-simple-store";
-import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 
 
@@ -20,17 +20,6 @@ jest.mock("../../storage/serviceProvidersStorage");
 jest.mock("../../storage/appointmentsStorage");
 
 
-var scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout;
-
-const flushPromises = function () {
-    return new Promise(function (resolve) {
-        scheduler(resolve);
-    });
-};
-
-const flushAllPromises = () => new Promise(resolve => setImmediate(resolve()));
-
-
 describe("UserAppointmentRequests should", () => {
     let wrapper = null;
     let componentInstance = null;
@@ -38,7 +27,6 @@ describe("UserAppointmentRequests should", () => {
     const userTest = users[698];
     const mockStore = {
         userData: {
-            serviceProviderId: "549963652",
             userId: "549963652",
             token: "some token"
         }
@@ -48,45 +36,46 @@ describe("UserAppointmentRequests should", () => {
     usersStorage.getUsers = jest.fn().mockImplementation(() => Promise.resolve(users));
     usersStorage.getUserByUserID = jest.fn().mockImplementation((userId) => Promise.resolve(users.filter(user => user.userId === userId)[0]));
     serviceProvidersStorage.getServiceProviders = jest.fn().mockResolvedValue(serviceProviders);
-    serviceProvidersStorage.getServiceProviderUserDetails= jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(
+    serviceProvidersStorage.getServiceProviderUserDetails = jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(
         {data: users.filter(user => user.userId === serviceProviderId)[0]}));
     serviceProvidersStorage.getServiceProviderById = jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(serviceProviders.filter(provider =>
         provider.serviceProviderId === serviceProviderId)));
     appointmentsStorage.getUserAppointmentRequests = jest.fn().mockResolvedValue({data: user013637605AppointmentRequests});
+    appointmentsStorage.cancelAppointmentRequestById = jest.fn().mockResolvedValue();
+
+    let userRequestsTest = user013637605AppointmentRequests;
+    userRequestsTest[0].serviceProviderFullname = "Tara";
+    userRequestsTest[1].serviceProviderFullname = "Gil";
 
     beforeAll(async (done) => {
+        wrapper = await shallow(<UserAppointmentRequests/>);
+        componentInstance = wrapper.instance();
 
+        await wrapper.update();
         done();
     });
 
     afterAll(() => {
     });
 
-    beforeEach(() => {
+    beforeEach(async (done) => {
         jest.clearAllMocks();
+        await componentInstance.setState({userAppointmentRequests: userRequestsTest});
+        await wrapper.update();
+        done();
     });
 
-    afterEach(() => {
+    afterEach( async (done) => {
+        await componentInstance.setState({userAppointmentRequests: userRequestsTest});
+        await wrapper.update();
+        done();
     });
 
     it('match snapshot', async () => {
-        wrapper = await shallow(<UserAppointmentRequests/>);
-        componentInstance = wrapper.instance();
-
-        await wrapper.update();
-
         expect(wrapper).toMatchSnapshot();
     });
 
-    it("mounted with the right data", async () => {
-        wrapper = await shallow(<UserAppointmentRequests/>);
-        componentInstance = wrapper.instance();
-
-        // await flushAllPromises();
-        await wrapper.update();
-        await flushAllPromises();
-        await new Promise((resolve) => setTimeout(resolve, 0));
-
+    it("mounted with the right data", () => {
 
         expect(componentInstance.state.userAppointmentRequests.length).toEqual(2);
         expect(componentInstance.state.formModal).toEqual(false);
@@ -97,47 +86,23 @@ describe("UserAppointmentRequests should", () => {
     });
 
     it("render with what the user see", async () => {
-        wrapper = shallow(<UserAppointmentRequests/>);
-        componentInstance = wrapper.instance();
 
-        expect(wrapper.find(UserProfileInfo)).toHaveLength(1);
-        expect(wrapper.find(FlatList)).toHaveLength(1);
         expect(wrapper.find('Button')).toHaveLength(1);
         expect(wrapper.find('Button').props().title).toEqual('בקש תור חדש');
-        expect(wrapper.find('SearchBar')).toHaveLength(1);
-        expect(wrapper.find('SearchBar').props().placeholder).toEqual("חפש...");
         expect(wrapper.find('Text')).toHaveLength(0);
-        expect(wrapper.find('ListSection')).toHaveLength(1);
-        expect(wrapper.find('ListAccordion')).toHaveLength(2);
-        expect(wrapper.find('ListItem')).toHaveLength(4);
+        expect(wrapper.find(List.Section)).toHaveLength(1);
+        expect(wrapper.find(List.Accordion)).toHaveLength(2);
+        expect(wrapper.find(List.Item)).toHaveLength(4);
         expect(wrapper.find('AppointmentRequestInfo')).toHaveLength(0);
     });
 
     it("search for appointment requests with service provider with name that has ra", async () => {
-        wrapper = await shallow(<UserAppointmentRequests/>);
-        componentInstance = wrapper.instance();
-
-        await wrapper.update();
         const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
 
         await componentInstance.updateSearch('ra');
 
         expect(updateSearchSpy).toHaveBeenCalled();
-        expect(componentInstance.state.userAppointmentRequests.length).toEqual(39);
-    });
-
-    it("search for appointment requests with service provider with role מספרה", async () => {
-        wrapper = await shallow(<UserAppointmentRequests/>);
-        componentInstance = wrapper.instance();
-
-        await wrapper.update();
-
-        const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
-
-        await componentInstance.updateSearch('מספרה');
-
-        expect(updateSearchSpy).toHaveBeenCalled();
-        expect(componentInstance.state.userAppointmentRequests.length).toEqual(39);
+        expect(componentInstance.state.userAppointmentRequests.length).toEqual(1);
     });
 
     it("cancel Appointment Request on click erase icon", async () => {
@@ -146,10 +111,10 @@ describe("UserAppointmentRequests should", () => {
 
         const cancelAppointmentRequestSpy = jest.spyOn(componentInstance, 'cancelAppointmentRequest');
 
-        componentInstance.cancelAppointmentRequest(userTest);
+        componentInstance.cancelAppointmentRequest(userRequestsTest[0]);
 
         expect(cancelAppointmentRequestSpy).toHaveBeenCalled();
-        expect(cancelAppointmentRequestSpy).toHaveBeenCalledWith(userTest);
+        expect(cancelAppointmentRequestSpy).toHaveBeenCalledWith(userRequestsTest[0]);
     });
 
     it("close Appointment Request Info", async () => {

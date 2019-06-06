@@ -58,7 +58,7 @@ export default class AppointmentsCalendar extends Component {
                     markedDates: markedDates
                 });
             })
-    }
+    };
 
     afterCloseModalShowSelectDay = () => {
         let updatedMarkedDates = this.state.markedDates;
