@@ -33,6 +33,25 @@ var serviceProviderRolesMapper = function (value) {
     }
 };
 
+var serviceProviderRolesMapperHebToEng = function (value) {
+    switch (value) {
+        case "מנהלה":
+            return "Admin";
+        case "מזכירות ספר טלפונים":
+            return "PhoneBookSecretary";
+        case "מזכירות תורנויות":
+            return "ChoresSecretary";
+        case "מזכירות לוח מודעות":
+            return "AnnouncementsSecretary";
+        case "מספרה":
+            return "appointmentsHairDresser";
+        case "מרפאת שיניים":
+            return "appointmentsDentist";
+        default:
+            return value;
+    }
+};
+
 var appointmentRequestStatusMapper = function (value) {
     switch (value) {
         case "requested":
@@ -46,4 +65,10 @@ var appointmentRequestStatusMapper = function (value) {
     }
 };
 
-export default {loginScreenMapper, mainScreenMapper, serviceProviderRolesMapper, appointmentRequestStatusMapper};
+export default {
+    loginScreenMapper,
+    mainScreenMapper,
+    serviceProviderRolesMapper,
+    appointmentRequestStatusMapper,
+    serviceProviderRolesMapperHebToEng
+};

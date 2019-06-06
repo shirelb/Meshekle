@@ -46,19 +46,6 @@ export default class AgendaCalendar extends Component {
         this.userId = null;
     }
 
-    /* componentWillMount() {
-         phoneStorage.get('userData')
-             .then(userData => {
-                 console.log('agenda componentDidMount userData ', userData);
-                 this.userHeaders = {
-                     'Authorization': 'Bearer ' + userData.token
-                 };
-                 this.userId = userData.userId;
-
-
-             });
-     }*/
-
     componentDidMount() {
         phoneStorage.get('userData')
             .then(userData => {
