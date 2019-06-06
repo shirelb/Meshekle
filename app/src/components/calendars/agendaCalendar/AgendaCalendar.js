@@ -236,7 +236,7 @@ export default class AgendaCalendar extends Component {
         const to_date = today.endOf('week');
 
         return (
-            <View><Text>{"aaaaaaaaaaaaaaa"+this.state.items[moment(new Date('22-05-2019'))]}</Text>
+            <View><Text>{"aaaaaaaaaaaaaaa"+this.state.items[moment(new Date('25-05-2019'))]}</Text>
             <Agenda
                 items={this.state.items}
                 // loadItemsForMonth={this.loadItems.bind(this)}

@@ -14,11 +14,16 @@ import ChoreSettings from "./ChoreSettings";
 import CreateNewChoreType from "../../components/chores/CreateNewChoreType";
 import {Redirect, Route, Switch} from "react-router-dom";
 import ChoresCalendar from "../../components/calendars/ChoresCalendar"
+import OriginChoresCalendar from "../../components/calendars/OriginChoresCalendar"
 import moment from 'moment';
 import axios from "axios";
 import EditChoreTypeSettings from '../../components/chores/EditChoreTypeSettings';
 import ReplacementRequests from '../../components/chores/ReplacementRequests';
+import ChoresHistory from '../../components/chores/ChoresHistory';
 //import {CheckBox, FormInput, FormLabel, Text} from "react-native-elements";
+import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
+import DraggableUser from '../../components/chores/DraggableUser';
+
 
 
 const TOTAL_PER_PAGE = 10;
@@ -60,6 +65,11 @@ class ChoresManagementPage extends React.Component {
             calendarDisplay:'calendar',
             requestsReplaced:[],
             choreTypeName: '',
+            openOriginalChoresModal:false,
+            originalUserChores:[],
+            showHistoryTable:false,
+            userDragged:{name:"",id:""},
+            dateDragged:"",
         };
 
         
@@ -72,10 +82,6 @@ class ChoresManagementPage extends React.Component {
        
 
 
-        this.incrementPage = this.incrementPage.bind(this);
-        this.decrementPage = this.decrementPage.bind(this);
-        this.setPage = this.setPage.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.settingsView = this.settingsView.bind(this);
 
@@ -95,6 +101,8 @@ class ChoresManagementPage extends React.Component {
         this.addUserToChoreType = this.addUserToChoreType.bind(this);
         this.openModalRequest = this.openModalRequest.bind(this);
         this.onDeleteType = this.onDeleteType.bind(this);
+        this.onChangeUserchoresByReplacement = this.onChangeUserchoresByReplacement.bind(this);
+        this.onDraggedUser = this.onDraggedUser.bind(this);
     }
 
     componentWillMount() {
@@ -117,83 +125,38 @@ class ChoresManagementPage extends React.Component {
     }
     
     componentDidMount() {
-        
         this.serviceProviderHeaders = {
             'Authorization': 'Bearer ' + store.get('serviceProviderToken')
         };
         this.userId = store.get('userId');
+        connectToServerSocket(store.get('serviceProviderId'));
 
-       
+
+        WEB_SOCKET.on("getChangeInUserChores", this.onChangeUserchoresByReplacement.bind(this));
+    }
+
+    componentWillUnmount(){
+        WEB_SOCKET.off("getChangeInUserChores");
+
     }
 
     componentWillReceiveProps({location = {}}) {
-        /*if (location.pathname === '/phoneBook' && location.pathname !== this.props.location.pathname) {
-            this.getUsers();
-        }*/
-    }
-
-    /*getUsers() {
-        usersStorage.getUsers()
-            .then((response) => {
-
-                const users = response;
-                const totalPages = Math.ceil(users.length / TOTAL_PER_PAGE);
-
-                this.setState({
-                    users: users,
-                    page: 0,
-                    totalPages,
-                });
-            });
-    }*/
-
-    setPage(page) {
-        
-        return () => {
-            this.setState({page});
-        };
-    }
-
-    decrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page - 1});
-    }
-
-    incrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page + 1});
-    }
-
-    handleDelete(userId) {
-        /*const {users} = this.state;
-
-        this.setState({
-            users: users.filter(u => u.id !== userId),
-        });*/
-    }
-
-    getUserByUserID(userId) {
-        usersStorage.getUserByUserID(userId, this.serviceProviderHeaders)
-            .then((response) => {
-                let user = response.data[0];
-                console.log('getUserByUserID ', userId, ' ', user);
-                this.props.history.push(`/users/${userId}`);
-            })
     }
 
     handleChange(event){
         let typeName = String(event.nativeEvent.srcElement.innerText);
         this.setState({choreTypeSelected: typeName});
-        console.log("option selectef: ", event.nativeEvent.srcElement.innerText, typeName/*currentTargetthis.state.choreTypeSelected*/);
-        console.log("this.state.choreTypeSelected: ", this.state.choreTypeSelected);
+        //console.log("option selectef: ", event.nativeEvent.srcElement.innerText, typeName/*currentTargetthis.state.choreTypeSelected*/);
+        console.log("this.state.choreTypeSelected: ", this.state.choreTypeSelected, event.nativeEvent.srcElement.innerText);
         this.settingsView( event.nativeEvent.srcElement.innerText); 
         this.onSelectSlot(event,event.nativeEvent.srcElement.innerText);
+        
         
     }
 
     settingsView(type){
+        console.log("1/ on settingsview", type)
+
         choresStorage.getChoreTypeSetting(serviceProviderId, serviceProviderHeaders, type)
         .then(settings=>{
             console.log("settings: ", settings);
@@ -213,90 +176,22 @@ class ChoresManagementPage extends React.Component {
 
              return res.data
          })
-            /*.then((response) => {
-                this.setState({userChores: []});
-
-                const userChores = response.data;
-                const totalPages = Math.ceil(userChores.length / TOTAL_PER_PAGE);
-
-                userChores.map((userchore, index) => {
-                    usersStorage.getUserByUserID(userchore.userId, this.serviceProviderHeaders)
-                        .then(user => {
-                            let userChoreEvent = {};
-                            userchore.userName = user.fullname;
-
-                            userChoreEvent.id = userchore.userChoreId;
-                            userChoreEvent.title = user.fullname;
-                            userChoreEvent.allDay = false;
-                            userChoreEvent.start = moment(this.state.settings.startTime);
-                            userChoreEvent.end = moment(this.state.settings.endTime);
-                            userChoreEvent.userChore = userchore;
-
-                            let userChoreEvents = this.state.userChores;
-                            userChoreEvents.push(userChoreEvent);
-                            this.setState({
-                                userChores: userChoreEvents
-                            });
-                        });
-                });
-
-                this.setState({
-                    page: 0,
-                    totalPages,
-                });
-
-            });*/
     }
 
-    /*onSelectSlot(event){
-        console.log("this.state.choreTypeSelected= = ", this.state.choreTypeSelected, event.target.innerText)
-        choresStorage.getUsersForChoreType(serviceProviderId, serviceProviderHeaders, event.target.innerText)
-        .then(res=>{
-            console.log("response:",res);
-            var usersDoType = [];
-            var user;
-            for( user in res.data.usersChoreType){
-                usersDoType.push(res.data.usersChoreType[user].User);
-            };
-            usersDoType = usersDoType.map(u=>({
-                key:user,
-                text: u.fullname,
-                value: u.fullname,
-                id: u.userId
-            }));
-            this.setState({users:usersDoType});
-            console.log("this.state.users:",this.state.users, usersDoType );
 
-            
-        });
-    }*/
-
+    onChangeUserchoresByReplacement(){
+        this.onSelectSlot("",this.state.choreTypeName);
+    }
     
     onSelectSlot(event, typeName){
-        console.log("this.state.choreTypeSelected= = ", typeName)
+        console.log("this.state.choreTypeSelected= = ", typeName,serviceProviderId, serviceProviderHeaders, this.serviceProviderId, this.serviceProviderHeaders)
         axios.all([choresStorage.getUsersForChoreType(serviceProviderId, serviceProviderHeaders, typeName),//event.target.innerText), 
-            choresStorage.getUserChoresForType(this.serviceProviderId, this.serviceProviderHeaders,typeName),
-            choresStorage.getReplacementRequests(this.serviceProviderId, this.serviceProviderHeaders, typeName, 'replaced')
-        ])// event.target.innerText )])
-        //.then(axios.spread(function (acct, perms){
-            //console.log("response:",acct.data, perms, this.state.userChores);
-            /*var usersDoType = [];
-            var user;
-            for( user in res.data.usersChoreType){
-                usersDoType.push(res.data.usersChoreType[user].User);
-            };
-            usersDoType = usersDoType.map(u=>({
-                key:user,
-                text: u.fullname,
-                value: u.fullname,
-                id: u.userId
-            }));
-            this.setState({users:usersDoType});
-            console.log("this.state.users:",this.state.users, usersDoType );*/
-
-       // }));
+            choresStorage.getUserChoresForType(serviceProviderId, serviceProviderHeaders,typeName,""),
+            choresStorage.getReplacementRequests(serviceProviderId, serviceProviderHeaders, typeName, 'replaced')
+            //usersStorage.getUsers()
+        ])        
        .then(reses=>{
-           console.log("responses: ", reses)
+           console.log("2/ responses: ", reses)
            var usersDoType = [];
             var user;
             for( user in reses[0].data.usersChoreType){
@@ -310,12 +205,12 @@ class ChoresManagementPage extends React.Component {
             }));
             this.setState({users:usersDoType});
             //reses[1]
-            //this.setState({userChores: []});
 
-                const userChores = reses[1].data.usersChores;
-                console.log("reses[1].data:", reses[1].data.usersChores);
+            console.log("reses[1].data:", reses[1]);
+                let userChores = reses[1].data.usersChores;
                 const totalPages = Math.ceil(userChores.length / TOTAL_PER_PAGE);
                 let userChoreEvents =[];
+                let originalUserChoreEvents = [];
                 userChores.map((userchore, index) => {
                             let userChoreEvent = {
                                 user: null,
@@ -337,15 +232,36 @@ class ChoresManagementPage extends React.Component {
                             userChoreEvent.endTime = this.state.settings.endTime;
                             userChoreEvent.userChore = userchore;
                             userChoreEvent.date = userchore.date;
+                            userChoreEvent.start = userchore.date;
                             userChoreEvent.originDate = userchore.originDate;
                             userChoreEvent.isMark = userchore.isMark;
 
-                            //let userChoreEvents = this.state.userChores;
+                            //for origin userchores board:
+                            let originalUserChoreEvent = {
+                                user: null,
+                                id: 1000,
+                                title:'',
+                                start:'',
+                                end:'',
+                                userChore:null,
+                                date:Date.now(),
+                                originDate:Date.now(),
+                                isMark: false,
+                            };
+                            originalUserChoreEvent.user = userchore.User;
+                            originalUserChoreEvent.id = userchore.userChoreId;
+                            originalUserChoreEvent.title = userchore.User.fullname;
+                            originalUserChoreEvent.allDay = false;
+                            originalUserChoreEvent.startTime = this.state.settings.startTime;
+                            originalUserChoreEvent.endTime = this.state.settings.endTime;
+                            originalUserChoreEvent.userChore = userchore;
+                            originalUserChoreEvent.date = userchore.originDate;
+                            originalUserChoreEvent.start = userchore.originDate;
+                            originalUserChoreEvent.originDate = userchore.originDate;
+                            originalUserChoreEvent.isMark = userchore.isMark;
+
+                            originalUserChoreEvents.push(originalUserChoreEvent);
                             userChoreEvents.push(userChoreEvent);
-                            console.log("userChoreEvents and this.state...,", userChoreEvents, this.state.userChores);
-                            /*this.setState({
-                                userChores: userChoreEvents
-                            });*/
                         
                     });
 
@@ -357,20 +273,25 @@ class ChoresManagementPage extends React.Component {
                         }
                     })
 
-                this.setState({
-                    userChores: userChoreEvents,
-                    /*userChores: [{
-                        "userId": "1",
-                        "choreTypeName": "שמירה",
-                        "date": "2019-03-20T00:00:00.000Z",
-                        "isMark": false
-                    }],*/
-                    requestsReplaced:requestsReplaced,
-                    page: 0,
-                    totalPages,
-                });
+                    
+                    this.setState({
+                        userChores: userChoreEvents,
+                        originalUserChores: originalUserChoreEvents,
+                        requestsReplaced:requestsReplaced,
+                        page: 0,
+                        totalPages,
+                        users:usersDoType
+                    });
+                
+                    //reses[3]
+                    //this.modalUsersContent =[];
+                    //this.modalUsersContent = this.modalUsersBuild(reses[3]);
+                })
+                .catch(er=>{
+                    console.log("3/ error onselectslot: ",er)
 
-       });
+                })
+       
     }
 
     createUserChores(event,usersChoosed, usersChoosedNames, date){// {usersChoosed, usersChoosedNames, date}){
@@ -381,9 +302,6 @@ class ChoresManagementPage extends React.Component {
             requests.push(choresStorage.createNewUserChore(serviceProviderId, this.serviceProviderHeaders, this.state.settings.choreTypeName, usersChoosed[i], moment(date).format('YYYY-MM-DD')));
         }
         axios.all(requests)
-        //axios.all(choresStorage.createNewUserChore(serviceProviderId, serviceProviderHeaders, this.state.settings.choreTypeName, usersChoosed[0], moment(date).format('YYYY-MM-DD')),
-        //choresStorage.createNewUserChore(serviceProviderId, serviceProviderHeaders, this.state.settings.choreTypeName, usersChoosed[1], moment(date).format('YYYY-MM-DD'))
-    //)
         .then(res=>{
             console.log("userschores created?: ", res);
             var workUsers = [];
@@ -408,28 +326,32 @@ class ChoresManagementPage extends React.Component {
             axios.all(getUsersRequests)
             .then((response) => {
                 let updateUserchores = this.state.userChores;
+                let updateOriginalUserchores = this.state.originalUserChores;
                 let r = 0;
                 for(r in response){
                     let user = response[r];
                     if(user.fullname!==undefined){
                         console.log('getUserByUserID ', response[r]);
-                        updateUserchores.push(
-                            {
-                                allDay:false,
-                                date:res[chore].data.newUserChore.date,
-                                endTime:this.state.settings.endTime,
-                                startTime:this.state.settings.startTime,
-                                id: res[chore].data.newUserChore.userChoreId,
-                                isMark:false,
-                                title: user.fullname,
-                                user: user,
-                                userChore:res[chore].data.newUserChore,
-                            });
+                        let choreEvent = {
+                            allDay:false,
+                            date:res[chore].data.newUserChore.date,
+                            originDate:res[chore].data.newUserChore.originDate,
+                            endTime:this.state.settings.endTime,
+                            startTime:this.state.settings.startTime,
+                            id: res[chore].data.newUserChore.userChoreId,
+                            isMark:false,
+                            title: user.fullname,
+                            user: user,
+                            User: user,
+                            userChore:res[chore].data.newUserChore,
+                        }
+                        updateUserchores.push(choreEvent );
+                        updateOriginalUserchores.push(choreEvent );
     
                     }
 
                     }
-                this.setState({userChores: updateUserchores});
+                this.setState({userChores: updateUserchores, originalUserChores: updateOriginalUserchores});
                 this.forceUpdate();
             })
             if(resultUsers===''){
@@ -442,14 +364,13 @@ class ChoresManagementPage extends React.Component {
     }
 
     deleteUserChore(e, {choreId, refresh}){
-        console.log("deleteUserChore", e.target, refresh);
+        console.log("deleteUserChore!", e.target, choreId);
         choresStorage.deleteUserChore(serviceProviderId, serviceProviderHeaders, choreId)
         .then(res=>{
-            //this.onSelectSlot(e);
-            //ChoresCalendar.workersToChoose(e);
             let updateUserchores = this.state.userChores.filter(el=>el.id!==choreId )
-            this.setState({userChores: updateUserchores});
-            console.log("response of delete ", res, this.state.userChores, this.state.updateUserchores);
+            let updateOriginalUserChores = this.state.originalUserChores.filter(el=>el.id!==choreId )
+            this.setState({userChores: updateUserchores, originalUserChores:updateOriginalUserChores});
+            //console.log("response of delete ", res, this.state.userChores, this.state.updateUserchores);
         })
     }
 
@@ -480,6 +401,7 @@ class ChoresManagementPage extends React.Component {
 
     openModalUsers(e, {value}){
         this.setState({isOpenModalUsers:value});
+        //this.modalUsersContent = this.modalUsersBuild();
     }
 
     deleteUserFromChoreType(e, {userId}){
@@ -498,7 +420,6 @@ class ChoresManagementPage extends React.Component {
                     }
                 }
                 this.setState({users:usersInType, usersNotInType:usersNotInType });
-                //this.modalUsersBuild();
             }
             else{
                 this.setState({openModal:true, contentModal:'לא ניתן להסיר משתמש מהתורנות מאחר ויש לו תורנויות עתידיות. \n יש למחוק אותן תחילה.'});
@@ -534,9 +455,7 @@ class ChoresManagementPage extends React.Component {
             }
         }
         this.setState({users:usersInType, usersNotInType:usersNotInType });
-            //usersInType.push();
             usersToAddToType = [];
-            //this.setState({users: usersInType});
         });
     }
 
@@ -557,7 +476,7 @@ class ChoresManagementPage extends React.Component {
     }
 
     modalUsersBuild(){
-        console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere0", this.state.usersNotInType);
+        console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere0", this.state.users);
 
         let usr = 0;
         let u = 0;
@@ -617,37 +536,69 @@ class ChoresManagementPage extends React.Component {
         })
     }
 
+    onDraggedUser(e, src,obj){
+        let userChoosed=[];
+        let userChoosedName = [];
+        
+        if(src==="draggableObject"){
+            console.log("onDraggedUser",src, obj);
+            userChoosed.push(obj.userId);
+            userChoosed.push(obj.name);
+            this.setState({userDragged: obj});
+        } else if(src==="dayEvent"){
+            console.log("onDraggedUser",src, obj);
+            this.setState({dateDragged:obj})
+        }
+        if(this.state.userDragged.userId!=="" && this.state.dateDragged!==""){
+            this.createUserChores(e,userChoosed,userChoosedName,this.state.dateDragged );
+        }
+    }
+
+
     render() {
         const {users, page, totalPages, choreTypesOptions, choreTypeSelected, userChores} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
         
+        
         return (
-            <Page children={users} title={strings.mainPageStrings.CHORES_PAGE_TITLE}>
+            <Page children={users} title={""/*strings.mainPageStrings.CHORES_PAGE_TITLE*/}>
                 <Helmet>
                     <title>Meshekle | ניהול תורנויות</title>
                 </Helmet>
                 {!(String(window.location).includes('settings')||String(window.location).includes('newChoreType'))?//String(window.location)==='http://localhost:3000/chores'?
                 <div>
-                <Header>{/*String(window.location)*/}</Header>
+                <Header as={'h1'}>{"תורנויות"}</Header>
+                <Button icon onClick={() => this.props.history.push(`${this.props.match.path}/newChoreType`)}  positive><Icon name="plus"/>{"  צור סוג תורנות חדש  "}</Button>
+                <Button icon onClick={() => this.setState({showHistoryTable:true} )} positive><Icon name="history"/>{"  היסטורית תורנויות  "}</Button>
+                <div hidden={!this.state.showHistoryTable}><br/><Button icon onClick={() => this.setState({showHistoryTable:false} )} positive><Icon name="chevron right"/>  <i class="calendar outline icon"></i>{"   לוח תורנויות  "}</Button></div>
+                <br/><br/>
+
+                <div hidden={!this.state.showHistoryTable}>
+                       {this.state.showHistoryTable? <ChoresHistory/> :<div></div>}
+
+                </div>
+                <div hidden={this.state.showHistoryTable}>
                 <Select search placeholder='בחר סוג תורנות' options={this.state.choreTypesOptions}
-                onChange={this.handleChange} /*value={this.state.choreTypeSelected}*/
+                onChange={this.handleChange} 
                  />
-                 <Button onClick={() => this.props.history.push(`${this.props.match.path}/newChoreType`)}  positive>{"צור סוג תורנות חדש"}</Button>
                  
                  {this.state.choreTypeSelected === '' ?
                     <Header as={'h4'}> בחר סוג תורנות </Header>
                     :
                     <div>
                     {/*this.onSelectSlot()*/}
-                    <Button onClick={() =>{/*this.setState({calendarDisplay:''});this.forceUpdate();*/this.props.history.push(`${this.props.match.path}/settings`,{settings: this.state.settings,/*onUpdateSettings:this.onUpdateSettings*/})}}  >{"הגדרות"}</Button>
-                   <Button value={true} onClick={this.openModalUsers}>עריכת תורנים</Button>
-                   <Button onClick={() =>{this.setState({openModal:true, contentModal:<ReplacementRequests
+                    <Button color='twitter' onClick={() =>{this.props.history.push(`${this.props.match.path}/settings`,{settings: this.state.settings,/*onUpdateSettings:this.onUpdateSettings*/})}}  >{"הגדרות"}</Button>
+                   <Button color='twitter' value={true} onClick={this.openModalUsers}>עריכת תורנים</Button>
+                   <Button color='twitter' onClick={() =>{this.setState({openModal:true, contentModal:<ReplacementRequests
                                                                                         serviceProviderId= {this.serviceProviderId}
                                                                                         serviceProviderHeaders = {this.serviceProviderHeaders}
                                                                                         choreType = {this.state.choreTypeSelected}
                                                                                         requestsReplaced = {this.state.requestsReplaced}
                                                                                         ></ReplacementRequests>})}}  >{"בקשות החלפה"}</Button>
-                   {/*this.getUserChoresForType*/}
+                 <br/><br/>
+                 <Button content='סידור מקורי' color={this.state.openOriginalChoresModal?'blue': 'light-grey'} onClick={()=> this.setState({openOriginalChoresModal:true})}/>
+                 <Button content='סידור נוכחי'  color={!this.state.openOriginalChoresModal? 'blue':'light-grey'} onClick={()=> this.setState({openOriginalChoresModal:false})}/>
+                   {this.state.openOriginalChoresModal===false?
                    <ChoresCalendar 
                         events={this.state.userChores}
                         getUserChoresForType={this.getUserChoresForType}
@@ -661,12 +612,27 @@ class ChoresManagementPage extends React.Component {
                         choreTypeName = {this.state.choreTypeSelected}
                         serviceProviderHeaders = {serviceProviderHeaders}
                         serviceProviderId = {serviceProviderId}
-                        //calendarDisplay = {this.state.calendarDisplay}
-                        //calendarDisplay =  {String(window.location).includes("settings")? this.setState({calendarDisplay: ""}) : this.setState({calendarDisplay: "calendar"})}
-                        //calendarDisplay =  {String(window.location).includes("settings")? "" :  "calendar"}
-
-                        
+                        onDraggedUser = {this.onDraggedUser}
                         />
+                        :
+
+                    <OriginChoresCalendar
+                        events={this.state.originalUserChores}
+                        getUserChoresForType={this.getUserChoresForType}
+                        onSelectSlot= {this.onSelectSlot}
+                        usersOfType={this.state.users}
+                        settings = {this.state.settings}
+                        createUserChores = {this.createUserChores}
+                        deleteUserChore = {this.deleteUserChore}
+                        createUserChoreResult = {this.state.createUserChoreResult}
+                        handleClosePortal = {this.handleClosePortal}
+                        choreTypeName = {this.state.choreTypeSelected}
+                        serviceProviderHeaders = {serviceProviderHeaders}
+                        serviceProviderId = {serviceProviderId}
+                        onDraggedUser = {this.onDraggedUser}
+                    />
+                   }
+
 
                     <Modal  open= {this.state.isOpenModalUsers} >
                  <Modal.Header>עריכת תורנים עבור תורנות: {this.state.choreTypeSelected}
@@ -674,12 +640,13 @@ class ChoresManagementPage extends React.Component {
 </Modal.Header>
                     <Modal.Content>
                      {this.state.isOpenModalUsers? this.modalUsersBuild(): <div></div>}
-                       
+                       {/* this.modalUsersContent*/}
                                             
                     </Modal.Content>
-                </Modal>
+                    </Modal>
                     </div>
                  }
+</div>
                  </div>
             :<div></div>}
 
@@ -711,19 +678,20 @@ class ChoresManagementPage extends React.Component {
                                )}/>/>
                         <Redirect to={`${this.props.match.path}`}/>
                     </Switch>
-                    {/*<Switch>
-                        <Route exec path={`${this.props.match.path}/settings`}
-                               component={ChoreSettings}/>
-                        <Route exec path={`${this.props.match.path}/newChoreType`}
-                        component={CreateNewChoreType}/>
-                        <Redirect to={`${this.props.match.path}`}/>
-                    </Switch>*/}
+                    {this.state.showHistoryTable===false?
+                    <DraggableUser usersInType={this.state.users}
+                        createUserChores={this.createUserChores}
+                        onDraggedUser = {this.onDraggedUser}
+                    />
+                    :
+                    <div></div>
+                    }
                 </div>
-            
+                
             </Page>
+            
         );
     }
 }
 
 export {ChoresManagementPage}
-//CreateNewChoreType

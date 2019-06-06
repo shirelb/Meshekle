@@ -23,21 +23,18 @@ import ShabatonsStyles from './ShabatonsStyles.css'
 
 
 
-
-
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
 // import './bootstrap.min.css';
 var userschores = [];
-export default class ChoresCalendar extends Component {
+export default class OriginChoresCalendar extends Component {
     constructor(props) {
         super(props);
         this.jq = $.noConflict();
         this.calendarDisplay = this.props.calendarDisplay;
         this.fullcalendarConfig = {
-            events: [],
-            
+            //events: [],
             height: 630,
             header: {
                 left: 'next,prev',
@@ -73,9 +70,8 @@ export default class ChoresCalendar extends Component {
             
 
             eventReceive: function (event) {
-                console.log('event, ' + event + ', was added, (need date here)', moment(event.target).format('DD-MM-YYYY'));
+                console.log('event, ' + event.title + ', was added, (need date here)');
                 console.log('eventReceive function');
-                props.onDraggedUser(event,"dayEvent", event.target);
             },
 
            
@@ -113,67 +109,41 @@ export default class ChoresCalendar extends Component {
         this.createUserChoresRequest = this.createUserChoresRequest.bind(this);
         this.getUserschoresForType = this.getUserschoresForType.bind(this);
         this.onDropEvent = this.onDropEvent.bind(this);
+
         
     }
 
     componentWillReceiveProps(nextProps) {
-        this.fullcalendarConfig.events=( nextProps.events);
-    //     this.fullcalendarConfig.eventSources=[ {
-    //         url: "https://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=off",
-    //         cache: true
-    //     },
-    //     nextProps.events,
-    //      [{title  : 'event1',
-    //      start  : '2019-06-06'}]
-    // ]
         this.calendarDisplay= nextProps.calendarDisplay;
         this.forceUpdate();
-        //this.jq('#calendar').fullCalendar('removeEventSources');
-        /*this.jq('#calendar').fullCalendar('addEventSource', {
+        this.jq('#calendar').fullCalendar('removeEventSources');
+        this.jq('#calendar').fullCalendar('addEventSource', {
             url: "https://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=on",
             cache: true
-        })??*/
+        })
         //this.jq('#calendar').fullCalendar('removeEvents');
-        //this.jq('#calendar').fullCalendar('addEventSource', nextProps.events );
-    //console.log("this.fullcalendarConfig.events; ", this.fullcalendarConfig.events);
+        this.jq('#calendar').fullCalendar('addEventSource', nextProps.events );
     }
 
     componentWillMount(){
-        //this.getUserschoresForType();
-    //     this.fullcalendarConfig.eventSources=[ {
-    //         url: "https://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=off",
-    //         cache: true
-    //     },
-    //     this.props.events,
-    //      [{title  : 'event1',
-    //      start  : '2019-06-06'}]
-    // ];
-    //this.jq('#calendar').fullCalendar('removeEventSources');
-        /*this.jq('#calendar').fullCalendar('addEventSource', {
-            url: "http://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=on",
-            cache: true
-        })*/
+        this.getUserschoresForType();
     }
 
     componentWillUnmount(){
-        //this.getUserschoresForType();
+        this.getUserschoresForType();
         WEB_SOCKET.off("getChangeInUserChores");
     }
 
-    
+
     getUserschoresForType(){
         choresStorage.getUserChoresForType(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName )
         .then(res=>{
-            console.log("in getUserschoresForType:", this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName )
             let usrChores = res.data.usersChores;
             this.setState({settings:this.props.settings,
                            userschores:usrChores });
                            //this.forceUpdate();
                            userschores = usrChores;
-        })
-        .catch(e=>{
-            console.log("in getUserschoresForType eror:", e, this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName )
-
+                           console.log("in component wiil mount:", userschores )
         })
     }
 
@@ -194,32 +164,15 @@ export default class ChoresCalendar extends Component {
         //this.createUserChoresRequest(event,{usersChoosed:usersChoosed, usersChoosedNames:usersChoosedNames, date:event.start._d})
     }
 
-    
-
     componentDidMount() {
-        //this.fullcalendarConfig.events=(this.props.events);
+        //this.fullcalendarConfig.events = this.props.events;
         //console.log("this.props.events;",this.props.events);
-    //     this.fullcalendarConfig.eventSources=[ {
-    //         url: "https://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=off",
-    //         cache: true
-    //     },
-    //     this.props.events,
-    //      [{title  : 'event1',
-    //      start  : '2019-06-06'}]
-    // ];
-    // this.jq('#calendar').fullCalendar('removeEvents');
-    // this.jq('#calendar').fullCalendar('addEventSource', this.props.events );
-    // this.jq('#calendar').fullCalendar('addEventSource', {
-    //     url: "https://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=off",
-    //     cache: true
-    // })
         this.fullcalendarConfig.select = this.onSelectSlot;
-        this.fullcalendarConfig.droppable  = true;
         this.fullcalendarConfig.eventDrop  = this.onDropEvent;
-        //this.fullcalendarConfig.drop  = this.onDropEvent;
         connectToServerSocket(this.props.serviceProviderId);
-
         WEB_SOCKET.on("getChangeInUserChores", this.forceUpdate.bind(this));
+
+        //WEB_SOCKET.on("getChangeInUserChores", this.getUserschoresForType.bind(this));
 
         /*this.fullcalendarConfig.dayClick= function(event, jsEvent, view) {
             $('#calendarModal').modal('show');
@@ -249,10 +202,7 @@ export default class ChoresCalendar extends Component {
 
     onSelectSlot(e){
         console.log("e:", e);
-        this.setState({openModal: true, modalDate:e});
-        this.forceUpdate();
-        this.modalContent=[];
-        this.modalContent = this.workersToChoose();
+        this.setState({openModal: true, modalDate:e})
     }
 
     handleWorkerChange(event, {name}){
@@ -276,23 +226,15 @@ export default class ChoresCalendar extends Component {
 
     createUserChoresRequest(e, {usersChoosed, usersChoosedNames, date}){
         this.forceUpdate();
-        let users = usersChoosed;
-        let usersNames = usersChoosedNames;
         console.log("createUserChoresRequest ", this.state.usersChoosed, usersChoosed);
-        if(usersChoosed && usersChoosed.length===0){
-             users = this.state.usersChoosed
-             usersNames= this.state.usersChoosedNames;
-        }
-        this.props.createUserChores(e, users, usersNames, date);
+        this.props.createUserChores(e, this.state.usersChoosed, this.state.usersChoosedNames, date);
         //.then(res=>{
             this.setState({usersChoosed:[], usersChoosedNames:[]});
             console.log("back from create user chores request:", this.state.usersChoosed, this.state.usersChoosedNames)
         //})
-        //this.getUserschoresForType();
     }
 
-    workersToChoose(){
-        let event = this.state.modalDate;
+    workersToChoose(event){
         this.getUserschoresForType();
         let ans = [];
         let past = moment(event).isBefore(moment().format('YYYY-MM-DD'));
@@ -304,13 +246,13 @@ export default class ChoresCalendar extends Component {
             console.log("workersToChoose event:ודרCיםרקד", usrChores);
 
         let workersDay = [];
-        usrChores.map(chore=> { if(moment(chore.date).format('DD-MM-YYYY')===(moment(event).format('DD-MM-YYYY'))){ workersDay.push(chore)}});
+        usrChores.map(chore=> { if(moment(chore.originDate).format('DD-MM-YYYY')===(moment(event).format('DD-MM-YYYY'))){ workersDay.push(chore)}});
         if(past){
             ans.push(<Header>תורנים:</Header>);
             console.log("usrChores after filter past:",workersDay);
             let j=0;
             for( j=0;j<workersDay.length;j++){
-                ans.push(<h4><br/>{workersDay[j].User.fullname}&nbsp;&nbsp;&nbsp;&nbsp;{"( תאריך מקורי: " +moment(workersDay[j].originDate).format('DD-MM-YYYY')+")"} <br/></h4>);
+                ans.push(<h4><br/>{workersDay[j].User.fullname}&nbsp;&nbsp;&nbsp;&nbsp; <br/></h4>);
             }
         }
         else
@@ -320,7 +262,7 @@ export default class ChoresCalendar extends Component {
             let j=0;
             for( j=0;j<workersDay.length;j++){
                 console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", workersDay[j])
-                ans.push(<h4><br/>{workersDay[j].User.fullname}&nbsp;&nbsp;&nbsp;&nbsp;{"( תאריך מקורי: " +moment(workersDay[j].originDate).format('DD-MM-YYYY')+")"} <Button choreId={workersDay[j].userChoreId} onClick={this.props.deleteUserChore}>הסר תורן</Button><br/></h4>)
+                ans.push(<h4><br/>{workersDay[j].User.fullname}&nbsp;&nbsp;&nbsp;&nbsp; <Button choreId={workersDay[j].userChoreId} onClick={this.props.deleteUserChore}>הסר תורן</Button><br/></h4>)
             }
 
             var loopTimes = (this.props.settings.numberOfWorkers)-j;
@@ -358,8 +300,6 @@ export default class ChoresCalendar extends Component {
     }
         ans.push(<Button onClick={this.closeModal} >סגור</Button>);
         return <Table.Body >{ans}</Table.Body>
-        //this.setState({openModal: <Table.Body >{ans}</Table.Body>})
-        //this.forceUpdate();
     //})
     }
 
@@ -371,33 +311,31 @@ export default class ChoresCalendar extends Component {
 
 
 
-
+    
 
     render() {
 
        console.log("renser this.props.events;",( String(window.location).includes("setting")));
     return (
         <div>
-            
+           
         
-    <div id='calendar' hidden={(String(window.location).includes("settings"))||(String(window.location).includes("newChoreType"))} >
+    <div id='calendar'   >
                     <Header>{this.props.match}</Header>
+                    
                     <Button icon
                                     onClick={() => helpers.exportToPDF('MeshekleAppointmentsCalendar', 'calendar', 'landscape')}>
                                 <Icon name="file pdf outline"/>
                                 &nbsp;&nbsp;
                                 יצא לPDF
                             </Button>
-
-    <Modal id="calendarModal" open= {this.state.openModal} 
+    <Modal id="calendarModal" open= {this.state.openModal}
         >
     <Modal.Header> תורנות ליום {String(moment(this.state.modalDate).format("dddd : DD-MM-YYYY"))}</Modal.Header>
     <Modal.Content>
     
-        {/*this.state.openModal? this.workersToChoose(this.state.modalDate): <div></div>*/}
-        {this.modalContent}
-      {/*<EditChoreTypeSettings onClose={() => this.props.history.goBack()}  settings={this.state.settings}/>*/}
-      
+        {this.state.openModal? this.workersToChoose(this.state.modalDate): <div></div>}
+              
     </Modal.Content>
   </Modal>
   {this.props.createUserChoreResult.name==='portalUserChoresCreated' ?
@@ -456,54 +394,3 @@ export default class ChoresCalendar extends Component {
             );
     }
 }
-
-// const style=StyleSheet.create({
-//     .fc-event.hebdate, .fc-event.omer {
-//         background-color:#FFF;
-//         border-color:#FFF;
-//         color:#999;
-//        }
-//        .fc-event.dafyomi {
-//         background-color:#FFF;
-//         border-color:#FFF;
-//         color:#08c;
-//        }
-//        .fc-event.dafyomi a {
-//         color: #0088cc;
-//        }
-//        .fc-event.dafyomi a:hover,
-//        .fc-event.dafyomi a:focus {
-//         color: #005580;
-//        }
-//        .fc-event.candles, .fc-event.havdalah {
-//         background-color:#FFF;
-//         border-color:#FFF;
-//         color:#333;
-//        }
-//        .fc-event.holiday {
-//         background-color:#3a87ad;
-//         border-color:#3a87ad;
-//         color:#FFF;
-//        }
-//        .fc-event.holiday.yomtov {
-//         background-color:#ffd446;
-//         border-color:#ffd446;
-//         color:#333;
-//        }
-//        .fc-event.parashat {
-//         background-color:#257e4a;
-//         border-color:#257e4a;
-//         color:#FFF;
-//        }
-//        .fc-event.hebrew .fc-title {
-//         font-family:'Alef Hebrew','SBL Hebrew',David;
-//         font-size:110%;
-//         font-weight:normal;
-//         direction:rtl;
-//        }
-//        .fc-event.hebrew .fc-time {
-//         direction:ltr;
-//         unicode-bidi: bidi-override;
-//        }
-       
-// })

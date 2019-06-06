@@ -27,7 +27,8 @@ router.get('/usersChores/future/:future', function (req, res, next) {
                 date:{
                   [Op.gte]: Date.now()
                 }
-              }
+              },
+              //include:[{all:true, nested:false}]
         })
         .then(chores => {
             console.log(chores);
@@ -44,7 +45,8 @@ router.get('/usersChores/future/:future', function (req, res, next) {
                 date:{
                   [Op.lte]: Date.now()
                 }
-              }
+              },
+              //include:[{all:true, nested:false}]
         })
         .then(chores => {
             console.log(chores);
@@ -805,8 +807,8 @@ router.get('/replacementRequests/status/:status', function (req, res, next) {
 
 //api 12
 router.post('/replacementRequests/specificRequest', function (req, res, next) {
-  //TODO: check if the useschores are in the future
-  //TODO: check if the useschores are in the same type
+  // check if the useschores are in the future-yes
+  // check if the useschores are in the same type-yes
   validations.checkIfUserChoreExist(req.body.choreIdOfSender, res)
   .then(choreSender=>{
       if (choreSender){

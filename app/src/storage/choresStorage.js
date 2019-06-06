@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, APP_SOCKET} from "../shared/constants";
 import moment from 'moment';
 
 
@@ -129,6 +129,7 @@ var replaceUserChores = function(userId, headers, choreIdOfSender, choreIdOfRece
             
         })
         .then(response => {
+            APP_SOCKET.emit("usersMadeChoreReplacement");
             return response;
         })
         .catch(error => {

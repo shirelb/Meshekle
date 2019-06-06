@@ -425,12 +425,14 @@ export default class ClosedReplacementRequests extends Component {
                         <View>
                         {this.state.userChoreSelected.choreOfSender!==undefined && this.state.userChoreSelected.choreOfSender.userId===this.userId ?
                         <View>
-                        <Text>התקבלה דחיה לבקשה שלך מהמשתמש:</Text>
+                        {this.state.userChoreSelected.status==='replaced'?<Text>ההחלפה בוצעה!  </Text>:<Text>התקבלה דחיה לבקשה שלך מהמשתמש:</Text>}
+                        <Text>פרטי הבקשה: </Text>
+                        <Text>תורנות:</Text>
                         <Text> {this.state.userChoreSelected.choreOfReceiver.choreTypeName}</Text>
-                        <Text> לגבי התורנות שלך:</Text>
-                        <Text>{moment(this.state.userChoreSelected.choreOfSender.date).format('DD-MM-YYYY')+' \n'    +this.state.userChoreSelected.choreOfSender.choreTypeName}</Text>
-                                <Text> {'עם:\n'+this.state.userChoreSelected.choreOfReceiver.User.fullname+' \n'    +
-                                this.state.userChoreSelected.choreOfReceiver.choreTypeName+' \n' + 'בתאריך:' +
+                        <Text>שולח הבקשה:</Text>
+                        <Text>{this.state.userChoreSelected.choreOfSender.User.fullname +'\nבתאריך: '+moment(this.state.userChoreSelected.choreOfSender.date).format('DD-MM-YYYY')+' \n'}</Text>
+                                <Text> {'מקבל הבקשה:\n'+this.state.userChoreSelected.choreOfReceiver.User.fullname+' \n'    +
+                                +' \n' + 'בתאריך:' +
                                 moment(this.state.userChoreSelected.choreOfReceiver.date).format('DD-MM-YYYY')+' \n'    
                                                         
                                 }</Text>

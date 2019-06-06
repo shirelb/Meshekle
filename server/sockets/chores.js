@@ -1,5 +1,5 @@
 
-module.exports = function (socket,pushToWebClient,pushToAppClient) {
+module.exports = function (socket,pushToWebClient,pushToAppClient, pushToAllAppClient, pushToAllWebClient) {
     // socket.on('userPostAppointmentRequests', (data) => {
     //     console.log('socket userPostAppointmentRequests data ', data);
     //     pushToWebClient(data, 'getServiceProviderAppointmentRequests');
@@ -7,7 +7,9 @@ module.exports = function (socket,pushToWebClient,pushToAppClient) {
 
     socket.on('usersMadeChoreReplacement', (data) => {
         console.log('socket usersMadeChoreReplacement data ', data);
-        pushToWebClient(data, 'getChangeInUserChores');
+        pushToAllWebClient('getChangeInUserChores');
+        pushToAllAppClient('getChangeInUserChores');
+
     });
 
     socket.on('serviceProviderPostUserChore', (data) => {

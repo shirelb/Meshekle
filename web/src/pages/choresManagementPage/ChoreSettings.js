@@ -54,7 +54,8 @@ export default class ChoreSettings extends React.Component {
     }
 
     componentDidMount() {
-        
+        console.log("laaaaaaaaaaaaaaa:",this.props.settings , this.location)
+        this.setState({settings:this.props.settings});
     }
 
     inputChange(e){
@@ -98,6 +99,7 @@ export default class ChoreSettings extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        console.log("in rwillreceiveprops nextProps.location:", nextProps.location)
         this.setState({settings:nextProps.location.state.settings}) ;
     }
 

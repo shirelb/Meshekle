@@ -13,6 +13,8 @@ import axios from "axios";
 import ReplacementRequests from '../../choresComponents/ReplacementRequests';
 import ClosedReplacementRequests from '../../choresComponents/ClosedReplacementRequests';
 import {APP_SOCKET} from "../../../shared/constants";
+import {connectToServerSocket} from "../../../shared/constants";
+
 
 
 
@@ -49,14 +51,18 @@ export default class ChoresCalendar extends Component {
                     'Authorization': 'Bearer ' + userData.token
                 };
                 this.userId = userData.userId;
+                connectToServerSocket(userData.userId);
+
                 this.loadUserChores();
+                APP_SOCKET.on("getUserChore", this.loadUserChores.bind(this));
+                APP_SOCKET.on("getChangeInUserChores", this.loadUserChores.bind(this));
             });
-            APP_SOCKET.on("getUserChore", this.loadUserChores);
 
     }
 
     componentWillUnmount() {
         APP_SOCKET.off("getUserChore");
+        APP_SOCKET.off("getChangeInUserChores");
     }
 
     loadUserChores() {
@@ -112,6 +118,7 @@ export default class ChoresCalendar extends Component {
                 this.setState({
                     markedDates: markedDates
                 });
+                this.forceUpdate();
 
                 console.log('user  333  markedDates ', markedDates);
             })
@@ -119,13 +126,13 @@ export default class ChoresCalendar extends Component {
 
     onDaySelect = (day) => {
         console.log('this.state.selectedDate === \'\' ', this.state.selectedDate === '');
-        if (this.state.selectedDate !== '')
-            console.log('this.state.markedDates[selectedDate].userChores.length === 0 ', this.state.markedDates[this.state.selectedDate].userChores.length === 0);
+        //if (this.state.selectedDate !== '')
+            //console.log('this.state.markedDates[selectedDate].userChores.length === 0 ', this.state.markedDates[this.state.selectedDate].userChores.length === 0);
 
         console.log("in onDaySelect day ", day);
         let updatedMarkedDates = this.state.markedDates;
 
-        if (this.state.selectedDate !== '') {
+        if (this.state.selectedDate !== '' && updatedMarkedDates[this.state.selectedDate]!==undefined) {
             let lastMarkedDate = updatedMarkedDates[this.state.selectedDate];
             lastMarkedDate.selected = false;
             updatedMarkedDates[this.state.selectedDate] = lastMarkedDate;
@@ -339,7 +346,7 @@ export default class ChoresCalendar extends Component {
 
 
                             <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
-                                {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].userChores.length === 0 ?
+                                {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate]===undefined||this.state.markedDates[this.state.selectedDate].userChores===undefined||this.state.markedDates[this.state.selectedDate].userChores.length === 0 ?
                                     <Text>אין לך תורנויות לתאריך זה </Text>
                                     :
                                     <FlatList

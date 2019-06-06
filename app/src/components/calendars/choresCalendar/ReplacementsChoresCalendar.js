@@ -9,7 +9,7 @@ import Button from "../../../components/submitButton/Button";
 import choresStorage from "../../../storage/choresStorage";
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import axios from "axios";
-
+import { APP_SOCKET } from '../../../shared/constants';
 
 export default class ReplacementsChoresCalendar extends Component {
     constructor(props) {
@@ -42,7 +42,11 @@ export default class ReplacementsChoresCalendar extends Component {
                 };
                 this.userId = userData.userId;
                 this.loadUserChores();
+                connectToServerSocket(userData.userId);
+                APP_SOCKET.on("usersMadeChoreReplacement", this.loadUserChores.bind(this));
+
             });
+            
     }
 
     loadUserChores() {

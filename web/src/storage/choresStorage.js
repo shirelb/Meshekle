@@ -121,6 +121,7 @@ var getUsersForChoreType = function(userId, userHeaders, type){
             headers: userHeaders, //
         })
         .then(response => {
+            console.log("4:getUsersForChoreType ",response);
             return response;
         })
         .catch(error => {
@@ -249,7 +250,20 @@ var createUserchoreEvent = function(serviceProviderId, headers, userId,eventId){
         });
 };
 
-//delete('/type/:type/users/userId/:userId'
+var getAllPastUserChores = function(userId, userHeaders){
+    return axios.get(`${SERVER_URL}/api/chores/usersChores/future/false`,
+        {
+            headers: userHeaders, //
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get all past user chores error ', error)
+        });
+};
+//router.get('/userChores/userId/:userId/future/:future', function (req, res, next) {
+
 
 export default {
     getAllChoreTypes,
@@ -264,5 +278,6 @@ export default {
     addUserToChoreType,
     deleteUserFromChoreType,
     getReplacementRequests,
-    createUserchoreEvent
+    createUserchoreEvent,
+    getAllPastUserChores
 }
