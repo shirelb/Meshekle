@@ -3,7 +3,7 @@
 import io from "socket.io-client";
 import store from "store";
 
-const SERVER_URL = "http://192.168.0.7:4000";
+const SERVER_URL = "http://212.199.203.85:80";
 
 const WEB_SOCKET = io(SERVER_URL);
 
