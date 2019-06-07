@@ -84,6 +84,11 @@ Events.belongsTo(ScheduledAppointments, {
     targetKey: 'appointmentId'
 });
 
+Events.belongsTo(UsersChores, {
+    foreignKey: 'eventId',
+    targetKey: 'userChoreId'
+});
+
 Events.belongsTo(Announcements, {
     foreignKey: 'eventId',
     targetKey: 'announcementId'

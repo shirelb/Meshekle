@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Message, TextArea, Field, Input} from 'semantic-ui-react';
+import {Dropdown, Form, Message, TextArea, Field, Input, Modal, Button, FormTextArea, Label} from 'semantic-ui-react';
 import moment from 'moment';
 import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css';
-import '../styles.css';
+//import 'react-datetime/css/react-datetime.css';
+//import '../styles.css';
 import usersStorage from "../../storage/usersStorage";
 import choresStorage from "../../storage/choresStorage";
 import DaysTags from "./DaysTags";
 import store from 'store';
+import NumericInput from 'react-numeric-input';
 
 class CreateNewChoreType extends Component {
 
@@ -35,7 +36,8 @@ class CreateNewChoreType extends Component {
                 startTime: "",
                 endTime: "",
                 color: "",
-            }
+            },
+            deviation:false,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -64,7 +66,7 @@ class CreateNewChoreType extends Component {
         };
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
-        choresStorage.createNewChoreType(this.serviceProviderId, this.headers, this.state.newSettings)
+        choresStorage.createNewChoreType(this.serviceProviderId, this.serviceProviderHeaders, this.state.newSettings)
         .then(res=>{
             console.log("settings updated to ",  this.state.newSettings,res.data);
             //this.props.location.state.openModalRequest("סוג תורנות הוספה בהצלחה!");
@@ -110,6 +112,7 @@ class CreateNewChoreType extends Component {
         const { handleCancel, submitText = 'שמור שינויים'} = this.props;
 
         return (
+            <div>
             <Form onSubmit={this.handleSubmit} error={formError}>
                 <Form.Field inline>
                     <label> שם התורנות: </label>
@@ -126,7 +129,7 @@ class CreateNewChoreType extends Component {
                 <DaysTags settings={this.state.settings} onChange={this.onChange}/>
                 <Form.Field inline>
                     <label> מספר עובדים</label>
-                    <Input
+                    {/*<Input
                         
                         autoComplete='on'
                         defaultValue={""}
@@ -134,7 +137,16 @@ class CreateNewChoreType extends Component {
                         name='numberOfWorkers'
                         width='10%'
                         type= 'number'
-                    />
+                    />*/}
+                    <NumericInput required number min={1} max={20}  name='numberOfWorkers' onChange={(value)=>{const {newSettings} = this.state;
+        console.log("handlechange: ", 'numberOfWorkers', value)
+        if(value>20){
+            this.setState({deviation:true})
+        }
+        else{
+        this.setState({deviation: false, newSettings: {...newSettings, numberOfWorkers: value}});
+        console.log("after set state ", this.state.newSettings);}}}/>
+        <label style={{color:'red'}}>{this.state.deviation?"חריגה" : ""}</label>
                 </Form.Field>
                 <Form.Field inline>
                 <label> תדירות</label>
@@ -149,7 +161,7 @@ class CreateNewChoreType extends Component {
                     margin="50%"
                 />
                 </Form.Field>
-                <Form.Group widths='equal'>
+                <Form.Group widths='2cm' width='4cm'>
                     <label>שעת התחלה</label>
                     <Form.Field
                         required
@@ -160,7 +172,7 @@ class CreateNewChoreType extends Component {
                         dateFormat={false}
                         install
                         onChange={time => this.onChangeTime(time, true)}
-                        // width='10'
+                         //width='2cm'
                     />
                     <label>שעת סיום</label>
                     <Form.Field
@@ -174,8 +186,9 @@ class CreateNewChoreType extends Component {
                         onChange={time => this.onChangeTime(time, false)}
                         // onChange={this.handleChange}
                         required
-                        // width='10'
+                         //width='2cm'
                     />
+
                 </Form.Group>
 
                 {formError ?
@@ -192,11 +205,11 @@ class CreateNewChoreType extends Component {
                 }
 
                 <Form.Group>
-                    <Form.Button type="submit">{submitText}</Form.Button>
+                    <Form.Button positive disabled={this.state.deviation} type="submit">{submitText}</Form.Button>
                     <Form.Button onClick={this.props.history.goBack}>בטל</Form.Button>
                 </Form.Group>
-
             </Form>
+                </div>
         )
     }
 }

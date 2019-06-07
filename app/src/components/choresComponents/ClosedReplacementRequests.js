@@ -366,7 +366,7 @@ export default class ClosedReplacementRequests extends Component {
                 }
                 axios.all(requests)
                 .then(res=>{
-                    reqss = requests;
+                    reqs = requests;
                     reqs = [];
                     reqs.push([ choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "replaced"),choresStorage.replaceUserChores(this.userId, this.userHeaders,this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver)]);  
                     axios.all(reqs)
@@ -419,18 +419,20 @@ export default class ClosedReplacementRequests extends Component {
                     transparent={false}
                     visible={this.state.choreModalVisible}
                     onRequestClose={() => {
-                        console.log('choreModal has been closed.');
+                        this.setState({choreModalVisible:false});
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
                         {this.state.userChoreSelected.choreOfSender!==undefined && this.state.userChoreSelected.choreOfSender.userId===this.userId ?
                         <View>
-                        <Text>התקבלה דחיה לבקשה שלך מהמשתמש:</Text>
+                        {this.state.userChoreSelected.status==='replaced'?<Text>ההחלפה בוצעה!  </Text>:<Text>התקבלה דחיה לבקשה שלך מהמשתמש:</Text>}
+                        <Text>פרטי הבקשה: </Text>
+                        <Text>תורנות:</Text>
                         <Text> {this.state.userChoreSelected.choreOfReceiver.choreTypeName}</Text>
-                        <Text> לגבי התורנות שלך:</Text>
-                        <Text>{moment(this.state.userChoreSelected.choreOfSender.date).format('DD-MM-YYYY')+' \n'    +this.state.userChoreSelected.choreOfSender.choreTypeName}</Text>
-                                <Text> {'עם:\n'+this.state.userChoreSelected.choreOfReceiver.User.fullname+' \n'    +
-                                this.state.userChoreSelected.choreOfReceiver.choreTypeName+' \n' + 'בתאריך:' +
+                        <Text>שולח הבקשה:</Text>
+                        <Text>{this.state.userChoreSelected.choreOfSender.User.fullname +'\nבתאריך: '+moment(this.state.userChoreSelected.choreOfSender.date).format('DD-MM-YYYY')+' \n'}</Text>
+                                <Text> {'מקבל הבקשה:\n'+this.state.userChoreSelected.choreOfReceiver.User.fullname+' \n'    +
+                                +' \n' + 'בתאריך:' +
                                 moment(this.state.userChoreSelected.choreOfReceiver.date).format('DD-MM-YYYY')+' \n'    
                                                         
                                 }</Text>
@@ -483,7 +485,10 @@ export default class ClosedReplacementRequests extends Component {
                     </View>
                     
                 </Modal>
-                <Modal visible={this.state.alertModal}>
+                <Modal visible={this.state.alertModal}
+                onRequestClose={() => {
+                        this.setState({alertModal:false});
+                    }}>
                     <Text>{this.state.alertContent}</Text>
                     <Button
                                 label='סגור'
