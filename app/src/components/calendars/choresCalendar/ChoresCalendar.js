@@ -1,22 +1,16 @@
 import React, {Component} from 'react';
 import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import {localConfig} from '../localConfig';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
-import {CheckBox, List, ListItem} from "react-native-elements";
+import {List, ListItem} from "react-native-elements";
 import Button from "../../../components/submitButton/Button";
 import choresStorage from "../../../storage/choresStorage";
 import ReplacementsChoresCalendar from "../choresCalendar/ReplacementsChoresCalendar";
-import { createStackNavigator, createAppContainer } from 'react-navigation';
 import axios from "axios";
 import ReplacementRequests from '../../choresComponents/ReplacementRequests';
 import ClosedReplacementRequests from '../../choresComponents/ClosedReplacementRequests';
-import {APP_SOCKET} from "../../../shared/constants";
-import {connectToServerSocket} from "../../../shared/constants";
-
-
-
+import {APP_SOCKET, connectToServerSocket} from "../../../shared/constants";
 
 
 export default class ChoresCalendar extends Component {

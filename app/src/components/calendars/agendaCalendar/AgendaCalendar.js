@@ -94,9 +94,7 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
-                            case
-                                'UsersChores'
-                            :
+                            case 'UsersChores':
                                 console.log("load items-> userschores", this.state.items)
                                 let chore = event['UsersChore'];
                                 item.type = event.eventType;
@@ -175,9 +173,7 @@ export default class AgendaCalendar extends Component {
                         <Text h3>{item.subject}</Text>
                     </Card>
                 );
-            case
-                'UsersChores'
-            :
+            case 'UsersChores':
                 return (
                     <Card
                         title={`תורנות`}

@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
+import {SERVER_URL,WEB_SOCKET} from "../shared/constants";
 import moment from 'moment';
 
 //import moment from "../components/appointment/AppointmentAdd";
@@ -15,11 +15,12 @@ var getAllChoreTypes = (serviceProviderId, headers) => {
         .then((response) => {
             let choreTypes = [];
             var type;
-            for (type in response.data) {
-                if (response.data[type].serviceProviderId === serviceProviderId) {
+            for(type in response.data){
+                if(response.data[type].serviceProviderId === serviceProviderId){
                     choreTypes.push(response.data[type]);
-                } else {
-                    console.log("else: ", type.serviceProviderId, serviceProviderId)
+                }
+                else{
+                    console.log("else: ", type.serviceProviderId,  serviceProviderId)
                 }
 
             }
@@ -32,8 +33,8 @@ var getAllChoreTypes = (serviceProviderId, headers) => {
         });
 };
 
-var getChoreTypeSetting = function (userId, userHeaders, type) {
-    console.log("userHeaders: ", userHeaders);
+var getChoreTypeSetting = function(userId, userHeaders, type){
+    console.log("userHeaders: ",userHeaders);
     return axios.get(`${SERVER_URL}/api/chores/type/${type}/settings`,
         {
             headers: userHeaders, //
@@ -49,21 +50,21 @@ var getChoreTypeSetting = function (userId, userHeaders, type) {
         });
 };
 
-var editChoreTypeSetting = function (serviceProviderId, headers, typeSettings) {
-    console.log("type: ", typeSettings);
+var editChoreTypeSetting = function(serviceProviderId, headers, typeSettings){
+    console.log("type: ",typeSettings);
     return axios.put(`${SERVER_URL}/api/chores/type/${typeSettings.choreTypeName}/settings/set`,
-        {
-            days: typeSettings.days,
-            numberOfWorkers: Number(typeSettings.numberOfWorkers),
-            frequency: Number(typeSettings.frequency),
-            startTime: typeSettings.startTime,
-            endTime: typeSettings.endTime,
-            color: typeSettings.color
-        },
-
-        {
+    {
+        days: typeSettings.days,
+        numberOfWorkers: Number(typeSettings.numberOfWorkers),
+        frequency: Number(typeSettings.frequency),
+        startTime: typeSettings.startTime,
+        endTime: typeSettings.endTime,
+        color: typeSettings.color
+    },    
+    
+    {
             headers: headers, //
-
+            
         })
         .then(response => {
             return response;
@@ -73,23 +74,23 @@ var editChoreTypeSetting = function (serviceProviderId, headers, typeSettings) {
         });
 };
 
-var createNewChoreType = function (serviceProviderId, headers, typeSettings) {
-    console.log("type: ", typeSettings, serviceProviderId);
+var createNewChoreType = function(serviceProviderId, headers, typeSettings){
+    console.log("type: ",typeSettings,serviceProviderId );
     return axios.post(`${SERVER_URL}/api/chores/add/choreType`,
-        {
-            choreTypeName: typeSettings.choreTypeName,
-            serviceProviderId: serviceProviderId,
-            days: typeSettings.days,
-            numberOfWorkers: Number(typeSettings.numberOfWorkers),
-            frequency: Number(typeSettings.frequency),
-            startTime: typeSettings.startTime,
-            endTime: typeSettings.endTime,
-            color: 'blue'/*typeSettings.color*/
-        },
-
-        {
+    {
+        choreTypeName: typeSettings.choreTypeName,
+        serviceProviderId: serviceProviderId,
+        days: typeSettings.days,
+        numberOfWorkers: Number(typeSettings.numberOfWorkers),
+        frequency: Number(typeSettings.frequency),
+        startTime: typeSettings.startTime,
+        endTime: typeSettings.endTime,
+        color: 'blue'/*typeSettings.color*/
+      },    
+    
+    {
             headers: headers //
-
+            
         })
         .then(response => {
             return response;
@@ -99,8 +100,8 @@ var createNewChoreType = function (serviceProviderId, headers, typeSettings) {
         });
 };
 
-var getUserChoresForType = function (userId, userHeaders, type, date) {
-    console.log("type: and month ", type, moment(Date.now()).format('MM'));
+var getUserChoresForType = function(userId, userHeaders, type, date){
+    console.log("type: and month ",type, moment(Date.now()).format('MM'));
     return axios.get(`${SERVER_URL}/api/chores/usersChores/type/${type}/month/${moment(Date.now()).format('MM')}/year/${moment(Date.now()).year()}`,
         {
             headers: userHeaders, //
@@ -113,14 +114,14 @@ var getUserChoresForType = function (userId, userHeaders, type, date) {
         });
 };
 
-var getUsersForChoreType = function (userId, userHeaders, type) {
-    console.log("type:getUsersForChoreType ", type);
+var getUsersForChoreType = function(userId, userHeaders, type){
+    console.log("type:getUsersForChoreType ",type);
     return axios.get(`${SERVER_URL}/api/chores/type/${type}/users`,
         {
             headers: userHeaders, //
         })
         .then(response => {
-            console.log("4:getUsersForChoreType ", response);
+            console.log("4:getUsersForChoreType ",response);
             return response;
         })
         .catch(error => {
@@ -128,20 +129,20 @@ var getUsersForChoreType = function (userId, userHeaders, type) {
         });
 };
 
-var createNewUserChore = function (serviceProviderId, headers, typeName, userId, date) {
-    console.log("type: ", typeName, serviceProviderId);
+var createNewUserChore = function(serviceProviderId, headers, typeName, userId, date){
+    console.log("type: ",typeName,serviceProviderId );
     return axios.post(`${SERVER_URL}/api/chores/add/userChore`,
-        {
-            userId: userId,
-            choreTypeName: typeName,
-            date: date,
-            //originDate: date,
-            isMark: false
-        },
-
-        {
+    {
+        userId: userId,
+        choreTypeName: typeName,
+        date: date,
+        //originDate: date,
+        isMark: false
+      },    
+    
+    {
             headers: headers, //
-
+            
         })
         .then(response => {
             WEB_SOCKET.emit('serviceProviderPostUserChore', {
@@ -154,8 +155,8 @@ var createNewUserChore = function (serviceProviderId, headers, typeName, userId,
         });
 };
 
-var deleteUserChore = function (serviceProviderId, headers, id) {//api29
-    console.log("id:deleteUserChore ", id);
+var deleteUserChore = function(serviceProviderId, headers, id){//api29
+    console.log("id:deleteUserChore ",id);
     return axios.delete(`${SERVER_URL}/api/chores/userChoreId/${id}/delete`,
         {
             headers: headers, //
@@ -168,8 +169,8 @@ var deleteUserChore = function (serviceProviderId, headers, id) {//api29
         });
 };
 
-var deleteChoreType = function (serviceProviderId, headers, typeName) {// api28
-    console.log("typeName:deleteChoreType ", typeName);
+var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
+    console.log("typeName:deleteChoreType ",typeName);
     return axios.delete(`${SERVER_URL}/api/chores/type/${typeName}/delete`,
         {
             headers: headers, //
@@ -182,17 +183,17 @@ var deleteChoreType = function (serviceProviderId, headers, typeName) {// api28
         });
 };
 
-var addUserToChoreType = function (serviceProviderId, headers, userId, typeName) {
-    console.log("type: ", typeName, serviceProviderId);
+var addUserToChoreType = function(serviceProviderId, headers, userId, typeName){
+    console.log("type: ",typeName,serviceProviderId );
     return axios.post(`${SERVER_URL}/api/chores/choreType/users/add/userId`,
-        {
-            userId: userId,
-            choreTypeName: typeName,
-        },
-
-        {
+    {
+        userId: userId,
+        choreTypeName: typeName,
+      },    
+    
+    {
             headers: headers, //
-
+            
         })
         .then(response => {
             return response;
@@ -202,8 +203,8 @@ var addUserToChoreType = function (serviceProviderId, headers, userId, typeName)
         });
 };
 
-var deleteUserFromChoreType = function (serviceProviderId, headers, userId, typeName) {// api28
-    console.log("typeName:deleteUserFromChoreType ", typeName);
+var deleteUserFromChoreType = function(serviceProviderId, headers,userId, typeName){// api28
+    console.log("typeName:deleteUserFromChoreType ",typeName);
     return axios.delete(`${SERVER_URL}/api/chores/type/${typeName}/users/userId/${userId}`,
         {
             headers: headers, //
@@ -216,10 +217,10 @@ var deleteUserFromChoreType = function (serviceProviderId, headers, userId, type
         });
 };
 
-var getReplacementRequests = function (userId, userHeaders, type, status) {
+var getReplacementRequests = function(userId, userHeaders, type,status){
     return axios.get(`${SERVER_URL}/api/chores/replacementRequests/status/${status}`,
         {
-            headers: userHeaders,
+            headers: userHeaders, 
         })
         .then(response => {
             return response;
@@ -229,17 +230,17 @@ var getReplacementRequests = function (userId, userHeaders, type, status) {
         });
 };
 
-var createUserchoreEvent = function (serviceProviderId, headers, userId, eventId) {
+var createUserchoreEvent = function(serviceProviderId, headers, userId,eventId){
     return axios.post(`${SERVER_URL}/api/chores/add/event/userChore`,
-        {
-            userId: userId,
-            eventType: 'UsersChores',
-            eventId: eventId,
-        },
-
-        {
+    {
+        userId: userId,
+        eventType: 'UsersChores',
+        eventId: eventId,
+      },    
+    
+    {
             headers: headers, //
-
+            
         })
         .then(response => {
             return response;
@@ -249,7 +250,7 @@ var createUserchoreEvent = function (serviceProviderId, headers, userId, eventId
         });
 };
 
-var getAllPastUserChores = function (userId, userHeaders) {
+var getAllPastUserChores = function(userId, userHeaders){
     return axios.get(`${SERVER_URL}/api/chores/usersChores/future/false`,
         {
             headers: userHeaders, //

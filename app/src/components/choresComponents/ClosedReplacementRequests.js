@@ -366,7 +366,7 @@ export default class ClosedReplacementRequests extends Component {
                 }
                 axios.all(requests)
                 .then(res=>{
-                    reqs = requests;
+                    let reqss = requests;
                     reqs = [];
                     reqs.push([ choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "replaced"),choresStorage.replaceUserChores(this.userId, this.userHeaders,this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver)]);  
                     axios.all(reqs)
