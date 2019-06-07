@@ -75,7 +75,7 @@ export default class AgendaCalendar extends Component {
                     events.forEach((event) => {
                         let item = {};
                         switch (event.eventType) {
-                            case 'Appointments': {
+                            case 'Appointments':
                                 let appointment = event['ScheduledAppointment'];
                                 item.type = event.eventType;
                                 item.itemId = appointment.appointmentId;
@@ -94,9 +94,7 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
-                            case
-                                'UsersChores'
-                            :
+                            case 'UsersChores':
                                 console.log("load items-> userschores", this.state.items)
                                 let chore = event['UsersChore'];
                                 item.type = event.eventType;
@@ -118,7 +116,6 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
-                            }
                             case 'Announcements': {
                                 let announcement = event['Announcement'];
                                 item.type = event.eventType;
@@ -153,7 +150,7 @@ export default class AgendaCalendar extends Component {
 
     renderItem = (item) => {
         switch (item.type) {
-            case 'Appointments': {
+            case 'Appointments':
                 return (
                     <Card
                         title={`${item.role} - ${item.serviceProviderFullname}`}
@@ -176,9 +173,7 @@ export default class AgendaCalendar extends Component {
                         <Text h3>{item.subject}</Text>
                     </Card>
                 );
-            case
-                'UsersChores'
-            :
+            case 'UsersChores':
                 return (
                     <Card
                         title={`תורנות`}
@@ -195,7 +190,6 @@ export default class AgendaCalendar extends Component {
                         </View>
                     </Card>
                 );
-            }
             case 'Announcements': {
                 return (
                     <Card
