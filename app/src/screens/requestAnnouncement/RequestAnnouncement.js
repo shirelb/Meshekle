@@ -1,5 +1,14 @@
 import React, {Component} from 'react';
-import {FlatList, StyleSheet, View, Switch, RefreshControl, ScrollView, Alert} from 'react-native';
+import {
+    FlatList,
+    StyleSheet,
+    View,
+    Switch,
+    RefreshControl,
+    ScrollView,
+    Alert,
+    BackHandler
+} from 'react-native';
 import {Divider, Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
 import Button from "../../components/submitButton/Button"
@@ -34,6 +43,21 @@ var options = {
         },
         content: {
             label:'תוכן',
+            multiline: true,
+            stylesheet: {
+                ...Form.stylesheet,
+                textbox: {
+                    ...Form.stylesheet.textbox,
+                    normal: {
+                        ...Form.stylesheet.textbox.normal,
+                        height: 150
+                    },
+                    error: {
+                        ...Form.stylesheet.textbox.error,
+                        height: 150
+                    }
+                }
+            }
         },
         expirationTime: {
             label:'תאריך תפוגה',
@@ -77,6 +101,7 @@ export default class RequestAnnouncement extends Component {
     }
 
     componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.cancelChanges);
         phoneStorage.get('userData')
             .then(userData => {
                 // console.log('agenda componentDidMount userData ', userData);
@@ -139,6 +164,7 @@ export default class RequestAnnouncement extends Component {
     cancelChanges = () => {
         this.clearForm();
         this.props.navigation.navigate('AnnouncementsScreen');
+        return true;
     };
 
     clearForm = () => {

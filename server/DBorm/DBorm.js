@@ -37,7 +37,11 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: process.dbMode === "dev"? './DBorm/sqliteTests.db':'./DBorm/sqlite.db'
+    storage: process.dbMode === "dev" ?
+        './DBorm/sqliteTests.db' :
+        process.argv[2] === "feDev" ?
+            './DBorm/sqliteFEtests.db' :
+            './DBorm/sqlite.db'
 });
 
 sequelize
@@ -85,6 +89,11 @@ Events.belongsTo(UsersChores, {
     targetKey: 'userChoreId'
 });
 
+Events.belongsTo(Announcements, {
+    foreignKey: 'eventId',
+    targetKey: 'announcementId'
+});
+
 /*ScheduledAppointments.hasOne(Events, {
     foreignKey: 'eventId',
     targetKey: 'appointmentId'
@@ -95,10 +104,10 @@ Events.belongsTo(UsersChores, {
     targetKey: 'userId'
 });*/
 
-Users.hasMany(Events, {
+/*Users.hasMany(Events, {
     foreignKey: 'userId',
     targetKey: 'userId'
-});
+});*/
 
 Users.hasMany(AppointmentDetails, {
     foreignKey: 'userId',
@@ -144,49 +153,49 @@ AppointmentRequests.belongsTo(ScheduledAppointments, {
     foreignKey: 'requestId',
     targetKey: 'appointmentId'
 });
-//
+
 Users.hasMany(UsersChoresTypes, {
-    foreignKey: 'userId', 
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 UsersChoresTypes.belongsTo(Users, {
-    foreignKey: 'userId', 
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 Users.hasMany(UsersChores, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 UsersChores.belongsTo(Users, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 
 Users.hasMany(ServiceProviders, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 ServiceProviders.hasOne(Users, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 
 SwapRequests.belongsTo(UsersChores, {
     as: 'choreOfReceiver',
     foreignKey: 'choreIdOfReceiver',
-    targetKey:'userChoreId'
+    targetKey: 'userChoreId'
 });
 SwapRequests.belongsTo(UsersChores, {
-    as:'choreOfSender',
+    as: 'choreOfSender',
     foreignKey: 'choreIdOfSender',
-    targetKey:'userChoreId'
+    targetKey: 'userChoreId'
 });
 
-//if (process.dbMode === "dev") {
-    sequelize.sync({force: false})
+if (process.dbMode === "dev") {
+    sequelize.sync({force: true})
         .then(() => {
-            /*RulesModules.bulkCreate([
+            RulesModules.bulkCreate([
                 {
                     role: "Admin",
                     module: "all",
@@ -236,16 +245,86 @@ SwapRequests.belongsTo(UsersChores, {
                                 active: true,
                             })
                         })
-                        .then(*/
+                        .then(
                             console.log(`Database & tables created!`)
-             //           )
-             //   })
+                        )
+                })
 
         });
-//}
+} else if (process.argv[2] === "feDev") {
+    const fs = require('fs');
+    const csv = require("csvtojson");
+    let promises = [];
+
+    sequelize.sync({force: true})
+        .then(() => {
+            fs.readdir('./DBorm/fakeData', (err, files) => {
+                files.forEach(csvFile => {
+                    promises.push(csv().fromFile('./DBorm/fakeData/' + csvFile));
+                });
+                Promise.all(promises)
+                    .then((jsonArrayObjects) => {
+                        jsonArrayObjects.forEach((jsobObj, index) => {
+                            sequelize.models[files[index].split('.')[1]].bulkCreate(jsobObj)
+                                .then(response =>
+                                    console.log(response)
+                                )
+                                .catch(error =>
+                                    console.log(error)
+                                )
+                        })
+                    })
+            });
+        });
+} else if (process.argv[2] === "galedDB") {
+    const csv = require("csvtojson");
+
+    sequelize.sync({force: true})
+        .then(() => {
+            csv().fromFile('./DBorm/galedPopulationUTF8.csv')
+                .then((jsobObj) => {
+                    Users.bulkCreate(jsobObj)
+                        .then(response =>
+                            console.log(response)
+                        )
+                        .catch(error =>
+                            console.log(error)
+                        )
+                });
+
+            RulesModules.create({
+                role: "Admin",
+                module: "all",
+            })
+                .then(response => {
+                    Users.create({
+                        userId: '1',
+                        fullname: 'מנהל מערכת',
+                        password: '4d0b24ccade22df6d154778cd66baf04288aae26df97a961f3ea3dd616fbe06dcebecc9bbe4ce93c8e12dca21e5935c08b0954534892c568b8c12b92f26a2448',
+                        email: 'admin@gamil.com',
+                        mailbox: 1,
+                        cellphone: '0123456789',
+                        phone: '0123456789',
+                        bornDate: new Date('1992-11-25'),
+                        active: true,
+                    })
+                        .then(user => {
+                            ServiceProviders.create({
+                                serviceProviderId: 1,
+                                userId: user.userId,
+                                role: 'Admin',
+                                operationTime: 'all time',
+                                phoneNumber: '0123456789',
+                                appointmentWayType: 'Admin',
+                                subjects: "[\"הכל\"]",
+                                active: true,
+                            })
+                        })
+                })
+        })
+}
 
 
-    
 module.exports = {
     sequelize,
     Users,

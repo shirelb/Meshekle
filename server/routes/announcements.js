@@ -9,7 +9,7 @@ var nodemailer = require('nodemailer');
 
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Announcements, AnnouncementSubscriptions, Categories} = require('../DBorm/DBorm');
+const {Events, Announcements, AnnouncementSubscriptions, Categories} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 
@@ -335,10 +335,10 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                             categoryName: {[Op.in]: categoriesNames}
                         }
                     })
-                        .then(categories => {
+                        .then(categories2 => {
 
 
-                            var categoriesIDs = categories.map((cat) => cat.dataValues.categoryId);
+                            var categoriesIDs = categories2.map((cat) => cat.dataValues.categoryId);
 
                             Announcements.findAll({
                                 where: {
@@ -346,6 +346,63 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                                         [Op.in]: categoriesIDs
                                     },
                                     status: constants.statueses.REQUEST_STATUS
+                                }
+                            })
+                                .then(announcements => {
+                                    console.log(announcements);
+                                    res.status(200).send(announcements);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+// GET all Announcements that relevant for a specific service provider and got answered already
+router.get('/answeredRequests/serviceProviderId/:serviceProviderId', function (req, res, next) {
+    validations.getServiceProvidersByServProIdPromise(parseInt(req.params.serviceProviderId))
+        .then(serviceProvider => {
+            if (serviceProvider.length === 0) {
+                return res.status(400).send({"message": announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
+            }
+            Categories.findAll({
+                where: {
+                    serviceProviderId: parseInt(req.params.serviceProviderId)
+                }
+            })
+                .then(categories => {
+                    var categoriesNames = categories.map((cat) => cat.dataValues.categoryName);
+
+                    Categories.findAll({
+                        where: {
+                            categoryName: {[Op.in]: categoriesNames}
+                        }
+                    })
+                        .then(categories2 => {
+
+
+                            var categoriesIDs = categories2.map((cat) => cat.dataValues.categoryId);
+
+                            Announcements.findAll({
+                                where: {
+                                    categoryId: {
+                                        [Op.in]: categoriesIDs
+                                    },
                                 }
                             })
                                 .then(announcements => {
@@ -686,7 +743,7 @@ router.post('/categories/add', function (req, res, next) {
                                     }
                                 })
                             ).then(newCat => {
-                                res.status(200).send({
+                                return res.status(200).send({
                                     "message": announcementsRoute.CATEGORY_ADDED_SUCC,
                                     "result": newCat.dataValues
                                 });
@@ -732,7 +789,7 @@ router.post('/categories/update', function (req, res, next) {
 
             validations.getServiceProvidersByServiceProviderIdsPromise(req.body.managers.map(item => item.serviceProviderId))
                 .then(serviceProviders => {
-                    if (serviceProviders.length !== req.body.managers.length)
+                    if (serviceProviders.length < req.body.managers.length)
                         return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
 
                     // if (!isCategoryExists(req.body.categoryName))
@@ -853,6 +910,46 @@ router.put('/categories/delete/categoryName/:categoryName', function (req, res, 
             res.status(500).send(err);
         })
 });
+
+
+
+
+
+// ADD announcement event
+router.post('/event/add', function (req, res, next) {
+
+    validations.getUsersByUserIdPromise(req.body.userId)
+        .then(users => {
+            if (users.length === 0)
+                return res.status(400).send({message: announcementsRoute.USER_NOT_FOUND});
+            Events.create(
+                {
+                    userId: req.body.userId,
+                    eventType: "Announcements",
+                    eventId: req.body.announcementId
+                }
+            )
+                .then(newEvent => {
+                    res.status(200).send({
+                        "message": announcementsRoute.EVENT_ADDED_SUCC,
+                        "result": newEvent.dataValues
+                    });
+
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+
+});
+
+
+
 
 
 function validateTime(expirationTime) {

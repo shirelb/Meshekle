@@ -1,15 +1,25 @@
 import React from "react";
 import {Card, Icon, List} from 'semantic-ui-react';
 
-import $ from 'jquery';
-import 'jquery/dist/jquery.min';
-import "jquery-ui/ui/widgets/draggable";
-import "jquery-ui/ui/widgets/droppable";
+const $ = require('jquery');
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
+window.jQuery = $;
+require('jquery-ui/ui/version');
+require('jquery-ui/ui/plugin');
+require('jquery-ui/ui/widget');
+require('jquery-ui/ui/widgets/mouse');
+require('jquery-ui/ui/widgets/resizable');
+require("jquery-ui/ui/widgets/draggable");
+require("jquery-ui/ui/widgets/droppable");
+
+
 const colorCardByRole = {
+    "מספרה": "blue",
     appointmentsHairDresser: "blue",
+
+    "מרפאת שיניים": "olive",
     appointmentsDentist: "olive",
 };
 
@@ -53,40 +63,6 @@ export default class DraggableAppointmentRequest extends React.Component {
                                 onMouseLeave={this.props.hoverOffAppointmentRequest(appointmentRequest)}
                                 draggable={"true"}
                             >
-                                {/*<Image avatar src='https://react.semantic-ui.com/images/avatar/small/helen.jpg' />*/}
-                                {/* <List.Content>
-                                    <List.Header>{appointmentRequest.clientName}</List.Header>
-                                    <List.Description
-                                    as='a'>{appointmentRequest.AppointmentDetail.serviceProviderId}</List.Description>
-                                    <List.Description
-                                    as='a'>{appointmentRequest.AppointmentDetail.role}</List.Description>
-                                    <List.Description>{JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</List.Description>
-                                    <List.Description>{appointmentRequest.notes}</List.Description>
-                                    <List.Description>
-                                {Array.isArray(appointmentRequest.optionalTimes) &&
-                                    appointmentRequest.optionalTimes.map((datesTimes, j) =>
-                                    (
-                                    <List.Item key={j}>
-                                    <List.Content>
-                                    <List.Description>{moment(datesTimes.date).format('DD.MM.YYYY')}:</List.Description>
-                                    <List.Description>
-                                    {Array.isArray(datesTimes.hours) &&
-                                    datesTimes.hours.map((time, k) =>
-                                        (
-                                            <List.Item key={k}>
-                                                <List.Content>
-                                                    <List.Description>      {time.startHour}-{time.endHour}</List.Description>
-                                                </List.Content>
-                                            </List.Item>
-                                        ),
-                                    )}
-                                    </List.Description>
-                                    </List.Content>
-                                    </List.Item>
-                                    ),
-                                    )}
-                                    </List.Description>
-                                    </List.Content>*/}
                                 <List.Content as={Card} centered
                                               color={`${colorCardByRole[appointmentRequest.AppointmentDetail.role]}`}
                                               style={{color: `${this.props.colorEventByRole[appointmentRequest.AppointmentDetail.role]}`}}>

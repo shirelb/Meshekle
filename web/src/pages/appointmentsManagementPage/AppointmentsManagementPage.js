@@ -20,8 +20,8 @@ import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import helpers from "../../shared/helpers";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
-const TOTAL_PER_PAGE = 10;
 
 const colorEventByRole = {
     appointmentsHairDresser: "#3a87ad",
@@ -30,11 +30,10 @@ const colorEventByRole = {
 
 
 const hex2rgba = (hex, alpha = 1) => {
-    try{
+    try {
         const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
         return `rgba(${r},${g},${b},${alpha})`;
-    }
-    catch (e) {
+    } catch (e) {
         return hex;
     }
 
@@ -46,20 +45,11 @@ class AppointmentsManagementPage extends React.Component {
         this.state = {
             appointments: [],
             appointmentRequests: [],
-            calendarEvents: [],
-            page: 0,
-            totalPages: 0,
-            openPopup: false,
-            eventPopup: {},
             highlightTableRow: null,
             appointmentRequestHoovering: {requestId: -1},
             appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
         };
 
-        this.incrementPage = this.incrementPage.bind(this);
-        this.decrementPage = this.decrementPage.bind(this);
-        this.setPage = this.setPage.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
         this.updateAfterMoveOrResizeEvent = this.updateAfterMoveOrResizeEvent.bind(this);
 
         this.serviceProviderHeaders = '';
@@ -72,17 +62,39 @@ class AppointmentsManagementPage extends React.Component {
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
 
+        this.getServiceProviderRoles();
         this.getServiceProviderAppointments();
         this.getServiceProviderAppointmentRequests();
+        this.getUsersForAppointmentForm();
 
         connectToServerSocket(store.get('serviceProviderId'));
 
         WEB_SOCKET.on("getServiceProviderAppointmentRequests", this.getServiceProviderAppointmentRequests.bind(this));
+        WEB_SOCKET.on("getServiceProviderAppointments", this.getServiceProviderAppointments.bind(this));
     }
 
     componentWillUnmount() {
         WEB_SOCKET.off("getServiceProviderAppointmentRequests");
+        WEB_SOCKET.off("getServiceProviderAppointments");
     }
+
+    getUsersForAppointmentForm = () => {
+        let userOptions = {};
+
+        usersStorage.getUsers()
+            .then(users => {
+                // console.log('users ', users);
+                if (Array.isArray(users))
+                    userOptions = users.filter(u => u.active).map(item =>
+                        ({
+                            key: item.userId,
+                            text: item.fullname,
+                            value: item.fullname
+                        })
+                    )
+                this.setState({userOptions: userOptions})
+            });
+    };
 
     getServiceProviderAppointmentRequests() {
         this.setState({
@@ -92,7 +104,6 @@ class AppointmentsManagementPage extends React.Component {
         appointmentsStorage.getServiceProviderAppointmentRequests(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
                 const appointmentRequests = response.data;
-                const totalPages = Math.ceil(appointmentRequests.length / TOTAL_PER_PAGE);
 
                 if (appointmentRequests.length === 0) {
                     this.setState({
@@ -127,10 +138,6 @@ class AppointmentsManagementPage extends React.Component {
                             });
                     });
 
-                this.setState({
-                    page: 0,
-                    totalPages,
-                });
             });
     }
 
@@ -155,7 +162,6 @@ class AppointmentsManagementPage extends React.Component {
                 });
 
                 const appointments = response.data;
-                const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
 
                 if (appointments.length === 0) {
                     this.setState({
@@ -190,39 +196,24 @@ class AppointmentsManagementPage extends React.Component {
                             });
                     });
 
-                this.setState({
-                    page: 0,
-                    totalPages,
-                });
-
             });
     }
 
-    setPage(page) {
-        return () => {
-            this.setState({page});
-        };
-    }
+    getServiceProviderRoles = () => {
+        let serviceProviderRoles = {};
+        this.setState({serviceProviderRoles: {}});
 
-    decrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page - 1});
-    }
-
-    incrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page + 1});
-    }
-
-    handleDelete(appointmentId) {
-        const {appointments} = this.state;
-
-        this.setState({
-            appointments: appointments.filter(a => a.id !== appointmentId),
-        });
-    }
+        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+            .then(serviceProvidersFound => {
+                // console.log('serviceProvidersFound ', serviceProvidersFound);
+                if (Array.isArray(serviceProvidersFound)) {
+                    serviceProviderRoles = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item) =>
+                        item.role
+                    );
+                    this.setState({serviceProviderRoles: serviceProviderRoles})
+                }
+            });
+    };
 
     hoverOnAppointmentRequest = (appointmentRequest) => {
         let isAppointmentsWithOptional = this.state.appointments.filter(obj => obj.id === appointmentRequest.requestId && obj.status === 'optional');
@@ -262,7 +253,7 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     onSelectEvent = event => {
-        console.log('onSelectEvent=event  ', event);
+        // console.log('onSelectEvent=event  ', event);
         // if (event.appointmentId === this.state.highlightTableRow)
         //     this.setState({highlightTableRow: null});
         // else {
@@ -392,17 +383,19 @@ class AppointmentsManagementPage extends React.Component {
                         <Grid.Column width={3}></Grid.Column>
 
                         <div className={"right floated five"}>
-                            {Object.keys(colorEventByRole).map(role => {
-                                return <Label style={{
-                                    color: "white",
-                                    backgroundColor: `${colorEventByRole[role]}`,
-                                    marginLeft: 10
-                                }}>
-                                    {strings.roles[role]}
-                                    &nbsp;&nbsp;
-                                    <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
-                                </Label>
-                            })
+                            {Array.isArray(this.state.serviceProviderRoles) ?
+                                this.state.serviceProviderRoles.map(role => {
+                                    return <Label style={{
+                                        color: "white",
+                                        backgroundColor: `${colorEventByRole[role]}`,
+                                        marginLeft: 10
+                                    }}>
+                                        {strings.roles[role]}
+                                        &nbsp;&nbsp;
+                                        <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
+                                    </Label>
+                                })
+                                : null
                             }
                         </div>
 
@@ -452,13 +445,29 @@ class AppointmentsManagementPage extends React.Component {
                         <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
                                component={AppointmentRequestInfo}/>
                         <Route exec path={`${this.props.match.path}/set`} render={(props) => (
-                            <AppointmentAdd {...props}
-                                            approveAppointmentRequest={(appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent)}/>
+                            <AppointmentAdd
+                                {...props}
+                                approveAppointmentRequest={(appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent)}
+                                userOptions={this.state.userOptions}
+                                serviceProviderRoles={this.state.serviceProviderRoles}
+                            />
                         )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId`}
-                               component={AppointmentInfo}/>
+                               render={(props) => (
+                                   <AppointmentInfo
+                                       {...props}
+                                       userOptions={this.state.userOptions}
+                                       serviceProviderRoles={this.state.serviceProviderRoles}
+                                   />
+                               )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
-                               component={AppointmentEdit}/>
+                               render={(props) => (
+                                   <AppointmentEdit
+                                       {...props}
+                                       userOptions={this.state.userOptions}
+                                       serviceProviderRoles={this.state.serviceProviderRoles}
+                                   />
+                               )}/>
 
                         {/*{
                             (this.props.location.pathname === window.location.pathname) ?

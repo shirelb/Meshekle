@@ -697,7 +697,7 @@ class ChoresManagementPage extends React.Component {
 
                                    />
                                )}/>/>
-                        <Redirect to={`${this.props.match.path}`}/>
+                        {/*<Redirect to={`${this.props.match.path}`}/>*/}
                     </Switch>
                    {/* {this.state.showHistoryTable === false ?
                         <DraggableUser usersInType={this.state.users}

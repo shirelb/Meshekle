@@ -5,22 +5,25 @@ import 'fullcalendar/dist/locale/he.js';
 
 import moment from 'moment';
 import 'moment/min/moment.min';
-
-import $ from 'jquery';
-import 'jquery/dist/jquery.min';
-import "jquery-ui/ui/widgets/draggable";
-import "jquery-ui/ui/widgets/droppable";
-import {Button, Grid, Header, Icon, Modal, Portal, Segment, Select, Table} from 'semantic-ui-react';
-import helpers from "../../shared/helpers";
-import choresStorage from "../../storage/choresStorage";
-import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants"
-import axios from "axios";
+import {Button, Header, Icon, Menu, Table, Modal, Select, Label,Portal,Segment,Grid} from 'semantic-ui-react';
 
 
+const $ = require('jquery');
 // import "jquery-ui-dist/jquery-ui.min.css";
 // import "jquery-ui-dist/jquery-ui.min";
 
 // import './bootstrap.min.css';
+
+window.jQuery = $;
+require('jquery-ui/ui/version');
+require('jquery-ui/ui/plugin');
+require('jquery-ui/ui/widget');
+require('jquery-ui/ui/widgets/mouse');
+require('jquery-ui/ui/widgets/resizable');
+require("jquery-ui/ui/widgets/draggable");
+require("jquery-ui/ui/widgets/droppable");
+
+
 var userschores = [];
 export default class ChoresCalendar extends Component {
     constructor(props) {
@@ -29,7 +32,6 @@ export default class ChoresCalendar extends Component {
         this.calendarDisplay = this.props.calendarDisplay;
         this.fullcalendarConfig = {
             events: [],
-
             height: 630,
             header: {
                 left: 'next,prev',
@@ -62,13 +64,15 @@ export default class ChoresCalendar extends Component {
             selectMirror: true,
             unselectAuto: true,
             eventDrop: null,
-
+            
 
             eventReceive: function (event) {
                 console.log('event, ' + event + ', was added, (need date here)', moment(event.target).format('DD-MM-YYYY'));
                 console.log('eventReceive function');
                 props.onDraggedUser(event, "dayEvent", event.target);
             },
+
+           
 
             eventResize: null,
 
@@ -375,54 +379,3 @@ export default class ChoresCalendar extends Component {
         );
     }
 }
-
-// const style=StyleSheet.create({
-//     .fc-event.hebdate, .fc-event.omer {
-//         background-color:#FFF;
-//         border-color:#FFF;
-//         color:#999;
-//        }
-//        .fc-event.dafyomi {
-//         background-color:#FFF;
-//         border-color:#FFF;
-//         color:#08c;
-//        }
-//        .fc-event.dafyomi a {
-//         color: #0088cc;
-//        }
-//        .fc-event.dafyomi a:hover,
-//        .fc-event.dafyomi a:focus {
-//         color: #005580;
-//        }
-//        .fc-event.candles, .fc-event.havdalah {
-//         background-color:#FFF;
-//         border-color:#FFF;
-//         color:#333;
-//        }
-//        .fc-event.holiday {
-//         background-color:#3a87ad;
-//         border-color:#3a87ad;
-//         color:#FFF;
-//        }
-//        .fc-event.holiday.yomtov {
-//         background-color:#ffd446;
-//         border-color:#ffd446;
-//         color:#333;
-//        }
-//        .fc-event.parashat {
-//         background-color:#257e4a;
-//         border-color:#257e4a;
-//         color:#FFF;
-//        }
-//        .fc-event.hebrew .fc-title {
-//         font-family:'Alef Hebrew','SBL Hebrew',David;
-//         font-size:110%;
-//         font-weight:normal;
-//         direction:rtl;
-//        }
-//        .fc-event.hebrew .fc-time {
-//         direction:ltr;
-//         unicode-bidi: bidi-override;
-//        }
-
-// })

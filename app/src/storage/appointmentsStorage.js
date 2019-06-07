@@ -98,11 +98,31 @@ var cancelAppointmentRequestById = (appointmentRequest, headers) => {
         });
 };
 
+var cancelAppointmentById = (appointment, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointments/user/cancel/userId/${appointment.AppointmentDetail.clientId}/appointmentId/${appointment.appointmentId}`,
+        {},
+        {
+            headers: headers
+        }
+    )
+        .then((response) => {
+            APP_SOCKET.emit('userCancelAppointment', {
+                serviceProviderId: appointment.AppointmentDetail.serviceProviderId,
+            });
+
+            return response
+        })
+        .catch((error) => {
+            console.log('cancel appointment error ', error);
+        });
+};
+
 
 export default {
     getUserAppointments,
     getUserAppointmentById,
     postUserAppointmentRequest,
     getUserAppointmentRequests,
-    cancelAppointmentRequestById
+    cancelAppointmentRequestById,
+    cancelAppointmentById,
 };

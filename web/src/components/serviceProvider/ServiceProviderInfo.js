@@ -80,8 +80,8 @@ class ServiceProviderInfo extends React.Component {
             <div>
                 <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                     <Helmet>
-                        <title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>
-                        {/*<title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>*/}
+                        <title>Meshekle |
+                            ServiceProvider {serviceProvider.fullname ? serviceProvider.fullname : serviceProvider.serviceProviderId}</title>
                     </Helmet>
 
                     <Modal.Header>{serviceProvider.fullname}</Modal.Header>
@@ -129,14 +129,20 @@ class ServiceProviderInfo extends React.Component {
                             }
                             <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
 
-                            <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                            {this.props.hasPhoneBookPermissions ?
+                                <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                : null
+                            }
                         </Modal.Description>
                     </Modal.Content>
-                    <Modal.Actions className='alignLeft'>
-                        <Button positive onClick={this.handleEdit}>ערוך</Button>
-                        <Button negative onClick={this.handleDelete}>מחק</Button>
-                        <Button onClick={() => this.props.history.goBack()}>סגור</Button>
-                    </Modal.Actions>
+                    {this.props.hasPhoneBookPermissions ?
+                        <Modal.Actions className='alignLeft'>
+                            <Button positive onClick={this.handleEdit}>ערוך</Button>
+                            <Button negative onClick={this.handleDelete}>מחק</Button>
+                            <Button onClick={() => this.props.history.goBack()}>סגור</Button>
+                        </Modal.Actions>
+                        : null
+                    }
                 </Modal>
 
                 <div>

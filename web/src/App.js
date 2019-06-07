@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Redirect, Route, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import './App.css';
 import MainPage from './pages/mainPage/MainPage';
 import LoginPage from './pages/loginPage/LoginPage';
+import ErrorBoundary from './pages/errorPage/ErrorBoundary';
 
 
 class App extends Component {
@@ -10,15 +11,19 @@ class App extends Component {
 
         return (
             <Router>
-                {/*<div className="app-routes">*/}
-                    <Switch>
-                        <Route path="/login" component={LoginPage}/>
-                        <Route path="/" component={MainPage}/>
-                        <Redirect to="/login"/>
-                    </Switch>
-                {/*</div>*/}
+                <Switch>
+                    <Route path="/login" render={() => (
+                        <ErrorBoundary>
+                            <LoginPage/>
+                        </ErrorBoundary>
+                    )}/>
+                    <Route path="/" render={() => (
+                        <ErrorBoundary>
+                            <MainPage/>
+                        </ErrorBoundary>
+                    )}/>
+                </Switch>
             </Router>
-
         );
     }
 }

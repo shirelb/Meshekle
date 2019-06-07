@@ -1,0 +1,178 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MainPage should render Home when user is authenticated 1`] = `
+MainPage {
+  "context": Object {},
+  "getServiceProviderHomeDetails": [Function],
+  "handleLogout": [Function],
+  "hasPhoneBookPermissions": [Function],
+  "props": Object {
+    "location": Object {
+      "pathname": "/home",
+    },
+    "match": Object {
+      "isExact": true,
+      "path": "/home",
+      "url": "/home",
+    },
+  },
+  "refs": Object {},
+  "serviceProviderHeaders": Object {
+    "Authorization": "Bearer SOME TOKEN eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+  },
+  "setState": [Function],
+  "state": Object {
+    "serviceProviderPermissions": Array [
+      "appointments",
+    ],
+    "serviceProviderRoles": Array [
+      "appointmentsHairDresser",
+    ],
+    "userFullname": "Padget Creaser",
+  },
+  "updater": Updater {
+    "_callbacks": Array [],
+    "_renderer": ReactShallowRenderer {
+      "_context": Object {},
+      "_didScheduleRenderPhaseUpdate": false,
+      "_dispatcher": Object {
+        "readContext": [Function],
+        "useCallback": [Function],
+        "useContext": [Function],
+        "useDebugValue": [Function],
+        "useEffect": [Function],
+        "useImperativeHandle": [Function],
+        "useLayoutEffect": [Function],
+        "useMemo": [Function],
+        "useReducer": [Function],
+        "useRef": [Function],
+        "useState": [Function],
+      },
+      "_element": <MainPage
+        location={
+          Object {
+            "pathname": "/home",
+          }
+        }
+        match={
+          Object {
+            "isExact": true,
+            "path": "/home",
+            "url": "/home",
+          }
+        }
+      />,
+      "_firstWorkInProgressHook": null,
+      "_forcedUpdate": false,
+      "_instance": [Circular],
+      "_isReRender": false,
+      "_newState": null,
+      "_numberOfReRenders": 0,
+      "_renderPhaseUpdates": null,
+      "_rendered": <div>
+        <HelmetWrapper
+          defer={true}
+          encodeSpecialCharacters={true}
+        >
+          <title>
+            Meshekle
+          </title>
+        </HelmetWrapper>
+        <Sidebar
+          as={[Function]}
+          direction="right"
+          duration={500}
+          icon="labeled"
+          inverted={true}
+          vertical={true}
+          visible={true}
+          width="thin"
+        >
+          <MenuItem
+            as={[Function]}
+            name="home"
+            to="/home"
+          >
+            <Icon
+              as="i"
+              name="home"
+            />
+            בית
+          </MenuItem>
+          <MenuItem
+            as={[Function]}
+            name="phoneBook"
+            to="/phoneBook"
+          >
+            <Icon
+              as="i"
+              name="address book outline"
+            />
+            ספר טלפונים
+          </MenuItem>
+          <MenuItem
+            as={[Function]}
+            name="appointments"
+            to="/appointments"
+          >
+            <Icon
+              as="i"
+              name="calendar alternate outline"
+            />
+            תורים
+          </MenuItem>
+          <MenuItem
+            name="logout"
+            onClick={[Function]}
+          >
+            <Icon
+              as="i"
+              name="power"
+            />
+            התנתק
+          </MenuItem>
+        </Sidebar>
+        <div
+          className="mainBody"
+        >
+          <Switch>
+            <Route
+              exec={true}
+              path="/home"
+              render={[Function]}
+            />
+            <Route
+              exec={true}
+              path="/phoneBook"
+              render={[Function]}
+            />
+            <Route
+              component={[Function]}
+              exec={true}
+              path="/appointments/report"
+            />
+            <Route
+              component={[Function]}
+              path="/appointments"
+            />
+            <Route
+              component={[Function]}
+              path="/chores"
+            />
+            <Route
+              component={[Function]}
+              path="/announcements"
+            />
+            <Route
+              component={[Function]}
+            />
+          </Switch>
+        </div>
+      </div>,
+      "_rendering": false,
+      "_updater": [Circular],
+      "_workInProgressHook": null,
+    },
+  },
+}
+`;

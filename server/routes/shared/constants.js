@@ -50,8 +50,8 @@ module.exports = {
         INVALID_APP_WAY_TYPE_INPUT: "Invalid appointment way type input",
         INVALID_PHONE_INPUT: "Invalid phone input",
         INVALID_EMAIL_INPUT: "Invalid email input",
-        INVALID_MAIL_BOX_INPUT: "Invalid email input",
-        INVALID_BORN_DATE_INPUT: "Invalid email input",
+        INVALID_MAIL_BOX_INPUT: "Invalid mailbox input",
+        INVALID_BORN_DATE_INPUT: "Invalid born date input",
 
         USER_ALREADY_EXISTS: "User is already exists",
     },
@@ -140,6 +140,7 @@ module.exports = {
         SUB_UPDATED_SUCC :"Subscription updated successfully!",
         CATEGORY_ALREADY_EXISTS :"Category already exists!",
         CATEGORY_ADDED_SUCC :"Category added successfully!",
+        EVENT_ADDED_SUCC :"Event added successfully!",
         CATEGORY_UPDATED_SUCC :"Category updated successfully!",
         CATEGORY_DELETED_SUCC :"Category deleted successfully!",
         SUB_DELETED_SUCC :"Subscription deleted successfully!",

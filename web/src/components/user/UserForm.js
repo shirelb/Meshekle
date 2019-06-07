@@ -1,5 +1,5 @@
 import React from 'react';
-import {Form, Label, Message, Image, Checkbox} from 'semantic-ui-react';
+import {Checkbox, Form, Image, Message} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
 
@@ -149,6 +149,13 @@ class UserForm extends React.Component {
             this.setState({
                 formError: true,
                 formErrorMassage: "תאריך לידה לא מולא",
+                fieldBornDateError: true
+            });
+            return false;
+        } else if (user.bornDate > moment()) {
+            this.setState({
+                formError: true,
+                formErrorMassage: "תאריך לידה צריך להיות בעבר",
                 fieldBornDateError: true
             });
             return false;

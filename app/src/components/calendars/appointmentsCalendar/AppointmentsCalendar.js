@@ -41,7 +41,7 @@ export default class AppointmentsCalendar extends Component {
         APP_SOCKET.off("getUserAppointments‚");
     }
 
-    loadAppointments() {
+    loadAppointments = () => {
         appointmentsStorage.getUserAppointments(this.userId, this.userHeaders)
             .then(response => {
                 let markedDates = {};
@@ -58,7 +58,7 @@ export default class AppointmentsCalendar extends Component {
                     markedDates: markedDates
                 });
             })
-    }
+    };
 
     afterCloseModalShowSelectDay = () => {
         let updatedMarkedDates = this.state.markedDates;
@@ -160,9 +160,11 @@ export default class AppointmentsCalendar extends Component {
                     dateModalVisible={this.state.dateModalVisible}
                     selectedDate={this.state.selectedDate}
                     onAppointmentRequestPress={this.props.onAppointmentRequestPress}
+                    loadAppointments={this.loadAppointments}
                     markedDates={this.state.markedDates}
                     expanded={this.state.expanded}
                     afterCloseModalShowSelectDay={this.afterCloseModalShowSelectDay}
+                    userHeaders={this.userHeaders}
                 />
             </ScrollView>
         );

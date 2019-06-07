@@ -238,7 +238,7 @@ class AppointmentsReportPage extends React.Component {
         const {appointments, page, totalPages, column, direction} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
-        console.log("AppointmentsReportPage appointments ", appointments);
+        // console.log("AppointmentsReportPage appointments ", appointments);
 
 
         return (

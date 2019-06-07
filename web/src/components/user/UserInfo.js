@@ -84,14 +84,20 @@ class UserInfo extends React.Component {
                             <p>{strings.phoneBookPageStrings.BORN_DATE_HEADER}: {moment(user.bornDate).format("DD/MM/YYYY")}</p>
                             <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
 
-                            <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                            {this.props.hasPhoneBookPermissions ?
+                                <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                : null
+                            }
                         </Modal.Description>
                     </Modal.Content>
-                    <Modal.Actions className='alignLeft'>
-                        <Button positive onClick={this.handleEdit}>ערוך</Button>
-                        <Button negative onClick={this.handleDelete}>מחק</Button>
-                        <Button onClick={() => this.props.history.goBack()}>סגור</Button>
-                    </Modal.Actions>
+                    {this.props.hasPhoneBookPermissions ?
+                        <Modal.Actions className='alignLeft'>
+                            <Button positive onClick={this.handleEdit}>ערוך</Button>
+                            <Button negative onClick={this.handleDelete}>מחק</Button>
+                            <Button onClick={() => this.props.history.goBack()}>סגור</Button>
+                        </Modal.Actions>
+                        : null
+                    }
                 </Modal>
 
                 <div>

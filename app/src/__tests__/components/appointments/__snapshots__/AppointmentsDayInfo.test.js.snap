@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppointmentsDayInfo should match snapshot 1`] = `
+<Component
+  animationType="fade"
+  hardwareAccelerated={false}
+  onRequestClose={[Function]}
+  transparent={false}
+  visible={true}
+>
+  <ScrollViewMock
+    style={
+      Object {
+        "marginTop": 22,
+      }
+    }
+  >
+    <ScrollViewMock>
+      <Text
+        style={
+          Object {
+            "color": "#050505",
+            "fontSize": 20,
+            "fontWeight": "bold",
+            "marginBottom": 22,
+            "textAlign": "center",
+          }
+        }
+      >
+        2019-07-02
+      </Text>
+      <Button
+        label="חזור"
+        onPress={[Function]}
+      />
+      <Button
+        label="בקש תור חדש"
+        onPress={[Function]}
+      />
+      <withTheme(List.Section)
+        style={
+          Object {
+            "textAlign": "right",
+          }
+        }
+        title="תורים"
+      >
+        <View
+          key="223"
+          style={
+            Object {
+              "alignItems": "center",
+              "flex": 1,
+              "flexDirection": "row",
+              "justifyContent": "flex-start",
+            }
+          }
+        >
+          <View
+            style={
+              Object {
+                "width": "20%",
+              }
+            }
+          >
+            <Icon
+              color="red"
+              name="delete-forever"
+              onPress={[Function]}
+              raised={false}
+              reverse={false}
+              reverseColor="white"
+              size={24}
+              underlayColor="white"
+            />
+          </View>
+          <View
+            style={
+              Object {
+                "width": "80%",
+              }
+            }
+          >
+            <withTheme(List.Accordion)
+              description="מרפאת שיניים - Ronda Cail"
+              onPress={[Function]}
+              title="19:03-04:34"
+            >
+              <withTheme(List.Item)
+                containerStyle={
+                  Object {
+                    "borderBottomWidth": 0,
+                  }
+                }
+                description="sapien quis libero nullam sit amet turpis elementum"
+                title="יישור שיניים, ניקוי, עקירה, טיפול שורש"
+              />
+            </withTheme(List.Accordion)>
+          </View>
+        </View>
+      </withTheme(List.Section)>
+    </ScrollViewMock>
+  </ScrollViewMock>
+</Component>
+`;

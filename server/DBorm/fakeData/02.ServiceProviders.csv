@@ -1,0 +1,401 @@
+serviceProviderId,role,userId,operationTime,phoneNumber,appointmentWayType,subjects,active
+549963652,appointmentsHairDresser,549963652,"[{""day"":""Friday"",""hours"":[{""startHour"":""1:34"",""endHour"":""14:48""},{""startHour"":""4:09"",""endHour"":""20:43""}]}]",0504699596,Fault,"[""החלקה"", ""גוונים"", ""צבע"", ""תספורת""]",false
+804790549,PhoneBookSecretary,804790549,[],0558284250,,,true
+972350803,PhoneBookSecretary,972350803,[],0558291719,,,true
+900261801,AnnouncementsSecretary,900261801,[],0575502159,,,false
+952484274,appointmentsDentist,952484274,"[{""day"":""Monday"",""hours"":[{""startHour"":""10:59"",""endHour"":""20:13""},{""startHour"":""8:58"",""endHour"":""12:30""}]},{""day"":""Monday"",""hours"":[{""startHour"":""5:27"",""endHour"":""13:10""},{""startHour"":""5:38"",""endHour"":""15:15""}]}]",0540854390,Fault,"[""טיפול שורש"", ""יישור שיניים"", ""שיננית"", ""עקירה""]",true
+990927574,appointmentsDentist,990927574,"[{""day"":""Sunday"",""hours"":[{""startHour"":""3:45"",""endHour"":""23:49""},{""startHour"":""11:43"",""endHour"":""12:35""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""6:03"",""endHour"":""12:32""},{""startHour"":""10:59"",""endHour"":""15:54""}]}]",0594328989,Slots,"[""שיננית"", ""יישור שיניים"", ""עקירה"", ""ניקוי""]",true
+767592302,appointmentsDentist,767592302,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""7:30"",""endHour"":""14:10""},{""startHour"":""9:05"",""endHour"":""20:07""}]}]",0563902987,,"[""ניקוי"", ""טיפול שורש"", ""שיננית"", ""יישור שיניים""]",true
+824722032,PhoneBookSecretary,824722032,[],0520536438,,,false
+997674091,PhoneBookSecretary,997674091,[],0560204642,,,false
+650304743,appointmentsDentist,650304743,"[{""day"":""Saturday"",""hours"":[{""startHour"":""6:16"",""endHour"":""16:08""},{""startHour"":""1:33"",""endHour"":""15:30""}]}]",0580509397,,"[""טיפול שורש"", ""ניקוי"", ""יישור שיניים"", ""עקירה""]",true
+837235000,AnnouncementsSecretary,837235000,[],0579871155,,,false
+981198949,ChoresSecretary,981198949,[],0553080592,,,false
+081728433,appointmentsHairDresser,081728433,"[{""day"":"""",""hours"":[{""startHour"":""9:44"",""endHour"":""22:17""},{""startHour"":""10:32"",""endHour"":""22:57""}]}]",0573083677,Fault,"[""תספורת"", ""החלקה"", ""פן"", ""גוונים""]",true
+358907060,ChoresSecretary,358907060,[],0557359069,,,true
+585209142,appointmentsDentist,585209142,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""1:51"",""endHour"":""22:20""},{""startHour"":""2:20"",""endHour"":""19:24""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""6:36"",""endHour"":""13:06""},{""startHour"":""1:39"",""endHour"":""15:18""}]}]",0557673290,,"[""יישור שיניים"", ""עקירה"", ""ניקוי"", ""טיפול שורש""]",true
+912930258,AnnouncementsSecretary,912930258,[],0537553137,,,false
+206733738,PhoneBookSecretary,206733738,[],0583070845,,,false
+564722225,PhoneBookSecretary,564722225,[],0593355127,,,true
+364111822,ChoresSecretary,364111822,[],0588427071,,,true
+025497965,ChoresSecretary,025497965,[],0593453838,,,false
+376475185,appointmentsHairDresser,376475185,"[{""day"":""Monday"",""hours"":[{""startHour"":""10:14"",""endHour"":""18:20""},{""startHour"":""6:31"",""endHour"":""22:20""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""3:13"",""endHour"":""22:36""},{""startHour"":""0:32"",""endHour"":""22:35""}]}]",0574468957,,"[""צבע"", ""פן"", ""גוונים"", ""החלקה""]",false
+033012701,appointmentsDentist,033012701,"[{""day"":""Friday"",""hours"":[{""startHour"":""5:05"",""endHour"":""12:30""},{""startHour"":""5:04"",""endHour"":""19:36""}]}]",0510240740,Dialog,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""יישור שיניים""]",true
+436759840,ChoresSecretary,436759840,[],0527736654,,,false
+002070472,ChoresSecretary,002070472,[],0572721208,,,true
+564223498,ChoresSecretary,564223498,[],0567409566,,,true
+127040567,PhoneBookSecretary,127040567,[],0578974490,,,true
+957285362,AnnouncementsSecretary,957285362,[],0551381682,,,false
+933079674,ChoresSecretary,933079674,[],0548716074,,,true
+620383703,AnnouncementsSecretary,620383703,[],0590556623,,,true
+958442098,appointmentsHairDresser,958442098,"[{""day"":"""",""hours"":[{""startHour"":""0:30"",""endHour"":""23:34""},{""startHour"":""3:36"",""endHour"":""17:54""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""10:40"",""endHour"":""13:53""},{""startHour"":""2:33"",""endHour"":""16:26""}]}]",0532891880,,"[""גוונים"", ""תספורת"", ""החלקה"", ""פן""]",true
+493121602,appointmentsDentist,493121602,"[{""day"":""Friday"",""hours"":[{""startHour"":""3:18"",""endHour"":""21:31""},{""startHour"":""9:07"",""endHour"":""19:30""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""3:15"",""endHour"":""14:20""},{""startHour"":""3:36"",""endHour"":""23:20""}]}]",0513132718,Slots,"[""שיננית"", ""טיפול שורש"", ""ניקוי"", ""עקירה""]",false
+279292347,appointmentsHairDresser,279292347,"[{""day"":"""",""hours"":[{""startHour"":""8:16"",""endHour"":""13:36""},{""startHour"":""1:57"",""endHour"":""20:30""}]},{""day"":""Monday"",""hours"":[{""startHour"":""8:31"",""endHour"":""23:32""},{""startHour"":""7:27"",""endHour"":""21:30""}]}]",0538349442,,"[""גוונים"", ""תספורת"", ""החלקה"", ""צבע""]",true
+464406990,appointmentsHairDresser,464406990,"[{""day"":""Thursday"",""hours"":[{""startHour"":""3:01"",""endHour"":""16:58""},{""startHour"":""2:15"",""endHour"":""16:54""}]},{""day"":""Friday"",""hours"":[{""startHour"":""11:37"",""endHour"":""19:24""},{""startHour"":""0:22"",""endHour"":""16:33""}]}]",0560965444,,"[""פן"", ""החלקה"", ""גוונים"", ""תספורת""]",true
+773195647,ChoresSecretary,773195647,[],0510974302,,,true
+173427430,AnnouncementsSecretary,173427430,[],0510497983,,,true
+629699704,ChoresSecretary,629699704,[],0595471221,,,false
+667716327,appointmentsDentist,667716327,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""11:18"",""endHour"":""18:48""},{""startHour"":""5:22"",""endHour"":""13:23""}]}]",0595128649,,"[""עקירה"", ""ניקוי"", ""שיננית"", ""טיפול שורש""]",false
+605356455,ChoresSecretary,605356455,[],0528765297,,,true
+654074593,AnnouncementsSecretary,654074593,[],0580709580,,,false
+053594577,appointmentsDentist,053594577,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""0:15"",""endHour"":""20:00""},{""startHour"":""8:36"",""endHour"":""22:37""}]}]",0568582647,,"[""עקירה"", ""ניקוי"", ""יישור שיניים"", ""טיפול שורש""]",false
+311406006,appointmentsHairDresser,311406006,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""7:13"",""endHour"":""18:35""},{""startHour"":""9:46"",""endHour"":""19:43""}]}]",0525902679,,"[""צבע"", ""החלקה"", ""פן"", ""תספורת""]",false
+468665062,PhoneBookSecretary,468665062,[],0525884083,,,false
+166182181,AnnouncementsSecretary,166182181,[],0579152599,,,true
+605944574,PhoneBookSecretary,605944574,[],0580724243,,,true
+885126211,appointmentsHairDresser,885126211,"[{""day"":"""",""hours"":[{""startHour"":""10:03"",""endHour"":""15:29""},{""startHour"":""2:31"",""endHour"":""21:53""}]}]",0553494414,Fault,"[""פן"", ""גוונים"", ""תספורת"", ""צבע""]",true
+483022715,appointmentsHairDresser,483022715,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""1:30"",""endHour"":""12:29""},{""startHour"":""0:53"",""endHour"":""17:00""}]}]",0553783034,Slots,"[""צבע"", ""פן"", ""גוונים"", ""תספורת""]",true
+514448179,ChoresSecretary,514448179,[],0599793402,,,true
+162631453,appointmentsHairDresser,162631453,"[{""day"":""Saturday"",""hours"":[{""startHour"":""2:47"",""endHour"":""21:55""},{""startHour"":""5:23"",""endHour"":""15:43""}]}]",0510082597,Fault,"[""תספורת"", ""גוונים"", ""החלקה"", ""צבע""]",true
+428811114,appointmentsDentist,428811114,"[{""day"":""Sunday"",""hours"":[{""startHour"":""7:36"",""endHour"":""15:34""},{""startHour"":""1:19"",""endHour"":""21:50""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""1:47"",""endHour"":""17:27""},{""startHour"":""8:47"",""endHour"":""12:10""}]}]",0577803981,Dialog,"[""יישור שיניים"", ""טיפול שורש"", ""עקירה"", ""ניקוי""]",true
+497245534,ChoresSecretary,497245534,[],0515750177,,,true
+100335463,appointmentsDentist,100335463,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""3:53"",""endHour"":""16:37""},{""startHour"":""1:17"",""endHour"":""23:43""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""7:58"",""endHour"":""14:25""},{""startHour"":""3:11"",""endHour"":""21:24""}]}]",0529801401,,"[""שיננית"", ""יישור שיניים"", ""עקירה"", ""טיפול שורש""]",true
+373031318,PhoneBookSecretary,373031318,[],0541883044,,,false
+668529305,ChoresSecretary,668529305,[],0541378319,,,true
+215520373,ChoresSecretary,215520373,[],0565535977,,,true
+795376926,appointmentsDentist,795376926,"[{""day"":""Sunday"",""hours"":[{""startHour"":""10:13"",""endHour"":""19:14""},{""startHour"":""6:01"",""endHour"":""18:36""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""2:39"",""endHour"":""14:10""},{""startHour"":""4:27"",""endHour"":""16:17""}]}]",0521160005,,"[""טיפול שורש"", ""עקירה"", ""שיננית"", ""יישור שיניים""]",true
+151173459,ChoresSecretary,151173459,[],0570083173,,,false
+585566509,AnnouncementsSecretary,585566509,[],0579347951,,,false
+009805535,AnnouncementsSecretary,009805535,[],0541663282,,,false
+299523749,ChoresSecretary,299523749,[],0508528537,,,false
+092445625,AnnouncementsSecretary,092445625,[],0531619164,,,false
+825553521,appointmentsDentist,825553521,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""10:57"",""endHour"":""13:43""},{""startHour"":""4:27"",""endHour"":""22:35""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""11:36"",""endHour"":""19:32""},{""startHour"":""5:30"",""endHour"":""23:00""}]}]",0562624169,Fault,"[""עקירה"", ""טיפול שורש"", ""ניקוי"", ""יישור שיניים""]",true
+305771879,PhoneBookSecretary,305771879,[],0555957056,,,true
+236792183,AnnouncementsSecretary,236792183,[],0522345492,,,false
+381128097,ChoresSecretary,381128097,[],0558594676,,,true
+287167677,AnnouncementsSecretary,287167677,[],0587880660,,,false
+293970060,ChoresSecretary,293970060,[],0517470520,,,true
+720449741,ChoresSecretary,720449741,[],0554708983,,,true
+990690836,PhoneBookSecretary,990690836,[],0587701632,,,true
+158421571,ChoresSecretary,158421571,[],0573092832,,,true
+103202140,AnnouncementsSecretary,103202140,[],0569267108,,,false
+992272162,ChoresSecretary,992272162,[],0558776614,,,false
+422771209,AnnouncementsSecretary,422771209,[],0573085726,,,true
+987373472,ChoresSecretary,987373472,[],0599424440,,,false
+828537513,PhoneBookSecretary,828537513,[],0522671100,,,false
+656087802,AnnouncementsSecretary,656087802,[],0580466787,,,false
+073372950,AnnouncementsSecretary,073372950,[],0535204797,,,false
+838230603,ChoresSecretary,838230603,[],0516274759,,,false
+351368627,AnnouncementsSecretary,351368627,[],0576604287,,,false
+047616626,ChoresSecretary,047616626,[],0523546904,,,false
+303017057,appointmentsHairDresser,303017057,"[{""day"":""Friday"",""hours"":[{""startHour"":""11:14"",""endHour"":""15:18""},{""startHour"":""0:06"",""endHour"":""12:12""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""3:43"",""endHour"":""15:16""},{""startHour"":""0:56"",""endHour"":""15:17""}]}]",0564115747,Fault,"[""החלקה"", ""גוונים"", ""פן"", ""צבע""]",false
+635310198,AnnouncementsSecretary,635310198,[],0553416669,,,true
+728202745,ChoresSecretary,728202745,[],0599509251,,,true
+358116332,appointmentsHairDresser,358116332,"[{""day"":""Sunday"",""hours"":[{""startHour"":""1:57"",""endHour"":""13:06""},{""startHour"":""9:23"",""endHour"":""17:00""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""3:09"",""endHour"":""19:16""},{""startHour"":""8:56"",""endHour"":""21:35""}]}]",0541341679,Slots,"[""צבע"", ""החלקה"", ""גוונים"", ""תספורת""]",true
+896433155,ChoresSecretary,896433155,[],0584200038,,,false
+848519781,appointmentsHairDresser,848519781,"[{""day"":""Monday"",""hours"":[{""startHour"":""6:23"",""endHour"":""19:22""},{""startHour"":""5:31"",""endHour"":""20:08""}]}]",0527507867,Fault,"[""צבע"", ""גוונים"", ""תספורת"", ""החלקה""]",false
+361017902,appointmentsDentist,361017902,"[{""day"":"""",""hours"":[{""startHour"":""11:32"",""endHour"":""15:50""},{""startHour"":""0:27"",""endHour"":""19:49""}]},{""day"":""Monday"",""hours"":[{""startHour"":""9:31"",""endHour"":""23:29""},{""startHour"":""4:34"",""endHour"":""17:24""}]}]",0504313751,Fault,"[""יישור שיניים"", ""טיפול שורש"", ""עקירה"", ""ניקוי""]",false
+440077642,appointmentsHairDresser,440077642,"[{""day"":""Saturday"",""hours"":[{""startHour"":""1:31"",""endHour"":""19:00""},{""startHour"":""2:11"",""endHour"":""16:51""}]}]",0529175933,,"[""החלקה"", ""פן"", ""גוונים"", ""צבע""]",true
+024897126,appointmentsDentist,024897126,"[{""day"":""Thursday"",""hours"":[{""startHour"":""10:39"",""endHour"":""16:12""},{""startHour"":""2:35"",""endHour"":""17:34""}]}]",0549603226,,"[""טיפול שורש"", ""עקירה"", ""ניקוי"", ""יישור שיניים""]",true
+122823229,ChoresSecretary,122823229,[],0527493444,,,true
+064380420,appointmentsHairDresser,064380420,"[{""day"":""Friday"",""hours"":[{""startHour"":""7:30"",""endHour"":""13:59""},{""startHour"":""8:49"",""endHour"":""22:05""}]}]",0575535309,Fault,"[""גוונים"", ""פן"", ""החלקה"", ""תספורת""]",false
+895147661,PhoneBookSecretary,895147661,[],0593569469,,,false
+719286014,ChoresSecretary,719286014,[],0521714392,,,true
+267008970,appointmentsDentist,267008970,"[{""day"":""Thursday"",""hours"":[{""startHour"":""8:17"",""endHour"":""17:41""},{""startHour"":""10:57"",""endHour"":""16:54""}]}]",0591156647,Fault,"[""שיננית"", ""טיפול שורש"", ""עקירה"", ""ניקוי""]",false
+066775658,appointmentsDentist,066775658,"[{""day"":""Sunday"",""hours"":[{""startHour"":""4:52"",""endHour"":""20:03""},{""startHour"":""8:20"",""endHour"":""22:01""}]}]",0574841591,Slots,"[""טיפול שורש"", ""יישור שיניים"", ""עקירה"", ""שיננית""]",false
+101761140,ChoresSecretary,101761140,[],0586365233,,,true
+750669412,ChoresSecretary,750669412,[],0556682684,,,false
+959533775,PhoneBookSecretary,959533775,[],0585639559,,,false
+527851563,PhoneBookSecretary,527851563,[],0555565173,,,true
+291438832,appointmentsHairDresser,291438832,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""6:48"",""endHour"":""22:30""},{""startHour"":""3:47"",""endHour"":""22:33""}]}]",0590888323,,"[""החלקה"", ""גוונים"", ""צבע"", ""פן""]",false
+681856736,appointmentsDentist,681856736,"[{""day"":""Thursday"",""hours"":[{""startHour"":""1:34"",""endHour"":""19:27""},{""startHour"":""4:52"",""endHour"":""13:54""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""7:49"",""endHour"":""12:27""},{""startHour"":""3:13"",""endHour"":""23:51""}]}]",0566164359,Fault,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""יישור שיניים""]",true
+625430991,ChoresSecretary,625430991,[],0560928501,,,false
+201737043,appointmentsHairDresser,201737043,"[{""day"":""Thursday"",""hours"":[{""startHour"":""3:54"",""endHour"":""16:03""},{""startHour"":""3:15"",""endHour"":""21:40""}]},{""day"":""Monday"",""hours"":[{""startHour"":""10:03"",""endHour"":""18:53""},{""startHour"":""8:46"",""endHour"":""23:28""}]}]",0568085203,,"[""צבע"", ""פן"", ""החלקה"", ""תספורת""]",false
+984638008,appointmentsHairDresser,984638008,"[{""day"":""Thursday"",""hours"":[{""startHour"":""2:00"",""endHour"":""23:24""},{""startHour"":""4:01"",""endHour"":""14:23""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""1:03"",""endHour"":""21:49""},{""startHour"":""8:18"",""endHour"":""12:19""}]}]",0594626758,,"[""פן"", ""גוונים"", ""תספורת"", ""החלקה""]",false
+306045192,AnnouncementsSecretary,306045192,[],0519061975,,,false
+830295646,ChoresSecretary,830295646,[],0528550254,,,false
+584132402,AnnouncementsSecretary,584132402,[],0511408801,,,true
+770513428,ChoresSecretary,770513428,[],0514864275,,,false
+487691880,PhoneBookSecretary,487691880,[],0563832779,,,true
+255896305,appointmentsHairDresser,255896305,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""2:40"",""endHour"":""22:10""},{""startHour"":""4:32"",""endHour"":""20:14""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""11:20"",""endHour"":""21:04""},{""startHour"":""1:14"",""endHour"":""17:16""}]}]",0502781864,,"[""צבע"", ""גוונים"", ""פן"", ""החלקה""]",false
+116789418,PhoneBookSecretary,116789418,[],0513174054,,,false
+642158767,ChoresSecretary,642158767,[],0583056396,,,false
+423866375,appointmentsDentist,423866375,"[{""day"":"""",""hours"":[{""startHour"":""1:28"",""endHour"":""19:23""},{""startHour"":""11:41"",""endHour"":""22:12""}]}]",0512812992,,"[""עקירה"", ""שיננית"", ""ניקוי"", ""יישור שיניים""]",false
+791228935,PhoneBookSecretary,791228935,[],0534597460,,,true
+474505687,ChoresSecretary,474505687,[],0548160472,,,false
+269210025,ChoresSecretary,269210025,[],0550244675,,,false
+597790271,PhoneBookSecretary,597790271,[],0503706304,,,false
+770057641,appointmentsHairDresser,770057641,"[{""day"":""Thursday"",""hours"":[{""startHour"":""0:39"",""endHour"":""22:22""},{""startHour"":""3:55"",""endHour"":""22:03""}]}]",0502238897,Fault,"[""פן"", ""החלקה"", ""גוונים"", ""צבע""]",true
+235775072,ChoresSecretary,235775072,[],0516053537,,,false
+894594679,ChoresSecretary,894594679,[],0581967714,,,true
+543709257,appointmentsHairDresser,543709257,"[{""day"":""Sunday"",""hours"":[{""startHour"":""9:10"",""endHour"":""15:41""},{""startHour"":""9:12"",""endHour"":""22:15""}]}]",0547154763,,"[""צבע"", ""תספורת"", ""החלקה"", ""גוונים""]",false
+766019688,PhoneBookSecretary,766019688,[],0593353947,,,true
+528291503,ChoresSecretary,528291503,[],0544264864,,,false
+330781628,appointmentsHairDresser,330781628,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""11:39"",""endHour"":""14:57""},{""startHour"":""5:49"",""endHour"":""21:38""}]}]",0534311642,Fault,"[""החלקה"", ""תספורת"", ""פן"", ""צבע""]",true
+443108577,appointmentsDentist,443108577,"[{""day"":""Monday"",""hours"":[{""startHour"":""11:25"",""endHour"":""15:20""},{""startHour"":""2:04"",""endHour"":""23:38""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""11:44"",""endHour"":""22:37""},{""startHour"":""4:08"",""endHour"":""16:21""}]}]",0525603490,,"[""עקירה"", ""טיפול שורש"", ""יישור שיניים"", ""שיננית""]",true
+823487662,AnnouncementsSecretary,823487662,[],0513297634,,,false
+196756353,ChoresSecretary,196756353,[],0557488373,,,false
+832513448,appointmentsHairDresser,832513448,"[{""day"":""Friday"",""hours"":[{""startHour"":""6:48"",""endHour"":""15:54""},{""startHour"":""4:59"",""endHour"":""17:32""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""2:01"",""endHour"":""19:55""},{""startHour"":""10:31"",""endHour"":""12:40""}]}]",0587786145,,"[""פן"", ""צבע"", ""החלקה"", ""גוונים""]",true
+074040626,ChoresSecretary,074040626,[],0566574989,,,true
+968162389,AnnouncementsSecretary,968162389,[],0545953021,,,true
+136677787,appointmentsHairDresser,136677787,"[{""day"":""Saturday"",""hours"":[{""startHour"":""6:33"",""endHour"":""20:00""},{""startHour"":""11:19"",""endHour"":""21:48""}]}]",0598961885,Dialog,"[""תספורת"", ""גוונים"", ""פן"", ""החלקה""]",false
+284856317,ChoresSecretary,284856317,[],0569945128,,,true
+897000613,PhoneBookSecretary,897000613,[],0567772873,,,false
+786587078,appointmentsDentist,786587078,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""0:36"",""endHour"":""20:06""},{""startHour"":""7:15"",""endHour"":""19:21""}]},{""day"":""Friday"",""hours"":[{""startHour"":""4:32"",""endHour"":""21:26""},{""startHour"":""4:42"",""endHour"":""23:11""}]}]",0557378838,Dialog,"[""טיפול שורש"", ""ניקוי"", ""יישור שיניים"", ""שיננית""]",false
+347348111,PhoneBookSecretary,347348111,[],0528369665,,,true
+781218030,appointmentsDentist,781218030,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""2:57"",""endHour"":""23:35""},{""startHour"":""5:16"",""endHour"":""22:25""}]},{""day"":"""",""hours"":[{""startHour"":""11:20"",""endHour"":""18:48""},{""startHour"":""7:47"",""endHour"":""12:33""}]}]",0508105845,Slots,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""עקירה""]",true
+425307349,appointmentsHairDresser,425307349,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""8:22"",""endHour"":""23:47""},{""startHour"":""10:21"",""endHour"":""21:42""}]}]",0552964994,Fault,"[""צבע"", ""פן"", ""גוונים"", ""תספורת""]",false
+221242652,AnnouncementsSecretary,221242652,[],0555830548,,,true
+194536467,AnnouncementsSecretary,194536467,[],0561862960,,,false
+057915835,AnnouncementsSecretary,057915835,[],0532051984,,,false
+144256871,AnnouncementsSecretary,144256871,[],0579055924,,,false
+251359195,PhoneBookSecretary,251359195,[],0520846363,,,false
+397499061,appointmentsDentist,397499061,"[{""day"":"""",""hours"":[{""startHour"":""8:28"",""endHour"":""23:08""},{""startHour"":""11:32"",""endHour"":""16:23""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""6:51"",""endHour"":""13:09""},{""startHour"":""3:01"",""endHour"":""18:35""}]}]",0567055453,,"[""ניקוי"", ""יישור שיניים"", ""טיפול שורש"", ""שיננית""]",false
+760924784,ChoresSecretary,760924784,[],0508021446,,,true
+180429765,appointmentsHairDresser,180429765,"[{""day"":""Friday"",""hours"":[{""startHour"":""4:52"",""endHour"":""18:20""},{""startHour"":""2:22"",""endHour"":""15:24""}]}]",0599419171,,"[""החלקה"", ""גוונים"", ""צבע"", ""פן""]",false
+037752878,appointmentsDentist,037752878,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""2:37"",""endHour"":""19:37""},{""startHour"":""4:17"",""endHour"":""15:02""}]},{""day"":""Friday"",""hours"":[{""startHour"":""10:33"",""endHour"":""13:17""},{""startHour"":""7:19"",""endHour"":""19:43""}]}]",0590250493,Slots,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""עקירה""]",false
+576713925,AnnouncementsSecretary,576713925,[],0515909596,,,true
+687802825,PhoneBookSecretary,687802825,[],0558864779,,,true
+590552161,appointmentsHairDresser,590552161,"[{""day"":""Thursday"",""hours"":[{""startHour"":""2:21"",""endHour"":""13:46""},{""startHour"":""4:26"",""endHour"":""18:02""}]},{""day"":""Friday"",""hours"":[{""startHour"":""7:57"",""endHour"":""17:43""},{""startHour"":""7:12"",""endHour"":""17:16""}]}]",0583049698,Fault,"[""החלקה"", ""צבע"", ""תספורת"", ""פן""]",false
+339805031,AnnouncementsSecretary,339805031,[],0551092992,,,false
+664006767,appointmentsHairDresser,664006767,"[{""day"":"""",""hours"":[{""startHour"":""4:17"",""endHour"":""19:06""},{""startHour"":""4:02"",""endHour"":""18:54""}]}]",0542244716,,"[""החלקה"", ""צבע"", ""פן"", ""תספורת""]",true
+100229800,ChoresSecretary,100229800,[],0572951047,,,true
+982922623,ChoresSecretary,982922623,[],0550522470,,,false
+452677408,appointmentsHairDresser,452677408,"[{""day"":""Friday"",""hours"":[{""startHour"":""10:00"",""endHour"":""16:00""},{""startHour"":""2:26"",""endHour"":""23:41""}]},{""day"":""Monday"",""hours"":[{""startHour"":""5:44"",""endHour"":""13:51""},{""startHour"":""7:12"",""endHour"":""21:21""}]}]",0589829875,,"[""החלקה"", ""גוונים"", ""פן"", ""צבע""]",true
+187206917,appointmentsDentist,187206917,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""0:01"",""endHour"":""18:38""},{""startHour"":""5:46"",""endHour"":""16:07""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""8:39"",""endHour"":""17:58""},{""startHour"":""5:06"",""endHour"":""14:04""}]}]",0591626742,,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""עקירה""]",true
+129382077,PhoneBookSecretary,129382077,[],0529042336,,,false
+850224962,appointmentsHairDresser,850224962,"[{""day"":""Saturday"",""hours"":[{""startHour"":""2:46"",""endHour"":""22:04""},{""startHour"":""1:15"",""endHour"":""20:27""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""8:05"",""endHour"":""23:15""},{""startHour"":""1:19"",""endHour"":""15:11""}]}]",0587511929,,"[""החלקה"", ""גוונים"", ""תספורת"", ""צבע""]",false
+628893174,appointmentsHairDresser,628893174,"[{""day"":""Sunday"",""hours"":[{""startHour"":""10:00"",""endHour"":""22:58""},{""startHour"":""7:55"",""endHour"":""15:11""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""6:21"",""endHour"":""20:42""},{""startHour"":""1:02"",""endHour"":""17:29""}]}]",0588990222,Fault,"[""החלקה"", ""תספורת"", ""פן"", ""צבע""]",false
+049426216,ChoresSecretary,049426216,[],0566495654,,,false
+525391059,appointmentsHairDresser,525391059,"[{""day"":""Thursday"",""hours"":[{""startHour"":""8:32"",""endHour"":""23:36""},{""startHour"":""3:57"",""endHour"":""15:04""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""4:54"",""endHour"":""21:12""},{""startHour"":""11:47"",""endHour"":""20:25""}]}]",0580166228,Dialog,"[""גוונים"", ""צבע"", ""החלקה"", ""פן""]",false
+042362945,ChoresSecretary,042362945,[],0556909180,,,false
+201720951,PhoneBookSecretary,201720951,[],0593797228,,,true
+485344529,AnnouncementsSecretary,485344529,[],0539962849,,,false
+264810214,appointmentsHairDresser,264810214,"[{""day"":""Sunday"",""hours"":[{""startHour"":""11:56"",""endHour"":""16:32""},{""startHour"":""11:20"",""endHour"":""13:30""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""11:02"",""endHour"":""22:30""},{""startHour"":""4:53"",""endHour"":""13:16""}]}]",0500660712,Dialog,"[""החלקה"", ""צבע"", ""תספורת"", ""גוונים""]",true
+991392499,appointmentsDentist,991392499,"[{""day"":""Sunday"",""hours"":[{""startHour"":""9:23"",""endHour"":""20:47""},{""startHour"":""5:35"",""endHour"":""15:38""}]},{""day"":"""",""hours"":[{""startHour"":""9:16"",""endHour"":""15:02""},{""startHour"":""6:59"",""endHour"":""17:09""}]}]",0595811317,,"[""יישור שיניים"", ""ניקוי"", ""שיננית"", ""עקירה""]",false
+867141023,PhoneBookSecretary,867141023,[],0526085303,,,true
+685289270,ChoresSecretary,685289270,[],0585768664,,,false
+800308426,PhoneBookSecretary,800308426,[],0567318469,,,true
+789804557,PhoneBookSecretary,789804557,[],0503139319,,,true
+617845920,AnnouncementsSecretary,617845920,[],0565429848,,,false
+551593733,ChoresSecretary,551593733,[],0544245994,,,false
+196743930,AnnouncementsSecretary,196743930,[],0500813649,,,false
+443945705,appointmentsDentist,443945705,"[{""day"":""Monday"",""hours"":[{""startHour"":""8:06"",""endHour"":""13:05""},{""startHour"":""0:34"",""endHour"":""17:41""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""11:17"",""endHour"":""19:48""},{""startHour"":""6:10"",""endHour"":""20:51""}]}]",0560456927,,"[""עקירה"", ""יישור שיניים"", ""ניקוי"", ""שיננית""]",false
+144600433,appointmentsDentist,144600433,"[{""day"":""Thursday"",""hours"":[{""startHour"":""0:07"",""endHour"":""15:42""},{""startHour"":""8:35"",""endHour"":""15:18""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""4:06"",""endHour"":""15:29""},{""startHour"":""2:46"",""endHour"":""15:20""}]}]",0554884778,,"[""יישור שיניים"", ""ניקוי"", ""שיננית"", ""עקירה""]",false
+882651719,PhoneBookSecretary,882651719,[],0552818514,,,true
+231885469,appointmentsHairDresser,231885469,"[{""day"":""Friday"",""hours"":[{""startHour"":""2:50"",""endHour"":""12:20""},{""startHour"":""3:04"",""endHour"":""17:52""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""6:52"",""endHour"":""13:54""},{""startHour"":""2:33"",""endHour"":""22:04""}]}]",0526299230,Dialog,"[""תספורת"", ""פן"", ""החלקה"", ""צבע""]",true
+863966014,appointmentsDentist,863966014,"[{""day"":""Sunday"",""hours"":[{""startHour"":""4:01"",""endHour"":""21:47""},{""startHour"":""6:57"",""endHour"":""17:56""}]}]",0538662180,Dialog,"[""ניקוי"", ""טיפול שורש"", ""עקירה"", ""שיננית""]",false
+058454827,AnnouncementsSecretary,058454827,[],0548643026,,,true
+209019351,AnnouncementsSecretary,209019351,[],0564411422,,,false
+439074790,appointmentsHairDresser,439074790,"[{""day"":"""",""hours"":[{""startHour"":""9:33"",""endHour"":""16:35""},{""startHour"":""6:12"",""endHour"":""18:52""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""11:05"",""endHour"":""21:11""},{""startHour"":""3:04"",""endHour"":""19:11""}]}]",0518251975,Fault,"[""החלקה"", ""צבע"", ""גוונים"", ""תספורת""]",false
+861927188,appointmentsHairDresser,861927188,"[{""day"":"""",""hours"":[{""startHour"":""10:00"",""endHour"":""18:53""},{""startHour"":""1:11"",""endHour"":""13:48""}]}]",0523230143,,"[""החלקה"", ""גוונים"", ""תספורת"", ""צבע""]",true
+681215623,ChoresSecretary,681215623,[],0581811189,,,false
+516186140,appointmentsDentist,516186140,"[{""day"":""Friday"",""hours"":[{""startHour"":""9:58"",""endHour"":""15:57""},{""startHour"":""5:07"",""endHour"":""14:17""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""9:27"",""endHour"":""23:53""},{""startHour"":""3:52"",""endHour"":""20:21""}]}]",0532960650,,"[""יישור שיניים"", ""עקירה"", ""שיננית"", ""טיפול שורש""]",false
+431992650,appointmentsHairDresser,431992650,"[{""day"":""Saturday"",""hours"":[{""startHour"":""11:45"",""endHour"":""13:52""},{""startHour"":""8:27"",""endHour"":""17:51""}]}]",0539259882,Fault,"[""צבע"", ""תספורת"", ""החלקה"", ""פן""]",false
+921899757,AnnouncementsSecretary,921899757,[],0564990165,,,true
+314110804,AnnouncementsSecretary,314110804,[],0539497922,,,true
+466486654,AnnouncementsSecretary,466486654,[],0504491395,,,false
+673008391,appointmentsDentist,673008391,"[{""day"":""Friday"",""hours"":[{""startHour"":""9:10"",""endHour"":""17:00""},{""startHour"":""7:45"",""endHour"":""20:46""}]}]",0588278489,,"[""עקירה"", ""ניקוי"", ""שיננית"", ""טיפול שורש""]",true
+705570488,appointmentsHairDresser,705570488,"[{""day"":""Thursday"",""hours"":[{""startHour"":""11:25"",""endHour"":""21:16""},{""startHour"":""6:20"",""endHour"":""19:14""}]}]",0505487075,,"[""החלקה"", ""תספורת"", ""פן"", ""צבע""]",false
+261837029,AnnouncementsSecretary,261837029,[],0523334528,,,true
+807951773,PhoneBookSecretary,807951773,[],0528576011,,,false
+308024282,AnnouncementsSecretary,308024282,[],0569923885,,,false
+752508693,PhoneBookSecretary,752508693,[],0523825011,,,true
+334073776,appointmentsDentist,334073776,"[{""day"":""Sunday"",""hours"":[{""startHour"":""11:30"",""endHour"":""23:23""},{""startHour"":""3:48"",""endHour"":""13:06""}]}]",0515220089,,"[""טיפול שורש"", ""עקירה"", ""שיננית"", ""ניקוי""]",false
+102328800,PhoneBookSecretary,102328800,[],0512792591,,,false
+784832769,ChoresSecretary,784832769,[],0528866175,,,true
+407427465,PhoneBookSecretary,407427465,[],0508788583,,,false
+315671863,ChoresSecretary,315671863,[],0552898592,,,false
+677075183,ChoresSecretary,677075183,[],0565983212,,,true
+445245558,AnnouncementsSecretary,445245558,[],0547742259,,,true
+639004581,PhoneBookSecretary,639004581,[],0562421867,,,true
+940975054,ChoresSecretary,940975054,[],0528840473,,,false
+179779530,AnnouncementsSecretary,179779530,[],0530398060,,,true
+175504767,appointmentsDentist,175504767,"[{""day"":""Friday"",""hours"":[{""startHour"":""9:45"",""endHour"":""21:54""},{""startHour"":""4:48"",""endHour"":""22:06""}]},{""day"":""Friday"",""hours"":[{""startHour"":""1:23"",""endHour"":""17:51""},{""startHour"":""9:00"",""endHour"":""15:46""}]}]",0501601167,Slots,"[""שיננית"", ""טיפול שורש"", ""יישור שיניים"", ""עקירה""]",false
+259780194,ChoresSecretary,259780194,[],0594059484,,,true
+597779205,AnnouncementsSecretary,597779205,[],0507314202,,,true
+710906231,appointmentsDentist,710906231,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""7:56"",""endHour"":""15:31""},{""startHour"":""9:18"",""endHour"":""20:45""}]}]",0538847515,,"[""יישור שיניים"", ""טיפול שורש"", ""שיננית"", ""ניקוי""]",false
+505110252,appointmentsDentist,505110252,"[{""day"":"""",""hours"":[{""startHour"":""7:29"",""endHour"":""16:33""},{""startHour"":""10:29"",""endHour"":""23:55""}]}]",0571328992,,"[""שיננית"", ""יישור שיניים"", ""טיפול שורש"", ""ניקוי""]",false
+431601280,AnnouncementsSecretary,431601280,[],0572347721,,,true
+471568025,appointmentsDentist,471568025,"[{""day"":""Friday"",""hours"":[{""startHour"":""9:47"",""endHour"":""20:07""},{""startHour"":""1:55"",""endHour"":""23:11""}]}]",0551316335,Fault,"[""עקירה"", ""ניקוי"", ""טיפול שורש"", ""שיננית""]",true
+422345289,ChoresSecretary,422345289,[],0596495553,,,false
+039523069,AnnouncementsSecretary,039523069,[],0510237866,,,false
+925676383,appointmentsDentist,925676383,"[{""day"":""Thursday"",""hours"":[{""startHour"":""2:16"",""endHour"":""17:32""},{""startHour"":""6:11"",""endHour"":""19:04""}]},{""day"":""Friday"",""hours"":[{""startHour"":""9:19"",""endHour"":""21:11""},{""startHour"":""11:05"",""endHour"":""22:37""}]}]",0546972879,Dialog,"[""ניקוי"", ""עקירה"", ""שיננית"", ""טיפול שורש""]",true
+391593954,appointmentsHairDresser,391593954,"[{""day"":""Saturday"",""hours"":[{""startHour"":""2:11"",""endHour"":""21:30""},{""startHour"":""8:25"",""endHour"":""22:42""}]}]",0530549494,Slots,"[""פן"", ""תספורת"", ""צבע"", ""החלקה""]",false
+702645412,AnnouncementsSecretary,702645412,[],0520740260,,,false
+597754353,AnnouncementsSecretary,597754353,[],0521367839,,,true
+693039136,ChoresSecretary,693039136,[],0539568331,,,false
+402968085,appointmentsHairDresser,402968085,"[{""day"":""Sunday"",""hours"":[{""startHour"":""1:53"",""endHour"":""13:14""},{""startHour"":""6:36"",""endHour"":""18:10""}]}]",0514425039,,"[""פן"", ""תספורת"", ""צבע"", ""גוונים""]",false
+602760199,AnnouncementsSecretary,602760199,[],0508760270,,,true
+463884564,AnnouncementsSecretary,463884564,[],0510579845,,,false
+468254910,appointmentsDentist,468254910,"[{""day"":""Monday"",""hours"":[{""startHour"":""9:03"",""endHour"":""19:57""},{""startHour"":""2:12"",""endHour"":""16:46""}]},{""day"":""Monday"",""hours"":[{""startHour"":""4:35"",""endHour"":""20:41""},{""startHour"":""10:23"",""endHour"":""15:16""}]}]",0519567688,,"[""שיננית"", ""טיפול שורש"", ""עקירה"", ""יישור שיניים""]",true
+317534242,appointmentsHairDresser,317534242,"[{""day"":""Thursday"",""hours"":[{""startHour"":""8:37"",""endHour"":""17:28""},{""startHour"":""11:44"",""endHour"":""14:57""}]}]",0538262184,,"[""צבע"", ""החלקה"", ""תספורת"", ""פן""]",false
+201950118,ChoresSecretary,201950118,[],0551767057,,,false
+406660923,appointmentsHairDresser,406660923,"[{""day"":""Saturday"",""hours"":[{""startHour"":""9:31"",""endHour"":""15:12""},{""startHour"":""10:36"",""endHour"":""21:34""}]}]",0533546118,Fault,"[""גוונים"", ""תספורת"", ""צבע"", ""פן""]",false
+310950424,appointmentsDentist,310950424,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""6:30"",""endHour"":""20:00""},{""startHour"":""1:02"",""endHour"":""21:29""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""10:37"",""endHour"":""21:13""},{""startHour"":""7:39"",""endHour"":""15:41""}]}]",0591898549,,"[""ניקוי"", ""עקירה"", ""יישור שיניים"", ""טיפול שורש""]",true
+295250257,ChoresSecretary,295250257,[],0579567101,,,true
+528822171,appointmentsDentist,528822171,"[{""day"":""Monday"",""hours"":[{""startHour"":""5:20"",""endHour"":""15:30""},{""startHour"":""4:09"",""endHour"":""23:40""}]}]",0594044646,,"[""שיננית"", ""ניקוי"", ""עקירה"", ""יישור שיניים""]",false
+584103598,appointmentsDentist,584103598,"[{""day"":"""",""hours"":[{""startHour"":""2:47"",""endHour"":""16:18""},{""startHour"":""2:42"",""endHour"":""15:41""}]}]",0559230380,Slots,"[""שיננית"", ""טיפול שורש"", ""יישור שיניים"", ""ניקוי""]",false
+219247738,AnnouncementsSecretary,219247738,[],0529586775,,,true
+034998466,AnnouncementsSecretary,034998466,[],0552356788,,,true
+877526289,ChoresSecretary,877526289,[],0591508980,,,true
+271635459,appointmentsHairDresser,271635459,"[{""day"":"""",""hours"":[{""startHour"":""9:04"",""endHour"":""12:23""},{""startHour"":""0:38"",""endHour"":""18:54""}]}]",0522033387,Fault,"[""פן"", ""תספורת"", ""צבע"", ""גוונים""]",true
+317744035,ChoresSecretary,317744035,[],0523115612,,,true
+053824737,appointmentsHairDresser,053824737,"[{""day"":""Friday"",""hours"":[{""startHour"":""8:19"",""endHour"":""17:24""},{""startHour"":""7:41"",""endHour"":""19:43""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""1:56"",""endHour"":""21:05""},{""startHour"":""7:10"",""endHour"":""14:06""}]}]",0569647294,Fault,"[""תספורת"", ""גוונים"", ""צבע"", ""פן""]",false
+951329068,PhoneBookSecretary,951329068,[],0579950160,,,true
+866318517,AnnouncementsSecretary,866318517,[],0577119562,,,false
+521438175,AnnouncementsSecretary,521438175,[],0507150423,,,false
+862341815,PhoneBookSecretary,862341815,[],0534699768,,,false
+970991586,appointmentsDentist,970991586,"[{""day"":"""",""hours"":[{""startHour"":""10:56"",""endHour"":""16:07""},{""startHour"":""9:11"",""endHour"":""19:20""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""0:58"",""endHour"":""22:58""},{""startHour"":""2:23"",""endHour"":""22:42""}]}]",0507582241,,"[""יישור שיניים"", ""עקירה"", ""שיננית"", ""ניקוי""]",false
+538068416,AnnouncementsSecretary,538068416,[],0565329534,,,true
+565083593,appointmentsHairDresser,565083593,"[{""day"":""Monday"",""hours"":[{""startHour"":""6:59"",""endHour"":""15:40""},{""startHour"":""6:18"",""endHour"":""20:47""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""11:20"",""endHour"":""21:25""},{""startHour"":""5:51"",""endHour"":""21:34""}]}]",0528777901,,"[""תספורת"", ""צבע"", ""החלקה"", ""גוונים""]",true
+169657594,appointmentsDentist,169657594,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""10:00"",""endHour"":""20:18""},{""startHour"":""10:00"",""endHour"":""21:01""}]},{""day"":""Friday"",""hours"":[{""startHour"":""7:05"",""endHour"":""22:05""},{""startHour"":""1:18"",""endHour"":""22:16""}]}]",0579153550,Dialog,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""עקירה""]",false
+600244101,AnnouncementsSecretary,600244101,[],0565126540,,,false
+338076575,appointmentsHairDresser,338076575,"[{""day"":""Saturday"",""hours"":[{""startHour"":""9:51"",""endHour"":""22:12""},{""startHour"":""0:16"",""endHour"":""20:02""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""9:07"",""endHour"":""21:36""},{""startHour"":""3:58"",""endHour"":""14:49""}]}]",0584237458,Fault,"[""צבע"", ""תספורת"", ""פן"", ""גוונים""]",false
+789147633,PhoneBookSecretary,789147633,[],0595036123,,,true
+229971094,appointmentsDentist,229971094,"[{""day"":""Monday"",""hours"":[{""startHour"":""0:29"",""endHour"":""19:41""},{""startHour"":""10:04"",""endHour"":""22:09""}]}]",0562485513,,"[""יישור שיניים"", ""ניקוי"", ""עקירה"", ""טיפול שורש""]",true
+815818301,appointmentsHairDresser,815818301,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""8:35"",""endHour"":""19:35""},{""startHour"":""8:31"",""endHour"":""21:50""}]},{""day"":""Friday"",""hours"":[{""startHour"":""4:31"",""endHour"":""16:51""},{""startHour"":""3:54"",""endHour"":""14:22""}]}]",0578404015,,"[""גוונים"", ""החלקה"", ""תספורת"", ""פן""]",false
+681378872,appointmentsHairDresser,681378872,"[{""day"":""Sunday"",""hours"":[{""startHour"":""8:08"",""endHour"":""22:18""},{""startHour"":""5:07"",""endHour"":""22:37""}]}]",0555473827,,"[""פן"", ""החלקה"", ""צבע"", ""גוונים""]",true
+081399454,AnnouncementsSecretary,081399454,[],0559603582,,,true
+098986393,ChoresSecretary,098986393,[],0518272550,,,true
+095527021,AnnouncementsSecretary,095527021,[],0566914207,,,false
+560243495,PhoneBookSecretary,560243495,[],0523631278,,,false
+320664765,ChoresSecretary,320664765,[],0537162743,,,false
+706617815,appointmentsHairDresser,706617815,"[{""day"":""Saturday"",""hours"":[{""startHour"":""7:39"",""endHour"":""17:16""},{""startHour"":""1:53"",""endHour"":""23:31""}]}]",0513528389,,"[""תספורת"", ""החלקה"", ""גוונים"", ""פן""]",true
+095793764,appointmentsDentist,095793764,"[{""day"":""Sunday"",""hours"":[{""startHour"":""5:55"",""endHour"":""21:35""},{""startHour"":""0:01"",""endHour"":""22:11""}]}]",0596111293,,"[""ניקוי"", ""טיפול שורש"", ""יישור שיניים"", ""עקירה""]",false
+704023361,appointmentsHairDresser,704023361,"[{""day"":"""",""hours"":[{""startHour"":""9:01"",""endHour"":""21:08""},{""startHour"":""9:28"",""endHour"":""20:24""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""11:13"",""endHour"":""20:34""},{""startHour"":""4:17"",""endHour"":""18:14""}]}]",0579794172,Fault,"[""פן"", ""החלקה"", ""גוונים"", ""צבע""]",false
+980783596,appointmentsHairDresser,980783596,"[{""day"":""Monday"",""hours"":[{""startHour"":""7:33"",""endHour"":""17:18""},{""startHour"":""1:10"",""endHour"":""13:36""}]}]",0504581649,Slots,"[""פן"", ""גוונים"", ""החלקה"", ""תספורת""]",false
+545825500,appointmentsDentist,545825500,"[{""day"":""Sunday"",""hours"":[{""startHour"":""10:24"",""endHour"":""19:15""},{""startHour"":""9:04"",""endHour"":""22:56""}]}]",0524644681,,"[""עקירה"", ""טיפול שורש"", ""יישור שיניים"", ""שיננית""]",true
+510313897,appointmentsHairDresser,510313897,"[{""day"":""Friday"",""hours"":[{""startHour"":""1:00"",""endHour"":""22:57""},{""startHour"":""10:35"",""endHour"":""13:11""}]}]",0560468443,,"[""תספורת"", ""פן"", ""גוונים"", ""החלקה""]",true
+600699048,ChoresSecretary,600699048,[],0587720255,,,true
+317173284,appointmentsDentist,317173284,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""4:21"",""endHour"":""14:18""},{""startHour"":""2:14"",""endHour"":""15:47""}]}]",0574349290,,"[""שיננית"", ""עקירה"", ""יישור שיניים"", ""טיפול שורש""]",false
+724568381,appointmentsDentist,724568381,"[{""day"":""Saturday"",""hours"":[{""startHour"":""3:06"",""endHour"":""22:20""},{""startHour"":""9:20"",""endHour"":""14:32""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""9:24"",""endHour"":""20:27""},{""startHour"":""10:20"",""endHour"":""21:16""}]}]",0523726544,,"[""טיפול שורש"", ""יישור שיניים"", ""ניקוי"", ""שיננית""]",false
+869476022,ChoresSecretary,869476022,[],0549552856,,,false
+906075728,appointmentsHairDresser,906075728,"[{""day"":""Sunday"",""hours"":[{""startHour"":""2:38"",""endHour"":""15:12""},{""startHour"":""5:40"",""endHour"":""21:35""}]}]",0523203326,,"[""צבע"", ""החלקה"", ""גוונים"", ""פן""]",true
+278129156,AnnouncementsSecretary,278129156,[],0512753322,,,false
+616349689,AnnouncementsSecretary,616349689,[],0546318357,,,true
+135985058,ChoresSecretary,135985058,[],0516398871,,,true
+411114746,ChoresSecretary,411114746,[],0542373719,,,true
+518443215,appointmentsHairDresser,518443215,"[{""day"":""Thursday"",""hours"":[{""startHour"":""3:45"",""endHour"":""16:21""},{""startHour"":""10:45"",""endHour"":""12:18""}]}]",0582956575,,"[""תספורת"", ""גוונים"", ""החלקה"", ""פן""]",false
+473739707,appointmentsDentist,473739707,"[{""day"":""Friday"",""hours"":[{""startHour"":""7:00"",""endHour"":""20:37""},{""startHour"":""5:46"",""endHour"":""19:10""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""8:57"",""endHour"":""14:49""},{""startHour"":""11:47"",""endHour"":""12:18""}]}]",0587350954,,"[""יישור שיניים"", ""ניקוי"", ""טיפול שורש"", ""עקירה""]",true
+418978489,ChoresSecretary,418978489,[],0510771720,,,true
+570964392,AnnouncementsSecretary,570964392,[],0566679731,,,false
+062351869,AnnouncementsSecretary,062351869,[],0537630763,,,false
+966042854,appointmentsHairDresser,966042854,"[{""day"":""Thursday"",""hours"":[{""startHour"":""5:25"",""endHour"":""23:51""},{""startHour"":""7:36"",""endHour"":""12:43""}]}]",0520306149,,"[""תספורת"", ""פן"", ""גוונים"", ""צבע""]",true
+916665231,appointmentsDentist,916665231,"[{""day"":""Saturday"",""hours"":[{""startHour"":""1:29"",""endHour"":""22:56""},{""startHour"":""6:43"",""endHour"":""16:09""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""0:26"",""endHour"":""16:22""},{""startHour"":""11:00"",""endHour"":""14:07""}]}]",0537984661,,"[""טיפול שורש"", ""ניקוי"", ""שיננית"", ""עקירה""]",true
+333832610,appointmentsHairDresser,333832610,"[{""day"":""Sunday"",""hours"":[{""startHour"":""5:33"",""endHour"":""20:12""},{""startHour"":""11:19"",""endHour"":""12:07""}]},{""day"":""Friday"",""hours"":[{""startHour"":""2:26"",""endHour"":""15:04""},{""startHour"":""10:07"",""endHour"":""20:36""}]}]",0542724261,,"[""פן"", ""גוונים"", ""החלקה"", ""תספורת""]",true
+277894686,appointmentsHairDresser,277894686,"[{""day"":"""",""hours"":[{""startHour"":""0:38"",""endHour"":""19:13""},{""startHour"":""9:55"",""endHour"":""16:43""}]}]",0513677818,Dialog,"[""צבע"", ""תספורת"", ""גוונים"", ""החלקה""]",false
+099740374,PhoneBookSecretary,099740374,[],0506410942,,,true
+621775433,ChoresSecretary,621775433,[],0546467088,,,false
+652416559,ChoresSecretary,652416559,[],0581728778,,,true
+833651313,appointmentsHairDresser,833651313,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""1:07"",""endHour"":""20:36""},{""startHour"":""4:42"",""endHour"":""22:00""}]},{""day"":""Friday"",""hours"":[{""startHour"":""11:22"",""endHour"":""15:36""},{""startHour"":""1:46"",""endHour"":""12:11""}]}]",0596100676,,"[""צבע"", ""החלקה"", ""גוונים"", ""תספורת""]",false
+940754796,appointmentsDentist,940754796,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""10:14"",""endHour"":""18:45""},{""startHour"":""0:36"",""endHour"":""14:08""}]}]",0539835401,,"[""יישור שיניים"", ""שיננית"", ""טיפול שורש"", ""עקירה""]",true
+960766683,appointmentsDentist,960766683,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""11:08"",""endHour"":""14:15""},{""startHour"":""5:29"",""endHour"":""16:26""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""10:41"",""endHour"":""15:44""},{""startHour"":""11:34"",""endHour"":""20:26""}]}]",0579365836,,"[""ניקוי"", ""טיפול שורש"", ""יישור שיניים"", ""עקירה""]",true
+677474238,appointmentsHairDresser,677474238,"[{""day"":""Friday"",""hours"":[{""startHour"":""11:19"",""endHour"":""15:07""},{""startHour"":""3:09"",""endHour"":""21:22""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""3:13"",""endHour"":""17:04""},{""startHour"":""6:22"",""endHour"":""21:10""}]}]",0520702422,,"[""החלקה"", ""צבע"", ""תספורת"", ""גוונים""]",true
+969915907,ChoresSecretary,969915907,[],0511778200,,,true
+341301511,appointmentsDentist,341301511,"[{""day"":"""",""hours"":[{""startHour"":""2:08"",""endHour"":""18:43""},{""startHour"":""9:42"",""endHour"":""18:11""}]}]",0585796019,,"[""טיפול שורש"", ""עקירה"", ""שיננית"", ""יישור שיניים""]",false
+107448715,appointmentsHairDresser,107448715,"[{""day"":""Saturday"",""hours"":[{""startHour"":""3:40"",""endHour"":""13:21""},{""startHour"":""11:00"",""endHour"":""23:25""}]}]",0559048677,,"[""תספורת"", ""פן"", ""צבע"", ""גוונים""]",false
+762427956,PhoneBookSecretary,762427956,[],0558648835,,,false
+008194197,appointmentsHairDresser,008194197,"[{""day"":""Friday"",""hours"":[{""startHour"":""1:04"",""endHour"":""18:49""},{""startHour"":""3:17"",""endHour"":""21:35""}]},{""day"":"""",""hours"":[{""startHour"":""4:24"",""endHour"":""22:07""},{""startHour"":""3:22"",""endHour"":""21:23""}]}]",0582752236,Slots,"[""גוונים"", ""פן"", ""צבע"", ""החלקה""]",false
+758372460,AnnouncementsSecretary,758372460,[],0567389677,,,true
+561933550,appointmentsDentist,561933550,"[{""day"":""Thursday"",""hours"":[{""startHour"":""7:19"",""endHour"":""22:03""},{""startHour"":""8:33"",""endHour"":""23:44""}]},{""day"":""Friday"",""hours"":[{""startHour"":""0:21"",""endHour"":""21:30""},{""startHour"":""7:56"",""endHour"":""21:10""}]}]",0556236138,Slots,"[""טיפול שורש"", ""שיננית"", ""ניקוי"", ""עקירה""]",false
+265020582,appointmentsHairDresser,265020582,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""9:02"",""endHour"":""21:46""},{""startHour"":""4:15"",""endHour"":""12:27""}]}]",0564698052,,"[""תספורת"", ""צבע"", ""פן"", ""גוונים""]",false
+534258745,PhoneBookSecretary,534258745,[],0568445903,,,true
+211127786,appointmentsHairDresser,211127786,"[{""day"":""Sunday"",""hours"":[{""startHour"":""5:46"",""endHour"":""21:27""},{""startHour"":""7:09"",""endHour"":""19:30""}]},{""day"":""Monday"",""hours"":[{""startHour"":""3:49"",""endHour"":""13:49""},{""startHour"":""8:43"",""endHour"":""23:43""}]}]",0566137010,Fault,"[""גוונים"", ""צבע"", ""החלקה"", ""תספורת""]",true
+299481825,ChoresSecretary,299481825,[],0558901730,,,true
+706567925,appointmentsHairDresser,706567925,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""3:57"",""endHour"":""22:42""},{""startHour"":""1:00"",""endHour"":""22:19""}]}]",0544246738,,"[""תספורת"", ""גוונים"", ""פן"", ""צבע""]",true
+774350597,appointmentsHairDresser,774350597,"[{""day"":""Thursday"",""hours"":[{""startHour"":""3:18"",""endHour"":""13:09""},{""startHour"":""3:35"",""endHour"":""23:14""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""1:28"",""endHour"":""22:52""},{""startHour"":""10:02"",""endHour"":""22:06""}]}]",0526917482,Dialog,"[""פן"", ""תספורת"", ""גוונים"", ""החלקה""]",true
+880071413,PhoneBookSecretary,880071413,[],0547553830,,,false
+243524998,PhoneBookSecretary,243524998,[],0547256523,,,false
+209853116,PhoneBookSecretary,209853116,[],0584891286,,,true
+117402902,appointmentsHairDresser,117402902,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""11:17"",""endHour"":""21:23""},{""startHour"":""5:43"",""endHour"":""22:52""}]}]",0566815598,,"[""פן"", ""צבע"", ""תספורת"", ""החלקה""]",false
+983895757,ChoresSecretary,983895757,[],0512759101,,,true
+943776328,ChoresSecretary,943776328,[],0590042124,,,false
+563111540,appointmentsDentist,563111540,"[{""day"":""Sunday"",""hours"":[{""startHour"":""11:37"",""endHour"":""23:51""},{""startHour"":""1:04"",""endHour"":""14:35""}]},{""day"":""Monday"",""hours"":[{""startHour"":""0:35"",""endHour"":""21:39""},{""startHour"":""5:25"",""endHour"":""12:19""}]}]",0572297566,,"[""טיפול שורש"", ""עקירה"", ""יישור שיניים"", ""שיננית""]",false
+335612899,AnnouncementsSecretary,335612899,[],0536494163,,,false
+994032568,appointmentsHairDresser,994032568,"[{""day"":""Saturday"",""hours"":[{""startHour"":""11:51"",""endHour"":""19:13""},{""startHour"":""0:34"",""endHour"":""12:50""}]}]",0528965607,Fault,"[""תספורת"", ""פן"", ""החלקה"", ""צבע""]",true
+845902065,ChoresSecretary,845902065,[],0565985035,,,true
+781457704,AnnouncementsSecretary,781457704,[],0590956285,,,true
+253513340,appointmentsHairDresser,253513340,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""7:38"",""endHour"":""13:12""},{""startHour"":""6:28"",""endHour"":""21:38""}]}]",0547838264,Slots,"[""צבע"", ""פן"", ""גוונים"", ""החלקה""]",true
+544359761,appointmentsDentist,544359761,"[{""day"":""Sunday"",""hours"":[{""startHour"":""8:49"",""endHour"":""18:56""},{""startHour"":""5:36"",""endHour"":""19:33""}]}]",0536068225,,"[""יישור שיניים"", ""טיפול שורש"", ""ניקוי"", ""שיננית""]",false
+203895641,appointmentsHairDresser,203895641,"[{""day"":""Sunday"",""hours"":[{""startHour"":""5:29"",""endHour"":""22:18""},{""startHour"":""3:14"",""endHour"":""16:17""}]}]",0504988740,Slots,"[""פן"", ""תספורת"", ""גוונים"", ""החלקה""]",false
+668291889,ChoresSecretary,668291889,[],0583551200,,,false
+401712205,AnnouncementsSecretary,401712205,[],0550981773,,,true
+143327192,appointmentsHairDresser,143327192,"[{""day"":""Thursday"",""hours"":[{""startHour"":""3:42"",""endHour"":""23:45""},{""startHour"":""5:29"",""endHour"":""13:08""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""9:56"",""endHour"":""16:38""},{""startHour"":""8:39"",""endHour"":""22:13""}]}]",0562398443,,"[""גוונים"", ""החלקה"", ""תספורת"", ""פן""]",true
+568462686,ChoresSecretary,568462686,[],0550765323,,,false
+231122457,AnnouncementsSecretary,231122457,[],0595260894,,,true
+082532921,appointmentsHairDresser,082532921,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""4:02"",""endHour"":""16:13""},{""startHour"":""0:57"",""endHour"":""18:09""}]}]",0526591026,,"[""פן"", ""גוונים"", ""החלקה"", ""צבע""]",false
+393791727,AnnouncementsSecretary,393791727,[],0509203714,,,true
+243143438,PhoneBookSecretary,243143438,[],0566061778,,,false
+147601732,AnnouncementsSecretary,147601732,[],0502203628,,,false
+087406880,AnnouncementsSecretary,087406880,[],0554241868,,,true
+505792466,PhoneBookSecretary,505792466,[],0590534128,,,false
+863003871,ChoresSecretary,863003871,[],0587870577,,,true
+183750138,ChoresSecretary,183750138,[],0575245465,,,false
+487990985,ChoresSecretary,487990985,[],0543362235,,,false
+489675695,appointmentsHairDresser,489675695,"[{""day"":""Sunday"",""hours"":[{""startHour"":""4:47"",""endHour"":""13:48""},{""startHour"":""1:47"",""endHour"":""15:32""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""8:53"",""endHour"":""13:08""},{""startHour"":""6:40"",""endHour"":""17:12""}]}]",0519188437,Fault,"[""פן"", ""תספורת"", ""גוונים"", ""החלקה""]",true
+000425698,PhoneBookSecretary,000425698,[],0532411103,,,true
+831799272,appointmentsDentist,831799272,"[{""day"":""Thursday"",""hours"":[{""startHour"":""9:40"",""endHour"":""15:35""},{""startHour"":""6:24"",""endHour"":""12:05""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""8:10"",""endHour"":""12:30""},{""startHour"":""3:17"",""endHour"":""22:13""}]}]",0548821326,,"[""טיפול שורש"", ""יישור שיניים"", ""עקירה"", ""שיננית""]",true
+002675952,appointmentsDentist,002675952,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""6:01"",""endHour"":""23:55""},{""startHour"":""10:36"",""endHour"":""21:12""}]}]",0507186600,,"[""טיפול שורש"", ""יישור שיניים"", ""ניקוי"", ""עקירה""]",true
+445092317,appointmentsDentist,445092317,"[{""day"":""Thursday"",""hours"":[{""startHour"":""6:45"",""endHour"":""20:53""},{""startHour"":""1:20"",""endHour"":""20:33""}]}]",0573622463,,"[""טיפול שורש"", ""עקירה"", ""שיננית"", ""ניקוי""]",true
+810828693,AnnouncementsSecretary,810828693,[],0517470442,,,true
+453497051,AnnouncementsSecretary,453497051,[],0569260282,,,true
+754100540,appointmentsHairDresser,754100540,"[{""day"":""Friday"",""hours"":[{""startHour"":""3:50"",""endHour"":""12:17""},{""startHour"":""9:04"",""endHour"":""13:25""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""8:11"",""endHour"":""22:40""},{""startHour"":""6:50"",""endHour"":""21:21""}]}]",0589538686,Dialog,"[""תספורת"", ""פן"", ""צבע"", ""החלקה""]",true
+142257709,ChoresSecretary,142257709,[],0520702789,,,true
+932759915,PhoneBookSecretary,932759915,[],0506615866,,,true
+659736044,AnnouncementsSecretary,659736044,[],0506056679,,,true
+029917121,ChoresSecretary,029917121,[],0526820815,,,false
+621225533,ChoresSecretary,621225533,[],0504558313,,,false
+957538494,appointmentsHairDresser,957538494,"[{""day"":""Sunday"",""hours"":[{""startHour"":""0:26"",""endHour"":""21:24""},{""startHour"":""0:52"",""endHour"":""14:52""}]},{""day"":""Monday"",""hours"":[{""startHour"":""4:45"",""endHour"":""16:30""},{""startHour"":""8:06"",""endHour"":""14:24""}]}]",0592650808,Slots,"[""צבע"", ""פן"", ""גוונים"", ""תספורת""]",true
+906715266,AnnouncementsSecretary,906715266,[],0542374470,,,false
+678936616,appointmentsHairDresser,678936616,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""2:11"",""endHour"":""18:48""},{""startHour"":""4:15"",""endHour"":""17:08""}]}]",0555234305,,"[""החלקה"", ""תספורת"", ""פן"", ""צבע""]",true
+797515777,ChoresSecretary,797515777,[],0582193098,,,false
+481482909,appointmentsDentist,481482909,"[{""day"":"""",""hours"":[{""startHour"":""4:35"",""endHour"":""23:23""},{""startHour"":""1:58"",""endHour"":""20:43""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""6:53"",""endHour"":""20:23""},{""startHour"":""3:42"",""endHour"":""18:19""}]}]",0599787087,,"[""יישור שיניים"", ""עקירה"", ""שיננית"", ""טיפול שורש""]",false
+225106556,appointmentsHairDresser,225106556,"[{""day"":""Saturday"",""hours"":[{""startHour"":""10:34"",""endHour"":""23:08""},{""startHour"":""2:37"",""endHour"":""14:23""}]}]",0594990699,,"[""צבע"", ""פן"", ""גוונים"", ""תספורת""]",true
+419271646,appointmentsDentist,419271646,"[{""day"":""Friday"",""hours"":[{""startHour"":""9:41"",""endHour"":""22:46""},{""startHour"":""2:24"",""endHour"":""19:19""}]},{""day"":""Monday"",""hours"":[{""startHour"":""9:58"",""endHour"":""17:55""},{""startHour"":""6:07"",""endHour"":""17:13""}]}]",0527904683,,"[""טיפול שורש"", ""ניקוי"", ""עקירה"", ""שיננית""]",true
+516169863,appointmentsHairDresser,516169863,"[{""day"":""Monday"",""hours"":[{""startHour"":""10:13"",""endHour"":""20:15""},{""startHour"":""4:38"",""endHour"":""13:59""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""10:51"",""endHour"":""12:07""},{""startHour"":""8:32"",""endHour"":""15:11""}]}]",0512800492,Fault,"[""צבע"", ""פן"", ""תספורת"", ""החלקה""]",false
+560176995,appointmentsDentist,560176995,"[{""day"":""Thursday"",""hours"":[{""startHour"":""4:26"",""endHour"":""23:36""},{""startHour"":""2:59"",""endHour"":""19:12""}]}]",0550711537,,"[""שיננית"", ""טיפול שורש"", ""ניקוי"", ""יישור שיניים""]",true
+473653499,PhoneBookSecretary,473653499,[],0531082398,,,false
+028905619,appointmentsHairDresser,028905619,"[{""day"":""Thursday"",""hours"":[{""startHour"":""7:33"",""endHour"":""16:30""},{""startHour"":""7:11"",""endHour"":""21:43""}]}]",0586639800,,"[""צבע"", ""החלקה"", ""פן"", ""תספורת""]",true
+807666918,AnnouncementsSecretary,807666918,[],0595474994,,,true
+385405751,ChoresSecretary,385405751,[],0560971358,,,true
+560321102,appointmentsHairDresser,560321102,"[{""day"":""Saturday"",""hours"":[{""startHour"":""5:38"",""endHour"":""15:16""},{""startHour"":""10:47"",""endHour"":""16:20""}]}]",0518956914,,"[""פן"", ""החלקה"", ""גוונים"", ""צבע""]",true
+922733899,appointmentsDentist,922733899,"[{""day"":""Saturday"",""hours"":[{""startHour"":""0:01"",""endHour"":""22:29""},{""startHour"":""6:39"",""endHour"":""22:23""}]},{""day"":""Sunday"",""hours"":[{""startHour"":""9:28"",""endHour"":""13:30""},{""startHour"":""3:32"",""endHour"":""21:21""}]}]",0572500041,,"[""עקירה"", ""ניקוי"", ""שיננית"", ""יישור שיניים""]",false
+762340889,ChoresSecretary,762340889,[],0508167442,,,false
+550283599,PhoneBookSecretary,550283599,[],0542135924,,,true
+508967170,appointmentsDentist,508967170,"[{""day"":""Saturday"",""hours"":[{""startHour"":""9:20"",""endHour"":""20:42""},{""startHour"":""5:58"",""endHour"":""19:58""}]}]",0514455299,Slots,"[""יישור שיניים"", ""ניקוי"", ""עקירה"", ""טיפול שורש""]",true
+864699724,ChoresSecretary,864699724,[],0507666745,,,false
+358040553,AnnouncementsSecretary,358040553,[],0501311252,,,false
+014005065,AnnouncementsSecretary,014005065,[],0570806096,,,true
+231268851,ChoresSecretary,231268851,[],0515231426,,,true
+500655545,appointmentsHairDresser,500655545,"[{""day"":""Monday"",""hours"":[{""startHour"":""1:49"",""endHour"":""15:18""},{""startHour"":""1:28"",""endHour"":""14:17""}]},{""day"":""Saturday"",""hours"":[{""startHour"":""1:40"",""endHour"":""22:28""},{""startHour"":""1:06"",""endHour"":""22:58""}]}]",0550422378,,"[""החלקה"", ""פן"", ""צבע"", ""גוונים""]",true
+708668747,appointmentsDentist,708668747,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""3:55"",""endHour"":""14:51""},{""startHour"":""10:09"",""endHour"":""22:45""}]},{""day"":""Thursday"",""hours"":[{""startHour"":""3:56"",""endHour"":""17:11""},{""startHour"":""5:37"",""endHour"":""16:32""}]}]",0516555308,Slots,"[""טיפול שורש"", ""יישור שיניים"", ""ניקוי"", ""עקירה""]",false
+087458946,appointmentsHairDresser,087458946,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""8:59"",""endHour"":""20:01""},{""startHour"":""5:40"",""endHour"":""19:51""}]}]",0525859833,,"[""החלקה"", ""תספורת"", ""פן"", ""גוונים""]",false
+985364823,appointmentsHairDresser,985364823,"[{""day"":""Thursday"",""hours"":[{""startHour"":""5:19"",""endHour"":""19:08""},{""startHour"":""11:16"",""endHour"":""23:25""}]}]",0539253419,,"[""גוונים"", ""פן"", ""החלקה"", ""צבע""]",false
+435786324,ChoresSecretary,435786324,[],0515196348,,,true
+180017380,appointmentsDentist,180017380,"[{""day"":""Thursday"",""hours"":[{""startHour"":""8:18"",""endHour"":""23:11""},{""startHour"":""1:16"",""endHour"":""19:23""}]}]",0573259886,Fault,"[""טיפול שורש"", ""ניקוי"", ""שיננית"", ""עקירה""]",false
+110597906,PhoneBookSecretary,110597906,[],0531169587,,,true
+514453573,appointmentsHairDresser,514453573,"[{""day"":""Thursday"",""hours"":[{""startHour"":""1:05"",""endHour"":""12:54""},{""startHour"":""11:48"",""endHour"":""15:36""}]},{""day"":""Friday"",""hours"":[{""startHour"":""9:39"",""endHour"":""13:12""},{""startHour"":""0:49"",""endHour"":""13:53""}]}]",0510329568,,"[""החלקה"", ""תספורת"", ""פן"", ""גוונים""]",true
+770496987,appointmentsHairDresser,770496987,"[{""day"":"""",""hours"":[{""startHour"":""8:33"",""endHour"":""20:48""},{""startHour"":""10:55"",""endHour"":""12:38""}]},{""day"":""Monday"",""hours"":[{""startHour"":""2:00"",""endHour"":""21:17""},{""startHour"":""3:34"",""endHour"":""15:54""}]}]",0516432291,,"[""גוונים"", ""תספורת"", ""צבע"", ""פן""]",true
+855524902,AnnouncementsSecretary,855524902,[],0589502649,,,true
+892435077,PhoneBookSecretary,892435077,[],0520537091,,,false
+956368438,PhoneBookSecretary,956368438,[],0519212164,,,false
+013538751,appointmentsDentist,013538751,"[{""day"":""Sunday"",""hours"":[{""startHour"":""6:14"",""endHour"":""22:48""},{""startHour"":""1:34"",""endHour"":""19:48""}]}]",0539527081,,"[""טיפול שורש"", ""יישור שיניים"", ""ניקוי"", ""שיננית""]",true
+600385201,AnnouncementsSecretary,600385201,[],0534091187,,,false
+020686959,appointmentsHairDresser,020686959,"[{""day"":""Sunday"",""hours"":[{""startHour"":""11:38"",""endHour"":""19:29""},{""startHour"":""2:15"",""endHour"":""12:57""}]},{""day"":""Friday"",""hours"":[{""startHour"":""3:30"",""endHour"":""18:20""},{""startHour"":""8:19"",""endHour"":""15:20""}]}]",0520253516,,"[""גוונים"", ""צבע"", ""תספורת"", ""החלקה""]",false
+768225392,PhoneBookSecretary,768225392,[],0556936096,,,false
+278702509,appointmentsHairDresser,278702509,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""6:31"",""endHour"":""16:28""},{""startHour"":""7:01"",""endHour"":""19:42""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""4:18"",""endHour"":""12:21""},{""startHour"":""0:54"",""endHour"":""23:25""}]}]",0560028607,Fault,"[""החלקה"", ""תספורת"", ""פן"", ""גוונים""]",false
+022825031,AnnouncementsSecretary,022825031,[],0558020073,,,true
+490638973,PhoneBookSecretary,490638973,[],0547294862,,,false
+440095447,ChoresSecretary,440095447,[],0535143030,,,true
+170877435,ChoresSecretary,170877435,[],0579075686,,,true
+732501707,appointmentsHairDresser,732501707,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""7:55"",""endHour"":""13:09""},{""startHour"":""7:31"",""endHour"":""16:57""}]}]",0528035524,,"[""תספורת"", ""פן"", ""גוונים"", ""צבע""]",true
+818821746,appointmentsDentist,818821746,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""10:24"",""endHour"":""13:37""},{""startHour"":""8:45"",""endHour"":""22:51""}]}]",0527638252,,"[""טיפול שורש"", ""ניקוי"", ""שיננית"", ""עקירה""]",true
+656002783,PhoneBookSecretary,656002783,[],0579207496,,,false
+453560919,AnnouncementsSecretary,453560919,[],0552350544,,,false
+915997193,appointmentsDentist,915997193,"[{""day"":""Wednesday"",""hours"":[{""startHour"":""5:37"",""endHour"":""12:49""},{""startHour"":""5:55"",""endHour"":""17:58""}]}]",0586205960,,"[""עקירה"", ""שיננית"", ""טיפול שורש"", ""ניקוי""]",true
+263819407,PhoneBookSecretary,263819407,[],0500702998,,,true
+585935374,AnnouncementsSecretary,585935374,[],0520807754,,,false
+418110517,appointmentsDentist,418110517,"[{""day"":""Friday"",""hours"":[{""startHour"":""6:55"",""endHour"":""23:38""},{""startHour"":""3:42"",""endHour"":""15:01""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""0:49"",""endHour"":""12:31""},{""startHour"":""10:36"",""endHour"":""18:10""}]}]",0569295387,Fault,"[""שיננית"", ""עקירה"", ""יישור שיניים"", ""טיפול שורש""]",false
+329445822,appointmentsDentist,329445822,"[{""day"":"""",""hours"":[{""startHour"":""4:29"",""endHour"":""14:56""},{""startHour"":""5:08"",""endHour"":""13:22""}]}]",0543614892,Dialog,"[""עקירה"", ""ניקוי"", ""טיפול שורש"", ""יישור שיניים""]",true
+050094651,AnnouncementsSecretary,050094651,[],0576813177,,,false
+446132969,ChoresSecretary,446132969,[],0523434637,,,true
+337248976,PhoneBookSecretary,337248976,[],0589836192,,,true
+040910850,appointmentsDentist,040910850,"[{""day"":"""",""hours"":[{""startHour"":""8:58"",""endHour"":""13:50""},{""startHour"":""3:54"",""endHour"":""21:39""}]},{""day"":""Wednesday"",""hours"":[{""startHour"":""6:22"",""endHour"":""12:32""},{""startHour"":""4:25"",""endHour"":""15:22""}]}]",0532941533,Dialog,"[""יישור שיניים"", ""ניקוי"", ""טיפול שורש"", ""עקירה""]",false
+221235943,ChoresSecretary,221235943,[],0525900382,,,true
+933148334,appointmentsDentist,933148334,"[{""day"":""Tuesday"",""hours"":[{""startHour"":""9:48"",""endHour"":""13:39""},{""startHour"":""8:57"",""endHour"":""21:22""}]},{""day"":""Tuesday"",""hours"":[{""startHour"":""5:51"",""endHour"":""17:37""},{""startHour"":""0:48"",""endHour"":""23:19""}]}]",0523263894,Slots,"[""ניקוי"", ""שיננית"", ""טיפול שורש"", ""עקירה""]",false
+328670390,ChoresSecretary,328670390,[],0522341734,,,false
+121806052,appointmentsHairDresser,121806052,"[{""day"":""Friday"",""hours"":[{""startHour"":""8:53"",""endHour"":""15:35""},{""startHour"":""7:17"",""endHour"":""15:24""}]}]",0557772412,Dialog,"[""פן"", ""צבע"", ""תספורת"", ""גוונים""]",true
+373364168,PhoneBookSecretary,373364168,[],0553228970,,,true
+949786219,ChoresSecretary,949786219,[],0529339608,,,true
+281570894,PhoneBookSecretary,281570894,[],0502580499,,,true
