@@ -9,7 +9,7 @@ import Button from "../../../components/submitButton/Button";
 import choresStorage from "../../../storage/choresStorage";
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import axios from "axios";
-
+import { APP_SOCKET } from '../../../shared/constants';
 
 export default class ReplacementsChoresCalendar extends Component {
     constructor(props) {
@@ -42,7 +42,11 @@ export default class ReplacementsChoresCalendar extends Component {
                 };
                 this.userId = userData.userId;
                 this.loadUserChores();
+                connectToServerSocket(userData.userId);
+                APP_SOCKET.on("usersMadeChoreReplacement", this.loadUserChores.bind(this));
+
             });
+            
     }
 
     loadUserChores() {
@@ -300,7 +304,7 @@ export default class ReplacementsChoresCalendar extends Component {
                     transparent={false}
                     visible={this.state.dateModalVisible}
                     onRequestClose={() => {
-                        console.log('Modal has been closed.');
+                        this.setState({dateModalVisible:false});
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
@@ -346,7 +350,7 @@ export default class ReplacementsChoresCalendar extends Component {
                     transparent={false}
                     visible={this.state.choreModalVisible}
                     onRequestClose={() => {
-                        console.log('choreModal has been closed.');
+                        this.setState({choreModalVisible:false});
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
@@ -378,7 +382,10 @@ export default class ReplacementsChoresCalendar extends Component {
                 </Modal>
                 <Modal animationType="fade"
                     transparent={false}
-                    visible={this.state.alertModalVisible}>
+                    visible={this.state.alertModalVisible}
+                    onRequestClose={() => {
+                        this.setState({alertModalVisible:false});
+                    }}>
 <Text>{this.state.alertModalContent}</Text>
 <Button
                                 label='סגור'

@@ -13,14 +13,14 @@ moment.locale('he');
 
 const module2color = {
     Appointments: 'purple', //'#00adf5',
-    Chores:'red',
-    Announcements:'green',
+    UsersChores: 'red',
+    Announcements: 'green',
 };
 
 const module2selectedDotColor = {
     Appointments: 'purple',
-    Chores:'red',
-    Announcements:'green',
+    UsersChores: 'red',
+    Announcements: 'green',
 };
 
 
@@ -28,8 +28,8 @@ export default class AgendaCalendar extends Component {
     constructor(props) {
         super(props);
 
-        let items={};
-        items[moment().format("YYYY-MM-DD")]=[];
+        let items = {};
+        items[moment().format("YYYY-MM-DD")] = [];
         this.state = {
             items: items
             /* '2018-12-30': [{text: 'item 30 - any js object'}],
@@ -94,6 +94,30 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
+                            case
+                                'UsersChores'
+                            :
+                                console.log("load items-> userschores", this.state.items)
+                                let chore = event['UsersChore'];
+                                item.type = event.eventType;
+                                item.date = moment(chore.date).format("YYYY-MM-DD");
+                                ///item.itemId = chore.userChoreId;
+                                ////item.date = moment(chore.date).format("YYYY-MM-DD");
+                                item.title = chore.choreTypeName;
+                                item.startTime = moment(chore.date).format("HH:mm");
+                                item.endTime = moment(chore.date).format("HH:mm");
+                                //item.role = mappers.serviceProviderRolesMapper(appointment.AppointmentDetail.role);
+                                //item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
+                                //item.subject = JSON.parse(appointment.AppointmentDetail.subject).join(", ");
+                                //let serviceProvider = serviceProviderUserDetails.filter(provider => provider.userId === appointment.AppointmentDetail.serviceProviderId.toString())[0];
+                                //item.serviceProviderFullname = serviceProvider.fullname;
+                                //item.serviceProviderImage = serviceProvider.image;
+                                if (newItems[item.date]) {
+                                    newItems[item.date].push(item);
+                                } else {
+                                    newItems[item.date] = [item];
+                                }
+                                break;
                             }
                             case 'Announcements': {
                                 let announcement = event['Announcement'];
@@ -152,8 +176,26 @@ export default class AgendaCalendar extends Component {
                         <Text h3>{item.subject}</Text>
                     </Card>
                 );
-            }
+            case
+                'UsersChores'
+            :
+                return (
+                    <Card
+                        title={`תורנות`}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.title}</Text>
 
+
+                        </View>
+                    </Card>
+                );
+            }
             case 'Announcements': {
                 return (
                     <Card

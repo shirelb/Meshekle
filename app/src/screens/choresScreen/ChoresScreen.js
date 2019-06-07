@@ -11,16 +11,6 @@ export default class ChoresScreen extends Component {
                     התורנויות שלי
                 </Text>
 
-                {/*<Button
-                    title="בקש תור חדש"
-                    onPress={this.onAppointmentRequestPress.bind(this)}
-                />*/}
-
-                {/* <Button
-                    label='get events'
-                    onPress={this.getUserEvents.bind(this)}
-                />*/}
-
                 <ChoresCalendar userId="1"/>
             </View>
         );

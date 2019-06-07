@@ -1,0 +1,50 @@
+
+.fc-event.hebdate, .fc-event.omer {
+    background-color:#FFF;
+    border-color:#FFF;
+    color:#999;
+}
+.fc-event.dafyomi {
+    background-color:#FFF;
+    border-color:#FFF;
+    color:#3aad57;
+}
+.fc-event.dafyomi a {
+    color: #3aad57;
+}
+.fc-event.dafyomi a:hover,
+.fc-event.dafyomi a:focus {
+    color: #3aad57;
+}
+.fc-event.candles, .fc-event.havdalah {
+    background-color:#FFF;
+    border-color:#FFF;
+    color:#333;
+}
+.fc-event.holiday {
+    background-color:#ffd446;
+    border-color:#3aad57;
+    color:#FFF;
+}
+.fc-event.holiday.yomtov {
+    background-color:#ffd446;
+    border-color:#ffd446;
+    color:#333;
+}
+.fc-event.parashat {
+    background-color:#ffd446;
+    border-color:#ffd446;
+    color:#FFF;
+    
+}
+.fc-event.hebrew .fc-title {
+    font-family:'Alef Hebrew','SBL Hebrew',David;
+    font-size:110%;
+    font-weight:normal;
+    direction:rtl;
+}
+.fc-event.hebrew .fc-time {
+    direction:ltr;
+    unicode-bidi: bidi-override;
+}
+

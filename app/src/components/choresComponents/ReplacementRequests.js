@@ -462,7 +462,7 @@ export default class ReplacementRequests extends Component {
                     transparent={false}
                     visible={this.state.choreModalVisible}
                     onRequestClose={() => {
-                        console.log('choreModal has been closed.');
+                        this.setState({choreModalVisible:false});
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
@@ -570,7 +570,10 @@ export default class ReplacementRequests extends Component {
                     </View>
                     
                 </Modal>
-                <Modal visible={this.state.alertModal}>
+                <Modal visible={this.state.alertModal}
+                onRequestClose={() => {
+                        this.setState({alertModal:false});
+                    }}>
                     <Text>{this.state.alertContent}</Text>
                     <Button
                                 label='סגור'
