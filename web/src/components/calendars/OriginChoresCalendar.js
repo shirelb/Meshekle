@@ -34,7 +34,7 @@ export default class OriginChoresCalendar extends Component {
         this.jq = $.noConflict();
         this.calendarDisplay = this.props.calendarDisplay;
         this.fullcalendarConfig = {
-            //events: [],
+            events: [],
             height: 630,
             header: {
                 left: 'next,prev',
@@ -74,8 +74,6 @@ export default class OriginChoresCalendar extends Component {
                 console.log('eventReceive function');
             },
 
-           
-
             eventResize: null,
 
             timezone: 'local',
@@ -99,7 +97,7 @@ export default class OriginChoresCalendar extends Component {
             choreTypeName: props.choreTypeName,
             userschores:[],
             
-        }
+        };
 
         this.root = null;
         this.onSelectSlot=this.onSelectSlot.bind(this);
@@ -109,20 +107,13 @@ export default class OriginChoresCalendar extends Component {
         this.createUserChoresRequest = this.createUserChoresRequest.bind(this);
         this.getUserschoresForType = this.getUserschoresForType.bind(this);
         this.onDropEvent = this.onDropEvent.bind(this);
-
-        
     }
 
     componentWillReceiveProps(nextProps) {
-        this.calendarDisplay= nextProps.calendarDisplay;
-        this.forceUpdate();
-        this.jq('#calendar').fullCalendar('removeEventSources');
-        this.jq('#calendar').fullCalendar('addEventSource', {
-            url: "https://www.hebcal.com/hebcal/?v=1&cfg=fc&maj=on&min=on&mod=on&nx=off&month=x&ss=on&mf=off&c=off&geo=none&s=on",
-            cache: true
-        })
-        //this.jq('#calendar').fullCalendar('removeEvents');
-        this.jq('#calendar').fullCalendar('addEventSource', nextProps.events );
+        this.fullcalendarConfig.events = nextProps.events;
+
+        this.jq('#calendar').fullCalendar('removeEvents');
+        this.jq('#calendar').fullCalendar('addEventSource', nextProps.events);
     }
 
     componentWillMount(){
@@ -165,33 +156,11 @@ export default class OriginChoresCalendar extends Component {
     }
 
     componentDidMount() {
-        //this.fullcalendarConfig.events = this.props.events;
-        //console.log("this.props.events;",this.props.events);
+        this.fullcalendarConfig.events = this.props.events;
         this.fullcalendarConfig.select = this.onSelectSlot;
         this.fullcalendarConfig.eventDrop  = this.onDropEvent;
         connectToServerSocket(this.props.serviceProviderId);
         WEB_SOCKET.on("getChangeInUserChores", this.forceUpdate.bind(this));
-
-        //WEB_SOCKET.on("getChangeInUserChores", this.getUserschoresForType.bind(this));
-
-        /*this.fullcalendarConfig.dayClick= function(event, jsEvent, view) {
-            $('#calendarModal').modal('show');
-        }*/
-        /*this.fullcalendarConfig.eventClick = this.props.onSelectEvent;
-        this.fullcalendarConfig.eventResize = this.props.updateAfterMoveOrResizeEvent;
-        this.fullcalendarConfig.eventDrop = this.props.updateAfterMoveOrResizeEvent;
-        this.fullcalendarConfig.eventReceive = this.props.onDropUserChore;//
-        this.fullcalendarConfig.drop = function (date, jsEvent, ui, resourceId) {
-            var appointmentRequestDropped = JSON.parse($(this).attr('data-event'));
-
-            let startDateAndTime = moment(date);
-            let endDateAndTime = moment(date).add(2, 'h');
-
-            appointmentRequestDropped.start=startDateAndTime;
-            appointmentRequestDropped.end=endDateAndTime;
-
-            $('#calendar').fullCalendar('updateEvent', appointmentRequestDropped);
-        };*/
         
         this.jq('#calendar').fullCalendar(this.fullcalendarConfig);
         
