@@ -165,7 +165,7 @@ var deleteUserChore = function(serviceProviderId, headers, id){//api29
             return response;
         })
         .catch(error => {
-            console.log('delete userchore error ', error)
+            console.log('deleting userchore error ', error)
         });
 };
 
@@ -179,7 +179,7 @@ var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
             return response;
         })
         .catch(error => {
-            console.log('delete chore type error ', error)
+            console.log('deleting chore type error ', error)
         });
 };
 
@@ -213,7 +213,7 @@ var deleteUserFromChoreType = function(serviceProviderId, headers,userId, typeNa
             return response;
         })
         .catch(error => {
-            console.log('delete user from chore type error ', error)
+            console.log('deleting user from chore type error ', error)
         });
 };
 
