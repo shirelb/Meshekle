@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Dimensions, Platform, TouchableOpacity, YellowBox} from 'react-native';
+import {Alert, Dimensions, Platform, TouchableOpacity, YellowBox} from 'react-native';
 import {
     createAppContainer,
     createDrawerNavigator,
