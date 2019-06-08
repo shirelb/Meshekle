@@ -640,8 +640,8 @@ function isUserInputValid(userInput) {
         return serviceProvidersRoute.INVALID_BORN_DATE_INPUT;
     if (isNaN(userInput.mailbox))
         return serviceProvidersRoute.INVALID_MAIL_BOX_INPUT;
-    if (userInput.phone.match(/^[0-9]+$/) === null)
-        return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    //if (userInput.phone.match(/^[0-9]+$/) === null)
+      //  return serviceProvidersRoute.INVALID_PHONE_INPUT;
     if (userInput.cellphone.match(/^[0-9]+$/) === null)
         return serviceProvidersRoute.INVALID_PHONE_INPUT;
     return '';
