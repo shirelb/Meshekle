@@ -109,7 +109,7 @@ class UserForm extends React.Component {
             return false;
         }
 
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
+        if (user.email === '' || !(/^[^@]+@[^@]+\.[^@]+$/.test(user.email))) {
             this.setState({
                 formError: true,
                 formErrorMassage: "אימייל לא וואלידי",
@@ -132,15 +132,6 @@ class UserForm extends React.Component {
                 formError: true,
                 formErrorMassage: "הפלאפון לא וואלידי",
                 fieldCellphoneError: true
-            });
-            return false;
-        }
-
-        if (!(/^\d*$/.test(user.phone))) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "הטלפון לא וואלידי",
-                fieldPhoneError: true
             });
             return false;
         }
@@ -337,7 +328,6 @@ class UserForm extends React.Component {
                     />
                     <Form.Input
                         error={this.state.fieldPhoneError}
-                        required
                         label="טלפון"
                         type="tel"
                         name="phone"
