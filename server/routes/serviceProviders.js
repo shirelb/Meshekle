@@ -304,7 +304,7 @@ router.post('/add', function (req, res, next) {
                         validations.getUsersByUserIdPromise(newServiceProvider.userId)
                             .then(users => {
                                 helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                    "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                                    "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                             })
                             .catch(err => {
                                 console.log(err);
@@ -356,7 +356,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                 validations.getUsersByUserIdPromise(newServiceProvider.userId)
                     .then(users => {
                         helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);
@@ -451,7 +451,7 @@ router.post('/users/add', function (req, res, next) {
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
                     helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                        "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + randomPassword + "\n" + constants.mailMessages.MAIL_END);
+                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + newUser.userId + "\nהסיסמא שלך: " + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -488,7 +488,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + newPassword + "\n" + constants.mailMessages.MAIL_END);
+                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + updatedUser.userId + "\nהסיסמא החדשה שלך: " + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {
@@ -641,7 +641,7 @@ function isUserInputValid(userInput) {
     if (isNaN(userInput.mailbox))
         return serviceProvidersRoute.INVALID_MAIL_BOX_INPUT;
     //if (userInput.phone.match(/^[0-9]+$/) === null)
-      //  return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    //  return serviceProvidersRoute.INVALID_PHONE_INPUT;
     if (userInput.cellphone.match(/^[0-9]+$/) === null)
         return serviceProvidersRoute.INVALID_PHONE_INPUT;
     return '';
