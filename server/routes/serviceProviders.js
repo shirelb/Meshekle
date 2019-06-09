@@ -451,7 +451,7 @@ router.post('/users/add', function (req, res, next) {
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
                     helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + newUser.userId + "\nהסיסמא שלך: " + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + "\n" + newUser.userId + "\nהסיסמא שלך: " + "\n" + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -488,7 +488,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + updatedUser.userId + "\nהסיסמא החדשה שלך: " + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + "\n" + updatedUser.userId + "\nהסיסמא החדשה שלך: " + "\n" +  newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {
