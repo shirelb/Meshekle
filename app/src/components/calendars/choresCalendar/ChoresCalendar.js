@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {FlatList, Modal, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import moment from 'moment';
 import phoneStorage from "react-native-simple-store";
@@ -30,6 +30,7 @@ export default class ChoresCalendar extends Component {
             closedRequestsModal:false,
             alertModal:false,
             alertContent:'',
+            refreshing: false,
         };
 
         this.userHeaders = {};
@@ -251,6 +252,14 @@ export default class ChoresCalendar extends Component {
                 });
             };*/
 
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadUserChores();
+
+        this.setState({refreshing: false});
+    };
+
     render() {
         LocaleConfig.defaultLocale = 'il';
 
@@ -258,7 +267,12 @@ export default class ChoresCalendar extends Component {
         let currDayStr = new Date().toUTCString(); // get current date
 
         return (
-            <View>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}
+                />
+            }>
                 <Calendar
 
                     markedDates={this.state.markedDates}
@@ -442,7 +456,7 @@ export default class ChoresCalendar extends Component {
                     </View>
                     
                 </Modal>
-            </View>
+            </ScrollView>
         );
     }
 }

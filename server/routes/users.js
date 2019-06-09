@@ -85,9 +85,9 @@ router.put('/forgetPassword', function (req, res) {
                         "result": user.dataValues.password
                     });
                     helpers.sendMail(user.email, constants.mailMessages.REMINDER_SUBJECT,
-                        "Hello " + user.fullname +
-                        "\nYour username is: " + user.userId +
-                        "\nYour password is: " + user.dataValues.password +
+                        "שלום " + user.fullname +
+                        "\nשם המשתמש שלך: " + user.userId +
+                        "\nהסיסמא שלך: " + user.dataValues.password +
                         "\n" + constants.mailMessages.REMINDER_END +
                         "\n" + constants.mailMessages.MAIL_END);
                 })
