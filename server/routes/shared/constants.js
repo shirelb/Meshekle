@@ -112,12 +112,13 @@ module.exports = {
         CULTURE_CATEGORY:"Culture",
     },
     mailMessages:{
-        ADD_USER_SUBJECT: "Welcome to Meshekle - There is your credentials",
-        ADD_SERVICE_PROVIDER_SUBJECT:"Your new role at Meshekle!",
-        BEFORE_CRED: "Welcome to Meshkele",
-        BEFORE_ROLE: "You have got a new role at Meshkele",
-        REMINDER_END: "Dont forget to change your password next time you visit, ",
-        MAIL_END: "Have a nice day, Meshkele family"
+        ADD_USER_SUBJECT: "ברוכים הבאים למשקל'ה - אלה הם פרטי הכניסה שלך",
+        ADD_SERVICE_PROVIDER_SUBJECT:"תחום אחריות חדש במשקל'ה",
+        BEFORE_CRED: "ברוכים הבאים למשקל'ה",
+        BEFORE_ROLE: "יש לך תחום אחריות חדש במשקל'ה",
+        REMINDER_END: "לא לשכוח לשנות את הסיסמא בכניסה הבאה לאפליקציה",
+        REMINDER_SUBJECT: "תזכורת ממשקל'ה",
+        MAIL_END: "יום מעולה, משפחת משקל'ה"
     },
     announcementsRoute:{
         SERVICE_PROVIDER_NOT_FOUND: "Service provider not found!",
