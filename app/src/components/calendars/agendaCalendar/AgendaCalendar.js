@@ -28,10 +28,9 @@ export default class AgendaCalendar extends Component {
     constructor(props) {
         super(props);
 
-        let items = {};
-        items[moment().format("YYYY-MM-DD")] = [];
         this.state = {
-            items: items
+            refreshing: false,
+            items: {}
             /* '2018-12-30': [{text: 'item 30 - any js object'}],
              '2018-12-31': [{text: 'item 31 - any js object'}],
              '2019-01-01': [{text: 'item 1 - any js object'}],
@@ -64,6 +63,12 @@ export default class AgendaCalendar extends Component {
                     });
             });
     }
+
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadItems();
+    };
 
     loadItems() {
         let newItems = {};
@@ -134,7 +139,8 @@ export default class AgendaCalendar extends Component {
                         }
                     });
                     this.setState({
-                        items: newItems
+                        items: newItems,
+                        refreshing: false
                     });
                 }
             })
@@ -153,7 +159,7 @@ export default class AgendaCalendar extends Component {
             case 'Appointments':
                 return (
                     <Card
-                        title={`${item.role} - ${item.serviceProviderFullname}`}
+                        title={`תור ל ${item.role} - ${item.serviceProviderFullname}`}
                         // containerStyle={{width: 70 + '%'}}
                     >
                         <View style={{
@@ -193,7 +199,7 @@ export default class AgendaCalendar extends Component {
             case 'Announcements': {
                 return (
                     <Card
-                        title={`אירוע שנשמר מלוח המודעות - ${item.title} `}
+                        title={`מודעה - ${item.title} `}
                         // containerStyle={{width: 70 + '%'}}
                     >
                         <View style={{
@@ -231,9 +237,8 @@ export default class AgendaCalendar extends Component {
     };
 
     renderEmptyDate = () => {
-        return (
-            <View style={styles.emptyDate}><Text> </Text></View>
-        );
+        // return <View style={{width: 18 + '%'}}><Text> אין אירועים בתאריך זה </Text></View>
+        return <View style={styles.emptyDate}><Text> אין אירועים בתאריך זה </Text></View>
     };
 
     rowHasChanged = (r1, r2) => {
@@ -271,8 +276,12 @@ export default class AgendaCalendar extends Component {
                 // onDayChange={this.onDayChange}
                 renderItem={this.renderItem}
                 renderEmptyDate={this.renderEmptyDate}
+                renderEmptyData={this.renderEmptyDate}
                 renderDay={this.renderDay}
                 rowHasChanged={this.rowHasChanged}
+                onRefresh={this.onRefresh}
+                refreshing={this.state.refreshing}
+                refreshControl = {null}
                 // hideKnob={true}
                 // markingType={'period'}
                 // markedDates={{
@@ -314,12 +323,21 @@ export default class AgendaCalendar extends Component {
                     agendaKnobColor: 'blue',
                     agendaBackgroundColor: '#424242',
                 }}
+                style={styles.calendar}
             />
         );
     }
 }
 
 const styles = StyleSheet.create({
+    calendar: {
+        // borderTopWidth: 2,
+        // marginTop: 5,
+        paddingTop: 5,
+        // borderBottomWidth: 2,
+        // borderColor: '#eee',
+        height: 500,
+    },
     item: {
         backgroundColor: 'white',
         flex: 1,
@@ -329,13 +347,17 @@ const styles = StyleSheet.create({
         marginTop: 17
     },
     emptyDate: {
-        height: 15,
-        flex: 1,
-        paddingTop: 30,
+        flex: 1, justifyContent: "center", alignItems: "center",
+        // height: 15,
+        // flex: 1,
+        // paddingTop: 30,
         borderTopWidth: 2,
         borderTopColor: 'grey',
         borderBottomWidth: 2,
         borderBottomColor: 'grey',
+        // textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: 18,
     },
     dayMonthContainer: {
         height: 100,
