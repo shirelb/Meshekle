@@ -67,7 +67,8 @@ module.exports = {
             from: 'meshekle2019@gmail.com',
             to: mailToSend,
             subject: subject,
-            text: text
+            text: text,
+            html: `<p dir="rtl">${text}</p>`
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
