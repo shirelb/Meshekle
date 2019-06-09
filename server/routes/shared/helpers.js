@@ -68,7 +68,6 @@ module.exports = {
             to: mailToSend,
             subject: subject,
             text: text,
-            html: `<p dir="rtl">${text}</p>`
         };
 
         transporter.sendMail(mailOptions, function (error, info) {
