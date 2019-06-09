@@ -4,7 +4,9 @@ const {ChoreTypes, ServiceProviders, sequelize, Users, AppointmentRequests, Appo
 var constants = require('./constants');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.gmail.com",
+    secureConnection: false,
+    port: 587,
     auth: {
         user: 'meshekle2019@gmail.com',
         pass: 'geralemeshekle'
