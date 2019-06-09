@@ -203,6 +203,7 @@ router.get('/type/:type/users', function (req, res, next) {
           .then(usersChoreType => {
               //console.log('getting userIds of choreType by choreTypeName seccussfully done'+usersChoreType);
               if(usersChoreType && usersChoreType.length>0){
+                this.ids = usersChoreType.map(u=> u.userId);
                 res.status(200).send({"message":"getting users of choretype seccessfully done",usersChoreType});
               }
               else{
@@ -1040,6 +1041,31 @@ router.put('/replacementRequests/replace', function (req, res, next) {
             })
         
   });
+
+  /* GET users of choreType by choreTypeName api22. */
+router.get('/type/:type/users/not', function (req, res, next) {
+  validations.checkIfChoreTypeExist(req.params.type, res)
+  .then(type=>{
+    if(type){
+    Users.findAll({ 
+      where:{
+        userId:{
+      [Op.notIn]:  this.ids}
+    }})
+    .then(uses=>{
+      //console.log("\n\n\n users not in type:", uses);
+      res.status(200).send({"message":"lala",uses});
+    })
+    }
+    else{
+      res.status(400).send({"message":"choreType is not exist",err});
+    }
+  })
+  .catch(err=>{
+    res.status(400).send({"message":"choreType is not exist",err});
+  })
+});
+
 
 checkIfUserDoChoreType = function(userId, type, res){
   return UsersChoresTypes.findOne({
