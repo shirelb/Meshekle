@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, Text} from 'react-native';
+import {Text, View} from 'react-native';
 import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCalendar";
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
@@ -43,7 +43,7 @@ export default class MainScreen extends Component {
 
     render() {
         return (
-            <ScrollView style={{}}>
+            <View style={{}}>
                 <Text style={{textAlign: "center", fontSize: 16}}>
                     {strings.mainScreenStrings.WELCOME}
                 </Text>
@@ -57,7 +57,8 @@ export default class MainScreen extends Component {
                 <AgendaCalendar
                     userId={this.state.userId}
                 />
-            </ScrollView>
+
+            </View>
         )
     }
 }
