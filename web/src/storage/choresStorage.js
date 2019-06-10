@@ -262,8 +262,19 @@ var getAllPastUserChores = function(userId, userHeaders){
             console.log('get all past user chores error ', error)
         });
 };
-//router.get('/userChores/userId/:userId/future/:future', function (req, res, next) {
 
+var getUsersNotInType = function(userId, userHeaders, type){
+    return axios.get(`${SERVER_URL}/api/chores/type/${type}/users/not`,
+        {
+            headers: userHeaders, //
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get users not in type error ', error)
+        });
+};
 
 export default {
     getAllChoreTypes,
@@ -279,5 +290,6 @@ export default {
     deleteUserFromChoreType,
     getReplacementRequests,
     createUserchoreEvent,
-    getAllPastUserChores
+    getAllPastUserChores,
+    getUsersNotInType
 }

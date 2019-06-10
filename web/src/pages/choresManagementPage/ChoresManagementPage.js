@@ -19,6 +19,7 @@ import ChoresHistory from '../../components/chores/ChoresHistory';
 //import {CheckBox, FormInput, FormLabel, Text} from "react-native-elements";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import DraggableUser from '../../components/chores/DraggableUser';
+import UsersInTypeModal from '../../components/chores/UsersInTypeModal'
 
 
 const TOTAL_PER_PAGE = 10;
@@ -88,10 +89,10 @@ class ChoresManagementPage extends React.Component {
         this.onUpdateSettings = this.onUpdateSettings.bind(this);
         this.openModalUsers = this.openModalUsers.bind(this);
         this.deleteUserFromChoreType = this.deleteUserFromChoreType.bind(this);
-        this.modalUsersBuild = this.modalUsersBuild.bind(this);
-        this.handleUserToAddChange = this.handleUserToAddChange.bind(this);
+        //this.modalUsersBuild = this.modalUsersBuild.bind(this);
+        //this.handleUserToAddChange = this.handleUserToAddChange.bind(this);
         this.handleUserToAdd = this.handleUserToAdd.bind(this);
-        this.addUserToChoreType = this.addUserToChoreType.bind(this);
+        //this.addUserToChoreType = this.addUserToChoreType.bind(this);
         this.openModalRequest = this.openModalRequest.bind(this);
         this.onDeleteType = this.onDeleteType.bind(this);
         this.onChangeUserchoresByReplacement = this.onChangeUserchoresByReplacement.bind(this);
@@ -424,104 +425,54 @@ class ChoresManagementPage extends React.Component {
             });
     }
 
-    addUserToChoreType(e, {userId}) {
-        console.log("this.state.userToAddToType: ", this.state.usersToAddToType);
-        let addUsersRequests = [];
-        let usersToAdd = usersToAddToType//this.state.usersToAddToType;
-        let user = 0;
-        for (user in usersToAdd) {
-            addUsersRequests.push(choresStorage.addUserToChoreType(serviceProviderId, serviceProviderHeaders, usersToAdd[user], this.state.choreTypeSelected));
-        }
-        axios.all(addUsersRequests)
-            .then(res => {
-                console.log("response addUserToChoreType", res[0].data);
-                let usersInType = this.state.users;
-                let usersNotInType = this.state.usersNotInType;
-                console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere1", usersNotInType);
-                let ur = 0;
-                let userAdded = 0;
-                let usersAdded = usersToAddToType//this.state.usersToAddToType;
-                for (userAdded in usersAdded) {
-                    for (ur in usersNotInType) {
-                        if (usersNotInType[ur].id === usersAdded[userAdded]) {
-                            console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere2")
-                            let added = usersNotInType.splice(ur, 1);
-                            usersInType.push(added[0]);
-                            console.log("added :", added[0]);
-                        }
-                    }
-                }
-                this.setState({users: usersInType, usersNotInType: usersNotInType});
-                usersToAddToType = [];
-            });
-    }
+    // addUserToChoreType(e, {userId}) {
+    //     let addUsersRequests = [];
+    //     let usersToAdd = this.state.usersToAddToType;
+    //     let user = 0;
+    //     for (user in usersToAdd) {
+    //         addUsersRequests.push(choresStorage.addUserToChoreType(serviceProviderId, serviceProviderHeaders, usersToAdd[user], this.state.choreTypeSelected));
+    //     }
+    //     axios.all(addUsersRequests)
+    //         .then(res => {
+    //             console.log("response addUserToChoreType", res[0].data);
+    //             let usersInType = this.state.users;
+    //             let usersNotInType = this.state.usersNotInType;
+    //             console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere1", usersNotInType);
+    //             let ur = 0;
+    //             let userAdded = 0;
+    //             let usersAdded = usersToAddToType//this.state.usersToAddToType;
+    //             for (userAdded in usersAdded) {
+    //                 for (ur in usersNotInType) {
+    //                     if (usersNotInType[ur].id === usersAdded[userAdded]) {
+    //                         console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere2")
+    //                         let added = usersNotInType.splice(ur, 1);
+    //                         usersInType.push(added[0]);
+    //                         console.log("added :", added[0]);
+    //                     }
+    //                 }
+    //             }
+    //             this.setState({users: usersInType, usersNotInType: usersNotInType});
+    //             usersToAddToType = [];
+    //         });
+    // }
 
-    handleUserToAddChange(e, data) {
-        //console.log("handleUsertToAddChange user value",e.nativeEvent.currentTarget, "val:", value,  options, e, open)
-        console.log("handleUsertToAddChange user value", e.target.id === '')
-        //e.nativeEvent.srcElement.innerText = value[value.length-1];
-        //let usersToAddToType = this.state.usersToAddToType;
-        //let userNameToAddToType = this.state.userNameToAddToType;
-        if (e.target.id !== '') {
-            usersToAddToType.push(e.target.id);
-        }
-        //userNameToAddToType.push(value);
-        //this.setState({usersToAddToType: usersToAddToType,userNameToAddToType:e.target.innerText, usersNotInType:data.options});
-    }
+    // handleUserToAddChange(e, data) {
+    //     //console.log("handleUsertToAddChange user value",e.nativeEvent.currentTarget, "val:", value,  options, e, open)
+    //     console.log("handleUsertToAddChange user value", e.target.id === '')
+    //     //e.nativeEvent.srcElement.innerText = value[value.length-1];
+    //     //let usersToAddToType = this.state.usersToAddToType;
+    //     //let userNameToAddToType = this.state.userNameToAddToType;
+    //     if (e.target.id !== '') {
+    //         usersToAddToType.push(e.target.id);
+    //     }
+    //     //userNameToAddToType.push(value);
+    //     //this.setState({usersToAddToType: usersToAddToType,userNameToAddToType:e.target.innerText, usersNotInType:data.options});
+    // }
 
     handleUserToAdd(e, {userId}) {
     }
 
-    modalUsersBuild() {
-        console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere0", this.state.users);
 
-        let usr = 0;
-        let u = 0;
-        let us = 0;
-        let users = this.state.users;
-        let content = [];
-        let allUsers = [];
-        let usersInType = this.state.users;
-        let usersInTypeNames = [];
-        let usersNotInType = [];
-        for (us in usersInType) {
-            usersInTypeNames.push(usersInType[us].text);
-        }
-        u = 0;
-        usersStorage.getUsers()
-            .then(res => {
-                allUsers = res;
-                console.log("responst getallusers:", usersInType, this.state.users, res)
-                for (u in res) {
-                    if (usersInTypeNames.indexOf(allUsers[u].fullname) < 0) {
-                        usersNotInType.push({
-                            id: allUsers[u].userId,
-                            key: "1",
-                            text: allUsers[u].fullname,
-                            value: allUsers[u].fullname
-                        });
-                    }
-
-                    console.log("user: ", res[u], "is in type?", usersInTypeNames.indexOf(res[u].fullname), res[u].fullname);
-                }
-
-                this.setState({usersNotInType: usersNotInType});
-            });
-        content.push(<Dropdown multiple search fluid selection placeholder='בחר משתמש להוספה'
-                               options={this.state.usersNotInType}
-                               labeled text={this.state.userNameToAddToType} scrolling
-                               onChange={this.handleUserToAddChange}
-        />);
-        content.push(<Button onClick={this.addUserToChoreType}>הוסף</Button>);
-        content.push(<br/>)
-        for (usr in usersInType) {
-            content.push(<Label userId={users[usr].id} name={usr}
-                                onClick={this.deleteUserFromChoreType}>{users[usr].value}  </Label>)
-        }
-        content.push(<br/>)
-        content.push(<h5>יש ללחוץ על משתמש להסרתו מסוג תורנות</h5>)
-        return (<div>{content}</div>)
-    }
 
     openModalRequest(content) {
         this.setState({openModal: true, contentModal: content});
@@ -655,16 +606,15 @@ class ChoresManagementPage extends React.Component {
                                     }
 
 
-                                    <Modal open={this.state.isOpenModalUsers}>
-                                        <Modal.Header>עריכת תורנים עבור תורנות: {this.state.choreTypeSelected}
-                                            <Button value={false} onClick={this.openModalUsers}>סגור</Button>
-                                        </Modal.Header>
-                                        <Modal.Content>
-                                            {this.state.isOpenModalUsers ? this.modalUsersBuild() : <div></div>}
-                                            {/* this.modalUsersContent*/}
-
-                                        </Modal.Content>
-                                    </Modal>
+                                    {<UsersInTypeModal
+                                        isOpenModalUsers={this.state.isOpenModalUsers}
+                                        openModalUsers = {this.openModalUsers}
+                                        choreTypeSelected = {this.state.choreTypeSelected}
+                                        deleteUserFromChoreType = {this.deleteUserFromChoreType}
+                                        //addUserToChoreType = {this.addUserToChoreType}
+                                        usersToAddToType = {(usersToAdd)=>this.setState({usersToAddToType:usersToAdd})}
+                                        usersInType = {this.state.users}
+                                    />}
                                 </div>
                             }
                         </div>
