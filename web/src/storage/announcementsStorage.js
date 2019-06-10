@@ -141,4 +141,17 @@ var updateCategory = function (categoryList,userHeaders) {
         .catch(error => error.response);
 };
 
-export default {getAnsweredAnnouncements, getAnnouncements, getAnnouncementsRequests, getCategoriesByServiceProviderId,addAnnouncement, updateAnnouncement, removeAnnouncement, getUsers, getCategories,addCategory,updateCategory,removeCategory};
+export default {
+    getAnsweredAnnouncements,
+    getAnnouncements,
+    getAnnouncementsRequests,
+    getCategoriesByServiceProviderId,
+    addAnnouncement,
+    updateAnnouncement,
+    removeAnnouncement,
+    getUsers,
+    getCategories,
+    addCategory,
+    updateCategory,
+    removeCategory
+};

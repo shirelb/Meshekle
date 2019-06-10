@@ -10,7 +10,7 @@ import strings from '../../shared/strings';
 import {PhoneBookManagementPage} from '../phoneBookManagementPage/PhoneBookManagementPage'
 import AppointmentsManagementPage from '../appointmentsManagementPage/AppointmentsManagementPage'
 import {ChoresManagementPage} from '../choresManagementPage/ChoresManagementPage'
-import {AnnouncementsManagementPage} from '../announcementsManagementPage/AnnouncementsManagementPage'
+import AnnouncementsManagementPage from '../announcementsManagementPage/AnnouncementsManagementPage';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";

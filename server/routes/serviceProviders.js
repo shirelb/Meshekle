@@ -1,3 +1,4 @@
+
 var authentications = require('./shared/authentications');
 var validations = require('./shared/validations');
 var helpers = require('./shared/helpers');
@@ -10,7 +11,7 @@ var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions,Categories} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
@@ -23,6 +24,24 @@ var transporter = nodemailer.createTransport({
     }
 });
 
+var serviceProviderRolesMapper = function (value) {
+    switch (value) {
+        case "Admin":
+            return "מנהלה";
+        case "PhoneBookSecretary":
+            return "מזכירות ספר טלפונים";
+        case "ChoresSecretary":
+            return "מזכירות תורנויות";
+        case "AnnouncementsSecretary":
+            return "מזכירות לוח מודעות";
+        case "appointmentsHairDresser":
+            return "מספרה";
+        case "appointmentsDentist":
+            return "מרפאת שיניים";
+        default:
+            return value;
+    }
+};
 
 //Login from service provider by userId and password
 router.post('/login/authenticate', function (req, res, next) {
@@ -297,19 +316,29 @@ router.post('/add', function (req, res, next) {
                     active: req.body.active === null ? false : req.body.active,
                 })
                     .then(newServiceProvider => {
-                        res.status(200).send({
-                            "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
-                            "result": newServiceProvider.dataValues
-                        });
-                        validations.getUsersByUserIdPromise(newServiceProvider.userId)
-                            .then(users => {
-                                helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                    "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).send(err);
-                            })
+                        Categories.create({
+                            categoryName: serviceProviderRolesMapper(req.body.role),
+                            serviceProviderId: req.body.serviceProviderId
+                        }).then(() => {
+                            res.status(200).send({
+                                "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
+                                "result": newServiceProvider.dataValues
+                            });
+                            validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                                .then(users => {
+                                    helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                        "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+
                     })
                     .catch(err => {
                         console.log(err);

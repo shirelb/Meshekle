@@ -209,7 +209,7 @@ router.put('/update/userId/:userId', function (req, res, next) {
 router.get('/events/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            if (user.dataValues) {
+            if (user && user.dataValues) {
                 Events.findAll({
                     where: {
                         userId: req.params.userId,

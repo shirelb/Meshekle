@@ -16,7 +16,7 @@ class ServiceProviderInfo extends React.Component {
         this.props.location.state ?
             this.state = {serviceProvider: this.props.location.state.serviceProvider, activeIndex: -1} :
             this.state = {serviceProvider: {}, activeIndex: -1};
-        // this.state = {serviceProvider: this.props.location.state.serviceProvider};
+
 
         this.handleDelete = this.handleDelete.bind(this);
     }

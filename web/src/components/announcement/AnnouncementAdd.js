@@ -15,9 +15,8 @@ class AnnouncementAdd extends React.Component {
         this.serviceProviderId = this.props.location.state.serviceProviderId;
         this.userId = this.props.location.state.userId;
         this.isUpdate = this.props.location.state.isUpdate;
+
         this.state = {categories: [],formError: "",};
-
-
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);

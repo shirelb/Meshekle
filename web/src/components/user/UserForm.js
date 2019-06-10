@@ -13,10 +13,11 @@ class UserForm extends React.Component {
             formError: false,
             formComplete: false,
             isAlertModal: false,
+            subjectOptions: [],
         };
 
         if (user) {
-            this.state = {
+            Object.assign(this.state, {
                 user: {
                     userId: user.userId,
                     fullname: user.fullname,
@@ -30,9 +31,9 @@ class UserForm extends React.Component {
                     active: user.active,
                     image: user.image,
                 },
-            };
+            });
         } else {
-            this.state = {
+            Object.assign(this.state,{
                 user: {
                     userId: '',
                     fullname: '',
@@ -45,7 +46,7 @@ class UserForm extends React.Component {
                     active: true,
                     image: "",
                 },
-            };
+            });
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -108,15 +109,15 @@ class UserForm extends React.Component {
             });
             return false;
         }
-
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "אימייל לא וואלידי",
-                fieldEmailError: true
-            });
-            return false;
-        }
+        //TODO: change this mail check, no good!
+        // if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
+        //     this.setState({
+        //         formError: true,
+        //         formErrorMassage: "אימייל לא וואלידי",
+        //         fieldEmailError: true
+        //     });
+        //     return false;
+        // }
 
         if (user.mailbox === 0 || !(/^\d*$/.test(user.mailbox))) {
             this.setState({
