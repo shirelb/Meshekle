@@ -10,7 +10,7 @@ let should = chai.should();
 var expect = chai.expect;
 
 chai.use(chaiHttp);
-const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RolesModules} = require('../DBorm/DBorm');
 
 
 describe('service providers route', function () {
@@ -1024,10 +1024,7 @@ describe('service providers route', function () {
                         .then(
                             createRoleModule(roleModuleTest)
                                 .then(
-                                    createPermission(permissionTest)
-                                        .then(
-                                            done()
-                                        )
+                                    done()
                                 )
                         )
                 );
@@ -1061,10 +1058,7 @@ describe('service providers route', function () {
                         .then(
                             deleteRoleModule(roleModuleTest)
                                 .then(
-                                    deletePermission(permissionTest)
-                                        .then(
-                                            done()
-                                        )
+                                    done()
                                 )
                         )
                 );
@@ -1099,28 +1093,14 @@ function deleteServiceProvider(serviceProviderTest) {
 }
 
 function createRoleModule(roleModule) {
-    return RulesModules.create(roleModule);
+    return RolesModules.create(roleModule);
 }
 
 function deleteRoleModule(roleModule) {
-    return RulesModules.destroy({
+    return RolesModules.destroy({
         where: {
             role: roleModule.role,
             module: roleModule.module
-        }
-    });
-}
-
-function createPermission(permission) {
-    return Permissions.create(permission);
-}
-
-function deletePermission(permission) {
-    return Permissions.destroy({
-        where: {
-            module: permission.module,
-            operationName: permission.operationName,
-            api: permission.api,
         }
     });
 }

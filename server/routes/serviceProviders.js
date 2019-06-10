@@ -10,7 +10,7 @@ var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RolesModules} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
@@ -573,7 +573,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             const rolesList = roles.map(role => role.dataValues.role);
-            RulesModules.findAll({
+            RolesModules.findAll({
                 attributes: ['module'],
                 where: {
                     role: {
@@ -585,23 +585,6 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
                     const moduleList = modules.map(module => module.dataValues.module);
                     console.log(moduleList);
                     res.status(200).send(moduleList);
-                    /* Permissions.findAll({
-                         attributes: ['operationName'],
-                         where: {
-                             module: {
-                                 [Op.in]: moduleList
-                             }
-                         }
-                     })
-                         .then(permissions => {
-                             console.log(permissions);
-                             res.status(200).send(permissions.map(permission => permission.operationName));
-                         })
-                         .catch(err => {
-                             console.log(err);
-                             res.status(500).send(err);
-                         })*/
-
                 })
                 .catch(err => {
                     console.log(err);
