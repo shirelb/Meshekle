@@ -1,0 +1,59 @@
+[
+  {
+    "appointmentId": 419,
+    "startDateAndTime": "2018-05-23T12:53:28.000Z",
+    "endDateAndTime": "2018-05-23T00:58:18.000Z",
+    "remarks": "amet sapien dignissim vestibulum vestibulum ante ipsum primis",
+    "status": "set",
+    "createdAt": "2019-06-05T18:02:52.051Z",
+    "updatedAt": "2019-06-05T18:02:52.051Z",
+    "AppointmentDetail": {
+      "appointmentId": 419,
+      "clientId": "135985058",
+      "serviceProviderId": 473739707,
+      "role": "appointmentsDentist",
+      "subject": "[\"יישור שיניים\", \"ניקוי\", \"טיפול שורש\", \"עקירה\"]",
+      "createdAt": "2019-06-05T18:02:52.029Z",
+      "updatedAt": "2019-06-05T18:02:52.029Z",
+      "userId": null
+    }
+  },
+  {
+    "appointmentId": 480,
+    "startDateAndTime": "2020-03-21T20:51:29.000Z",
+    "endDateAndTime": "2020-03-21T08:17:07.000Z",
+    "remarks": "ultrices aliquet maecenas leo odio condimentum id luctus",
+    "status": "cancelled",
+    "createdAt": "2019-06-05T18:02:52.051Z",
+    "updatedAt": "2019-06-05T18:02:52.051Z",
+    "AppointmentDetail": {
+      "appointmentId": 480,
+      "clientId": "135985058",
+      "serviceProviderId": 310950424,
+      "role": "appointmentsDentist",
+      "subject": "[\"ניקוי\", \"עקירה\", \"יישור שיניים\", \"טיפול שורש\"]",
+      "createdAt": "2019-06-05T18:02:52.029Z",
+      "updatedAt": "2019-06-05T18:02:52.029Z",
+      "userId": null
+    }
+  },
+  {
+    "appointmentId": 520,
+    "startDateAndTime": "2019-07-02T23:39:51.000Z",
+    "endDateAndTime": "2019-07-03T17:24:04.000Z",
+    "remarks": "faucibus orci luctus et ultrices posuere cubilia curae mauris",
+    "status": "cancelled",
+    "createdAt": "2019-06-05T18:02:52.051Z",
+    "updatedAt": "2019-06-05T18:02:52.051Z",
+    "AppointmentDetail": {
+      "appointmentId": 520,
+      "clientId": "135985058",
+      "serviceProviderId": 960766683,
+      "role": "appointmentsDentist",
+      "subject": "[\"ניקוי\", \"טיפול שורש\", \"יישור שיניים\", \"עקירה\"]",
+      "createdAt": "2019-06-05T18:02:52.029Z",
+      "updatedAt": "2019-06-05T18:02:52.029Z",
+      "userId": null
+    }
+  }
+]

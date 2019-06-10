@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, RefreshControl, ScrollView, StyleSheet, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
 import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
@@ -19,6 +19,7 @@ export default class PhoneBookScreen extends Component {
             infoModal: false,
             userSelected: {},
             noUserFound: false,
+            refreshing: false
         };
 
         this.users = [];
@@ -64,6 +65,7 @@ export default class PhoneBookScreen extends Component {
 
                 this.setState({
                     users: users.filter(user => user.active === true).sort((a, b) => a.fullname !== b.fullname ? a.fullname < b.fullname ? -1 : 1 : 0),
+                    refreshing: false
                 });
 
                 this.users = users;
@@ -172,9 +174,20 @@ export default class PhoneBookScreen extends Component {
             )
     };
 
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadUsers();
+    };
+
     render() {
         return (
-            <View>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}
+                />
+            }>
                 <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
                     {this.state.noUserFound ? <Text>לא נמצאו תוצאות</Text> :
                         <FlatList
@@ -191,7 +204,7 @@ export default class PhoneBookScreen extends Component {
                     user={this.state.userSelected}
                     openedFrom={"PhoneBookScreen"}
                 />
-            </View>
+            </ScrollView>
         );
     }
 }

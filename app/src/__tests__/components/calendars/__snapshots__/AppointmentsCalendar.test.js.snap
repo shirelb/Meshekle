@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppointmentsCalendar should match snapshot 1`] = `
+<ScrollViewMock>
+  <Calendar
+    markedDates={Object {}}
+    onDayLongPress={[Function]}
+    onDayPress={[Function]}
+    style={
+      Object {
+        "borderBottomWidth": 2,
+        "borderColor": "#eee",
+        "borderTopWidth": 2,
+        "height": 350,
+        "paddingTop": 5,
+      }
+    }
+    theme={
+      Object {
+        "arrowColor": "orange",
+        "backgroundColor": "#ffffff",
+        "calendarBackground": "#ffffff",
+        "dayTextColor": "#2d4150",
+        "dotColor": "#00adf5",
+        "monthTextColor": "blue",
+        "selectedDayBackgroundColor": "#00adf5",
+        "selectedDayTextColor": "#ffffff",
+        "selectedDotColor": "#ffffff",
+        "textDayFontFamily": "monospace",
+        "textDayFontSize": 16,
+        "textDayHeaderFontFamily": "monospace",
+        "textDayHeaderFontSize": 16,
+        "textDisabledColor": "#d9e1e8",
+        "textMonthFontFamily": "monospace",
+        "textMonthFontSize": 16,
+        "textMonthFontWeight": "bold",
+        "textSectionTitleColor": "#b6c1cd",
+        "todayTextColor": "#00adf5",
+      }
+    }
+  />
+  <AppointmentsDayInfo
+    afterCloseModalShowSelectDay={[Function]}
+    dateModalVisible={false}
+    expanded={Object {}}
+    loadAppointments={[Function]}
+    markedDates={Object {}}
+    selectedDate=""
+    userHeaders={Object {}}
+  />
+</ScrollViewMock>
+`;

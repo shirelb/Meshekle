@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL, APP_SOCKET} from "../shared/constants";
 import moment from 'moment';
 
 
@@ -29,11 +29,11 @@ var getOtherWorkers = function(userId, userHeaders, type, month, year, day){
         })
         .then(response => {
             let otherWorkers ="";
-            for(element in response.data.usersChores){
+            response.data.usersChores.forEach(element=>{
                 if(moment(response.data.usersChores[element].date).format('DD-MM-YYYY')===String(moment(day).format('DD-MM-YYYY'))){
                     otherWorkers= otherWorkers+String(response.data.usersChores[element].User.fullname+"\n");
                 }
-            }
+            });
             /*response.data.chores.forEach(element => {
                 if(element.date ===new Date(String(year+'-'+month+'-'+day))){
                     otherWorkers = otherWorkers +', '+ String(element.userId);
@@ -129,6 +129,7 @@ var replaceUserChores = function(userId, headers, choreIdOfSender, choreIdOfRece
             
         })
         .then(response => {
+            APP_SOCKET.emit("usersMadeChoreReplacement");
             return response;
         })
         .catch(error => {

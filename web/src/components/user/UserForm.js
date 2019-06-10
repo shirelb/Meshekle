@@ -137,15 +137,6 @@ class UserForm extends React.Component {
             return false;
         }
 
-        if (!(/^\d*$/.test(user.phone))) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "הטלפון לא וואלידי",
-                fieldPhoneError: true
-            });
-            return false;
-        }
-
         if (user.bornDate === null) {
             this.setState({
                 formError: true,
@@ -338,7 +329,6 @@ class UserForm extends React.Component {
                     />
                     <Form.Input
                         error={this.state.fieldPhoneError}
-                        required
                         label="טלפון"
                         type="tel"
                         name="phone"

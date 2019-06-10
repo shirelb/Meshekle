@@ -10,6 +10,7 @@ import users from "../jsons/users";
 import serviceProviders from "../jsons/serviceProviders";
 import AppointmentRequest from "../../screens/appointmentRequest/AppointmentRequest";
 import phoneStorage from "react-native-simple-store";
+import strings from "../../shared/strings";
 
 jest.mock("react-native-simple-store");
 jest.mock("../../storage/usersStorage");
@@ -23,7 +24,6 @@ describe("AppointmentRequest should", () => {
     const serviceProviderTest = serviceProviders[41];
     const mockStore = {
         userData: {
-            serviceProviderId: "549963652",
             userId: "549963652",
             token: "some token"
         }
@@ -45,8 +45,23 @@ describe("AppointmentRequest should", () => {
     serviceProvidersStorage.getServiceProviderById = jest.fn().mockImplementation((serviceProviderId) => Promise.resolve(serviceProviders.filter(provider =>
         provider.serviceProviderId === serviceProviderId)));
 
+    let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
+    let appointmentsServiceProvidersTest = [];
+    appointmentsServiceProviders.forEach((provider, index) => {
+        if (index > 159)
+            provider.fullname = "Tara";
+        else
+            provider.fullname = "Gil";
+        appointmentsServiceProvidersTest.push(provider);
+    });
+
 
     beforeAll(async (done) => {
+        wrapper = await shallow(<AppointmentRequest navigation={navigation}/>);
+        componentInstance = wrapper.instance();
+        await wrapper.update();
+        componentInstance.setState({serviceProviders: appointmentsServiceProvidersTest});
+        done();
     });
 
     afterAll(() => {
@@ -57,76 +72,45 @@ describe("AppointmentRequest should", () => {
     });
 
     afterEach(() => {
+        componentInstance.setState({serviceProviders: appointmentsServiceProvidersTest});
     });
 
     it('match snapshot', async () => {
-        wrapper = shallow(<AppointmentRequest navigation={navigation}/>);
-        componentInstance = wrapper.instance();
-
         expect(wrapper).toMatchSnapshot();
     });
 
-    it("mounted with the right data", async (done) => {
-        wrapper = await mount(<AppointmentRequest navigation={navigation}/>);
-        componentInstance = wrapper.instance();
-
-        // await componentInstance.loadServiceProviders();
-        await wrapper.update();
-        // await usersStorage.getUserById();
-
-        // await new Promise(resolve => setImmediate(resolve));
-
-        setTimeout(function () {
-            // process.nextTick(() => {
-            // setImmediate(() => {
-            try {
-            expect(componentInstance.state.serviceProviders.length).toEqual(400);
-            expect(componentInstance.state.formModal).toEqual(false);
-            expect(componentInstance.state.serviceProviderSelected).toEqual({});
-            expect(componentInstance.state.noServiceProviderFound).toEqual(false);
-            // });
-                done()
-            } catch (e) {
-                done.fail(e)
-            }
-        }, 100);
-    });
-
     it("render with what the user see", async () => {
-        wrapper = shallow(<AppointmentRequest navigation={navigation}/>);
-        componentInstance = wrapper.instance();
-
         expect(wrapper.find(List)).toHaveLength(1);
         expect(wrapper.find('AppointmentRequestForm')).toHaveLength(1);
         expect(wrapper.find(FlatList)).toHaveLength(1);
     });
 
-    it("search for serviceProviders with name that has ra", async () => {
-        wrapper = await shallow(<AppointmentRequest navigation={navigation}/>);
-        componentInstance = wrapper.instance();
+    it("mounted with the right data", () => {
 
-        await wrapper.update();
+        expect(componentInstance.state.serviceProviders.length).toEqual(161);
+        expect(componentInstance.state.formModal).toEqual(false);
+        expect(componentInstance.state.serviceProviderSelected).toEqual({});
+        expect(componentInstance.state.noServiceProviderFound).toEqual(false);
+    });
+
+    it("search for serviceProviders with name that has ra", async () => {
 
         const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
 
         await componentInstance.updateSearch('ra');
 
         expect(updateSearchSpy).toHaveBeenCalled();
-        expect(componentInstance.state.serviceProviders.length).toEqual(1000);
+        expect(componentInstance.state.serviceProviders.length).toEqual(1);
     });
 
     it("search for serviceProviders with role מספרה", async () => {
-        wrapper = await shallow(<AppointmentRequest navigation={navigation}/>);
-        componentInstance = wrapper.instance();
-
-        await wrapper.update();
 
         const updateSearchSpy = jest.spyOn(componentInstance, 'updateSearch');
 
         await componentInstance.updateSearch('מספרה');
 
         expect(updateSearchSpy).toHaveBeenCalled();
-        expect(componentInstance.state.serviceProviders.length).toEqual(1000);
+        expect(componentInstance.state.serviceProviders.length).toEqual(88);
     });
 
     it("open AppointmentRequestForm on click serviceProvider", async () => {

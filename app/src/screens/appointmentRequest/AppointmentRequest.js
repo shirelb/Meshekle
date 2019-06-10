@@ -39,7 +39,7 @@ export default class AppointmentRequest extends Component {
     loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders(this.userHeaders)
             .then(serviceProviders => {
-                console.log("serviceProviders ",serviceProviders.length);
+                // console.log("serviceProviders ",serviceProviders.length);
 
                 let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
 
@@ -56,7 +56,7 @@ export default class AppointmentRequest extends Component {
 
                             this.serviceProviders = appointmentsServiceProviders;
 
-                            console.log(" 2  2 serviceProviders ",serviceProviders.length);
+                            // console.log(" 2  2 serviceProviders ",serviceProviders.length);
                         })
                 })
             });

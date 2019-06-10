@@ -142,9 +142,13 @@ export default class UserProfileInfo extends Component {
                                 <Text style={styles.textInfo}>{user.phone}</Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.viewInfo}>
-                            <Icon name='mail-outline' style={styles.iconInfo}/>
-                            <Text style={styles.textInfo}>{user.email}</Text>
+                        <View pointerEvents={this.state.openedFrom === "DrawerMenu" ? 'none' : 'auto'}>
+                            <TouchableOpacity style={styles.viewInfo}
+                                              onPress={() => Linking.openURL(`mailto:${user.email}`)}>
+                                {/*title="support@example.com">*/}
+                                <Icon name='mail-outline' style={styles.iconInfo}/>
+                                <Text style={styles.textInfo}>{user.email}</Text>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.viewInfo}>
                             <Icon name='envelope-square' type='font-awesome'

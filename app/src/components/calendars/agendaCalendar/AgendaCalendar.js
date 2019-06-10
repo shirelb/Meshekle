@@ -13,14 +13,14 @@ moment.locale('he');
 
 const module2color = {
     Appointments: 'purple', //'#00adf5',
-    Chores:'red',
-    Announcements:'green',
+    UsersChores: 'red',
+    Announcements: 'green',
 };
 
 const module2selectedDotColor = {
     Appointments: 'purple',
-    Chores:'red',
-    Announcements:'green',
+    UsersChores: 'red',
+    Announcements: 'green',
 };
 
 
@@ -28,10 +28,9 @@ export default class AgendaCalendar extends Component {
     constructor(props) {
         super(props);
 
-        let items={};
-        items[moment().format("YYYY-MM-DD")]=[];
         this.state = {
-            items: items
+            refreshing: false,
+            items: {}
             /* '2018-12-30': [{text: 'item 30 - any js object'}],
              '2018-12-31': [{text: 'item 31 - any js object'}],
              '2019-01-01': [{text: 'item 1 - any js object'}],
@@ -45,19 +44,6 @@ export default class AgendaCalendar extends Component {
         this.userHeaders = {};
         this.userId = null;
     }
-
-    /* componentWillMount() {
-         phoneStorage.get('userData')
-             .then(userData => {
-                 console.log('agenda componentDidMount userData ', userData);
-                 this.userHeaders = {
-                     'Authorization': 'Bearer ' + userData.token
-                 };
-                 this.userId = userData.userId;
-
-
-             });
-     }*/
 
     componentDidMount() {
         phoneStorage.get('userData')
@@ -78,6 +64,12 @@ export default class AgendaCalendar extends Component {
             });
     }
 
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadItems();
+    };
+
     loadItems() {
         let newItems = {};
         let serviceProviderUserDetails = this.serviceProviders;
@@ -88,7 +80,7 @@ export default class AgendaCalendar extends Component {
                     events.forEach((event) => {
                         let item = {};
                         switch (event.eventType) {
-                            case 'Appointments': {
+                            case 'Appointments':
                                 let appointment = event['ScheduledAppointment'];
                                 item.type = event.eventType;
                                 item.itemId = appointment.appointmentId;
@@ -107,7 +99,28 @@ export default class AgendaCalendar extends Component {
                                     newItems[item.date] = [item];
                                 }
                                 break;
-                            }
+                            case 'UsersChores':
+                                console.log("load items-> userschores", this.state.items)
+                                let chore = event['UsersChore'];
+                                item.type = event.eventType;
+                                item.date = moment(chore.date).format("YYYY-MM-DD");
+                                ///item.itemId = chore.userChoreId;
+                                ////item.date = moment(chore.date).format("YYYY-MM-DD");
+                                item.title = chore.choreTypeName;
+                                item.startTime = moment(chore.date).format("HH:mm");
+                                item.endTime = moment(chore.date).format("HH:mm");
+                                //item.role = mappers.serviceProviderRolesMapper(appointment.AppointmentDetail.role);
+                                //item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
+                                //item.subject = JSON.parse(appointment.AppointmentDetail.subject).join(", ");
+                                //let serviceProvider = serviceProviderUserDetails.filter(provider => provider.userId === appointment.AppointmentDetail.serviceProviderId.toString())[0];
+                                //item.serviceProviderFullname = serviceProvider.fullname;
+                                //item.serviceProviderImage = serviceProvider.image;
+                                if (newItems[item.date]) {
+                                    newItems[item.date].push(item);
+                                } else {
+                                    newItems[item.date] = [item];
+                                }
+                                break;
                             case 'Announcements': {
                                 let announcement = event['Announcement'];
                                 item.type = event.eventType;
@@ -126,7 +139,8 @@ export default class AgendaCalendar extends Component {
                         }
                     });
                     this.setState({
-                        items: newItems
+                        items: newItems,
+                        refreshing: false
                     });
                 }
             })
@@ -142,10 +156,10 @@ export default class AgendaCalendar extends Component {
 
     renderItem = (item) => {
         switch (item.type) {
-            case 'Appointments': {
+            case 'Appointments':
                 return (
                     <Card
-                        title={`${item.role} - ${item.serviceProviderFullname}`}
+                        title={`תור ל ${item.role} - ${item.serviceProviderFullname}`}
                         // containerStyle={{width: 70 + '%'}}
                     >
                         <View style={{
@@ -165,12 +179,27 @@ export default class AgendaCalendar extends Component {
                         <Text h3>{item.subject}</Text>
                     </Card>
                 );
-            }
+            case 'UsersChores':
+                return (
+                    <Card
+                        title={`תורנות`}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.title}</Text>
 
+
+                        </View>
+                    </Card>
+                );
             case 'Announcements': {
                 return (
                     <Card
-                        title={`אירוע שנשמר מלוח המודעות - ${item.title} `}
+                        title={`מודעה - ${item.title} `}
                         // containerStyle={{width: 70 + '%'}}
                     >
                         <View style={{
@@ -208,9 +237,8 @@ export default class AgendaCalendar extends Component {
     };
 
     renderEmptyDate = () => {
-        return (
-            <View style={styles.emptyDate}><Text> </Text></View>
-        );
+        // return <View style={{width: 18 + '%'}}><Text> אין אירועים בתאריך זה </Text></View>
+        return <View style={styles.emptyDate}><Text> אין אירועים בתאריך זה </Text></View>
     };
 
     rowHasChanged = (r1, r2) => {
@@ -248,8 +276,12 @@ export default class AgendaCalendar extends Component {
                 // onDayChange={this.onDayChange}
                 renderItem={this.renderItem}
                 renderEmptyDate={this.renderEmptyDate}
+                renderEmptyData={this.renderEmptyDate}
                 renderDay={this.renderDay}
                 rowHasChanged={this.rowHasChanged}
+                onRefresh={this.onRefresh}
+                refreshing={this.state.refreshing}
+                refreshControl = {null}
                 // hideKnob={true}
                 // markingType={'period'}
                 // markedDates={{
@@ -291,12 +323,21 @@ export default class AgendaCalendar extends Component {
                     agendaKnobColor: 'blue',
                     agendaBackgroundColor: '#424242',
                 }}
+                style={styles.calendar}
             />
         );
     }
 }
 
 const styles = StyleSheet.create({
+    calendar: {
+        // borderTopWidth: 2,
+        // marginTop: 5,
+        paddingTop: 5,
+        // borderBottomWidth: 2,
+        // borderColor: '#eee',
+        height: 500,
+    },
     item: {
         backgroundColor: 'white',
         flex: 1,
@@ -306,13 +347,17 @@ const styles = StyleSheet.create({
         marginTop: 17
     },
     emptyDate: {
-        height: 15,
-        flex: 1,
-        paddingTop: 30,
+        flex: 1, justifyContent: "center", alignItems: "center",
+        // height: 15,
+        // flex: 1,
+        // paddingTop: 30,
         borderTopWidth: 2,
         borderTopColor: 'grey',
         borderBottomWidth: 2,
         borderBottomColor: 'grey',
+        // textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: 18,
     },
     dayMonthContainer: {
         height: 100,

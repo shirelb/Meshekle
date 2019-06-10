@@ -200,11 +200,6 @@ export default class AnnouncementsScreen extends Component {
             }), categoryNameFilter: categoryName});
     };
 
-
-
-
-
-
     //Sections of the accordion
     setSections = sections => {
         this.setState({

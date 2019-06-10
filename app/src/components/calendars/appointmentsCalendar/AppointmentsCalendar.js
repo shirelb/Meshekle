@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, StyleSheet} from 'react-native';
+import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import '../localConfig';
 import moment from 'moment';
@@ -17,7 +17,8 @@ export default class AppointmentsCalendar extends Component {
             markedDates: {},
             selectedDate: '',
             dateModalVisible: false,
-            expanded: {}
+            expanded: {},
+            refreshing: false,
         };
 
         this.userHeaders = {};
@@ -55,10 +56,11 @@ export default class AppointmentsCalendar extends Component {
                 });
 
                 this.setState({
-                    markedDates: markedDates
+                    markedDates: markedDates,
+                    refreshing: false
                 });
             })
-    }
+    };
 
     afterCloseModalShowSelectDay = () => {
         let updatedMarkedDates = this.state.markedDates;
@@ -114,12 +116,22 @@ export default class AppointmentsCalendar extends Component {
             });
     };
 
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadAppointments();
+    };
 
     render() {
         LocaleConfig.defaultLocale = 'il';
 
         return (
-            <ScrollView>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}
+                />
+            }>
                 <Calendar
                     markedDates={this.state.markedDates}
                     onDayPress={this.onDaySelect}

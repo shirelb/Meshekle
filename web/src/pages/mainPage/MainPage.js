@@ -235,18 +235,20 @@ class MainPage extends Component {
                                 : null
                             : null
                         }
-                        {Array.isArray(this.state.serviceProviderPermissions) ?
-                            this.state.serviceProviderPermissions.includes("announcements") ||
-                            this.state.serviceProviderPermissions.includes("all") ?
-                                <Menu.Item name="announcements" as={NavLink} to="/announcements">
-                                    <Icon name={strings.modulesIconsNames["announcements"]}/>
-                                    {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
-                                </Menu.Item>
-                                : null
-                            : null
-                        }
-                        <Menu.Item name="report" onClick={()=>{}} target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSf6LE1pu78hgel5GWB_JxOtoJ8kcIuDXi4KOtGXydGE7ZMhFA/viewform?usp=sf_link"  >
-                            <Icon name={strings.modulesIconsNames["report"]} />
+                        {/*{Array.isArray(this.state.serviceProviderPermissions) ?*/}
+                        {/*    this.state.serviceProviderPermissions.includes("announcements") ||*/}
+                        {/*    this.state.serviceProviderPermissions.includes("all") ?*/}
+                        <Menu.Item name="announcements" as={NavLink} to="/announcements">
+                            <Icon name={strings.modulesIconsNames["announcements"]}/>
+                            {strings.mainPageStrings.ANNOUNCEMENTS_PAGE_TITLE}
+                        </Menu.Item>
+                        {/*: null*/}
+                        {/*: null*/}
+                        {/*}*/}
+                        <Menu.Item name="report" onClick={() => {
+                        }} target="_blank"
+                                   href="https://docs.google.com/forms/d/e/1FAIpQLSf6LE1pu78hgel5GWB_JxOtoJ8kcIuDXi4KOtGXydGE7ZMhFA/viewform?usp=sf_link">
+                            <Icon name={strings.modulesIconsNames["report"]}/>
                             {strings.mainPageStrings.REPORT}
                         </Menu.Item>
                         <Menu.Item name="logout" onClick={this.handleLogout(this.props.history)}>

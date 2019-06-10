@@ -1,0 +1,616 @@
+[
+  {
+    "userId": 135985058,
+    "eventType": "Announcements",
+    "eventId": 216,
+    "createdAt": "2019-06-03T20:41:32.723Z",
+    "updatedAt": "2019-06-03T20:41:32.723Z",
+    "ScheduledAppointment": {
+      "appointmentId": 216,
+      "startDateAndTime": "2019-01-18T08:04:37.000Z",
+      "endDateAndTime": "2019-01-17T22:57:03.000Z",
+      "remarks": "porttitor lorem id ligula suspendisse ornare",
+      "status": "set",
+      "createdAt": "2019-06-03T20:41:32.581Z",
+      "updatedAt": "2019-06-03T20:41:32.581Z",
+      "AppointmentDetail": {
+        "appointmentId": 216,
+        "clientId": "788547703",
+        "serviceProviderId": 330781628,
+        "role": "appointmentsHairDresser",
+        "subject": "[\"החלקה\", \"תספורת\", \"פן\", \"צבע\"]",
+        "createdAt": "2019-06-03T20:41:32.543Z",
+        "updatedAt": "2019-06-03T20:41:32.543Z",
+        "userId": null,
+        "User": {
+          "userId": "788547703",
+          "fullname": "Der Fosberry",
+          "password": "0878efd4feafce4d8bbe412bf0343468a589d33a2148a72fcfeee9db8498bde8482db4f6339048e41885761659050555def2673591a55faeab898dc56462eabe",
+          "email": "dfosberryp1@symantec.com",
+          "mailbox": 902,
+          "cellphone": "0561044556",
+          "phone": "047046885",
+          "bornDate": "1972-09-04T01:24:10.000Z",
+          "active": true,
+          "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVDjLfdPdb1N1AMbx5/ScvtHTZbSwDcrWlXXIUOdkZiRmioQXSYgX82p4YUKMkJjswpkRjCJckUWDhBCZGoJhYrwYMIUQzbhReZOZLtvqateVgdKVjYV2W3t+b+fl5wWSwI3fP+CT5+ZRpJR43LHkYZ1bopsJsZMJ2sYEB+NsmDLxkyo2HamUnd7Pd0cInkh5DBwdP7SZm+KbjZXtMVXzwVRsVPlXYiqXwoWJ7/siypdJYVo9Qth7Tu1t+PUp4LOxgx117viFcGA1ZsRDjJZTUKULL+sv4rvfvy74rY62oLJtuC2uhybuLuHv++U3B/Y3DwKA69PRgyEmWH+VXoeRcga/LdzEgrmIuD+Kudl7MAz6cUBu/WBdlS9UvdyHxlU6KBX9Ow7cCAGAi3Da3Vq5Wc/SHFJkEsRiWKmGoDM3fhg/NxpRT9xi1Nwbrw0gnWcIVXjRuCaoM0K7/wOMXarbi2Q5DWFxVLh0NFesx3DmOmiJdZlcO96yNqgK00HuoUBmlqMmHACjbBcAaISyDVyx4IKCFv051Hsj+Gc6i0Q2cToW7F9NKW+NhP24mSEghg1jyUZTxA3OaAwANIMSWu1b4WkPvoS5/D30jRwtcEMcP1R84+TkYkIbCjyTfVBkz2tQQAwH0nHAhQZBmfpoAaF3/vjrRsulPwfnOeW9+++vGdhaCLwtycTkKyTx2qUNPWDcBiES1LARXu7GzIMyBKfZR4BBz/44fr7vWK7x8rpFtVsSmjLX1upK5jacUhmUUhBmIz51FtunzmDZwh0s+MIImdEi8C60wWzLaUloryT0hNkQ9ZgNUTi2DW0kCRgGOOGIpL7FRvtnNL2zD97Ys6DjQ4hevfLqlW3uLpcsG5pTKr/FN7V6RGMMdDINx6BwygZsg4IzgvDYKazf0gHf7V+gnNmNZdODqI+GVanI913uL07OOyVjj3IrAUyk4a5ZBYcS2JTCpgyCMgRLM/DVxICui0BvAfhwGpqRhuoo9RoA+M8PnCu1b9mhjqW+shvqY071CoAwSMbBBUVRDQgyetkTuPgeOJ0FAVBaUmGryCtPvrHY9IJuc9EjhdjpCLNNWlZzTSGfvNYZOewJBj6qDVua5sqhNG/h7pxqm0x+8hTwf13vrDtgFPL7VFuJ2qqckUDf60PWkX8BnoTdhvAVaYUAAAAASUVORK5CYII=",
+          "createdAt": "2019-06-03T20:41:32.475Z",
+          "updatedAt": "2019-06-03T20:41:32.475Z",
+          "Incidents": [],
+          "UsersChoresTypes": [],
+          "UsersChores": [],
+          "ServiceProviders": []
+        },
+        "AppointmentRequest": null
+      }
+    },
+    "Announcement": {
+      "announcementId": 216,
+      "serviceProviderId": 453560919,
+      "userId": 472647051,
+      "categoryId": 6,
+      "creationTime": "2020-02-09T18:15:19.000Z",
+      "title": "erat vestibulum",
+      "content": "Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat. Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem.",
+      "expirationTime": "2020-02-16T13:58:34.000Z",
+      "file": "",
+      "fileName": "",
+      "dateOfEvent": "2019-05-12T20:04:59.000Z",
+      "status": "On air",
+      "createdAt": "2019-06-03T20:41:32.677Z",
+      "updatedAt": "2019-06-03T20:41:32.677Z"
+    }
+  },
+  {
+    "userId": 135985058,
+    "eventType": "Announcements",
+    "eventId": 250,
+    "createdAt": "2019-06-03T20:41:32.723Z",
+    "updatedAt": "2019-06-03T20:41:32.723Z",
+    "ScheduledAppointment": {
+      "appointmentId": 250,
+      "startDateAndTime": "2018-09-14T06:43:48.000Z",
+      "endDateAndTime": "2018-09-14T14:25:03.000Z",
+      "remarks": "justo sit amet sapien dignissim vestibulum vestibulum ante ipsum",
+      "status": "set",
+      "createdAt": "2019-06-03T20:41:32.581Z",
+      "updatedAt": "2019-06-03T20:41:32.581Z",
+      "AppointmentDetail": {
+        "appointmentId": 250,
+        "clientId": "985364823",
+        "serviceProviderId": 419271646,
+        "role": "appointmentsDentist",
+        "subject": "[\"טיפול שורש\", \"ניקוי\", \"עקירה\", \"שיננית\"]",
+        "createdAt": "2019-06-03T20:41:32.543Z",
+        "updatedAt": "2019-06-03T20:41:32.543Z",
+        "userId": null,
+        "User": {
+          "userId": "985364823",
+          "fullname": "Sal Fetherston",
+          "password": "0878efd4feafce4d8bbe412bf0343468a589d33a2148a72fcfeee9db8498bde8482db4f6339048e41885761659050555def2673591a55faeab898dc56462eabe",
+          "email": "sfetherstona2@bandcamp.com",
+          "mailbox": 363,
+          "cellphone": "0521647006",
+          "phone": "044599028",
+          "bornDate": "1963-05-04T05:38:45.000Z",
+          "active": true,
+          "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAEkSURBVCjPbdE9S0IBGIbhxxobWxP8D8r5I60RLg0NNTS21VBRQwg1aA4VOAWBpBVCFhKUtkVJtPQx9GFFWh49x3P0bvAjjsWzXrzvcAtpREEZfQtoACEkpKBVdpouv7NYi3SJkAynWcXExKTCJ6+4PLPeIZJPhksdmzp1vilTwqVGlWhEgR6wsbGpU+OLt94rGfJ1gIOLi4OFSYV3Sjx5QXdtkiHFx//gjiwlTshyT5LV3T8gwy3HFLnhkCuWmB3qA0Uu2WGOZVIUmN/ru5CiwAsLNLCI8cg+i3hAggMeiNOgwQbXRJnwghoX5DkiTow0OcLJ8HAbtLpkkzwJCuTY4pQppgeFFLJNtxMrzSRFtlnhvDXO6Fk7ll8hb+wZxpChoPzoB6aiXIYcSLDWAAAAAElFTkSuQmCC",
+          "createdAt": "2019-06-03T20:41:32.475Z",
+          "updatedAt": "2019-06-03T20:41:32.475Z",
+          "Incidents": [],
+          "UsersChoresTypes": [
+            {
+              "userId": "985364823",
+              "choreTypeName": "חדא אמצש",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            },
+            {
+              "userId": "985364823",
+              "choreTypeName": "שטיפה",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            },
+            {
+              "userId": "985364823",
+              "choreTypeName": "תרבות",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            }
+          ],
+          "UsersChores": [
+            {
+              "userChoreId": 866,
+              "userId": "985364823",
+              "choreTypeName": "חדא אמצש",
+              "date": "2020-02-20T17:30:26.000Z",
+              "originDate": "2018-12-21T15:41:45.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 97,
+              "userId": "985364823",
+              "choreTypeName": "שטיפה",
+              "date": "2018-11-25T18:01:24.000Z",
+              "originDate": "2018-11-18T10:10:55.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 524,
+              "userId": "985364823",
+              "choreTypeName": "תרבות",
+              "date": "2020-05-03T23:58:18.000Z",
+              "originDate": "2019-05-19T15:35:55.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            }
+          ],
+          "ServiceProviders": [
+            {
+              "serviceProviderId": "985364823",
+              "role": "appointmentsHairDresser",
+              "userId": "985364823",
+              "operationTime": "[{\"day\":\"Thursday\",\"hours\":[{\"startHour\":\"5:19\",\"endHour\":\"19:08\"},{\"startHour\":\"11:16\",\"endHour\":\"23:25\"}]}]",
+              "phoneNumber": "0539253419",
+              "appointmentWayType": "",
+              "subjects": "[\"גוונים\", \"פן\", \"החלקה\", \"צבע\"]",
+              "active": false,
+              "createdAt": "2019-06-03T20:41:32.518Z",
+              "updatedAt": "2019-06-03T20:41:32.518Z"
+            }
+          ]
+        },
+        "AppointmentRequest": null
+      }
+    },
+    "Announcement": {
+      "announcementId": 250,
+      "serviceProviderId": 621225533,
+      "userId": 547623982,
+      "categoryId": 10,
+      "creationTime": "2020-02-02T14:00:14.000Z",
+      "title": "vel est donec odio justo sollicitudin ut",
+      "content": "Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus.",
+      "expirationTime": "2020-03-02T16:00:14.000Z",
+      "file": "",
+      "fileName": "",
+      "dateOfEvent": "2018-11-14T15:09:30.000Z",
+      "status": "Requested",
+      "createdAt": "2019-06-03T20:41:32.677Z",
+      "updatedAt": "2019-06-03T20:41:32.677Z"
+    }
+  },
+  {
+    "userId": 135985058,
+    "eventType": "Appointments",
+    "eventId": 419,
+    "createdAt": "2019-06-03T20:41:32.723Z",
+    "updatedAt": "2019-06-03T20:41:32.723Z",
+    "ScheduledAppointment": {
+      "appointmentId": 419,
+      "startDateAndTime": "2018-05-23T12:53:28.000Z",
+      "endDateAndTime": "2018-05-23T00:58:18.000Z",
+      "remarks": "amet sapien dignissim vestibulum vestibulum ante ipsum primis",
+      "status": "set",
+      "createdAt": "2019-06-03T20:41:32.581Z",
+      "updatedAt": "2019-06-03T20:41:32.581Z",
+      "AppointmentDetail": {
+        "appointmentId": 419,
+        "clientId": "135985058",
+        "serviceProviderId": 473739707,
+        "role": "appointmentsDentist",
+        "subject": "[\"יישור שיניים\", \"ניקוי\", \"טיפול שורש\", \"עקירה\"]",
+        "createdAt": "2019-06-03T20:41:32.543Z",
+        "updatedAt": "2019-06-03T20:41:32.543Z",
+        "userId": null,
+        "User": {
+          "userId": "135985058",
+          "fullname": "Jacinda Hadaway",
+          "password": "0878efd4feafce4d8bbe412bf0343468a589d33a2148a72fcfeee9db8498bde8482db4f6339048e41885761659050555def2673591a55faeab898dc56462eabe",
+          "email": "jhadaway7d@npr.org",
+          "mailbox": 266,
+          "cellphone": "0572554148",
+          "phone": "041589746",
+          "bornDate": "1991-12-24T12:04:24.000Z",
+          "active": true,
+          "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJGSURBVDjLjZNNSFRRFMd/970ZNbX8KCHUCVxM4CYSDaKkoAgywk3gPoyCyFq0cW0bSUTIcNEm2uWqUEIIrEUqUoFZuZAEFcPGD9LRGOe9+3FajE5jCnW4l3O53Ps7/3PPPUpEmJ6eFucczjmstVhrMcZkfe7UWmd9S0uLigBYa6msrGZ9YwNEIDNABAFEJLtGhLKyUoaGXgGQBawnk9x9NMr/WNetU4Rh+AdgjNkOCdWxYxQX5hGrKKIgP0JaC9o4tAUrMP7+E+KEIAgA8AC01hmZgFKKVNqQWE+TCiwiYKwQGkdgMmdE2K1Aa43b0acUSik2UwYnAaVFUSIRH88Jsg1w4vYCxGUQKgeyFVpC7SgqzMP3PTyViSFuHwA5KSilMhBAlCIVWJQnmX3A/Z1CGIZ4vgfA/NzsP6vgR/y9gLxohM4bJ7FWiEajLC8tUVR8CBFhbW2VRDDD5MIom1tJugaeIfZARrGI0N/f3621Pp/zy8q11m+qqqpajTF8WBieKKmxdfW1DVSXx3k79ZLxr++Ym1ntVjvly7Wenp57xpjms43nLpSUlPFwoI1rV6+A79Fc20b38E18PJ6/GEhHci/29vZWaK2X4/HjlB8+gtGQSKzw89cKUVVMU20rAPcvPmHwSx8wULALEARBQywWo6npMsYYRAQR4cFgkqnFMSYXR2i/9JTO19cp8PMB0ntS6Ojo+Ki1rs/twHk9iVfzgzMnGokfreNbYoKxzyN8n03u/wb72ek7lZ3AbeAgsAn0jT9ebP8NoAhq3YVujicAAAAASUVORK5CYII=",
+          "createdAt": "2019-06-03T20:41:32.475Z",
+          "updatedAt": "2019-06-03T20:41:32.475Z",
+          "Incidents": [],
+          "UsersChoresTypes": [
+            {
+              "userId": "135985058",
+              "choreTypeName": "שמירה",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            },
+            {
+              "userId": "135985058",
+              "choreTypeName": "תרבות",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            }
+          ],
+          "UsersChores": [
+            {
+              "userChoreId": 786,
+              "userId": "135985058",
+              "choreTypeName": "שמירה",
+              "date": "2018-12-13T22:00:54.000Z",
+              "originDate": "2019-05-26T22:10:41.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 661,
+              "userId": "135985058",
+              "choreTypeName": "תרבות",
+              "date": "2018-08-16T02:30:44.000Z",
+              "originDate": "2019-01-11T06:46:55.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            }
+          ],
+          "ServiceProviders": [
+            {
+              "serviceProviderId": "135985058",
+              "role": "ChoresSecretary",
+              "userId": "135985058",
+              "operationTime": "[]",
+              "phoneNumber": "0516398871",
+              "appointmentWayType": "",
+              "subjects": "",
+              "active": true,
+              "createdAt": "2019-06-03T20:41:32.518Z",
+              "updatedAt": "2019-06-03T20:41:32.518Z"
+            }
+          ]
+        },
+        "AppointmentRequest": null
+      }
+    },
+    "Announcement": {
+      "announcementId": 419,
+      "serviceProviderId": 358040553,
+      "userId": 461377403,
+      "categoryId": 9,
+      "creationTime": "2019-01-21T22:11:07.000Z",
+      "title": "cubilia curae mauris viverra",
+      "content": "Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero.",
+      "expirationTime": "2019-02-22T00:11:07.000Z",
+      "file": "",
+      "fileName": "",
+      "dateOfEvent": "2019-05-13T23:25:52.000Z",
+      "status": "Cancelled",
+      "createdAt": "2019-06-03T20:41:32.677Z",
+      "updatedAt": "2019-06-03T20:41:32.677Z"
+    }
+  },
+  {
+    "userId": 135985058,
+    "eventType": "Appointments",
+    "eventId": 480,
+    "createdAt": "2019-06-03T20:41:32.723Z",
+    "updatedAt": "2019-06-03T20:41:32.723Z",
+    "ScheduledAppointment": {
+      "appointmentId": 480,
+      "startDateAndTime": "2020-03-21T20:51:29.000Z",
+      "endDateAndTime": "2020-03-21T08:17:07.000Z",
+      "remarks": "ultrices aliquet maecenas leo odio condimentum id luctus",
+      "status": "cancelled",
+      "createdAt": "2019-06-03T20:41:32.581Z",
+      "updatedAt": "2019-06-03T20:41:32.581Z",
+      "AppointmentDetail": {
+        "appointmentId": 480,
+        "clientId": "135985058",
+        "serviceProviderId": 310950424,
+        "role": "appointmentsDentist",
+        "subject": "[\"ניקוי\", \"עקירה\", \"יישור שיניים\", \"טיפול שורש\"]",
+        "createdAt": "2019-06-03T20:41:32.543Z",
+        "updatedAt": "2019-06-03T20:41:32.543Z",
+        "userId": null,
+        "User": {
+          "userId": "135985058",
+          "fullname": "Jacinda Hadaway",
+          "password": "0878efd4feafce4d8bbe412bf0343468a589d33a2148a72fcfeee9db8498bde8482db4f6339048e41885761659050555def2673591a55faeab898dc56462eabe",
+          "email": "jhadaway7d@npr.org",
+          "mailbox": 266,
+          "cellphone": "0572554148",
+          "phone": "041589746",
+          "bornDate": "1991-12-24T12:04:24.000Z",
+          "active": true,
+          "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJGSURBVDjLjZNNSFRRFMd/970ZNbX8KCHUCVxM4CYSDaKkoAgywk3gPoyCyFq0cW0bSUTIcNEm2uWqUEIIrEUqUoFZuZAEFcPGD9LRGOe9+3FajE5jCnW4l3O53Ps7/3PPPUpEmJ6eFucczjmstVhrMcZkfe7UWmd9S0uLigBYa6msrGZ9YwNEIDNABAFEJLtGhLKyUoaGXgGQBawnk9x9NMr/WNetU4Rh+AdgjNkOCdWxYxQX5hGrKKIgP0JaC9o4tAUrMP7+E+KEIAgA8AC01hmZgFKKVNqQWE+TCiwiYKwQGkdgMmdE2K1Aa43b0acUSik2UwYnAaVFUSIRH88Jsg1w4vYCxGUQKgeyFVpC7SgqzMP3PTyViSFuHwA5KSilMhBAlCIVWJQnmX3A/Z1CGIZ4vgfA/NzsP6vgR/y9gLxohM4bJ7FWiEajLC8tUVR8CBFhbW2VRDDD5MIom1tJugaeIfZARrGI0N/f3621Pp/zy8q11m+qqqpajTF8WBieKKmxdfW1DVSXx3k79ZLxr++Ym1ntVjvly7Wenp57xpjms43nLpSUlPFwoI1rV6+A79Fc20b38E18PJ6/GEhHci/29vZWaK2X4/HjlB8+gtGQSKzw89cKUVVMU20rAPcvPmHwSx8wULALEARBQywWo6npMsYYRAQR4cFgkqnFMSYXR2i/9JTO19cp8PMB0ntS6Ojo+Ki1rs/twHk9iVfzgzMnGokfreNbYoKxzyN8n03u/wb72ek7lZ3AbeAgsAn0jT9ebP8NoAhq3YVujicAAAAASUVORK5CYII=",
+          "createdAt": "2019-06-03T20:41:32.475Z",
+          "updatedAt": "2019-06-03T20:41:32.475Z",
+          "Incidents": [],
+          "UsersChoresTypes": [
+            {
+              "userId": "135985058",
+              "choreTypeName": "שמירה",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            },
+            {
+              "userId": "135985058",
+              "choreTypeName": "תרבות",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            }
+          ],
+          "UsersChores": [
+            {
+              "userChoreId": 786,
+              "userId": "135985058",
+              "choreTypeName": "שמירה",
+              "date": "2018-12-13T22:00:54.000Z",
+              "originDate": "2019-05-26T22:10:41.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 661,
+              "userId": "135985058",
+              "choreTypeName": "תרבות",
+              "date": "2018-08-16T02:30:44.000Z",
+              "originDate": "2019-01-11T06:46:55.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            }
+          ],
+          "ServiceProviders": [
+            {
+              "serviceProviderId": "135985058",
+              "role": "ChoresSecretary",
+              "userId": "135985058",
+              "operationTime": "[]",
+              "phoneNumber": "0516398871",
+              "appointmentWayType": "",
+              "subjects": "",
+              "active": true,
+              "createdAt": "2019-06-03T20:41:32.518Z",
+              "updatedAt": "2019-06-03T20:41:32.518Z"
+            }
+          ]
+        },
+        "AppointmentRequest": null
+      }
+    },
+    "Announcement": {
+      "announcementId": 480,
+      "serviceProviderId": 621225533,
+      "userId": 787813054,
+      "categoryId": 10,
+      "creationTime": "2020-03-18T19:25:45.000Z",
+      "title": "neque libero convallis eget eleifend luctus ultricies eu nibh quisque",
+      "content": "Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem.",
+      "expirationTime": "2020-04-18T21:25:45.000Z",
+      "file": "",
+      "fileName": "",
+      "dateOfEvent": "2019-08-05T17:09:44.000Z",
+      "status": "Expired",
+      "createdAt": "2019-06-03T20:41:32.677Z",
+      "updatedAt": "2019-06-03T20:41:32.677Z"
+    }
+  },
+  {
+    "userId": 135985058,
+    "eventType": "Appointments",
+    "eventId": 520,
+    "createdAt": "2019-06-03T20:41:32.723Z",
+    "updatedAt": "2019-06-03T20:41:32.723Z",
+    "ScheduledAppointment": {
+      "appointmentId": 520,
+      "startDateAndTime": "2019-07-02T23:39:51.000Z",
+      "endDateAndTime": "2019-07-03T17:24:04.000Z",
+      "remarks": "faucibus orci luctus et ultrices posuere cubilia curae mauris",
+      "status": "cancelled",
+      "createdAt": "2019-06-03T20:41:32.581Z",
+      "updatedAt": "2019-06-03T20:41:32.581Z",
+      "AppointmentDetail": {
+        "appointmentId": 520,
+        "clientId": "135985058",
+        "serviceProviderId": 960766683,
+        "role": "appointmentsDentist",
+        "subject": "[\"ניקוי\", \"טיפול שורש\", \"יישור שיניים\", \"עקירה\"]",
+        "createdAt": "2019-06-03T20:41:32.543Z",
+        "updatedAt": "2019-06-03T20:41:32.543Z",
+        "userId": null,
+        "User": {
+          "userId": "135985058",
+          "fullname": "Jacinda Hadaway",
+          "password": "0878efd4feafce4d8bbe412bf0343468a589d33a2148a72fcfeee9db8498bde8482db4f6339048e41885761659050555def2673591a55faeab898dc56462eabe",
+          "email": "jhadaway7d@npr.org",
+          "mailbox": 266,
+          "cellphone": "0572554148",
+          "phone": "041589746",
+          "bornDate": "1991-12-24T12:04:24.000Z",
+          "active": true,
+          "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJGSURBVDjLjZNNSFRRFMd/970ZNbX8KCHUCVxM4CYSDaKkoAgywk3gPoyCyFq0cW0bSUTIcNEm2uWqUEIIrEUqUoFZuZAEFcPGD9LRGOe9+3FajE5jCnW4l3O53Ps7/3PPPUpEmJ6eFucczjmstVhrMcZkfe7UWmd9S0uLigBYa6msrGZ9YwNEIDNABAFEJLtGhLKyUoaGXgGQBawnk9x9NMr/WNetU4Rh+AdgjNkOCdWxYxQX5hGrKKIgP0JaC9o4tAUrMP7+E+KEIAgA8AC01hmZgFKKVNqQWE+TCiwiYKwQGkdgMmdE2K1Aa43b0acUSik2UwYnAaVFUSIRH88Jsg1w4vYCxGUQKgeyFVpC7SgqzMP3PTyViSFuHwA5KSilMhBAlCIVWJQnmX3A/Z1CGIZ4vgfA/NzsP6vgR/y9gLxohM4bJ7FWiEajLC8tUVR8CBFhbW2VRDDD5MIom1tJugaeIfZARrGI0N/f3621Pp/zy8q11m+qqqpajTF8WBieKKmxdfW1DVSXx3k79ZLxr++Ym1ntVjvly7Wenp57xpjms43nLpSUlPFwoI1rV6+A79Fc20b38E18PJ6/GEhHci/29vZWaK2X4/HjlB8+gtGQSKzw89cKUVVMU20rAPcvPmHwSx8wULALEARBQywWo6npMsYYRAQR4cFgkqnFMSYXR2i/9JTO19cp8PMB0ntS6Ojo+Ki1rs/twHk9iVfzgzMnGokfreNbYoKxzyN8n03u/wb72ek7lZ3AbeAgsAn0jT9ebP8NoAhq3YVujicAAAAASUVORK5CYII=",
+          "createdAt": "2019-06-03T20:41:32.475Z",
+          "updatedAt": "2019-06-03T20:41:32.475Z",
+          "Incidents": [],
+          "UsersChoresTypes": [
+            {
+              "userId": "135985058",
+              "choreTypeName": "שמירה",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            },
+            {
+              "userId": "135985058",
+              "choreTypeName": "תרבות",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            }
+          ],
+          "UsersChores": [
+            {
+              "userChoreId": 786,
+              "userId": "135985058",
+              "choreTypeName": "שמירה",
+              "date": "2018-12-13T22:00:54.000Z",
+              "originDate": "2019-05-26T22:10:41.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 661,
+              "userId": "135985058",
+              "choreTypeName": "תרבות",
+              "date": "2018-08-16T02:30:44.000Z",
+              "originDate": "2019-01-11T06:46:55.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            }
+          ],
+          "ServiceProviders": [
+            {
+              "serviceProviderId": "135985058",
+              "role": "ChoresSecretary",
+              "userId": "135985058",
+              "operationTime": "[]",
+              "phoneNumber": "0516398871",
+              "appointmentWayType": "",
+              "subjects": "",
+              "active": true,
+              "createdAt": "2019-06-03T20:41:32.518Z",
+              "updatedAt": "2019-06-03T20:41:32.518Z"
+            }
+          ]
+        },
+        "AppointmentRequest": null
+      }
+    },
+    "Announcement": {
+      "announcementId": 520,
+      "serviceProviderId": 621225533,
+      "userId": 809664205,
+      "categoryId": 10,
+      "creationTime": "2018-08-14T04:51:19.000Z",
+      "title": "odio odio elementum eu interdum eu",
+      "content": "Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem.",
+      "expirationTime": "2020-02-15T03:10:05.000Z",
+      "file": "",
+      "fileName": "",
+      "dateOfEvent": "2019-04-12T03:25:31.000Z",
+      "status": "Cancelled",
+      "createdAt": "2019-06-03T20:41:32.677Z",
+      "updatedAt": "2019-06-03T20:41:32.677Z"
+    }
+  },
+  {
+    "userId": 135985058,
+    "eventType": "Chores",
+    "eventId": 51,
+    "createdAt": "2019-06-03T20:41:32.723Z",
+    "updatedAt": "2019-06-03T20:41:32.723Z",
+    "ScheduledAppointment": {
+      "appointmentId": 51,
+      "startDateAndTime": "2019-11-03T21:14:22.000Z",
+      "endDateAndTime": "2019-11-02T22:03:28.000Z",
+      "remarks": "venenatis lacinia aenean sit amet justo morbi ut odio",
+      "status": "cancelled",
+      "createdAt": "2019-06-03T20:41:32.581Z",
+      "updatedAt": "2019-06-03T20:41:32.581Z",
+      "AppointmentDetail": {
+        "appointmentId": 51,
+        "clientId": "801892732",
+        "serviceProviderId": 418110517,
+        "role": "appointmentsDentist",
+        "subject": "[\"שיננית\", \"עקירה\", \"יישור שיניים\", \"טיפול שורש\"]",
+        "createdAt": "2019-06-03T20:41:32.543Z",
+        "updatedAt": "2019-06-03T20:41:32.543Z",
+        "userId": null,
+        "User": {
+          "userId": "801892732",
+          "fullname": "Michaella Marian",
+          "password": "0878efd4feafce4d8bbe412bf0343468a589d33a2148a72fcfeee9db8498bde8482db4f6339048e41885761659050555def2673591a55faeab898dc56462eabe",
+          "email": "mmariank9@icio.us",
+          "mailbox": 730,
+          "cellphone": "0578181974",
+          "phone": "043454516",
+          "bornDate": "1963-07-27T15:06:53.000Z",
+          "active": true,
+          "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVDjLfdPdb1N1AMbx5/ScvtHTZbSwDcrWlXXIUOdkZiRmioQXSYgX82p4YUKMkJjswpkRjCJckUWDhBCZGoJhYrwYMIUQzbhReZOZLtvqateVgdKVjYV2W3t+b+fl5wWSwI3fP+CT5+ZRpJR43LHkYZ1bopsJsZMJ2sYEB+NsmDLxkyo2HamUnd7Pd0cInkh5DBwdP7SZm+KbjZXtMVXzwVRsVPlXYiqXwoWJ7/siypdJYVo9Qth7Tu1t+PUp4LOxgx117viFcGA1ZsRDjJZTUKULL+sv4rvfvy74rY62oLJtuC2uhybuLuHv++U3B/Y3DwKA69PRgyEmWH+VXoeRcga/LdzEgrmIuD+Kudl7MAz6cUBu/WBdlS9UvdyHxlU6KBX9Ow7cCAGAi3Da3Vq5Wc/SHFJkEsRiWKmGoDM3fhg/NxpRT9xi1Nwbrw0gnWcIVXjRuCaoM0K7/wOMXarbi2Q5DWFxVLh0NFesx3DmOmiJdZlcO96yNqgK00HuoUBmlqMmHACjbBcAaISyDVyx4IKCFv051Hsj+Gc6i0Q2cToW7F9NKW+NhP24mSEghg1jyUZTxA3OaAwANIMSWu1b4WkPvoS5/D30jRwtcEMcP1R84+TkYkIbCjyTfVBkz2tQQAwH0nHAhQZBmfpoAaF3/vjrRsulPwfnOeW9+++vGdhaCLwtycTkKyTx2qUNPWDcBiES1LARXu7GzIMyBKfZR4BBz/44fr7vWK7x8rpFtVsSmjLX1upK5jacUhmUUhBmIz51FtunzmDZwh0s+MIImdEi8C60wWzLaUloryT0hNkQ9ZgNUTi2DW0kCRgGOOGIpL7FRvtnNL2zD97Ys6DjQ4hevfLqlW3uLpcsG5pTKr/FN7V6RGMMdDINx6BwygZsg4IzgvDYKazf0gHf7V+gnNmNZdODqI+GVanI913uL07OOyVjj3IrAUyk4a5ZBYcS2JTCpgyCMgRLM/DVxICui0BvAfhwGpqRhuoo9RoA+M8PnCu1b9mhjqW+shvqY071CoAwSMbBBUVRDQgyetkTuPgeOJ0FAVBaUmGryCtPvrHY9IJuc9EjhdjpCLNNWlZzTSGfvNYZOewJBj6qDVua5sqhNG/h7pxqm0x+8hTwf13vrDtgFPL7VFuJ2qqckUDf60PWkX8BnoTdhvAVaYUAAAAASUVORK5CYII=",
+          "createdAt": "2019-06-03T20:41:32.475Z",
+          "updatedAt": "2019-06-03T20:41:32.475Z",
+          "Incidents": [],
+          "UsersChoresTypes": [
+            {
+              "userId": "801892732",
+              "choreTypeName": "שטיפה",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            },
+            {
+              "userId": "801892732",
+              "choreTypeName": "תרבות",
+              "createdAt": "2019-06-03T20:41:32.625Z",
+              "updatedAt": "2019-06-03T20:41:32.625Z"
+            }
+          ],
+          "UsersChores": [
+            {
+              "userChoreId": 555,
+              "userId": "801892732",
+              "choreTypeName": "שטיפה",
+              "date": "2018-05-26T07:28:19.000Z",
+              "originDate": "2018-09-18T19:39:03.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 992,
+              "userId": "801892732",
+              "choreTypeName": "תרבות",
+              "date": "2019-06-12T02:38:44.000Z",
+              "originDate": "2019-10-14T18:19:11.000Z",
+              "isMark": "true",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            },
+            {
+              "userChoreId": 87,
+              "userId": "801892732",
+              "choreTypeName": "תרבות",
+              "date": "2019-08-23T02:51:01.000Z",
+              "originDate": "2020-03-14T15:08:17.000Z",
+              "isMark": "false",
+              "createdAt": "2019-06-03T20:41:32.636Z",
+              "updatedAt": "2019-06-03T20:41:32.636Z"
+            }
+          ],
+          "ServiceProviders": []
+        },
+        "AppointmentRequest": null
+      }
+    },
+    "Announcement": {
+      "announcementId": 51,
+      "serviceProviderId": 544359761,
+      "userId": 95793764,
+      "categoryId": 1,
+      "creationTime": "2019-05-15T22:15:07.000Z",
+      "title": "mattis egestas",
+      "content": "In congue. Etiam justo. Etiam pretium iaculis justo.",
+      "expirationTime": "2019-06-16T01:15:07.000Z",
+      "file": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAABzSURBVDjLY/j//z9Dzqzj0UB8E8puA+KnBNgVQNwEYoM4WSRqBrEfQdmeIOIhiZph7BYg3sZApmY4myLNIFcwUKAZzB5wL7SNeoFKXiinIDlXgohUpLRNiuZakOUwL3gB8TEcGh5D2TVAfAnKLgbiDhAbAJ0nqHy8Qq7oAAAAAElFTkSuQmCC",
+      "fileName": "Luctus.ppt",
+      "dateOfEvent": "2019-03-20T01:54:04.000Z",
+      "status": "Expired",
+      "createdAt": "2019-06-03T20:41:32.677Z",
+      "updatedAt": "2019-06-03T20:41:32.677Z"
+    }
+  }
+]
