@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Avatar, Card} from 'react-native-elements';
 import {Agenda, LocaleConfig} from 'react-native-calendars';
 import '../localConfig';
@@ -91,8 +91,13 @@ export default class AgendaCalendar extends Component {
                                 item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
                                 item.subject = JSON.parse(appointment.AppointmentDetail.subject).join(", ");
                                 let serviceProvider = serviceProviderUserDetails.filter(provider => provider.userId === appointment.AppointmentDetail.serviceProviderId.toString())[0];
-                                item.serviceProviderFullname = serviceProvider.fullname;
-                                item.serviceProviderImage = serviceProvider.image;
+                                if (serviceProvider) {
+                                    item.serviceProviderFullname = serviceProvider.fullname;
+                                    item.serviceProviderImage = serviceProvider.image;
+                                } else {
+                                    item.serviceProviderFullname = "";
+                                    item.serviceProviderImage = "";
+                                }
                                 if (newItems[item.date]) {
                                     newItems[item.date].push(item);
                                 } else {
@@ -344,7 +349,7 @@ const styles = StyleSheet.create({
         paddingTop: 5,
         // borderBottomWidth: 2,
         // borderColor: '#eee',
-        height: 500,
+        height: Dimensions.get('window').height * 2 / 3,
     },
     item: {
         backgroundColor: 'white',
