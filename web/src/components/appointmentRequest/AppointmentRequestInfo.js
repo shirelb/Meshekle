@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles.css';
-import {Button, List, Modal} from 'semantic-ui-react';
+import {Button, Container, List, Modal} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import store from "store";
@@ -54,40 +54,42 @@ class AppointmentRequestInfo extends React.Component {
                     {/*<Image wrapped size="small" src={`https://api.adorable.io/avatars/250/${user.email}`}/>*/}
                     {appointmentRequest ?
                         <Modal.Description>
-                            <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointmentRequest.requestId}</p>
-                            <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointmentRequest.clientName}</p>
-                            <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointmentRequest.AppointmentDetail.serviceProviderId}</p>
-                            <p>{strings.appointmentsPageStrings.ROLE}: {strings.roles[appointmentRequest.AppointmentDetail.role]}</p>
-                            <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</p>
-                            <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentRequestStatusMapper(appointmentRequest.status)}</p>
-                            <p>{strings.appointmentsPageStrings.REMARKS}: {appointmentRequest.notes} </p>
-                            <div>
-                                <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}: </p>
-                                <List>
-                                    {Array.isArray(appointmentRequest.optionalTimes) &&
-                                    appointmentRequest.optionalTimes.map((datesTimes, j) =>
-                                        (
-                                            <List.Item key={j}>
-                                                <List.Content>
-                                                    <List.Description>{datesTimes.date}</List.Description>
-                                                    <List.Description>
-                                                        {Array.isArray(datesTimes.hours) &&
-                                                        datesTimes.hours.map((time, k) =>
-                                                            (
-                                                                <List.Item key={k}>
-                                                                    <List.Content>
-                                                                        <List.Description>      {time.startHour}-{time.endHour}</List.Description>
-                                                                    </List.Content>
-                                                                </List.Item>
-                                                            ),
-                                                        )}
-                                                    </List.Description>
-                                                </List.Content>
-                                            </List.Item>
-                                        ),
-                                    )}
-                                </List>
-                            </div>
+                            <Container text>
+                                <p>{strings.appointmentsPageStrings.APPOINTMENT_ID}: {appointmentRequest.requestId}</p>
+                                <p>{strings.appointmentsPageStrings.CLIENT_NAME}: {appointmentRequest.clientName}</p>
+                                <p>{strings.appointmentsPageStrings.SERVICE_PROVIDER_ID}: {appointmentRequest.AppointmentDetail.serviceProviderId}</p>
+                                <p>{strings.appointmentsPageStrings.ROLE}: {strings.roles[appointmentRequest.AppointmentDetail.role]}</p>
+                                <p>{strings.appointmentsPageStrings.SUBJECT}: {JSON.parse(appointmentRequest.AppointmentDetail.subject).join(", ")}</p>
+                                <p>{strings.appointmentsPageStrings.STATUS}: {mappers.appointmentRequestStatusMapper(appointmentRequest.status)}</p>
+                                <p>{strings.appointmentsPageStrings.REMARKS}: {appointmentRequest.notes} </p>
+                                <div>
+                                    <p>{strings.appointmentsPageStrings.OPTIONAL_TIMES}: </p>
+                                    <List>
+                                        {Array.isArray(appointmentRequest.optionalTimes) &&
+                                        appointmentRequest.optionalTimes.map((datesTimes, j) =>
+                                            (
+                                                <List.Item key={j}>
+                                                    <List.Content>
+                                                        <List.Description>{datesTimes.date}</List.Description>
+                                                        <List.Description>
+                                                            {Array.isArray(datesTimes.hours) &&
+                                                            datesTimes.hours.map((time, k) =>
+                                                                (
+                                                                    <List.Item key={k}>
+                                                                        <List.Content>
+                                                                            <List.Description>      {time.startHour}-{time.endHour}</List.Description>
+                                                                        </List.Content>
+                                                                    </List.Item>
+                                                                ),
+                                                            )}
+                                                        </List.Description>
+                                                    </List.Content>
+                                                </List.Item>
+                                            ),
+                                        )}
+                                    </List>
+                                </div>
+                            </Container>
                         </Modal.Description>
                         :
                         <Modal.Description/>

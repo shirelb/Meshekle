@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Image, Modal} from 'semantic-ui-react';
+import {Button, Container, Image, Modal} from 'semantic-ui-react';
 import moment from 'moment';
 import {Helmet} from 'react-helmet';
 import usersStorage from "../../storage/usersStorage";
@@ -74,6 +74,7 @@ class UserInfo extends React.Component {
                         <Image wrapped size="small"
                                src={user.image ? user.image : 'https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png'}/>
                         <Modal.Description style={{marginRight: 20}}>
+                            <Container text>
                             <p>{strings.phoneBookPageStrings.USER_ID_HEADER}: {user.userId}</p>
                             <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {user.fullname}</p>
                             {/*<p>{strings.phoneBookPageStrings.PASSWORD_HEADER}: {user.password}</p>*/}
@@ -88,6 +89,7 @@ class UserInfo extends React.Component {
                                 <Button onClick={this.renewPassword}>חדש סיסמא</Button>
                                 : null
                             }
+                            </Container>
                         </Modal.Description>
                     </Modal.Content>
                     {this.props.hasPhoneBookPermissions ?

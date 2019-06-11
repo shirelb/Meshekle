@@ -1,5 +1,5 @@
 import React from 'react';
-import {Accordion, Button, Icon, Image, Modal} from 'semantic-ui-react';
+import {Accordion, Button, Container, Icon, Image, Modal} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
@@ -90,49 +90,51 @@ class ServiceProviderInfo extends React.Component {
                         <Image wrapped size="small"
                                src={serviceProvider.image ? serviceProvider.image : 'https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png'}/>
                         <Modal.Description style={{marginRight: 20}}>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
-                            <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {strings.roles[serviceProvider.role]}</p>
-                            {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
-                            {this.appointmentRoleDetailsVisible() ?
-                                <div>
-                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
-                                    {
-                                        JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
-                                            return <Accordion key={index}>
-                                                <Accordion.Title
-                                                    active={activeIndex === index}
-                                                    index={index}
-                                                    onClick={this.handleClick}>
-                                                    <Icon name='dropdown'/>
-                                                    {mappers.daysMapper(dayTime.day)}
-                                                </Accordion.Title>
-                                                {
-                                                    dayTime.hours.map((hour, j) => {
-                                                        return <Accordion.Content
-                                                            active={activeIndex === index}
-                                                            key={j}>
-                                                            {hour.startHour} - {hour.endHour}
-                                                        </Accordion.Content>
-                                                    })
-                                                }
-                                            </Accordion>
-                                        })
-                                    }
-                                </div>
-                                : null
-                            }
-                            <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
-                            {this.appointmentRoleDetailsVisible() ?
-                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
-                                : null
-                            }
-                            <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
+                            <Container text>
+                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
+                                <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
+                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {strings.roles[serviceProvider.role]}</p>
+                                {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
+                                {this.appointmentRoleDetailsVisible() ?
+                                    <div>
+                                        {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
+                                        {
+                                            JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
+                                                return <Accordion key={index}>
+                                                    <Accordion.Title
+                                                        active={activeIndex === index}
+                                                        index={index}
+                                                        onClick={this.handleClick}>
+                                                        <Icon name='dropdown'/>
+                                                        {mappers.daysMapper(dayTime.day)}
+                                                    </Accordion.Title>
+                                                    {
+                                                        dayTime.hours.map((hour, j) => {
+                                                            return <Accordion.Content
+                                                                active={activeIndex === index}
+                                                                key={j}>
+                                                                {hour.startHour} - {hour.endHour}
+                                                            </Accordion.Content>
+                                                        })
+                                                    }
+                                                </Accordion>
+                                            })
+                                        }
+                                    </div>
+                                    : null
+                                }
+                                <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
+                                {this.appointmentRoleDetailsVisible() ?
+                                    <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
+                                    : null
+                                }
+                                <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
 
-                            {this.props.hasPhoneBookPermissions ?
-                                <Button onClick={this.renewPassword}>חדש סיסמא</Button>
-                                : null
-                            }
+                                {this.props.hasPhoneBookPermissions ?
+                                    <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                    : null
+                                }
+                            </Container>
                         </Modal.Description>
                     </Modal.Content>
                     {this.props.hasPhoneBookPermissions ?

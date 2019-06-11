@@ -18,6 +18,7 @@ import helpers from "../../shared/helpers";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import Datetime from 'react-datetime';
+import {CSVLink} from "react-csv";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -45,7 +46,9 @@ class AppointmentsReportPage extends React.Component {
                 startTime: "",
                 endTime: "",
                 remarks: "",
-            }
+            },
+
+            reportCSV: [],
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -233,13 +236,28 @@ class AppointmentsReportPage extends React.Component {
         });
     };
 
+    pickUserAttributesForCSV = () => {
+        return this.state.appointments.map(appointment => {
+            return _.pick(appointment, ['clientId', "clientName", "role", "subject", "status", "date", "startTime", "endTime", "remarks"])
+        });
+    };
 
     render() {
         const {appointments, page, totalPages, column, direction} = this.state;
         const startIndex = page * TOTAL_PER_PAGE;
 
         // console.log("AppointmentsReportPage appointments ", appointments);
-
+        const reportCSVHeaders = [
+            {label: strings.appointmentsPageStrings.CLIENT_ID, key: "clientId"},
+            {label: strings.appointmentsPageStrings.CLIENT_NAME, key: "clientName"},
+            {label: strings.appointmentsPageStrings.ROLE, key: "role"},
+            {label: strings.appointmentsPageStrings.SUBJECT, key: "subject"},
+            {label: strings.appointmentsPageStrings.STATUS, key: "status"},
+            {label: strings.appointmentsPageStrings.DATE, key: "date"},
+            {label: strings.appointmentsPageStrings.START_TIME, key: "startTime"},
+            {label: strings.appointmentsPageStrings.END_TIME, key: "endTime"},
+            {label: strings.appointmentsPageStrings.REMARKS, key: "remarks"},
+        ];
 
         return (
             <div dir="rtl" className="k-rtl">
@@ -276,6 +294,18 @@ class AppointmentsReportPage extends React.Component {
                             <Icon name="file pdf outline"/>
                             &nbsp;&nbsp;
                             יצא לPDF
+                        </Button>
+
+                        <Button icon style={{width: 120}}>
+                            <CSVLink style={{color: '#5a5a5a'}} data={this.state.reportCSV} headers={reportCSVHeaders}
+                                     filename={"MeshekleAppointmentsReport.csv"}
+                                     onClick={() => {
+                                         this.setState({reportCSV: this.pickUserAttributesForCSV()});
+                                     }}>
+                                <Icon name="file excel outline"/>
+                                &nbsp;&nbsp;
+                                יצא לExcel
+                            </CSVLink>
                         </Button>
 
                         <Grid.Row columns='equal'
