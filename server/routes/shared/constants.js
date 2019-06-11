@@ -81,7 +81,6 @@ module.exports = {
         DIALOG_WAY_TYPE: "Dialog",
         FAULT_WAY_TYPE: "Fault",
     },
-    permissionsOpNames: {},
     modules: {},
     roles: {
         ADMIN_ROLE: "Admin",

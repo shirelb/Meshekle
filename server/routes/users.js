@@ -86,8 +86,8 @@ router.put('/forgetPassword', function (req, res) {
                     });
                     helpers.sendMail(user.email, constants.mailMessages.REMINDER_SUBJECT,
                         "שלום " + user.fullname +
-                        "\nשם המשתמש שלך: " + user.userId +
-                        "\nהסיסמא שלך: " + user.dataValues.password +
+                        "\nשם המשתמש שלך:\n " + "\n" + user.userId +
+                        "\nהסיסמא שלך: \n" + "\n" + user.dataValues.password +
                         "\n" + constants.mailMessages.REMINDER_END +
                         "\n" + constants.mailMessages.MAIL_END);
                 })

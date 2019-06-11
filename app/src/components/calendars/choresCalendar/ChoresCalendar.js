@@ -434,7 +434,7 @@ export default class ChoresCalendar extends Component {
                             :
                             <View></View>
                             }
-                            <Modal visible={this.state.replacementsModal} 
+                            <Modal visible={this.state.replacementsModal}
                             onRequestClose={() => {
                         this.setState({replacementsModal:false});
                     }}>
@@ -445,7 +445,7 @@ export default class ChoresCalendar extends Component {
                                         onClose={()=>{this.setState({replacementsModal:false, choreModalVisible:false, dateModalVisible:false})}}
                                         />
                                     </Modal>
-                                    <Modal visible={this.state.alertModal} 
+                                    <Modal visible={this.state.alertModal}
                                     onRequestClose={() => {
                         this.setState({alertModal:false});
                     }}>

@@ -10,7 +10,7 @@ var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RolesModules} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
@@ -451,7 +451,7 @@ router.post('/users/add', function (req, res, next) {
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
                     helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + newUser.userId + "\nהסיסמא שלך: " + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + newUser.userId + "\nהסיסמא שלך: :\n" + "\n" + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -488,7 +488,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + updatedUser.userId + "\nהסיסמא החדשה שלך: " + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + updatedUser.userId + "\nהסיסמא החדשה שלך::\n " + "\n" +  newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {
@@ -573,7 +573,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             const rolesList = roles.map(role => role.dataValues.role);
-            RulesModules.findAll({
+            RolesModules.findAll({
                 attributes: ['module'],
                 where: {
                     role: {
@@ -585,23 +585,6 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
                     const moduleList = modules.map(module => module.dataValues.module);
                     console.log(moduleList);
                     res.status(200).send(moduleList);
-                    /* Permissions.findAll({
-                         attributes: ['operationName'],
-                         where: {
-                             module: {
-                                 [Op.in]: moduleList
-                             }
-                         }
-                     })
-                         .then(permissions => {
-                             console.log(permissions);
-                             res.status(200).send(permissions.map(permission => permission.operationName));
-                         })
-                         .catch(err => {
-                             console.log(err);
-                             res.status(500).send(err);
-                         })*/
-
                 })
                 .catch(err => {
                     console.log(err);
