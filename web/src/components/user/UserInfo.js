@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Image, Modal} from 'semantic-ui-react';
+import {Button, Container, Image, Modal} from 'semantic-ui-react';
 import moment from 'moment';
 import {Helmet} from 'react-helmet';
 import usersStorage from "../../storage/usersStorage";
@@ -74,20 +74,22 @@ class UserInfo extends React.Component {
                         <Image wrapped size="small"
                                src={user.image ? user.image : 'https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png'}/>
                         <Modal.Description style={{marginRight: 20}}>
-                            <p>{strings.phoneBookPageStrings.USER_ID_HEADER}: {user.userId}</p>
-                            <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {user.fullname}</p>
-                            {/*<p>{strings.phoneBookPageStrings.PASSWORD_HEADER}: {user.password}</p>*/}
-                            <p>{strings.phoneBookPageStrings.EMAIL_HEADER}: {user.email}</p>
-                            <p>{strings.phoneBookPageStrings.MAILBOX_HEADER}: {user.mailbox}</p>
-                            <p>{strings.phoneBookPageStrings.CELLPHONE_HEADER}: {user.cellphone}</p>
-                            <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {user.phone}</p>
-                            <p>{strings.phoneBookPageStrings.BORN_DATE_HEADER}: {moment(user.bornDate).format("DD/MM/YYYY")}</p>
-                            <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
+                            <Container text>
+                                <p>{strings.phoneBookPageStrings.USER_ID_HEADER}: {user.userId}</p>
+                                <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {user.fullname}</p>
+                                {/*<p>{strings.phoneBookPageStrings.PASSWORD_HEADER}: {user.password}</p>*/}
+                                <p>{strings.phoneBookPageStrings.EMAIL_HEADER}: {user.email}</p>
+                                <p>{strings.phoneBookPageStrings.MAILBOX_HEADER}: {user.mailbox}</p>
+                                <p>{strings.phoneBookPageStrings.CELLPHONE_HEADER}: {user.cellphone}</p>
+                                <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {user.phone}</p>
+                                <p>{strings.phoneBookPageStrings.BORN_DATE_HEADER}: {moment(user.bornDate).format("DD/MM/YYYY")}</p>
+                                <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {user.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
 
-                            {this.props.hasPhoneBookPermissions ?
-                                <Button onClick={this.renewPassword}>חדש סיסמא</Button>
-                                : null
-                            }
+                                {this.props.hasPhoneBookPermissions ?
+                                    <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                    : null
+                                }
+                            </Container>
                         </Modal.Description>
                     </Modal.Content>
                     {this.props.hasPhoneBookPermissions ?
