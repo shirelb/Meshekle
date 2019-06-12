@@ -178,13 +178,7 @@ class AnnouncementsManagementPage extends React.Component {
         this.setState({pageAnnouncementsRequests: pageAnnouncementsRequests + 1});
     }
 
-    // handleDelete(userId) {
-    //     const {users} = this.state;
-    //
-    //     this.setState({
-    //         users: users.filter(u => u.id !== userId),
-    //     });
-    // }
+
 
 
     addAnnouncementClick = () => {

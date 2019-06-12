@@ -87,7 +87,6 @@ export default class DrawerMenu extends Component {
         this.setState({
             formModal: true,
             infoModal: false,
-            // userLoggedin: {},
         });
     }
 

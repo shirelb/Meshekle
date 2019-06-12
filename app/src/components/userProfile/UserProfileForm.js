@@ -157,7 +157,6 @@ export default class UserProfileForm extends Component {
 
             usersStorage.updateUserById(userUpdated, this.props.userHeaders)
                 .then((response) => {
-                    console.log('updateUserById response ', response);
                     Alert.alert(
                         'התראה',
                         'הפרופיל עודכן בהצלחה',

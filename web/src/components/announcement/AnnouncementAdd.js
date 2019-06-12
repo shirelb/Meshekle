@@ -9,6 +9,19 @@ import AppointmentForm from "../appointment/AppointmentAdd";
 import AnnouncementForm from "./AnnouncementForm";
 import announcementsStorage from "../../storage/announcementsStorage";
 
+
+const errorsDictionary ={
+    "Service provider not found!": "נותן השירות לא נמצא",
+    "User not found!": "המשתמש לא נמצא",
+    "Announcement not found!": "המודעה אינה קיימת",
+    "Expiration time is invalid!": "תאריך תפוגה לא תקין, יש להזין תאריך עתידי",
+    "Expiration time is illegal!":"תאריך תפוגה לא חוקי",
+    "Date Of Event time is invalid!": "תאריך אירוע לא תקין, יש להזין תאריך עתידי",
+    "Date Of Event time is illegal!":"תאריך אירוע לא חוקי",
+    "Category doesnt exists!":"הקטגוריה אינה קיימת",
+    "Category not found!":"הקטגוריה אינה קיימת",
+};
+
 class AnnouncementAdd extends React.Component {
     constructor(props) {
         super(props);
@@ -35,6 +48,8 @@ class AnnouncementAdd extends React.Component {
             .then(response => this.setState({categories: response.data}));
     };
 
+
+
     handleSubmit(announcement) {
         this.setState({formError:""});
         const {getAnnouncements} = this.props;
@@ -59,7 +74,7 @@ class AnnouncementAdd extends React.Component {
                         return true;
                     }
                     else {
-                        this.setState({formError: response.data.message});
+                        this.setState({formError: errorsDictionary[response.data.message]});
                         return false;
                     }
                 });

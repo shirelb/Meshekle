@@ -89,7 +89,6 @@ export default class UserProfileInfo extends Component {
                             {this.state.openedFrom === "DrawerMenu" ?
                                 <TouchableOpacity
                                     onPress={() => {
-                                        // this.setModalVisible(!this.state.modalVisible);
                                         this.setState({modalVisible: false, user: {}});
                                         this.props.setFormModalVisible();
                                     }}
@@ -168,16 +167,6 @@ export default class UserProfileInfo extends Component {
                                 </Text>
                             </View> : null
                         }
-
-                        {/*<View style={{marginTop: 20}}>
-                            <Button
-                                label='חזור'
-                                onPress={() => {
-                                    this.setModalVisible(!this.state.modalVisible);
-                                                        this.setState({user: {}})
-                                }}
-                            />
-                        </View>*/}
 
                     </ScrollView>
 
