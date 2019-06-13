@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {DrawerActions, NavigationActions} from 'react-navigation';
-import {View,Linking } from 'react-native';
+import {Linking, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'
@@ -64,14 +64,19 @@ export default class DrawerMenu extends Component {
     loadUser() {
         usersStorage.getUserById(this.userId, this.userHeaders)
             .then(user => {
-                console.log("DrawerMenu user ", user);
-                let userLoggedin = user.data[0];
+                if (user.response) {
+                    if (user.response.status !== 200) {
+                    }
+                } else {
+                    // console.log("DrawerMenu user ", user);
+                    let userLoggedin = user.data[0];
 
-                this.setState({
-                    userLoggedin: userLoggedin,
-                    formModal: false,
-                    infoModal: false,
-                });
+                    this.setState({
+                        userLoggedin: userLoggedin,
+                        formModal: false,
+                        infoModal: false,
+                    });
+                }
             })
     };
 

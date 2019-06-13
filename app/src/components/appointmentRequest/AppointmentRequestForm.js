@@ -7,6 +7,7 @@ import Button from "../submitButton/Button";
 import {List} from "react-native-paper";
 import moment from 'moment';
 import appointmentsStorage from "../../storage/appointmentsStorage";
+import mappers from "../../shared/mappers";
 
 
 export default class AppointmentRequestForm extends Component {
@@ -33,6 +34,7 @@ export default class AppointmentRequestForm extends Component {
             startTimeClicked: '',
             endTimeClicked: '',
             errorMsg: '',
+            errorHeader: '',
             errorVisible: false
         };
 
@@ -62,7 +64,8 @@ export default class AppointmentRequestForm extends Component {
             startTimeClicked: '',
             endTimeClicked: '',
             errorMsg: '',
-            errorVisible: true
+            errorHeader:'',
+            errorVisible: false
         });
 
         this.subjects = [];
@@ -152,9 +155,12 @@ export default class AppointmentRequestForm extends Component {
     sendAppointmentRequest() {
         if (this.state.datesAndHoursSelected.length === 0 ||
             this.state.subjectSelected.length === 0) {
-            this.setState({errorMsg: 'ישנו מידע חסר, השלם שדות חובה (שדות עם *)', errorVisible: true})
+            this.setState({
+                errorMsg: 'ישנו מידע חסר, השלם שדות חובה (שדות עם *)',
+                errorVisible: true,
+                errorHeader: 'שגיאה בעת מילוי טופס בקשת התור'
+            })
         } else {
-            this.setModalVisible(!this.state.modalVisible);
 
             let appointmentRequest = {
                 availableTime: this.state.datesAndHoursSelected,
@@ -163,11 +169,21 @@ export default class AppointmentRequestForm extends Component {
             };
 
             appointmentsStorage.postUserAppointmentRequest(this.props.userId, this.props.serviceProvider, appointmentRequest, this.props.userHeaders)
-                .then(() => {
-                    Alert.alert(
-                        'התראה',
-                        'הבקשה נשלחה בהצלחה',
-                    );
+                .then((response) => {
+                    if (response.response) {
+                        if (response.response.status !== 200)
+                            this.setState({
+                                errorVisible: true,
+                                errorHeader: 'קרתה שגיאה בעת שליחת בקשת התור',
+                                errorMsg: mappers.errorMapper(response.response)
+                            });
+                    } else {
+                        this.setModalVisible(!this.state.modalVisible);
+                        Alert.alert(
+                            'התראה',
+                            'הבקשה נשלחה בהצלחה',
+                        );
+                    }
                 })
         }
     }
@@ -344,7 +360,7 @@ export default class AppointmentRequestForm extends Component {
 
                         {
                             this.state.errorVisible === true ?
-                                <FormValidationMessage>{this.state.errorMsg}</FormValidationMessage>
+                                <FormValidationMessage>{this.state.errorHeader + ":\n" + this.state.errorMsg}</FormValidationMessage>
                                 : null
                         }
 

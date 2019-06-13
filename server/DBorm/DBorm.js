@@ -77,17 +77,26 @@ const Events = EventsModel(sequelize, Sequelize);
 
 Events.belongsTo(ScheduledAppointments, {
     foreignKey: 'eventId',
-    targetKey: 'appointmentId'
+    targetKey: 'appointmentId',
+    constraints: false
 });
 
 Events.belongsTo(UsersChores, {
     foreignKey: 'eventId',
-    targetKey: 'userChoreId'
+    targetKey: 'userChoreId',
+    constraints: false
 });
 
 Events.belongsTo(Announcements, {
     foreignKey: 'eventId',
-    targetKey: 'announcementId'
+    targetKey: 'announcementId',
+    constraints: false
+});
+
+Events.belongsTo(Incidents, {
+    foreignKey: 'eventId',
+    targetKey: 'incidentId',
+    constraints: false
 });
 
 Users.hasMany(AppointmentDetails, {

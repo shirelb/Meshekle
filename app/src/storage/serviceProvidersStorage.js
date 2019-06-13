@@ -10,6 +10,7 @@ var getServiceProviders = function (userHeaders) {
         })
         .catch(error => {
             console.log('get serviceProviders error ', error)
+            return error;
         });
 };
 
@@ -22,6 +23,7 @@ var getServiceProviderUserDetails = function (serviceProviderId, userHeaders) {
         })
         .catch(error => {
             console.log('get serviceProvider user details error ', error)
+            return error;
         });
 };
 

@@ -22,6 +22,10 @@ export default class UserAppointmentRequests extends Component {
             appointmentRequestDetails: {},
             noAppointmentRequestsFound: false,
             refreshing: false,
+
+            errorVisible: false,
+            errorHeader: '',
+            errorContent: ''
         };
 
     }
@@ -47,35 +51,52 @@ export default class UserAppointmentRequests extends Component {
     loadMyAppointmentsRequests() {
         appointmentsStorage.getUserAppointmentRequests(this.userId, this.userHeaders)
             .then((response) => {
-                let userAppointmentRequests = response.data;
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת הבאת בקשות התור',
+                            errorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    let userAppointmentRequests = response.data;
 
-                //console.log('userAppointmentRequests ', userAppointmentRequests);
+                    //console.log('userAppointmentRequests ', userAppointmentRequests);
 
-                if (userAppointmentRequests.length === 0) {
-                    this.setState({
-                        userAppointmentRequests: userAppointmentRequests,
-                    });
-                    this.userAppointmentRequests = userAppointmentRequests
-                } else
-                    userAppointmentRequests.forEach(appointmentRequest => {
-                        serviceProvidersStorage.getServiceProviderUserDetails(appointmentRequest.AppointmentDetail.serviceProviderId, this.userHeaders)
-                            .then(user => {
-                                console.log('userAppointmentRequests ', user);
+                    if (userAppointmentRequests.length === 0) {
+                        this.setState({
+                            userAppointmentRequests: userAppointmentRequests,
+                        });
+                        this.userAppointmentRequests = userAppointmentRequests
+                    } else
+                        userAppointmentRequests.forEach(appointmentRequest => {
+                            serviceProvidersStorage.getServiceProviderUserDetails(appointmentRequest.AppointmentDetail.serviceProviderId, this.userHeaders)
+                                .then(user => {
+                                    if (user.response) {
+                                        if (user.response.status !== 200)
+                                            this.setState({
+                                                errorVisible: true,
+                                                errorHeader: 'קרתה שגיאה בעת הבאת פרטי נותן השירות',
+                                                errorContent: mappers.errorMapper(user.response)
+                                            });
+                                    } else {
+                                        // console.log('userAppointmentRequests ', user);
 
-                                appointmentRequest.serviceProviderFullname = user.data.fullname;
-                                appointmentRequest.expanded = false;
+                                        appointmentRequest.serviceProviderFullname = user.data.fullname;
+                                        appointmentRequest.expanded = false;
 
-                                this.setState({
-                                    userAppointmentRequests: userAppointmentRequests,
-                                });
+                                        this.setState({
+                                            userAppointmentRequests: userAppointmentRequests,
+                                        });
 
-                                this.userAppointmentRequests = userAppointmentRequests
-                            })
-                    });
+                                        this.userAppointmentRequests = userAppointmentRequests;
+                                    }
+                                })
+                        });
 
-                this.setState({refreshing: false});
-            })
-            .catch(err => console.log("loadMyAppointmentsRequests error ", err))
+                    this.setState({refreshing: false});
+                }
+            });
     };
 
     renderSeparator = () => {
@@ -92,7 +113,7 @@ export default class UserAppointmentRequests extends Component {
     };
 
     updateSearch = search => {
-        console.log("in search ", search);
+        // console.log("in search ", search);
         // this.setState({search});
         let searchText = search.toLowerCase();
         let userAppointmentRequests = this.state.userAppointmentRequests;
@@ -122,13 +143,28 @@ export default class UserAppointmentRequests extends Component {
     cancelAppointmentRequest = (appointmentRequest) => {
         appointmentsStorage.cancelAppointmentRequestById(appointmentRequest, this.userHeaders)
             .then(response => {
-                console.log("user cancelAppointmentRequest ", response);
-                this.loadMyAppointmentsRequests();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת מחיקת בקשת התור',
+                            errorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log("user cancelAppointmentRequest ", response);
+                    this.loadMyAppointmentsRequests();
+                }
             })
     };
 
     onRefresh = () => {
-        this.setState({refreshing: true});
+        this.setState({
+            refreshing: true,
+
+            errorMsg: '',
+            errorHeader: '',
+            errorVisible: false
+        });
 
         this.loadMyAppointmentsRequests();
     };
@@ -234,6 +270,14 @@ export default class UserAppointmentRequests extends Component {
                         })
                         }
                     </List.Section>
+                }
+
+                {
+                    this.state.errorVisible === true ?
+                        <Text style={{color: 'red'}}>
+                            {this.state.errorHeader + ":\n" + this.state.errorContent}
+                        </Text>
+                        : null
                 }
 
                 {this.state.appointmentRequestDetails.requestId ?
