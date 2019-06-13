@@ -64,69 +64,67 @@ router.post('/user/set', function (req, res, next) {
 router.put('/user/cancel/userId/:userId/appointmentId/:appointmentId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            if (user.dataValues) {
-                ScheduledAppointments.findOne({
+            ScheduledAppointments.findOne({
+                where: {
+                    appointmentId: req.params.appointmentId,
+                },
+                include: {
+                    model: AppointmentDetails,
                     where: {
+                        clientId: req.params.userId,
                         appointmentId: req.params.appointmentId,
                     },
-                    include: {
-                        model: AppointmentDetails,
-                        where: {
-                            clientId: req.params.userId,
-                            appointmentId: req.params.appointmentId,
-                        },
-                        required: true
-                    }
-                })
-                    .then(appointment => {
-                        if (appointment) {
-                            if (appointment.status === "set") {
-                                appointment.update({
-                                    status: "canceled"
-                                });
-                                Events.destroy({
-                                    where: {
-                                        userId: req.params.userId,
-                                        eventType: "Appointments",
-                                        eventId: appointment.appointmentId
-                                    }
-                                })
-                                    .then((newEvent) => {
-                                        res.status(200).send({
-                                            "message": constants.usersRoute.SUCCESSFUL_CANCEL_APPOINTMENT,
-                                            appointment
-                                        });
-                                    })
-                                    .catch(err => {
-                                        console.log(err);
-                                        res.status(500).send(err);
-                                    });
-                            } else {
-                                appointment.status === "canceled" ?
-                                    res.status(400).send({
-                                        "message": constants.usersRoute.ALREADY_CANCELED_APPOINTMENT,
-                                        appointment
-                                    })
-                                    :
-                                    res.status(400).send({
-                                        "message": constants.usersRoute.PASSED_APPOINTMENT,
-                                        appointment
-                                    });
-                            }
-                        } else {
-                            res.status(400).send({
-                                "message": constants.usersRoute.APPOINTMENT_NOT_FOUND,
+                    required: true
+                }
+            })
+                .then(appointment => {
+                    if (appointment) {
+                        if (appointment.status === "set") {
+                            appointment.update({
+                                status: "canceled"
                             });
+                            Events.destroy({
+                                where: {
+                                    userId: req.params.userId,
+                                    eventType: "Appointments",
+                                    eventId: appointment.appointmentId
+                                }
+                            })
+                                .then((newEvent) => {
+                                    res.status(200).send({
+                                        "message": constants.usersRoute.SUCCESSFUL_CANCEL_APPOINTMENT,
+                                        appointment
+                                    });
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                });
+                        } else {
+                            appointment.status === "canceled" ?
+                                res.status(400).send({
+                                    "message": constants.usersRoute.ALREADY_CANCELED_APPOINTMENT,
+                                    appointment
+                                })
+                                :
+                                res.status(400).send({
+                                    "message": constants.usersRoute.PASSED_APPOINTMENT,
+                                    appointment
+                                });
                         }
-                    })
-                    .catch(err => {
-                        console.log(err);
+                    } else {
                         res.status(400).send({
                             "message": constants.usersRoute.APPOINTMENT_NOT_FOUND,
-                            err
                         });
-                    })
-            }
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(400).send({
+                        "message": constants.usersRoute.APPOINTMENT_NOT_FOUND,
+                        err
+                    });
+                })
         })
 });
 
@@ -134,30 +132,28 @@ router.put('/user/cancel/userId/:userId/appointmentId/:appointmentId', function 
 router.get('/user/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            if (user.dataValues) {
-                let whereClause = {};
-                req.query.status ? whereClause.status = req.query.status : null;
-                req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
-                ScheduledAppointments.findAll({
-                    where: whereClause,
-                    include: [
-                        {
-                            model: AppointmentDetails,
-                            where: {
-                                clientId: req.params.userId,
-                            },
-                            required: true
-                        }
-                    ]
+            let whereClause = {};
+            req.query.status ? whereClause.status = req.query.status : null;
+            req.query.appointmentId ? whereClause.appointmentId = req.query.appointmentId : null;
+            ScheduledAppointments.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: AppointmentDetails,
+                        where: {
+                            clientId: req.params.userId,
+                        },
+                        required: true
+                    }
+                ]
+            })
+                .then(userAppointments => {
+                    console.log(userAppointments);
+                    res.status(200).send(userAppointments);
                 })
-                    .then(userAppointments => {
-                        console.log(userAppointments);
-                        res.status(200).send(userAppointments);
-                    })
-                    .catch(err => {
-                        res.status(500).send(err);
-                    })
-            }
+                .catch(err => {
+                    res.status(500).send(err);
+                })
         })
 });
 
@@ -195,10 +191,6 @@ router.put('/serviceProvider/cancel/appointmentId/:appointmentId', function (req
                     console.log(err);
                     res.status(500).send(err);
                 });
-            // res.status(200).send({
-            //     "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
-            //     "result": isUpdated[0]
-            // });
         })
         .catch(err => {
             console.log(err);
@@ -221,7 +213,7 @@ router.get('/serviceProvider/serviceProviderId/:serviceProviderId', function (re
                     {
                         model: AppointmentDetails,
                         where: {
-                            serviceProviderId: typeof req.params.serviceProviderId==='string'? parseInt(req.params.serviceProviderId):req.params.serviceProviderId
+                            serviceProviderId: typeof req.params.serviceProviderId === 'string' ? parseInt(req.params.serviceProviderId) : req.params.serviceProviderId
                         },
                         required: true
                     }

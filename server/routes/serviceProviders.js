@@ -6,22 +6,12 @@ var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
 var moment = require('moment');
 var router = express.Router();
-var nodemailer = require('nodemailer');
-var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RolesModules} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, RolesModules} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
-
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'meshekle2019@gmail.com',
-        pass: 'geralemeshekle'
-    }
-});
 
 
 //Login from service provider by userId and password
@@ -488,7 +478,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + updatedUser.userId + "\nהסיסמא החדשה שלך::\n " + "\n" +  newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + updatedUser.userId + "\nהסיסמא החדשה שלך::\n " + "\n" + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {
@@ -500,22 +490,25 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
-    Users.destroy(
-        {
-            where: {
-                userId: req.params.userId
-            }
-        })
-        .then(numOfDeletes => {
-            if (numOfDeletes === 0) {
-                return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
-            }
-            res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            Users.destroy(
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(numOfDeletes => {
+                    if (numOfDeletes === 0) {
+                        return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
+                    }
+                    res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
 });
 
 // GET operation time of service provider with role.
@@ -606,8 +599,9 @@ let takeValues = (dic) => {
 
 
 function isServiceProviderInputValid(serviceProviderInput) {
-    if (serviceProviderInput.appointmentWayType & !isAppWayTypeExists(serviceProviderInput.appointmentWayType))
-        return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
+    if (serviceProviderInput.appointmentWayType)
+        if (!isAppWayTypeExists(serviceProviderInput.appointmentWayType))
+            return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
     if (!isRoleExists(serviceProviderInput.role))
         return serviceProvidersRoute.INVALID_ROLE_INPUT;
     if (serviceProviderInput.phoneNumber.match(/^[0-9]+$/) === null || serviceProviderInput.phoneNumber.length < 9 || serviceProviderInput.phoneNumber.length > 10)
@@ -623,8 +617,9 @@ function isUserInputValid(userInput) {
         return serviceProvidersRoute.INVALID_BORN_DATE_INPUT;
     if (isNaN(userInput.mailbox))
         return serviceProvidersRoute.INVALID_MAIL_BOX_INPUT;
-    //if (userInput.phone.match(/^[0-9]+$/) === null)
-    //  return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    if (userInput.phone)
+        if (userInput.phone.match(/^[0-9]+$/) === null)
+            return serviceProvidersRoute.INVALID_PHONE_INPUT;
     if (userInput.cellphone.match(/^[0-9]+$/) === null)
         return serviceProvidersRoute.INVALID_PHONE_INPUT;
     return '';
