@@ -26,15 +26,20 @@ class UserAdd extends React.Component {
     handleSubmit(user) {
         usersStorage.createUser(user, this.serviceProviderHeaders)
             .then(response => {
-                console.log('user created ', response);
-                this.props.history.goBack();
+                // console.log('user created ', response);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return response;
+                } else {
+                    this.props.history.goBack();
+                }
             });
     }
 
     handleCancel(e) {
         e.preventDefault();
 
-        console.log('you have canceled');
+        // console.log('you have canceled');
 
         this.props.history.goBack();
     }

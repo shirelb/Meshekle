@@ -106,15 +106,24 @@ class AppointmentForm extends Component {
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProviders => {
-                let serviceProvider = serviceProviders.filter(provider => provider.role === currentRole)[0];
-                JSON.parse(serviceProvider.subjects).map((subject, index) => {
-                    subjectOptions.push({key: index, text: subject, value: subject});
-                });
+                if (serviceProviders.response) {
+                    if (serviceProviders.response.status !== 200)
+                        this.setState({
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הבאת הנושאים של נותן השירות',
+                            formErrorContent: mappers.errorMapper(serviceProviders.response)
+                        });
+                } else {
+                    let serviceProvider = serviceProviders.filter(provider => provider.role === currentRole)[0];
+                    JSON.parse(serviceProvider.subjects).map((subject, index) => {
+                        subjectOptions.push({key: index, text: subject, value: subject});
+                    });
 
-                calledFromConstructor ?
-                    Object.assign(this.state, {subjectOptions: subjectOptions})
-                    :
-                    this.setState({subjectOptions: subjectOptions})
+                    calledFromConstructor ?
+                        Object.assign(this.state, {subjectOptions: subjectOptions})
+                        :
+                        this.setState({subjectOptions: subjectOptions})
+                }
             });
     };
 
