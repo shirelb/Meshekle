@@ -8,6 +8,7 @@ import usersStorage from "../../../storage/usersStorage";
 import moment from "moment";
 import 'moment/locale/he.js';
 import mappers from "../../../shared/mappers";
+import {APP_SOCKET} from "../../../shared/constants";
 
 moment.locale('he');
 
@@ -75,6 +76,14 @@ export default class AgendaCalendar extends Component {
                         }
                     });
             });
+
+        APP_SOCKET.on("getUserAppointments", this.loadItems.bind(this));
+        APP_SOCKET.on("getUserChore", this.loadItems.bind(this));
+    }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUserAppointments");
+        APP_SOCKET.off("getUserChore");
     }
 
     onRefresh = () => {
