@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions} from 'react-navigation';
+import {DrawerActions, NavigationActions, StackActions} from 'react-navigation';
 import {Linking, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
@@ -30,6 +30,7 @@ export default class DrawerMenu extends Component {
     };
 
     onLogoutPress = () => {
+        const navigation = this.props.navigation;
         phoneStorage.update('userData', {
             token: null,
             userId: null,
@@ -38,6 +39,13 @@ export default class DrawerMenu extends Component {
             .then(() => {
                 APP_SOCKET.emit('disconnectAppClient', {userId: this.userId});
                 this.props.navigation.navigate('Auth');
+                const resetAction = StackActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({routeName: 'LoginScreen'})
+                    ]
+                });
+                setTimeout(this.props.navigation.dispatch.bind(null, resetAction), 500);
             })
     };
 
