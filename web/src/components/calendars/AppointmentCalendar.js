@@ -63,8 +63,8 @@ export default class AppointmentCalendar extends Component {
             eventDrop: null,
 
             eventReceive: function (event) {
-                console.log('event, ' + event.title + ', was added, (need date here)');
-                console.log('eventReceive function');
+                // console.log('event, ' + event.title + ', was added, (need date here)');
+                // console.log('eventReceive function');
             },
 
             eventResize: null,
@@ -104,7 +104,7 @@ export default class AppointmentCalendar extends Component {
             $('#calendar').fullCalendar('updateEvent', appointmentRequestDropped);
         };
 
-        console.log("calendarHandler");
+        // console.log("calendarHandler");
         this.jq('#calendar').fullCalendar(this.fullcalendarConfig);
         $('#calendar').droppable();
         this.jq('#calendar').droppable();

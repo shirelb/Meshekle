@@ -10,6 +10,10 @@ class AppointmentAdd extends React.Component {
     constructor(props) {
         super(props);
 
+        if (this.props.userOptions === undefined)
+            this.props.getUsersForAppointmentForm();
+        if (this.props.serviceProviderRoles === undefined)
+            this.props.getServiceProviderRoles();
         if (this.props.location.state.slotInfo)
             this.state = {
                 slotInfo: this.props.location.state.slotInfo
@@ -30,22 +34,27 @@ class AppointmentAdd extends React.Component {
     }
 
     handleSubmit(appointment) {
-        var appointmentRequestEvent=this.state.appointmentRequestEvent;
-        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'),this.serviceProviderHeaders)
+        var appointmentRequestEvent = this.state.appointmentRequestEvent;
+        return serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'), this.serviceProviderHeaders)
             .then(roles => {
-                let serviceProviderRoles = roles;
+                if (roles.response) {
+                    if (roles.response.status !== 200)
+                        return roles;
+                } else
+                    return appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), roles, this.serviceProviderHeaders)
+                        .then((response) => {
+                            // console.log(response);
+                            if (response.response) {
+                                if (response.response.status !== 200)
+                                    return response;
+                            } else {
+                                if (appointmentRequestEvent)
+                                    this.props.approveAppointmentRequest(appointmentRequestEvent);
 
-                appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), serviceProviderRoles, this.serviceProviderHeaders)
-                    .then((response) => {
-                        console.log(response);
-
-                        if (appointmentRequestEvent)
-                            this.props.approveAppointmentRequest(appointmentRequestEvent);
-
-                        this.props.history.goBack()
-                    })
-
-            });
+                                this.props.history.goBack()
+                            }
+                        })
+            })
     }
 
     handleCancel(e) {

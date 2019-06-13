@@ -19,6 +19,7 @@ import ServiceProviderEdit from "../../components/serviceProvider/ServiceProvide
 import AppointmentEdit from "../../components/appointment/AppointmentEdit";
 import Datetime from 'react-datetime';
 import {CSVLink} from "react-csv";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -91,53 +92,62 @@ class AppointmentsReportPage extends React.Component {
     getServiceProviderAppointments() {
         appointmentsStorage.getServiceProviderAppointments(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
-                this.setState({appointments: []});
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    this.setState({appointments: []});
 
-                const appointments = response.data;
-                const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
+                    const appointments = response.data;
+                    const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
 
-                if (appointments.length === 0) {
-                    this.setState({
-                        appointments: appointments,
-                    });
-                } else
-                    appointments.map((appointment, index) => {
-                        usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                            .then(user => {
-                                appointment.clientName = user.fullname;
+                    if (appointments.length === 0) {
+                        this.setState({
+                            appointments: appointments,
+                        });
+                    } else
+                        appointments.map((appointment, index) => {
+                            usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                                .then(user => {
+                                    if (user.response) {
+                                        if (user.response.status !== 200)
+                                            return;
+                                    } else {
+                                        appointment.clientName = user.fullname;
 
-                                let appointmentTableRecord = {
-                                    appointmentId: appointment.appointmentId,
-                                    clientId: appointment.AppointmentDetail.clientId,
-                                    clientName: user.fullname,
-                                    serviceProviderId: appointment.AppointmentDetail.serviceProviderId,
-                                    role: strings.roles[appointment.AppointmentDetail.role],
-                                    subject: JSON.parse(appointment.AppointmentDetail.subject).join(", "),
-                                    status: mappers.appointmentStatusMapper(appointment.status),
-                                    date: moment(appointment.startDateAndTime).format('DD/MM/YYYY'),
-                                    startTime: moment(appointment.startDateAndTime).format('HH:mm'),
-                                    endTime: moment(appointment.endDateAndTime).format('HH:mm'),
-                                    remarks: appointment.remarks,
-                                    appointmentResource: appointment,
-                                };
+                                        let appointmentTableRecord = {
+                                            appointmentId: appointment.appointmentId,
+                                            clientId: appointment.AppointmentDetail.clientId,
+                                            clientName: user.fullname,
+                                            serviceProviderId: appointment.AppointmentDetail.serviceProviderId,
+                                            role: strings.roles[appointment.AppointmentDetail.role],
+                                            subject: JSON.parse(appointment.AppointmentDetail.subject).join(", "),
+                                            status: mappers.appointmentStatusMapper(appointment.status),
+                                            date: moment(appointment.startDateAndTime).format('DD/MM/YYYY'),
+                                            startTime: moment(appointment.startDateAndTime).format('HH:mm'),
+                                            endTime: moment(appointment.endDateAndTime).format('HH:mm'),
+                                            remarks: appointment.remarks,
+                                            appointmentResource: appointment,
+                                        };
 
-                                let appointmentTableRecords = this.state.appointments;
-                                appointmentTableRecords.push(appointmentTableRecord);
-                                this.setState({
-                                    appointments: appointmentTableRecords
+                                        let appointmentTableRecords = this.state.appointments;
+                                        appointmentTableRecords.push(appointmentTableRecord);
+                                        this.setState({
+                                            appointments: appointmentTableRecords
+                                        });
+
+                                        this.appointments = appointmentTableRecords;
+                                    }
                                 });
+                        });
+                    this.appointments = appointments;
 
-                                this.appointments = appointmentTableRecords;
-                            });
+                    this.setState({
+                        // appointments: appointments,
+                        page: 0,
+                        totalPages,
                     });
-                this.appointments = appointments;
-
-                this.setState({
-                    // appointments: appointments,
-                    page: 0,
-                    totalPages,
-                });
-
+                }
             });
     }
 
@@ -240,6 +250,50 @@ class AppointmentsReportPage extends React.Component {
         return this.state.appointments.map(appointment => {
             return _.pick(appointment, ['clientId', "clientName", "role", "subject", "status", "date", "startTime", "endTime", "remarks"])
         });
+    };
+
+    getUsersForAppointmentForm = () => {
+        let userOptions = {};
+
+        usersStorage.getUsers(this.serviceProviderHeaders)
+            .then(users => {
+                if (users.response) {
+                    if (users.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('users ', users);
+                    if (Array.isArray(users))
+                        userOptions = users.filter(u => u.active).map(item =>
+                            ({
+                                key: item.userId,
+                                text: item.fullname,
+                                value: item.fullname
+                            })
+                        );
+                    this.setState({userOptions: userOptions})
+                }
+            });
+    };
+
+    getServiceProviderRoles = () => {
+        let serviceProviderRoles = {};
+        this.setState({serviceProviderRoles: {}});
+
+        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+            .then(serviceProvidersFound => {
+                if (serviceProvidersFound.response) {
+                    if (serviceProvidersFound.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('serviceProvidersFound ', serviceProvidersFound);
+                    if (Array.isArray(serviceProvidersFound)) {
+                        serviceProviderRoles = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item) =>
+                            item.role
+                        );
+                        this.setState({serviceProviderRoles: serviceProviderRoles})
+                    }
+                }
+            });
     };
 
     render() {
@@ -572,7 +626,15 @@ class AppointmentsReportPage extends React.Component {
                         <Route exec path={`${this.props.match.url}/serviceProvider/settings`}
                                component={ServiceProviderEdit}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
-                               component={AppointmentEdit}/>
+                               render={(props) => (
+                                   <AppointmentEdit
+                                       {...props}
+                                       userOptions={this.state.userOptions}
+                                       getUsersForAppointmentForm={this.getUsersForAppointmentForm}
+                                       serviceProviderRoles={this.state.serviceProviderRoles}
+                                       getServiceProviderRoles={this.getServiceProviderRoles}
+                                   />
+                               )}/>
 
                         {/*{*/}
                         {/*(this.props.location.pathname === window.location.pathname) ?*/}
