@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions} from 'react-navigation';
-import {View,Linking } from 'react-native';
+import {DrawerActions, NavigationActions, StackActions} from 'react-navigation';
+import {Linking, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'
@@ -30,6 +30,7 @@ export default class DrawerMenu extends Component {
     };
 
     onLogoutPress = () => {
+        const navigation = this.props.navigation;
         phoneStorage.update('userData', {
             token: null,
             userId: null,
@@ -38,6 +39,13 @@ export default class DrawerMenu extends Component {
             .then(() => {
                 APP_SOCKET.emit('disconnectAppClient', {userId: this.userId});
                 this.props.navigation.navigate('Auth');
+                const resetAction = StackActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({routeName: 'LoginScreen'})
+                    ]
+                });
+                setTimeout(this.props.navigation.dispatch.bind(null, resetAction), 500);
             })
     };
 
@@ -64,14 +72,19 @@ export default class DrawerMenu extends Component {
     loadUser() {
         usersStorage.getUserById(this.userId, this.userHeaders)
             .then(user => {
-                console.log("DrawerMenu user ", user);
-                let userLoggedin = user.data[0];
+                if (user.response) {
+                    if (user.response.status !== 200) {
+                    }
+                } else {
+                    // console.log("DrawerMenu user ", user);
+                    let userLoggedin = user.data[0];
 
-                this.setState({
-                    userLoggedin: userLoggedin,
-                    formModal: false,
-                    infoModal: false,
-                });
+                    this.setState({
+                        userLoggedin: userLoggedin,
+                        formModal: false,
+                        infoModal: false,
+                    });
+                }
             })
     };
 

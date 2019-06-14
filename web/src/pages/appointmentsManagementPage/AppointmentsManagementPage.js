@@ -81,18 +81,23 @@ class AppointmentsManagementPage extends React.Component {
     getUsersForAppointmentForm = () => {
         let userOptions = {};
 
-        usersStorage.getUsers()
+        usersStorage.getUsers(this.serviceProviderHeaders)
             .then(users => {
-                // console.log('users ', users);
-                if (Array.isArray(users))
-                    userOptions = users.filter(u => u.active).map(item =>
-                        ({
-                            key: item.userId,
-                            text: item.fullname,
-                            value: item.fullname
-                        })
-                    )
-                this.setState({userOptions: userOptions})
+                if (users.response) {
+                    if (users.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('users ', users);
+                    if (Array.isArray(users))
+                        userOptions = users.filter(u => u.active).map(item =>
+                            ({
+                                key: item.userId,
+                                text: item.fullname,
+                                value: item.fullname
+                            })
+                        );
+                    this.setState({userOptions: userOptions})
+                }
             });
     };
 
@@ -103,41 +108,45 @@ class AppointmentsManagementPage extends React.Component {
 
         appointmentsStorage.getServiceProviderAppointmentRequests(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
-                const appointmentRequests = response.data;
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    const appointmentRequests = response.data;
 
-                if (appointmentRequests.length === 0) {
-                    this.setState({
-                        appointmentRequests: appointmentRequests,
-                    });
-                } else
-                    appointmentRequests.map((appointmentRequest, index) => {
-                        usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                            .then(user => {
-                                appointmentRequest.clientName = user.fullname;
-                                appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
+                    if (appointmentRequests.length === 0) {
+                        this.setState({
+                            appointmentRequests: appointmentRequests,
+                        });
+                    } else
+                        appointmentRequests.map((appointmentRequest, index) => {
+                            usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                                .then(user => {
+                                    appointmentRequest.clientName = user.fullname;
+                                    appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
 
-                                let appointmentRequestEvent = {
-                                    id: appointmentRequest.requestId,
-                                    title: appointmentRequest.clientName,
-                                    allDay: false,
-                                    start: null,
-                                    end: null,
-                                    appointmentRequest: appointmentRequest,
-                                    // color:'#b7d2ff',
-                                    backgroundColor: hex2rgba(colorEventByRole[appointmentRequest.AppointmentDetail.role], 0.5),
-                                };
+                                    let appointmentRequestEvent = {
+                                        id: appointmentRequest.requestId,
+                                        title: appointmentRequest.clientName,
+                                        allDay: false,
+                                        start: null,
+                                        end: null,
+                                        appointmentRequest: appointmentRequest,
+                                        // color:'#b7d2ff',
+                                        backgroundColor: hex2rgba(colorEventByRole[appointmentRequest.AppointmentDetail.role], 0.5),
+                                    };
 
-                                let appointmentRequestsEvents = this.state.appointmentRequests;
-                                if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
-                                    appointmentRequestsEvents.push(appointmentRequestEvent);
-                                    this.setState({
-                                        appointmentRequests: appointmentRequestsEvents
-                                    });
-                                }
+                                    let appointmentRequestsEvents = this.state.appointmentRequests;
+                                    if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
+                                        appointmentRequestsEvents.push(appointmentRequestEvent);
+                                        this.setState({
+                                            appointmentRequests: appointmentRequestsEvents
+                                        });
+                                    }
 
-                            });
-                    });
-
+                                });
+                        });
+                }
             });
     }
 
@@ -156,46 +165,55 @@ class AppointmentsManagementPage extends React.Component {
     getServiceProviderAppointments() {
         appointmentsStorage.getServiceProviderAppointments(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
-                this.setState({
-                    appointments: [],
-                    appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
-                });
-
-                const appointments = response.data;
-
-                if (appointments.length === 0) {
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
                     this.setState({
-                        appointments: appointments,
-                    });
-                } else
-                    appointments.map((appointment, index) => {
-                        usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                            .then(user => {
-                                let appointmentEvent = {};
-                                appointment.clientName = user.fullname;
-
-                                appointmentEvent.id = appointment.appointmentId;
-                                appointmentEvent.title = user.fullname;
-                                appointmentEvent.allDay = false;
-                                appointmentEvent.start = moment(appointment.startDateAndTime);
-                                appointmentEvent.end = moment(appointment.endDateAndTime);
-                                appointmentEvent.appointment = appointment;
-                                appointmentEvent.backgroundColor = colorEventByRole[appointment.AppointmentDetail.role];
-
-                                let appointmentsEvents = this.state.appointments;
-                                appointmentsEvents.push(appointmentEvent);
-                                this.setState({
-                                    appointments: appointmentsEvents
-                                });
-
-                                let appointmentByRoleCount = this.state.appointmentByRoleCount;
-                                appointmentByRoleCount[appointment.AppointmentDetail.role] = appointmentByRoleCount[appointment.AppointmentDetail.role] + 1;
-                                this.setState({
-                                    appointmentByRoleCount: appointmentByRoleCount
-                                });
-                            });
+                        appointments: [],
+                        appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
                     });
 
+                    const appointments = response.data;
+
+                    if (appointments.length === 0) {
+                        this.setState({
+                            appointments: appointments,
+                        });
+                    } else
+                        appointments.map((appointment, index) => {
+                            usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                                .then(user => {
+                                    if (user.response) {
+                                        if (user.response.status !== 200)
+                                            return;
+                                    } else {
+                                        let appointmentEvent = {};
+                                        appointment.clientName = user.fullname;
+
+                                        appointmentEvent.id = appointment.appointmentId;
+                                        appointmentEvent.title = user.fullname;
+                                        appointmentEvent.allDay = false;
+                                        appointmentEvent.start = moment(appointment.startDateAndTime);
+                                        appointmentEvent.end = moment(appointment.endDateAndTime);
+                                        appointmentEvent.appointment = appointment;
+                                        appointmentEvent.backgroundColor = colorEventByRole[appointment.AppointmentDetail.role];
+
+                                        let appointmentsEvents = this.state.appointments;
+                                        appointmentsEvents.push(appointmentEvent);
+                                        this.setState({
+                                            appointments: appointmentsEvents
+                                        });
+
+                                        let appointmentByRoleCount = this.state.appointmentByRoleCount;
+                                        appointmentByRoleCount[appointment.AppointmentDetail.role] = appointmentByRoleCount[appointment.AppointmentDetail.role] + 1;
+                                        this.setState({
+                                            appointmentByRoleCount: appointmentByRoleCount
+                                        });
+                                    }
+                                });
+                        });
+                }
             });
     }
 
@@ -205,12 +223,17 @@ class AppointmentsManagementPage extends React.Component {
 
         serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
             .then(serviceProvidersFound => {
-                // console.log('serviceProvidersFound ', serviceProvidersFound);
-                if (Array.isArray(serviceProvidersFound)) {
-                    serviceProviderRoles = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item) =>
-                        item.role
-                    );
-                    this.setState({serviceProviderRoles: serviceProviderRoles})
+                if (serviceProvidersFound.response) {
+                    if (serviceProvidersFound.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('serviceProvidersFound ', serviceProvidersFound);
+                    if (Array.isArray(serviceProvidersFound)) {
+                        serviceProviderRoles = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item) =>
+                            item.role
+                        );
+                        this.setState({serviceProviderRoles: serviceProviderRoles})
+                    }
                 }
             });
     };
@@ -277,12 +300,16 @@ class AppointmentsManagementPage extends React.Component {
         var appointmentRequests = this.state.appointmentRequests;
         appointmentsStorage.approveAppointmentRequestById(appointmentRequestEventDropped.appointmentRequest, this.serviceProviderHeaders)
             .then(response => {
-                console.log('appointmentRequest approved ', response);
-
-                let updatedAppointmentsRequests = appointmentRequests.filter(function (obj) {
-                    return obj.appointmentRequest.requestId !== appointmentRequestEventDropped.appointmentRequest.requestId;
-                });
-                this.setState({appointmentRequests: updatedAppointmentsRequests})
+                // console.log('appointmentRequest approved ', response);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    let updatedAppointmentsRequests = appointmentRequests.filter(function (obj) {
+                        return obj.appointmentRequest.requestId !== appointmentRequestEventDropped.appointmentRequest.requestId;
+                    });
+                    this.setState({appointmentRequests: updatedAppointmentsRequests})
+                }
             });
     };
 
@@ -330,9 +357,14 @@ class AppointmentsManagementPage extends React.Component {
 
         appointmentsStorage.updateAppointment(event, this.serviceProviderHeaders)
             .then((response) => {
-                this.setState({
-                    appointments: nextEvents,
-                })
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    this.setState({
+                        appointments: nextEvents,
+                    })
+                }
             })
     };
 
@@ -449,7 +481,9 @@ class AppointmentsManagementPage extends React.Component {
                                 {...props}
                                 approveAppointmentRequest={(appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent)}
                                 userOptions={this.state.userOptions}
+                                getUsersForAppointmentForm={this.getUsersForAppointmentForm}
                                 serviceProviderRoles={this.state.serviceProviderRoles}
+                                getServiceProviderRoles={this.getServiceProviderRoles}
                             />
                         )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId`}
@@ -457,7 +491,9 @@ class AppointmentsManagementPage extends React.Component {
                                    <AppointmentInfo
                                        {...props}
                                        userOptions={this.state.userOptions}
+                                       getUsersForAppointmentForm={this.getUsersForAppointmentForm}
                                        serviceProviderRoles={this.state.serviceProviderRoles}
+                                       getServiceProviderRoles={this.getServiceProviderRoles}
                                    />
                                )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
@@ -465,7 +501,9 @@ class AppointmentsManagementPage extends React.Component {
                                    <AppointmentEdit
                                        {...props}
                                        userOptions={this.state.userOptions}
+                                       getUsersForAppointmentForm={this.getUsersForAppointmentForm}
                                        serviceProviderRoles={this.state.serviceProviderRoles}
+                                       getServiceProviderRoles={this.getServiceProviderRoles}
                                    />
                                )}/>
 

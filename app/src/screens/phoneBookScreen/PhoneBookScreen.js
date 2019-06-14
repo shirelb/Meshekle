@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, RefreshControl, ScrollView, StyleSheet, View} from 'react-native';
+import {FlatList, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
 import UserProfileInfo from "../../components/userProfile/UserProfileInfo";
@@ -19,7 +19,11 @@ export default class PhoneBookScreen extends Component {
             infoModal: false,
             userSelected: {},
             noUserFound: false,
-            refreshing: false
+            refreshing: false,
+
+            errorVisible: false,
+            errorHeader: false,
+            errorContent: false,
         };
 
         this.users = [];
@@ -50,39 +54,56 @@ export default class PhoneBookScreen extends Component {
     loadUsers() {
         usersStorage.getUsers(this.userHeaders)
             .then(users => {
-                // console.log("phonebook users ", users);
-
-                users.forEach(user => {
-                    if (user.ServiceProviders.length > 0) {
-                        let roles = [];
-                        user.ServiceProviders.forEach(provider => {
-                            if (provider.active)
-                                roles.push(mappers.serviceProviderRolesMapper(provider.role));
+                if (users.response) {
+                    if (users.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת הבאת המשתמשים',
+                            errorContent: mappers.errorMapper(users.response)
                         });
-                        user.roles = roles;
-                    }
-                });
+                } else {
+                    // console.log("phonebook users ", users);
 
-                this.setState({
-                    users: users.filter(user => user.active === true).sort((a, b) => a.fullname !== b.fullname ? a.fullname < b.fullname ? -1 : 1 : 0),
-                    refreshing: false
-                });
+                    users.forEach(user => {
+                        if (user.ServiceProviders.length > 0) {
+                            let roles = [];
+                            user.ServiceProviders.forEach(provider => {
+                                if (provider.active)
+                                    roles.push(mappers.serviceProviderRolesMapper(provider.role));
+                            });
+                            user.roles = roles;
+                        }
+                    });
 
-                this.users = users;
+                    this.setState({
+                        users: users.filter(user => user.active === true).sort((a, b) => a.fullname !== b.fullname ? a.fullname < b.fullname ? -1 : 1 : 0),
+                        refreshing: false
+                    });
 
+                    this.users = users;
+                }
             })
     };
 
     loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders(this.userHeaders)
             .then(serviceProviders => {
-                // let serviceProviders = response.data;
+                if (serviceProviders.response) {
+                    if (serviceProviders.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת הבאת נותני השירות',
+                            errorContent: mappers.errorMapper(serviceProviders.response)
+                        });
+                } else {
+                    // let serviceProviders = response.data;
 
-                this.setState({
-                    serviceProviders: serviceProviders,
-                });
+                    this.setState({
+                        serviceProviders: serviceProviders,
+                    });
 
-                this.serviceProviders = serviceProviders;
+                    this.serviceProviders = serviceProviders;
+                }
             })
     };
 
@@ -175,7 +196,13 @@ export default class PhoneBookScreen extends Component {
     };
 
     onRefresh = () => {
-        this.setState({refreshing: true});
+        this.setState({
+            refreshing: true,
+
+            errorMsg: '',
+            errorHeader: '',
+            errorVisible: false
+        });
 
         this.loadUsers();
     };
@@ -199,6 +226,15 @@ export default class PhoneBookScreen extends Component {
                         />
                     }
                 </List>
+
+                {
+                    this.state.errorVisible === true ?
+                        <Text style={{color: 'red'}}>
+                            {this.state.errorHeader + ":\n" + this.state.errorContent}
+                        </Text>
+                        : null
+                }
+
                 <UserProfileInfo
                     modalVisible={this.state.infoModal}
                     user={this.state.userSelected}

@@ -29,7 +29,7 @@ module.exports = {
     },
     serviceProvidersRoute:{
         USER_NOT_FOUND: "User not found!",
-        APPOINTMENT_NOT_FOUND: "User not found!",
+        APPOINTMENT_NOT_FOUND: "Appointment not found!",
         SERVICE_PROVIDER_ALREADY_EXISTS: "Service provider already exists",
 
         AUTHENTICATION_FAIL: "Authentication failed due to incorrect parameters",

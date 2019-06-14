@@ -7,6 +7,7 @@ import Button from "../submitButton/Button";
 import {List} from "react-native-paper";
 import moment from 'moment';
 import appointmentsStorage from "../../storage/appointmentsStorage";
+import mappers from "../../shared/mappers";
 
 
 export default class AppointmentRequestForm extends Component {
@@ -33,6 +34,7 @@ export default class AppointmentRequestForm extends Component {
             startTimeClicked: '',
             endTimeClicked: '',
             errorMsg: '',
+            errorHeader: '',
             errorVisible: false
         };
 
@@ -62,7 +64,8 @@ export default class AppointmentRequestForm extends Component {
             startTimeClicked: '',
             endTimeClicked: '',
             errorMsg: '',
-            errorVisible: true
+            errorHeader: '',
+            errorVisible: false
         });
 
         this.subjects = [];
@@ -127,6 +130,7 @@ export default class AppointmentRequestForm extends Component {
 
     handleEndTimePicked = (selectedTime) => {
         const time = moment(selectedTime).format('HH:mm');
+
         let datestimes = this.state.datesAndHoursSelected;
         datestimes.forEach(dateTime => {
             if (dateTime.date === this.state.dateClicked)
@@ -149,12 +153,33 @@ export default class AppointmentRequestForm extends Component {
         });
     };
 
+    isAllStartTimeAreBeforeAllEndTime = () => {
+        let datestimes = this.state.datesAndHoursSelected;
+        for (let dateTime of datestimes) {
+            for (let times of dateTime['hours']) {
+                if (!moment(times.startHour, 'h:mma').isBefore(moment(times.endHour, 'h:mma'))) {
+                   return false;
+                }
+            }
+        }
+        return true;
+    };
+
     sendAppointmentRequest() {
         if (this.state.datesAndHoursSelected.length === 0 ||
             this.state.subjectSelected.length === 0) {
-            this.setState({errorMsg: 'ישנו מידע חסר, השלם שדות חובה (שדות עם *)', errorVisible: true})
+            this.setState({
+                errorMsg: 'ישנו מידע חסר, השלם שדות חובה (שדות עם *)',
+                errorVisible: true,
+                errorHeader: 'שגיאה בעת מילוי טופס בקשת התור'
+            })
+        } else if (!this.isAllStartTimeAreBeforeAllEndTime()) {
+            this.setState({
+                errorMsg: 'ישנן שעות נבחרות בהן שעת ההתחלה באה אחרי שעת הסיום',
+                errorVisible: true,
+                errorHeader: 'שגיאה בעת מילוי טופס בקשת התור'
+            })
         } else {
-            this.setModalVisible(!this.state.modalVisible);
 
             let appointmentRequest = {
                 availableTime: this.state.datesAndHoursSelected,
@@ -163,11 +188,21 @@ export default class AppointmentRequestForm extends Component {
             };
 
             appointmentsStorage.postUserAppointmentRequest(this.props.userId, this.props.serviceProvider, appointmentRequest, this.props.userHeaders)
-                .then(() => {
-                    Alert.alert(
-                        'התראה',
-                        'הבקשה נשלחה בהצלחה',
-                    );
+                .then((response) => {
+                    if (response.response) {
+                        if (response.response.status !== 200)
+                            this.setState({
+                                errorVisible: true,
+                                errorHeader: 'קרתה שגיאה בעת שליחת בקשת התור',
+                                errorMsg: mappers.errorMapper(response.response)
+                            });
+                    } else {
+                        this.setModalVisible(!this.state.modalVisible);
+                        Alert.alert(
+                            'התראה',
+                            'הבקשה נשלחה בהצלחה',
+                        );
+                    }
                 })
         }
     }
@@ -241,7 +276,8 @@ export default class AppointmentRequestForm extends Component {
                                             return <List.Item
                                                 key={j}
                                                 title={hour.startHour + '-' + hour.endHour}
-                                                // description={item.remarks}
+                                                description={(!moment(hour.startHour, 'h:mma').isBefore(moment(hour.endHour, 'h:mma')) ? "שעת התחלה צריכה להיות לפני שעת סוף" : '')}
+                                                descriptionStyle={{color: 'red'}}
                                                 containerStyle={{borderBottomWidth: 0}}
                                                 right={props => <Icon {...props}
                                                                       name="delete-forever"
@@ -344,7 +380,7 @@ export default class AppointmentRequestForm extends Component {
 
                         {
                             this.state.errorVisible === true ?
-                                <FormValidationMessage>{this.state.errorMsg}</FormValidationMessage>
+                                <FormValidationMessage>{this.state.errorHeader + ":\n" + this.state.errorMsg}</FormValidationMessage>
                                 : null
                         }
 
