@@ -4,12 +4,12 @@ import {Grid, Header, Image} from 'semantic-ui-react';
 export default class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = {asError: false};
     }
 
     componentDidCatch(error, info) {
         // Display fallback UI
-        this.setState({ hasError: true });
+        this.setState({hasError: true});
         // You can also log the error to an error reporting service
         //TODO complete logErrorToMyService(error, info);
     }
@@ -26,7 +26,7 @@ export default class ErrorBoundary extends React.Component {
                     </Header>
 
                     <div style={{marginTop: 20, textAlign: "center"}}>
-                        <Header as={'h2'}> Something Went Wrong. Please go back or refresh</Header>
+                        <Header as={'h2'}>קרתה שגיאה. יש לחזור אחורה או לרענן </Header>
                     </div>
                 </Grid.Column>
             </Grid>

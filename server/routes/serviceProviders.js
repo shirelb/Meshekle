@@ -6,6 +6,8 @@ var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
 var moment = require('moment');
 var router = express.Router();
+var nodemailer = require('nodemailer');
+var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, RulesModules, Categories} = require('../DBorm/DBorm');
@@ -463,7 +465,7 @@ router.post('/users/add', function (req, res, next) {
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
                     helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + newUser.userId + "\nהסיסמא שלך: " + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + newUser.userId + "\nהסיסמא שלך: :\n" + "\n" + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -500,7 +502,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: " + updatedUser.userId + "\nהסיסמא החדשה שלך: " + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
+                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + updatedUser.userId + "\nהסיסמא החדשה שלך::\n " + "\n" + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {
@@ -512,22 +514,25 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
-    Users.destroy(
-        {
-            where: {
-                userId: req.params.userId
-            }
-        })
-        .then(numOfDeletes => {
-            if (numOfDeletes === 0) {
-                return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
-            }
-            res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            Users.destroy(
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(numOfDeletes => {
+                    if (numOfDeletes === 0) {
+                        return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
+                    }
+                    res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
 });
 
 // GET operation time of service provider with role.
@@ -584,7 +589,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             const rolesList = roles.map(role => role.dataValues.role);
-            RulesModules.findAll({
+            RolesModules.findAll({
                 attributes: ['module'],
                 where: {
                     role: {
@@ -634,8 +639,9 @@ function isUserInputValid(userInput) {
         return serviceProvidersRoute.INVALID_BORN_DATE_INPUT;
     if (isNaN(userInput.mailbox))
         return serviceProvidersRoute.INVALID_MAIL_BOX_INPUT;
-    if (userInput.phone.match(/^[0-9]+$/) === null)
-     return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    if (userInput.phone)
+        if (userInput.phone.match(/^[0-9]+$/) === null)
+            return serviceProvidersRoute.INVALID_PHONE_INPUT;
     if (userInput.cellphone.match(/^[0-9]+$/) === null)
         return serviceProvidersRoute.INVALID_PHONE_INPUT;
     return '';

@@ -10,6 +10,7 @@ var getUserEvents = function (userId, userHeaders) {
         })
         .catch(error => {
             console.log('get user events error ', error)
+            return error;
         });
 };
 
@@ -22,6 +23,7 @@ var getUserById = function (userId, userHeaders) {
         })
         .catch(error => {
             console.log('get user by id error ', error)
+            return error;
         });
 };
 
@@ -30,10 +32,11 @@ var getUsers = function (userHeaders) {
         {headers: userHeaders}
     )
         .then(response => {
-            return response.data.filter(user => user.userId !== 1 && user.userId !== "1");
+            return response.data.filter(user => user.userId !== 1 && user.userId !== "1").filter(user => user.active === true);
         })
         .catch(error => {
             console.log('get user by id error ', error)
+            return error;
         });
 };
 
@@ -77,6 +80,7 @@ var updateUserById = function (updatedUser, userHeaders) {
         })
         .catch(error => {
             console.log('get user by id error ', error)
+            return error;
         });
 };
 
@@ -96,7 +100,7 @@ var forgetPassword = function (userDetailsRemembered) {
         })
         .catch(error => {
             console.log('forgetPassword error ', error);
-            return null;
+            return error;
         });
 };
 

@@ -290,6 +290,7 @@ describe('service providers route', function () {
                 );
 
         });
+
         it('it should GET all the service providers with given role', (done) => {
             chai.request(server)
                 .get('/api/serviceProviders/role/' + constants.roles.PHONE_BOOK_SECRETARY_ROLE)
@@ -524,6 +525,9 @@ describe('service providers route', function () {
         });
 
         after((done) => {
+            serviceProviderTest.role= constants.roles.APPOINTMENTS_DENTIST_ROLE;
+            serviceProviderTest.userId=  '111111111';
+            serviceProviderTest.appointmentWayType= constants.appointmentWayTypes.DIALOG_WAY_TYPE;
             deleteUser(userTest)
                 .then(
                     deleteServiceProvider(serviceProviderTest)
@@ -849,7 +853,7 @@ describe('service providers route', function () {
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.USER_NOT_FOUND);
+                    res.body.message.should.be.eql(constants.usersRoute.USER_NOT_FOUND);
                     done();
                 });
         });
@@ -1024,10 +1028,7 @@ describe('service providers route', function () {
                         .then(
                             createRoleModule(roleModuleTest)
                                 .then(
-                                    createPermission(permissionTest)
-                                        .then(
-                                            done()
-                                        )
+                                    done()
                                 )
                         )
                 );
@@ -1061,10 +1062,7 @@ describe('service providers route', function () {
                         .then(
                             deleteRoleModule(roleModuleTest)
                                 .then(
-                                    deletePermission(permissionTest)
-                                        .then(
-                                            done()
-                                        )
+                                    done()
                                 )
                         )
                 );
@@ -1099,28 +1097,14 @@ function deleteServiceProvider(serviceProviderTest) {
 }
 
 function createRoleModule(roleModule) {
-    return RulesModules.create(roleModule);
+    return RolesModules.create(roleModule);
 }
 
 function deleteRoleModule(roleModule) {
-    return RulesModules.destroy({
+    return RolesModules.destroy({
         where: {
             role: roleModule.role,
             module: roleModule.module
-        }
-    });
-}
-
-function createPermission(permission) {
-    return Permissions.create(permission);
-}
-
-function deletePermission(permission) {
-    return Permissions.destroy({
-        where: {
-            module: permission.module,
-            operationName: permission.operationName,
-            api: permission.api,
         }
     });
 }

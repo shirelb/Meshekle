@@ -9,8 +9,6 @@ export default class UserProfileInfo extends Component {
     constructor(props) {
         super(props);
 
-        console.log('this.props. ', this.props);
-
         this.state = {
             modalVisible: this.props.modalVisible,
             user: this.props.user,

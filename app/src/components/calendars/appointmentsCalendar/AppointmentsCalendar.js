@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {RefreshControl, ScrollView, StyleSheet} from 'react-native';
+import {RefreshControl, ScrollView, StyleSheet, Text} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import '../localConfig';
 import moment from 'moment';
@@ -8,6 +8,7 @@ import appointmentsStorage from "../../../storage/appointmentsStorage";
 import {APP_SOCKET} from "../../../shared/constants";
 import AppointmentsDayInfo from "../../appointments/AppointmentsDayInfo";
 import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
+import mappers from "../../../shared/mappers";
 
 export default class AppointmentsCalendar extends Component {
     constructor(props) {
@@ -19,6 +20,10 @@ export default class AppointmentsCalendar extends Component {
             dateModalVisible: false,
             expanded: {},
             refreshing: false,
+
+            errorVisible: false,
+            errorHeader: '',
+            errorContent: ''
         };
 
         this.userHeaders = {};
@@ -45,20 +50,29 @@ export default class AppointmentsCalendar extends Component {
     loadAppointments = () => {
         appointmentsStorage.getUserAppointments(this.userId, this.userHeaders)
             .then(response => {
-                let markedDates = {};
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת הבאת התורים',
+                            errorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    let markedDates = {};
 
-                response.data.forEach(appointment => {
-                    const date = moment(appointment.startDateAndTime).format('YYYY-MM-DD');
-                    if (markedDates[date] === undefined || markedDates[date] === null) {
-                        markedDates[date] = {marked: true, selected: false, appointments: []};
-                    }
-                    markedDates[date].appointments.push(appointment);
-                });
+                    response.data.forEach(appointment => {
+                        const date = moment(appointment.startDateAndTime).format('YYYY-MM-DD');
+                        if (markedDates[date] === undefined || markedDates[date] === null) {
+                            markedDates[date] = {marked: true, selected: false, appointments: []};
+                        }
+                        markedDates[date].appointments.push(appointment);
+                    });
 
-                this.setState({
-                    markedDates: markedDates,
-                    refreshing: false
-                });
+                    this.setState({
+                        markedDates: markedDates,
+                        refreshing: false
+                    });
+                }
             })
     };
 
@@ -95,16 +109,25 @@ export default class AppointmentsCalendar extends Component {
             updatedMarkedDates[selectedDay].appointments.forEach(appointment => {
                 serviceProvidersStorage.getServiceProviderUserDetails(appointment.AppointmentDetail.serviceProviderId, this.userHeaders)
                     .then(user => {
-                        appointment.serviceProviderFullname = user.data.fullname;
+                        if (response.response) {
+                            if (response.response.status !== 200)
+                                this.setState({
+                                    errorVisible: true,
+                                    errorHeader: 'קרתה שגיאה בעת הבאת פרטי נותן השירות',
+                                    errorContent: mappers.errorMapper(response.response)
+                                });
+                        } else {
+                            appointment.serviceProviderFullname = user.data.fullname;
 
-                        expanded[appointment.appointmentId] = false;
+                            expanded[appointment.appointmentId] = false;
 
-                        this.setState({
-                            selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
-                            markedDates: updatedMarkedDates,
-                            dateModalVisible: true,
-                            expanded: expanded,
-                        });
+                            this.setState({
+                                selectedDate: moment(day.dateString).format('YYYY-MM-DD'),
+                                markedDates: updatedMarkedDates,
+                                dateModalVisible: true,
+                                expanded: expanded,
+                            });
+                        }
                     });
             });
         else
@@ -117,7 +140,13 @@ export default class AppointmentsCalendar extends Component {
     };
 
     onRefresh = () => {
-        this.setState({refreshing: true});
+        this.setState({
+            refreshing: true,
+
+            errorMsg: '',
+            errorHeader: '',
+            errorVisible: false
+        });
 
         this.loadAppointments();
     };
@@ -167,6 +196,14 @@ export default class AppointmentsCalendar extends Component {
                         textDayHeaderFontSize: 16
                     }}
                 />
+
+                {
+                    this.state.errorVisible === true ?
+                        <Text style={{color: 'red'}}>
+                            {this.state.errorHeader + ":\n" + this.state.errorContent}
+                        </Text>
+                        : null
+                }
 
                 <AppointmentsDayInfo
                     dateModalVisible={this.state.dateModalVisible}

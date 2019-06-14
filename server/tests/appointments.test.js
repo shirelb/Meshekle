@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 
 const db = require('../DBorm/DBorm');
-const {sequelize, Users, ServiceProviders, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+const {sequelize, Users, ServiceProviders, AppointmentDetails, ScheduledAppointments, Events} = require('../DBorm/DBorm');
 
 let server = require('../app');
 
@@ -61,7 +61,7 @@ describe('appointments route', function () {
 
 
     let schedAppointmentTest = {
-        appointmentId: '1',
+        appointmentId: '2',
         startDateAndTime: '2018-12-12 11:00',
         endDateAndTime: '2018-12-12 13:00',
         remarks: 'blob',
@@ -69,10 +69,10 @@ describe('appointments route', function () {
     };
 
     let appointmentDetailTest = {
-        appointmentId: '1',
+        appointmentId: '2',
         clientId: '436547125',
         serviceProviderId: '123456789',
-        role: constants.roles.DENTIST_ROLE,
+        role: constants.roles.APPOINTMENTS_DENTIST_ROLE,
         subject: 'blob'
     };
 
@@ -320,22 +320,26 @@ describe('appointments route', function () {
                 .then(
                     createServiceProvider(serviceProviderTest)
                         .then(
-                            createSchedAppointment(schedAppointmentTest)
+                            createAppointmentDetail(appointmentDetailTest)
                                 .then(
-                                    done()
+                                    createSchedAppointment(schedAppointmentTest)
+                                        .then(
+                                            done()
+                                        )
                                 )
                         )
                 );
 
         });
+
         it('it should update the status of the appointment to cancelled', (done) => {
             chai.request(server)
-                .put('/api/appointments/serviceProvider/cancel/appointmentId/1')
+                .put('/api/appointments/serviceProvider/cancel/appointmentId/2')
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED);
-                    validation.getSchedAppointmentByIdPromise(1).then(schedAppointment => {
+                    validation.getSchedAppointmentByIdPromise(2).then(schedAppointment => {
                         schedAppointment[0].status.should.be.eql(constants.appointmentStatuses.APPOINTMENT_CANCELLED);
                         done();
                     });
@@ -343,7 +347,7 @@ describe('appointments route', function () {
         });
         it('it should send an error that the appointment doesnt exists', (done) => {
             chai.request(server)
-                .put('/api/appointments/serviceProvider/cancel/appointmentId/2')
+                .put('/api/appointments/serviceProvider/cancel/appointmentId/1')
                 .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -358,9 +362,12 @@ describe('appointments route', function () {
                 .then(
                     deleteServiceProvider(serviceProviderTest)
                         .then(
-                            deleteSchedAppointment(schedAppointmentTest)
+                            deleteAppointmentDetail(appointmentDetailTest)
                                 .then(
-                                    done()
+                                    deleteSchedAppointment(schedAppointmentTest)
+                                        .then(
+                                            done()
+                                        )
                                 )
                         )
                 );

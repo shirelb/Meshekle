@@ -188,7 +188,7 @@ class CreateNewChoreType extends Component {
                         required
                          //width='2cm'
                     />
-                    
+
                 </Form.Group>
 
                 {formError ?

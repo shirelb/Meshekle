@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Alert, Label, Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View} from "react-native";
+import {Alert, Modal, ScrollView, StyleSheet, TextInput, TouchableOpacity, View} from "react-native";
 import {Avatar, FormLabel, FormValidationMessage, Text} from "react-native-elements";
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import Button from "../submitButton/Button";
@@ -7,6 +7,7 @@ import moment from 'moment';
 import _ from "lodash";
 import usersStorage from "../../storage/usersStorage";
 import ImagePicker from 'react-native-image-crop-picker';
+import mappers from "../../shared/mappers";
 
 var sha512 = require('js-sha512');
 
@@ -32,6 +33,7 @@ export default class UserProfileForm extends Component {
                 },
 
             errorMsg: '',
+            errorHeader: '',
             errorVisible: true,
 
             oldPassword: "",
@@ -57,8 +59,6 @@ export default class UserProfileForm extends Component {
             errorMsg: '',
             errorVisible: true
         });
-
-        console.log("user form nextProps ", nextProps);
     }
 
     setModalVisible(visible) {
@@ -72,34 +72,58 @@ export default class UserProfileForm extends Component {
             (this.state.oldPassword.length > 0 && this.state.newPassword.length > 0 && this.state.newPasswordCopy.length === 0) ||
             (this.state.oldPassword.length === 0 && this.state.newPassword.length > 0 && this.state.newPasswordCopy.length > 0) ||
             (this.state.oldPassword.length > 0 && this.state.newPassword.length === 0 && this.state.newPasswordCopy.length > 0)) {
-            this.setState({errorMsg: 'בעת עדכון סיסמא עלייך למלא את כל השדות הרלוונטים', errorVisible: true})
+            this.setState({
+                errorHeader: 'שגיאה בעת מילוי טופס',
+                errorMsg: 'בעת עדכון סיסמא עלייך למלא את כל השדות הרלוונטים',
+                errorVisible: true
+            })
             return false;
         }
 
         if (this.state.oldPassword.length > 0 && this.state.newPassword.length > 0 && this.state.newPasswordCopy.length > 0) {
 
             if (this.state.oldPassword.length < 8 || this.state.newPassword.length < 8 || this.state.newPasswordCopy.length < 8) {
-                this.setState({errorMsg: 'סיסמא צריכה להכיל לפחות 8 תווים', errorVisible: true})
+                this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
+                    errorMsg: 'סיסמא צריכה להכיל לפחות 8 תווים',
+                    errorVisible: true
+                })
                 return false;
             }
             if (this.state.oldPassword.length > 12 || this.state.newPassword.length > 12 || this.state.newPasswordCopy.length > 12) {
-                this.setState({errorMsg: 'סיסמא צריכה להכיל לכל היותר 12 תווים', errorVisible: true})
+                this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
+                    errorMsg: 'סיסמא צריכה להכיל לכל היותר 12 תווים',
+                    errorVisible: true
+                })
                 return false;
             }
             if (!(/\d/.test(this.state.oldPassword) && /[a-zA-Z]/.test(this.state.oldPassword)) ||
                 !(/\d/.test(this.state.newPassword) && /[a-zA-Z]/.test(this.state.newPassword)) ||
                 !(/\d/.test(this.state.newPasswordCopy) && /[a-zA-Z]/.test(this.state.newPasswordCopy))) {
-                this.setState({errorMsg: 'סיסמא צריכה להכיל לפחות ספרה אחת ולפחות אות לועזית אחת', errorVisible: true})
+                this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
+                    errorMsg: 'סיסמא צריכה להכיל לפחות ספרה אחת ולפחות אות לועזית אחת',
+                    errorVisible: true
+                })
                 return false;
             }
 
             let hash = sha512.update(this.state.oldPassword);
             if (hash.hex() !== this.state.user.password) {
-                this.setState({errorMsg: 'הסיסמא שהזנת אינה תואמת לזו השמורה במערכת', errorVisible: true})
+                this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
+                    errorMsg: 'הסיסמא שהזנת אינה תואמת לזו השמורה במערכת',
+                    errorVisible: true
+                })
                 return false;
             }
             if (this.state.newPassword !== this.state.newPasswordCopy) {
-                this.setState({errorMsg: 'הסיסמא החדשה שהוזמנה אינה תואמת לחזרה על הסיסמא החדשה', errorVisible: true})
+                this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
+                    errorMsg: 'הסיסמא החדשה שהוזמנה אינה תואמת לחזרה על הסיסמא החדשה',
+                    errorVisible: true
+                })
                 return false;
             }
         }
@@ -107,6 +131,7 @@ export default class UserProfileForm extends Component {
         if (this.state.user.email.length > 0)
             if (!(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(this.state.user.email))) {
                 this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
                     errorMsg: 'אימייל לא וואלידי',
                     errorVisible: true
                 });
@@ -116,6 +141,7 @@ export default class UserProfileForm extends Component {
         if (this.state.user.mailbox > 0)
             if (!(/^\d*$/.test(this.state.user.mailbox))) {
                 this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
                     errorMsg: "תיבת דואר צריכה להכיל רק ספרות",
                     errorVisible: true
                 });
@@ -125,6 +151,7 @@ export default class UserProfileForm extends Component {
         if (this.state.user.cellphone.length > 0)
             if (!(/^\d*$/.test(this.state.user.cellphone))) {
                 this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
                     errorMsg: "הפלאפון לא וואלידי",
                     errorVisible: true
                 });
@@ -134,6 +161,7 @@ export default class UserProfileForm extends Component {
         if (this.state.user.phone.length > 0)
             if (!(/^\d*$/.test(this.state.user.phone))) {
                 this.setState({
+                    errorHeader: 'שגיאה בעת מילוי טופס',
                     errorMsg: "הטלפון לא וואלידי",
                     errorVisible: true
                 });
@@ -145,7 +173,6 @@ export default class UserProfileForm extends Component {
 
     updateUserProfile() {
         if (this.validateForm()) {
-            this.setModalVisible(!this.state.modalVisible);
 
             let userUpdated = this.state.user;
             if (this.state.newPassword !== "") {
@@ -157,11 +184,22 @@ export default class UserProfileForm extends Component {
 
             usersStorage.updateUserById(userUpdated, this.props.userHeaders)
                 .then((response) => {
-                    Alert.alert(
-                        'התראה',
-                        'הפרופיל עודכן בהצלחה',
-                    );
-                    this.props.loadUser();
+                    if (response.response) {
+                        if (response.response.status !== 200)
+                            this.setState({
+                                errorVisible: true,
+                                errorHeader: 'קרתה שגיאה בעת עדכון הפרופיל',
+                                errorContent: mappers.errorMapper(response.response)
+                            });
+                    } else {
+                        // console.log('updateUserById response ', response);
+                        this.setModalVisible(!this.state.modalVisible);
+                        Alert.alert(
+                            'התראה',
+                            'הפרופיל עודכן בהצלחה',
+                        );
+                        this.props.loadUser();
+                    }
                 })
         }
     }
@@ -175,7 +213,7 @@ export default class UserProfileForm extends Component {
             cropping: true,
             includeBase64: true,
         }).then(image => {
-            console.log(image);
+            // console.log(image);
             this.setState({
                 user: {...this.state.user, image: "data:" + image.mime + ";base64," + image.data},
                 imageResponse: image,
@@ -186,8 +224,6 @@ export default class UserProfileForm extends Component {
 
     render() {
         let {user, oldPassword, newPassword, newPasswordCopy} = this.state;
-
-        console.log('userform state ', this.state);
 
         return (
             <Modal
@@ -388,7 +424,7 @@ export default class UserProfileForm extends Component {
 
                         {
                             this.state.errorVisible === true ?
-                                <FormValidationMessage>{this.state.errorMsg}</FormValidationMessage>
+                                <FormValidationMessage>{this.state.errorHeader + ":\n" + this.state.errorMsg}</FormValidationMessage>
                                 : null
                         }
 
@@ -407,7 +443,6 @@ export default class UserProfileForm extends Component {
                                 }}
                             />
                         </View>
-
                     </ScrollView>
                 </View>
             </Modal>

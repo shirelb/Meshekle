@@ -6,6 +6,7 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 import strings from "../../shared/strings";
 import usersStorage from "../../storage/usersStorage";
+import mappers from "../../shared/mappers";
 
 class ServiceProviderForm extends React.Component {
     constructor(props) {
@@ -15,6 +16,8 @@ class ServiceProviderForm extends React.Component {
 
         this.state = {
             formError: false,
+            formErrorHeader: "",
+            formErrorContent: "",
             formComplete: false,
             isAlertModal: false,
 
@@ -95,7 +98,7 @@ class ServiceProviderForm extends React.Component {
                     subjects: typeof serviceProvider.subjects === 'string' ? JSON.parse(serviceProvider.subjects) : serviceProvider.subjects,
                     active: serviceProvider.active,
                 },
-            })
+            });
 
             JSON.parse(serviceProvider.operationTime).forEach(dayTime => {
                 let operationTimeDaySelected = this.state.operationTimeDaySelected;
@@ -131,24 +134,33 @@ class ServiceProviderForm extends React.Component {
     getRolesOfServiceProviderAndCreateDropdown() {
         serviceProvidersStorage.getRolesOfServiceProvider(this.serviceProviderId)
             .then(roles => {
-                if (roles != undefined || roles != null) {
-                    this.setState({
-                        serviceProviderRoles: roles.map(role => strings.roles[role]),
-                    });
-
-                    // console.log("serviceProviderRoles dddd ", this.state.serviceProviderRoles);
-                    // console.log("state dעddd ", this.state);
-
-                    roles.forEach((role, index) => {
-                        let dropdownRole = {key: index, value: role, text: strings.roles[role]};
-                        let dropdownRoles = this.state.dropdownRoles;
-                        dropdownRoles.push(dropdownRole);
+                if (roles.response) {
+                    if (roles.response.status !== 200)
                         this.setState({
-                            dropdownRoles: dropdownRoles,
-                        })
-                    });
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הבאת התפקידים של נותן השירות',
+                            formErrorContent: mappers.errorMapper(roles.response)
+                        });
+                } else {
+                    if (roles !== undefined || roles !== null) {
+                        this.setState({
+                            serviceProviderRoles: roles.map(role => strings.roles[role]),
+                        });
 
-                    // console.log("dropdownRoles dddd ", this.state.dropdownRoles);
+                        // console.log("serviceProviderRoles dddd ", this.state.serviceProviderRoles);
+                        // console.log("state dעddd ", this.state);
+
+                        roles.forEach((role, index) => {
+                            let dropdownRole = {key: index, value: role, text: strings.roles[role]};
+                            let dropdownRoles = this.state.dropdownRoles;
+                            dropdownRoles.push(dropdownRole);
+                            this.setState({
+                                dropdownRoles: dropdownRoles,
+                            })
+                        });
+
+                        // console.log("dropdownRoles dddd ", this.state.dropdownRoles);
+                    }
                 }
             });
     }
@@ -160,7 +172,15 @@ class ServiceProviderForm extends React.Component {
 
         serviceProvidersStorage.getServiceProviderById(this.serviceProviderId)
             .then(response => {
-                this.setState({serviceProviderList: response});
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הבאת פרטי נותן השירות',
+                            formErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else
+                    this.setState({serviceProviderList: response});
 
                 // console.log("serviceProviderList ", response);
             });
@@ -175,17 +195,26 @@ class ServiceProviderForm extends React.Component {
     loadUsers() {
         usersStorage.getUsers()
             .then((response) => {
-                console.log('response ', response);
-                const users = response;
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הבאת שמות המשתמשים',
+                            formErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log('response ', response);
+                    const users = response;
 
-                this.buildUsersOption(users);
+                    this.buildUsersOption(users);
+                }
             });
     }
 
     handleFocus = () => {
         this.setState({
             formError: false,
-            formErrorMassage: "",
+            formErrorContent: "",
             fieldUserIdError: false,
             fieldPhoneNumberError: false,
             fieldRoleError: false,
@@ -200,7 +229,7 @@ class ServiceProviderForm extends React.Component {
         if (serviceProvider.serviceProviderId === '' || serviceProvider.userId === '') {
             this.setState({
                 formError: true,
-                formErrorMassage: "משתמש חסר",
+                formErrorContent: "משתמש חסר",
                 fieldUserIdError: true
             });
             return false;
@@ -209,7 +238,7 @@ class ServiceProviderForm extends React.Component {
         if (serviceProvider.phoneNumber === '' || serviceProvider.phoneNumber.match(/^[0-9]+$/) === null || serviceProvider.phoneNumber.length < 9 || serviceProvider.phoneNumber.length > 10) {
             this.setState({
                 formError: true,
-                formErrorMassage: "טלפון חסר וצריך להכיל בין 9 ל10 ספרות",
+                formErrorContent: "טלפון חסר וצריך להכיל בין 9 ל10 ספרות",
                 fieldPhoneNumberError: true
             });
             return false;
@@ -218,7 +247,7 @@ class ServiceProviderForm extends React.Component {
         if (serviceProvider.role === '') {
             this.setState({
                 formError: true,
-                formErrorMassage: "ענף חסר",
+                formErrorContent: "ענף חסר",
                 fieldRoleError: true
             });
             return false;
@@ -228,7 +257,7 @@ class ServiceProviderForm extends React.Component {
             if (serviceProvider.appointmentWayType === '') {
                 this.setState({
                     formError: true,
-                    formErrorMassage: "דרך הצגת תורים לא נבחרה",
+                    formErrorContent: "דרך הצגת תורים לא נבחרה",
                     fieldAppointmentsWayTypeError: true
                 });
                 return false;
@@ -237,7 +266,7 @@ class ServiceProviderForm extends React.Component {
             if (serviceProvider.subjects.length === 0) {
                 this.setState({
                     formError: true,
-                    formErrorMassage: "חייב להיות לפחות נושא אחד",
+                    formErrorContent: "חייב להיות לפחות נושא אחד",
                     fieldSubjectsError: true
                 });
                 return false;
@@ -246,7 +275,7 @@ class ServiceProviderForm extends React.Component {
             if (serviceProvider.operationTime.length === 0) {
                 this.setState({
                     formError: true,
-                    formErrorMassage: "זמן פעילות חסר",
+                    formErrorContent: "זמן פעילות חסר",
                     fieldOperationTimeError: true
                 });
                 return false;
@@ -256,7 +285,7 @@ class ServiceProviderForm extends React.Component {
         if (serviceProvider.active === null) {
             this.setState({
                 formError: true,
-                formErrorMassage: "האם נותן השירות פעיל?",
+                formErrorContent: "האם נותן השירות פעיל?",
                 fieldActiveError: true
             });
             return false;
@@ -277,21 +306,30 @@ class ServiceProviderForm extends React.Component {
         if (this.isFormValid(serviceProvider)) {
             this.setState({formComplete: true});
 
-            handleSubmit(serviceProvider);
-            this.setState({
-                serviceProvider: {
-                    serviceProviderId: '',
-                    role: '',
-                    userId: '',
-                    operationTime: [],
-                    phoneNumber: '',
-                    appointmentWayType: '',
-                    subjects: [],
-                    active: false,
-                },
-            });
+            handleSubmit(serviceProvider)
+                .then(res => {
+                    if (res) {
+                        if (res.response.status !== 200)
+                            this.setState({
+                                formError: true,
+                                formErrorHeader: 'קרתה שגיאה בעת הוספת נותן שירות',
+                                formErrorContent: mappers.errorMapper(res.response)
+                            });
+                    } else
+                        this.setState({
+                            serviceProvider: {
+                                serviceProviderId: '',
+                                role: '',
+                                userId: '',
+                                operationTime: [],
+                                phoneNumber: '',
+                                appointmentWayType: '',
+                                subjects: [],
+                                active: false,
+                            },
+                        });
+                });
         }
-
     }
 
     handleChange(e, {name, value}) {
@@ -300,15 +338,6 @@ class ServiceProviderForm extends React.Component {
         this.setState({formError: false, formComplete: false});
         this.setState({serviceProvider: {...serviceProvider, [name]: value}});
     }
-
-    handleUpdateChange = (e, {value}) => {
-        serviceProvidersStorage.updateServiceProviderById(this.serviceProviderId, this.state.roleSelected, null, null, value)
-            .then(response => {
-                console.log("updateServiceProviderById response ", response)
-            })
-        this.setState({appointmentWayType: value})
-    };
-
 
     handleClear = (e) => {
         e.preventDefault();
@@ -323,7 +352,10 @@ class ServiceProviderForm extends React.Component {
                 subjects: [],
                 active: false,
             },
+
             formError: false,
+            formErrorHeader: '',
+            formErrorContent: '',
             formComplete: false,
 
             editIconVisible: true,
@@ -341,38 +373,35 @@ class ServiceProviderForm extends React.Component {
         this.handleFocus();
     };
 
-    /*selectRoleToChangeSettings = (e, {value}) => {
-        console.log('selectRoleToChangeSettings value ', value);
-
-        this.setState({
-            roleSelected: value,
-            serviceProviderSelected: this.state.serviceProviderList.filter(provider => provider.role === value)[0],
-        });
-
-        console.log("serviceProviderSelected ", this.state.serviceProviderList.filter(provider => provider.role === value)[0])
-
-        serviceProvidersStorage.getServiceProviderAppointmentWayTypeById(this.serviceProviderId, value)
-            .then(appointmentWayType => {
-                console.log("getServiceProviderAppointmentWayTypeById appointmentWayType ", appointmentWayType);
-                this.setState({
-                    appointmentWayType: appointmentWayType,
-                })
-            });
-    };*/
-
     addRoleToServiceProvider = (role) => {
         serviceProvidersStorage.addRoleToServiceProviderById(this.serviceProviderId, role)
             .then(response => {
-                console.log("addRoleToServiceProviderById response ", response);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הוספת תפקיד לנותן שירות',
+                            formErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else
+                    console.log("addRoleToServiceProviderById response ", response);
             })
-    }
+    };
 
     removeRoleFromServiceProvider = (role) => {
         serviceProvidersStorage.removeRoleFromServiceProviderById(this.serviceProviderId, role)
             .then(response => {
-                console.log("removeRoleFromServiceProviderById response ", response);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הורדת תפקיד מנותן שירות',
+                            formErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else
+                    console.log("removeRoleFromServiceProviderById response ", response);
             })
-    }
+    };
 
     onChangeRoles = (event, data) => {
         console.log("onChangeRoles event ", event);
@@ -393,44 +422,13 @@ class ServiceProviderForm extends React.Component {
         let updateSubjects = this.state.serviceProvider.subjects;
         updateSubjects.push(this.state.newSubject);
         this.setState({newSubject: "", serviceProvider: {...this.state.serviceProvider, subjects: updateSubjects}});
-
-        /* serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
-             this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
-             .then(response => {
-                 console.log("addSubject response ", response)
-                 this.setState({
-                     newSubject: "",
-                     serviceProviderSelected: {
-                         ...this.state.serviceProviderSelected,
-                         subjects: JSON.stringify(updateSubjects)
-                     },
-                 });
-
-             })*/
-    }
+    };
 
     removeSubject = (subject) => {
         let updateSubjects = this.state.serviceProvider.subjects;
         updateSubjects.pop(subject);
         this.setState({serviceProvider: {...this.state.serviceProvider, subjects: updateSubjects}});
-
-        // let updateSubjects = JSON.parse(this.state.serviceProvider.subjects);
-        // updateSubjects.pop(subject);
-
-        /*serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
-            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
-            .then(response => {
-                console.log("addSubject response ", response)
-                this.setState({
-                    newSubject: "",
-                    serviceProviderSelected: {
-                        ...this.state.serviceProviderSelected,
-                        subjects: JSON.stringify(updateSubjects)
-                    },
-                });
-
-            })*/
-    }
+    };
 
     editSubject = (index, subject) => {
         let updateSubjects = this.state.serviceProvider.subjects;
@@ -440,26 +438,7 @@ class ServiceProviderForm extends React.Component {
             approveIconVisible: false,
             serviceProvider: {...this.state.serviceProvider, subjects: updateSubjects}
         });
-
-        // let updateSubjects = JSON.parse(this.state.serviceProvider.subjects);
-        // updateSubjects[index] = subject;
-
-        /*serviceProvidersStorage.updateServiceProviderById(this.state.serviceProviderSelected.serviceProviderId,
-            this.state.serviceProviderSelected.role, null, null, null, updateSubjects, null)
-            .then(response => {
-                console.log("addSubject response ", response)
-                this.setState({
-                    newSubject: "",
-                    editIconVisible: true,
-                    approveIconVisible: false,
-                    serviceProviderSelected: {
-                        ...this.state.serviceProviderSelected,
-                        subjects: JSON.stringify(updateSubjects)
-                    },
-                });
-
-            })*/
-    }
+    };
 
     onChangeDate = date => {
         let updateUser = this.state.serviceProvider;
@@ -558,27 +537,6 @@ class ServiceProviderForm extends React.Component {
 
         return (
             <Form error={formError}>
-                {/*  {this.state.serviceProvidersFound ?
-                    <Form.Group>
-                        <Form.label> בחר את התפקיד עבורו את/ה רוצה לשנות את ההגדרות:</Form.label>
-                        <Form.Field
-                            control={Dropdown}
-                            label='ענף'
-                            placeholder='ענף'
-                            search
-                            selection
-                            autoComplete='on'
-                            options={this.state.dropdownRoles}
-                            // value={this.state.roleSelected}
-                            // onChange={this.selectRoleToChangeSettings.bind(this)}
-                            // name='serviceProviderRole'
-                            required
-                            noResultsMessage='לא נמצאו ענפים'
-                        />
-                    </Form.Group>
-                    :null
-                }*/}
-
                 <Form.Group widths='equal'>
                     <Form.Field
                         control={Dropdown}
@@ -839,8 +797,8 @@ class ServiceProviderForm extends React.Component {
                 {formError ?
                     <Message
                         error
-                        header='פרטי נותן שירות חסרים'
-                        content={this.state.formErrorMassage === "" ? 'נא להשלים את השדות החסרים' : this.state.formErrorMassage}
+                        header={this.state.formErrorHeader === "" ? 'פרטי נותן שירות חסרים' : this.state.formErrorHeader}
+                        content={this.state.formErrorContent === "" ? 'נא להשלים את השדות החסרים' : this.state.formErrorContent}
                     />
                     : null
                 }

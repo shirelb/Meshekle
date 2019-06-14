@@ -17,7 +17,7 @@ export default class AuthLoadingScreen extends React.Component {
             else {
                 try {
                     var validTokenResponse = await usersStorage.userValidToken(userData.token);
-                    console.log("validTokenResponse ", validTokenResponse);
+                    // console.log("validTokenResponse ", validTokenResponse);
                     validTokenResponse.status === 200 ?
                         phoneStorage.update('userData', {
                             userId: validTokenResponse.data.payload.userId,

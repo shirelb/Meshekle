@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let should = chai.should();
 
 const db = require('../DBorm/DBorm');
-const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+const {sequelize, Users, Incidents, Events} = require('../DBorm/DBorm');
 
 let server = require('../app');
 

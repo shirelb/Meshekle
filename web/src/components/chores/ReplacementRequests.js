@@ -69,7 +69,7 @@ class ReplacementRequests extends Component {
             res[0].data.requests.map(re_=>{
                 if(re_.choreOfSender.choreTypeName===this.props.choreType ){
                     if(Number(moment(re_.choreOfSender.date).format('MM'))===Number(month)|| Number(moment(re_.choreOfReceiver.date).format('MM'))===Number(month)){
-                        
+
                         requestsRequested[month].push(re_);
                     }
                     console.log("re.choreOfSender.requestsRequested[month]:",requestsRequested[month], Number(moment(re_.choreOfSender.date).format('MM'))===Number(month));
@@ -184,7 +184,7 @@ class ReplacementRequests extends Component {
     render() {
         const {users, pageUsers, totalPagesUsers, serviceProviders, pageServiceProviders, totalPagesServiceProviders} = this.state;
         const startIndex = pageUsers * TOTAL_PER_PAGE;
-        
+
         const panes = [
             //{ menuItem: 'הוחלפו', render: () => {return this.tabContent(requestsReplaced[month].length===0?this.props.requestsReplaced:requestsReplaced)} },
             { menuItem: 'הוחלפו', render: () => {return this.tabContent(requestsReplaced[month])} },

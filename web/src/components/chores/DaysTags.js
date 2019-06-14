@@ -167,7 +167,7 @@ export default class DaysTags extends Component {
           handleTagClick={this.handleDisTagClick}
         />
         <h5>יש ללחוץ על יום כדי להוסיפו או להסירו מימי ביצוע התורנות</h5>
-        
+
 
 
       </div>
