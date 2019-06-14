@@ -1,11 +1,9 @@
 var authentications = require('./shared/authentications');
 var validations = require('./shared/validations');
-var helpers = require('./shared/helpers');
 var constants = require('./shared/constants');
 var announcementsRoute = constants.announcementsRoute;
 var express = require('express');
 var router = express.Router();
-var nodemailer = require('nodemailer');
 
 
 const Sequelize = require('sequelize');
@@ -29,7 +27,6 @@ router.post('/validToken', function (req, res) {
 router.get('/', function (req, res, next) {
     Announcements.findAll()
         .then(Announcements => {
-            console.log(Announcements);
             res.status(200).send(Announcements);
         })
         .catch(err => {
@@ -52,7 +49,6 @@ router.get('/categories/serviceProviderId/:serviceProviderId', function (req, re
                 }
             })
                 .then(categories => {
-                    console.log(categories);
                     res.status(200).send(categories);
                 })
                 .catch(err => {
@@ -82,7 +78,6 @@ router.get('/subscription/userId/:userId', function (req, res, next) {
             })
                 .then(categories => {
                     const categoriesList = categories.map((cat) => cat.dataValues.categoryId);
-                    console.log(categoriesList);
                     res.status(200).send(categoriesList);
                 })
                 .catch(err => {
@@ -107,8 +102,27 @@ router.get('/expired', function (req, res, next) {
         }
     })
         .then(Announcements => {
-            console.log(Announcements);
             res.status(200).send(Announcements);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
+// SET all expired announcements status to expired
+router.get('/setExpired', function (req, res, next) {
+    Announcements.update(
+        {status:"Expired"},
+        {
+        where: {
+            expirationTime: {
+                [Op.lt]: new Date()
+            }
+        }
+    })
+        .then(isUpdated => {
+            res.status(200).send(isUpdated);
         })
         .catch(err => {
             console.log(err);
@@ -130,7 +144,6 @@ router.get('/categoryId/:categoryId', function (req, res, next) {
                 }
             })
                 .then(Announcements => {
-                    console.log(Announcements);
                     res.status(200).send(Announcements);
                 })
                 .catch(err => {
@@ -160,7 +173,6 @@ router.get('/userId/:userId', function (req, res, next) {
                 }
             })
                 .then(Announcements => {
-                    console.log(Announcements);
                     res.status(200).send(Announcements);
                 })
                 .catch(err => {
@@ -190,7 +202,6 @@ router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
                 }
             })
                 .then(announcements => {
-                    console.log(announcements);
                     res.status(200).send(announcements);
                 })
                 .catch(err => {
@@ -221,7 +232,6 @@ router.get('/userId/:userId/status/:status', function (req, res, next) {
                 }
             })
                 .then(Announcements => {
-                    console.log(Announcements);
                     res.status(200).send(Announcements);
                 })
                 .catch(err => {
@@ -248,10 +258,9 @@ router.get('/categoryId/:categoryId/status/:status', function (req, res, next) {
                 where: {
                     categoryId: req.params.categoryId,
                     status: req.params.status
-                }
+            }
             })
                 .then(Announcements => {
-                    console.log(Announcements);
                     res.status(200).send(Announcements);
                 })
                 .catch(err => {
@@ -275,7 +284,6 @@ router.get('/announcementId/:announcementId', function (req, res, next) {
             if (announcements.length === 0) {
                 return res.status(400).send({message: announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
             }
-            console.log(announcements);
             res.status(200).send(announcements);
         })
         .catch(err => {
@@ -300,7 +308,6 @@ router.get('/subscription/categoryId/:categoryId', function (req, res, next) {
             })
                 .then(users => {
                     const usersList = users.map((user) => user.dataValues.userId);
-                    console.log(usersList);
                     res.status(200).send(usersList);
                 })
                 .catch(err => {
@@ -336,10 +343,7 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                         }
                     })
                         .then(categories2 => {
-
-
                             var categoriesIDs = categories2.map((cat) => cat.dataValues.categoryId);
-
                             Announcements.findAll({
                                 where: {
                                     categoryId: {
@@ -349,7 +353,6 @@ router.get('/requests/serviceProviderId/:serviceProviderId', function (req, res,
                                 }
                             })
                                 .then(announcements => {
-                                    console.log(announcements);
                                     res.status(200).send(announcements);
                                 })
                                 .catch(err => {
@@ -394,8 +397,6 @@ router.get('/answeredRequests/serviceProviderId/:serviceProviderId', function (r
                         }
                     })
                         .then(categories2 => {
-
-
                             var categoriesIDs = categories2.map((cat) => cat.dataValues.categoryId);
 
                             Announcements.findAll({
@@ -406,7 +407,6 @@ router.get('/answeredRequests/serviceProviderId/:serviceProviderId', function (r
                                 }
                             })
                                 .then(announcements => {
-                                    console.log(announcements);
                                     res.status(200).send(announcements);
                                 })
                                 .catch(err => {
@@ -440,7 +440,6 @@ router.get('/status/:status', function (req, res, next) {
         order: [['creationTime', 'DESC']]
     })
         .then(Announcements => {
-            console.log(Announcements);
             res.status(200).send(Announcements);
         })
         .catch(err => {
@@ -454,7 +453,6 @@ router.get('/status/:status', function (req, res, next) {
 router.get('/categories', function (req, res, next) {
     Categories.findAll()
         .then(Categories => {
-            console.log(Categories);
             res.status(200).send(Categories);
         })
         .catch(err => {
@@ -792,8 +790,6 @@ router.post('/categories/update', function (req, res, next) {
                     if (serviceProviders.length < req.body.managers.length)
                         return res.status(400).send({message: announcementsRoute.SERVICE_PROVIDER_NOT_FOUND});
 
-                    // if (!isCategoryExists(req.body.categoryName))
-                    //     return res.status(400).send({"message": announcementsRoute.CATEGORY_DOESNT_EXISTS});
                     Categories.findAll({
                         where: {
                             categoryName: req.body.categoryOldName,
@@ -843,7 +839,6 @@ router.post('/categories/update', function (req, res, next) {
                                                             }
                                                         )
                                                             .then(() => {
-
                                                                 res.status(200).send({
                                                                     "message": announcementsRoute.CATEGORY_UPDATED_SUCC,
                                                                     "result": updated
@@ -922,24 +917,35 @@ router.post('/event/add', function (req, res, next) {
         .then(users => {
             if (users.length === 0)
                 return res.status(400).send({message: announcementsRoute.USER_NOT_FOUND});
-            Events.create(
-                {
-                    userId: req.body.userId,
-                    eventType: "Announcements",
-                    eventId: req.body.announcementId
-                }
-            )
-                .then(newEvent => {
-                    res.status(200).send({
-                        "message": announcementsRoute.EVENT_ADDED_SUCC,
-                        "result": newEvent.dataValues
-                    });
+            validations.getAnnouncementByAnnounceIdPromise(req.body.announcementId)
+                .then(announcements => {
+                    if (announcements.length === 0) {
+                        return res.status(400).send({message: announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
+                    }
+                    Events.create(
+                        {
+                            userId: req.body.userId,
+                            eventType: "Announcements",
+                            eventId: req.body.announcementId
+                        }
+                    )
+                    .then(newEvent => {
+                        res.status(200).send({
+                            "message": announcementsRoute.EVENT_ADDED_SUCC,
+                            "result": newEvent.dataValues
+                        });
 
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
                 })
                 .catch(err => {
                     console.log(err);
                     res.status(500).send(err);
                 })
+
         })
         .catch(err => {
             console.log(err);

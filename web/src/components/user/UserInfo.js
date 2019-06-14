@@ -10,6 +10,7 @@ import UserEdit from "./UserEdit";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import mappers from "../../shared/mappers";
 
+
 class UserInfo extends React.Component {
     constructor(props) {
         super(props);

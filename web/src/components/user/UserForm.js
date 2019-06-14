@@ -16,6 +16,7 @@ class UserForm extends React.Component {
             formErrorContent: "",
             formComplete: false,
             isAlertModal: false,
+            subjectOptions: [],
         };
 
         if (user) {

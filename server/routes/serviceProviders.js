@@ -8,11 +8,30 @@ var moment = require('moment');
 var router = express.Router();
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, RolesModules} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, RolesModules, Categories} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
 
+
+var serviceProviderRolesMapper = function (value) {
+    switch (value) {
+        case "Admin":
+            return "מנהלה";
+        case "PhoneBookSecretary":
+            return "מזכירות ספר טלפונים";
+        case "ChoresSecretary":
+            return "מזכירות תורנויות";
+        case "AnnouncementsSecretary":
+            return "מזכירות לוח מודעות";
+        case "appointmentsHairDresser":
+            return "מספרה";
+        case "appointmentsDentist":
+            return "מרפאת שיניים";
+        default:
+            return value;
+    }
+};
 
 //Login from service provider by userId and password
 router.post('/login/authenticate', function (req, res, next) {
@@ -189,7 +208,7 @@ router.get('/role/:role', function (req, res, next) {
         })
 });
 
-// GET appointmentWayType by serviceProvidersId
+// GET appointmentWayType by serviceProvidersId and role
 router.get('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType', function (req, res, next) {
     ServiceProviders.findAll({
         attributes: ['appointmentWayType'],
@@ -287,19 +306,29 @@ router.post('/add', function (req, res, next) {
                     active: req.body.active === null ? false : req.body.active,
                 })
                     .then(newServiceProvider => {
-                        res.status(200).send({
-                            "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
-                            "result": newServiceProvider.dataValues
-                        });
-                        validations.getUsersByUserIdPromise(newServiceProvider.userId)
-                            .then(users => {
-                                helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                    "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).send(err);
-                            })
+                        Categories.create({
+                            categoryName: serviceProviderRolesMapper(req.body.role),
+                            serviceProviderId: req.body.serviceProviderId
+                        }).then(() => {
+                            res.status(200).send({
+                                "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
+                                "result": newServiceProvider.dataValues
+                            });
+                            validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                                .then(users => {
+                                    helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                        "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+
                     })
                     .catch(err => {
                         console.log(err);
@@ -343,10 +372,10 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                     "message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC,
                     "result": updateServiceProvider.dataValues
                 });
-                validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                validations.getUsersByUserIdPromise(updateServiceProvider.userId)
                     .then(users => {
                         helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + updateServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);
@@ -637,13 +666,10 @@ function isAppWayTypeExists(wayType) {
 }
 
 function validateEmail(email) {
-    // var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    // var re = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
     var re = /^[^@]+@[^@]+\.[^@]+$/;
     return re.test(String(email).toLowerCase());
 }
 
-//userInput.cellphone.match(/^[0-9]+$/) === null
 function validateBornDate(bornDateString) {
     let splitted = moment(bornDateString).format("YYYY-MM-DD").split('-');
     if (splitted.length !== 3)

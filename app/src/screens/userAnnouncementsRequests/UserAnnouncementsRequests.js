@@ -1,23 +1,16 @@
 import React, {Component} from 'react';
 import {
-    Platform,
     RefreshControl,
-    Switch,
     ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
     BackHandler
 } from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
-import {Icon, SearchBar} from 'react-native-elements'
-import { Dropdown } from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
-import { Divider } from 'react-native-elements';
-import {Image} from "react-native-animatable";
 import ZoomImage from 'react-native-zoom-image';
 import {Easing} from 'react-native';
 import Button from "../../components/submitButton/Button"

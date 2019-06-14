@@ -1,0 +1,30 @@
+[
+  {
+  "announcementId": 1,
+  "serviceProviderId": "",
+  "userId": "549963652",
+  "categoryId": 1,
+  "creationTime": "2020-05-20",
+  "title": "firstExample",
+  "content": "announcement example",
+  "expirationTime": "2019-06-22",
+  "file": "",
+  "fileName": "",
+  "dateOfEvent": "2019-06-21",
+  "status":"Requested"
+  },
+  {
+    "announcementId": 2,
+    "serviceProviderId": "",
+    "userId": "549963652",
+    "categoryId": 1,
+    "creationTime": "2020-05-20",
+    "title": "secondExample",
+    "content": "announcement example 2",
+    "expirationTime": "2019-06-22",
+    "file": "",
+    "fileName": "",
+    "dateOfEvent": "2019-06-21",
+    "status":"Requested"
+  }
+]
