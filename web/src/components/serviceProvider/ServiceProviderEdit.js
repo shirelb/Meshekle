@@ -48,7 +48,7 @@ class ServiceProviderEdit extends React.Component {
     }
 
     getServiceProvidersRelatedToUser = (serviceProviderId) => {
-       serviceProvidersStorage.getServiceProviderById(serviceProviderId, this.serviceProviderHeaders)
+        serviceProvidersStorage.getServiceProviderById(serviceProviderId, this.serviceProviderHeaders)
             .then(serviceProvidersFound => {
                 if (serviceProvidersFound.response) {
                     if (serviceProvidersFound.response.status !== 200)
@@ -86,7 +86,7 @@ class ServiceProviderEdit extends React.Component {
     };
 
     handleSubmit(serviceProvider) {
-       return serviceProvidersStorage.updateServiceProviderById(serviceProvider)
+        return serviceProvidersStorage.updateServiceProviderById(serviceProvider)
             .then((response) => {
                 if (response.response) {
                     if (response.response.status !== 200)
@@ -125,8 +125,7 @@ class ServiceProviderEdit extends React.Component {
         return (
             <Modal size='large' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | ערוך נותן
-                        שירות {serviceProvider.fullname ? serviceProvider.fullname : serviceProvider.serviceProviderId}</title>
+                    <title>Meshekle | ערוך נותן שירות </title>
                 </Helmet>
 
                 <Grid padded>
