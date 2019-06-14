@@ -103,29 +103,34 @@ class PhoneBookManagementPage extends React.Component {
     }
 
     loadUsers() {
-        usersStorage.getUsers()
+        usersStorage.getUsers(this.serviceProviderHeaders)
             .then((response) => {
-                // console.log('response ', response);
-                const users = response;
-                const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('response ', response);
+                    const users = response;
+                    const totalPagesUsers = Math.ceil(users.length / TOTAL_PER_PAGE);
 
-                this.serviceProviders.forEach(provider => {
-                    users.forEach(user => {
-                        if (user.userId === provider.userId) {
-                            provider.fullname = user.fullname;
-                            provider.image = user.image;
-                        }
-                    })
-                });
+                    this.serviceProviders.forEach(provider => {
+                        users.forEach(user => {
+                            if (user.userId === provider.userId) {
+                                provider.fullname = user.fullname;
+                                provider.image = user.image;
+                            }
+                        })
+                    });
 
-                this.setState({
-                    users: users,
-                    pageUsers: 0,
-                    totalPagesUsers,
-                    serviceProviders: this.serviceProviders,
-                });
+                    this.setState({
+                        users: users,
+                        pageUsers: 0,
+                        totalPagesUsers,
+                        serviceProviders: this.serviceProviders,
+                    });
 
-                this.users = users;
+                    this.users = users;
+                }
             });
     }
 
@@ -143,27 +148,32 @@ class PhoneBookManagementPage extends React.Component {
 
     loadServiceProviders() {
         let users = this.users;
-        serviceProvidersStorage.getServiceProviders()
+        serviceProvidersStorage.getServiceProviders(this.serviceProviderHeaders)
             .then(serviceProviders => {
-                // const serviceProviders = response.data;
-                const totalPagesServiceProviders = Math.ceil(serviceProviders.length / TOTAL_PER_PAGE);
+                if (serviceProviders.response) {
+                    if (serviceProviders.response.status !== 200)
+                        return;
+                } else {
+                    // const serviceProviders = response.data;
+                    const totalPagesServiceProviders = Math.ceil(serviceProviders.length / TOTAL_PER_PAGE);
 
-                serviceProviders.forEach(provider => {
-                    users.forEach(user => {
-                        if (user.userId === provider.userId) {
-                            provider.fullname = user.fullname;
-                            provider.image = user.image;
-                        }
-                    })
-                });
+                    serviceProviders.forEach(provider => {
+                        users.forEach(user => {
+                            if (user.userId === provider.userId) {
+                                provider.fullname = user.fullname;
+                                provider.image = user.image;
+                            }
+                        })
+                    });
 
-                this.setState({
-                    serviceProviders: serviceProviders,
-                    pageServiceProviders: 0,
-                    totalPagesServiceProviders,
-                });
+                    this.setState({
+                        serviceProviders: serviceProviders,
+                        pageServiceProviders: 0,
+                        totalPagesServiceProviders,
+                    });
 
-                this.serviceProviders = serviceProviders;
+                    this.serviceProviders = serviceProviders;
+                }
             })
     }
 

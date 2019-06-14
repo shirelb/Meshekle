@@ -1,5 +1,5 @@
 import React from 'react';
-import {Accordion, Button, Container, Icon, Image, Modal} from 'semantic-ui-react';
+import {Accordion, Button, Container, Icon, Image, Message, Modal} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
@@ -14,8 +14,20 @@ class ServiceProviderInfo extends React.Component {
 
         console.log("UserInfo props ", this.props);
         this.props.location.state ?
-            this.state = {serviceProvider: this.props.location.state.serviceProvider, activeIndex: -1} :
-            this.state = {serviceProvider: {}, activeIndex: -1};
+            this.state = {
+                serviceProvider: this.props.location.state.serviceProvider,
+                activeIndex: -1,
+                infoError: false,
+                infoErrorHeader: '',
+                infoErrorContent: ''
+            } :
+            this.state = {
+                serviceProvider: {},
+                activeIndex: -1,
+                infoError: false,
+                infoErrorHeader: '',
+                infoErrorContent: ''
+            };
         // this.state = {serviceProvider: this.props.location.state.serviceProvider};
 
         this.handleDelete = this.handleDelete.bind(this);
@@ -31,15 +43,32 @@ class ServiceProviderInfo extends React.Component {
         else
             serviceProvidersStorage.getServiceProviderById(this.props.match.params.serviceProviderId)
                 .then(serviceProvider => {
-                    this.setState({serviceProvider: serviceProvider});
+                    if (serviceProvider.response) {
+                        if (serviceProvider.response.status !== 200)
+                            this.setState({
+                                infoError: true,
+                                infoErrorHeader: 'קרתה שגיאה בעת נותן השירות',
+                                infoErrorContent: mappers.errorMapper(serviceProvider.response)
+                            });
+                    } else
+                        this.setState({serviceProvider: serviceProvider});
                 })
     }
 
     handleDelete() {
         serviceProvidersStorage.deleteServiceProviderById(this.state.serviceProvider.serviceProviderId, this.state.serviceProvider.role, "shallowDelete")
             .then((response) => {
-                console.log('serviceProvider deleted response ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת מחיקת נותן השירות',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    console.log('serviceProvider deleted response ', response);
+                    this.props.history.goBack();
+                }
             });
     }
 
@@ -60,10 +89,19 @@ class ServiceProviderInfo extends React.Component {
     renewPassword = () => {
         serviceProvidersStorage.renewUserPassword(this.state.serviceProvider.userId, this.serviceProviderHeaders)
             .then((response) => {
-                console.log('user password renewed response ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת חידוש הסיסמא',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log('user password renewed response ', response);
+                    this.props.history.goBack();
+                }
             });
-    }
+    };
 
     appointmentRoleDetailsVisible = () => {
         if (this.state.serviceProvider.role)
@@ -73,8 +111,8 @@ class ServiceProviderInfo extends React.Component {
     };
 
     render() {
-        const {serviceProvider, activeIndex} = this.state;
-        console.log('ServiceProviderInfo serviceProvider ', serviceProvider);
+        const {serviceProvider, activeIndex, infoError, infoErrorHeader, infoErrorContent} = this.state;
+        // console.log('ServiceProviderInfo serviceProvider ', serviceProvider);
 
         return (
             <div>
@@ -132,6 +170,15 @@ class ServiceProviderInfo extends React.Component {
 
                                 {this.props.hasPhoneBookPermissions ?
                                     <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                    : null
+                                }
+
+                                {infoError ?
+                                    <Message
+                                        error
+                                        header={infoErrorHeader}
+                                        content={infoErrorContent}
+                                    />
                                     : null
                                 }
                             </Container>

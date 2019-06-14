@@ -1,11 +1,11 @@
-process.dbMode='dev';
+process.dbMode = 'dev';
 var expect = require('chai').expect;
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 let should = chai.should();
 
 const db = require('../DBorm/DBorm');
-const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+const {sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Events} = require('../DBorm/DBorm');
 
 let server = require('../app');
 
@@ -40,9 +40,9 @@ describe('appointmentRequests route', function () {
         userId: userTest.userId,
         serviceProviderId: 123,
         role: "Driver",
-        availableTime: [
+        optionalTimes: [
             {
-                "day": "Sunday",
+                "date": "12-06-2019",
                 "hours": [
                     {
                         "startHour": "10:30",
@@ -55,7 +55,7 @@ describe('appointmentRequests route', function () {
                 ]
             },
             {
-                "day": "Monday",
+                "date": "13-06-2019",
                 "hours": [
                     {
                         "startHour": "10:30",
@@ -69,7 +69,8 @@ describe('appointmentRequests route', function () {
             }
         ],
         notes: "this is a note",
-        subject: "paint"
+        subject: "paint",
+        status: "requested",
     };
 
     let appointmentApproveTest = {
@@ -114,6 +115,88 @@ describe('appointmentRequests route', function () {
                 .then(AppointmentDetails.destroy({where: {}}))
                 .then(Users.destroy({where: {}}))
                 .then(done())
+        });
+    });
+
+    describe('/POST appointment user reject', () => {
+        before((done) => {
+            tokenTest === null ?
+                loginAuthenticateUser(userTest)
+                    .then(token => {
+                        tokenTest = `Bearer ${token}`;
+                        done()
+                    })
+                :
+                done()
+        });
+
+        beforeEach((done) => {
+            setTimeout(function () {
+                done();
+            }, 5000);
+        });
+
+        describe('test with non existent appointment request', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(
+                        done()
+                    );
+            });
+
+            it('it should not PUT an appointment reject without existing request ', (done) => {
+                chai.request(server)
+                    .put('/api/appointmentRequests/user/reject')
+                    .set('Authorization', tokenTest)
+                    .send(appointmentApproveTest)
+                    .end((err, res) => {
+                        res.should.have.status(400);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('err');
+                        res.body.should.have.property('message');
+                        res.body.message.should.equal('AppointmentRequest not found!');
+                        done();
+                    });
+            });
+
+            after((done) => {
+                Users.destroy({where: {}})
+                    .then(done());
+            });
+        });
+
+        describe('test with existent user and existent appointment request', () => {
+            before((done) => {
+                createUser(userTest)
+                    .then(
+                        createAppointmentRequest(appointmentRequestTest)
+                    )
+                    .then(
+                        done()
+                    );
+            });
+
+            it('it should PUT an appointment reject of user ', (done) => {
+                chai.request(server)
+                    .put('/api/appointmentRequests/user/reject')
+                    .set('Authorization', tokenTest)
+                    .send(appointmentApproveTest)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.be.a('object');
+                        res.body.should.have.property('appointmentsRequest');
+                        res.body.appointmentsRequest.should.have.property('status').eql('rejected');
+                        res.body.should.have.property('message').eql('AppointmentsRequest successfully rejected!');
+                        done();
+                    });
+            });
+
+            after((done) => {
+                AppointmentRequests.destroy({where: {}})
+                    .then(AppointmentDetails.destroy({where: {}}))
+                    .then(Users.destroy({where: {}}))
+                    .then(done());
+            });
         });
     });
 
@@ -211,89 +294,6 @@ describe('appointmentRequests route', function () {
             });
         });
     });
-
-    describe('/POST appointment user reject', () => {
-        before((done) => {
-            tokenTest === null ?
-                loginAuthenticateUser(userTest)
-                    .then(token => {
-                        tokenTest = `Bearer ${token}`;
-                        done()
-                    })
-                :
-                done()
-        });
-
-        beforeEach((done) => {
-            setTimeout(function () {
-                done();
-            }, 5000);
-        });
-
-        describe('test with non existent appointment request', () => {
-            before((done) => {
-                createUser(userTest)
-                    .then(
-                        done()
-                    );
-            });
-
-            it('it should not PUT an appointment reject without existing request ', (done) => {
-                chai.request(server)
-                    .put('/api/appointmentRequests/user/reject')
-                    .set('Authorization', tokenTest)
-                    .send(appointmentApproveTest)
-                    .end((err, res) => {
-                        res.should.have.status(400);
-                        res.body.should.be.a('object');
-                        res.body.should.have.property('err');
-                        res.body.should.have.property('message');
-                        res.body.message.should.equal('AppointmentRequest not found!');
-                        done();
-                    });
-            });
-
-            after((done) => {
-                Users.destroy({where: {}})
-                    .then(done());
-            });
-        });
-
-        describe('test with existent user and existent appointment request', () => {
-            before((done) => {
-                createUser(userTest)
-                    .then(
-                        createAppointmentRequest(appointmentRequestTest)
-                    )
-                    .then(
-                        done()
-                    );
-            });
-
-            it('it should PUT an appointment reject of user ', (done) => {
-                chai.request(server)
-                    .put('/api/appointmentRequests/user/reject')
-                    .set('Authorization', tokenTest)
-                    .send(appointmentApproveTest)
-                    .end((err, res) => {
-                        res.should.have.status(200);
-                        res.body.should.be.a('object');
-                        res.body.should.have.property('appointmentsRequest');
-                        res.body.appointmentsRequest.should.have.property('status').eql('rejected');
-                        res.body.should.have.property('message').eql('AppointmentsRequest successfully rejected!');
-                        done();
-                    });
-            });
-
-            after((done) => {
-                AppointmentRequests.destroy({where: {}})
-                    .then(AppointmentDetails.destroy({where: {}}))
-                    .then(Users.destroy({where: {}}))
-                    .then(done());
-            });
-        });
-    });
-
 });
 
 function createUser(userTest) {
@@ -319,12 +319,10 @@ function createAppointmentRequest(appointmentRequestTest) {
         subject: appointmentRequestTest.subject
     })
         .then(() => {
-            return AppointmentRequests.create({
-                requestId: 1,
-                notes: appointmentRequestTest.notes,
-                optionalTimes: JSON.stringify(appointmentRequestTest.availableTime),
-                status: "requested",
-            });
+            return AppointmentRequests.create(JSON.stringify(appointmentRequestTest))
+                .then((res) => {
+                    return res;
+                })
         })
 }
 

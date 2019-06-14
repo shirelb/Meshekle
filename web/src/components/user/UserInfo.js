@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Container, Image, Modal} from 'semantic-ui-react';
+import {Button, Container, Image, Message, Modal} from 'semantic-ui-react';
 import moment from 'moment';
 import {Helmet} from 'react-helmet';
 import usersStorage from "../../storage/usersStorage";
@@ -8,15 +8,26 @@ import strings from "../../shared/strings";
 import {Route, Switch} from "react-router-dom";
 import UserEdit from "./UserEdit";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
+import mappers from "../../shared/mappers";
 
 class UserInfo extends React.Component {
     constructor(props) {
         super(props);
 
-        console.log("UserInfo props ", this.props);
+        // console.log("UserInfo props ", this.props);
         this.props.location.state ?
-            this.state = {user: this.props.location.state.user} :
-            this.state = {user: {}};
+            this.state = {
+                user: this.props.location.state.user,
+                infoError: false,
+                infoErrorHeader: '',
+                infoErrorContent: ''
+            } :
+            this.state = {
+                user: {},
+                infoError: false,
+                infoErrorHeader: '',
+                infoErrorContent: ''
+            };
         // this.state = {user: this.props.location.state.user};
 
         this.handleDelete = this.handleDelete.bind(this);
@@ -32,15 +43,32 @@ class UserInfo extends React.Component {
         else
             usersStorage.getUserByUserID(this.props.match.params.userId, this.serviceProviderHeaders)
                 .then(user => {
-                    this.setState({user: user});
+                    if (user.response) {
+                        if (user.response.status !== 200)
+                            this.setState({
+                                infoError: true,
+                                infoErrorHeader: 'קרתה שגיאה בעת הבאת פרטי המשתמש',
+                                infoErrorContent: mappers.errorMapper(user.response)
+                            });
+                    } else
+                        this.setState({user: user});
                 })
     }
 
     handleDelete() {
         usersStorage.deleteUserByUserID(this.props.match.params.userId, this.serviceProviderHeaders)
             .then((response) => {
-                console.log('user deleted response ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת מחיקת המשתמש',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log('user deleted response ', response);
+                    this.props.history.goBack();
+                }
             });
     }
 
@@ -48,19 +76,28 @@ class UserInfo extends React.Component {
         this.props.history.push(`${this.props.match.url}/edit`, {
             user: this.state.user
         });
-    }
+    };
 
     renewPassword = () => {
         serviceProvidersStorage.renewUserPassword(this.props.match.params.userId, this.serviceProviderHeaders)
             .then((response) => {
-                console.log('user password renewed response ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת חידוש הסיסמא',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log('user password renewed response ', response);
+                    this.props.history.goBack();
+                }
             });
-    }
+    };
 
     render() {
-        const {user} = this.state;
-        console.log('UserInfo user ', user);
+        const {user, infoError, infoErrorHeader, infoErrorContent} = this.state;
+        // console.log('UserInfo user ', user);
 
         return (
             <div>
@@ -87,6 +124,15 @@ class UserInfo extends React.Component {
 
                                 {this.props.hasPhoneBookPermissions ?
                                     <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                    : null
+                                }
+
+                                {infoError ?
+                                    <Message
+                                        error
+                                        header={infoErrorHeader}
+                                        content={infoErrorContent}
+                                    />
                                     : null
                                 }
                             </Container>

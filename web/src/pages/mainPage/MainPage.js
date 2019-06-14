@@ -178,7 +178,7 @@ class MainPage extends Component {
         store.remove('serviceProviderToken');
         store.remove('serviceProviderId');
         store.remove('userId');
-        console.log('you have been logged out. boo!');
+        // console.log('you have been logged out. boo!');
         if (history)
             history.push('/login');
         else

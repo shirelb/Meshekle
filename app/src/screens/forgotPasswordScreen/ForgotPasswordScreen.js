@@ -6,6 +6,7 @@ import Button from "../../components/submitButton/Button";
 import moment from 'moment';
 import usersStorage from "../../storage/usersStorage";
 import colors from "../../shared/colors";
+import mappers from "../../shared/mappers";
 
 
 export default class ForgotPasswordScreen extends Component {
@@ -16,17 +17,10 @@ export default class ForgotPasswordScreen extends Component {
             user: {},
 
             errorMsg: '',
+            errorHeader: '',
             errorVisible: false
         };
     }
-
-    // componentWillReceiveProps(nextProps, nextContext) {
-    //     this.setState({
-    //         isDateTimePickerVisible: false,
-    //         errorMsg: '',
-    //         errorVisible: true
-    //     });
-    // }
 
     validateForm = () => {
         let user = this.state.user;
@@ -34,7 +28,8 @@ export default class ForgotPasswordScreen extends Component {
             this.setState({
                 formError: true,
                 errorMsg: "ת.ז. חסר וצריך להכיל רק ספרות",
-                errorVisible: true
+                errorVisible: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
             });
             return false;
         }
@@ -42,6 +37,7 @@ export default class ForgotPasswordScreen extends Component {
         if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
             this.setState({
                 formError: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
                 errorMsg: "אימייל חסר או לא וואלידי",
                 errorVisible: true
             });
@@ -51,6 +47,7 @@ export default class ForgotPasswordScreen extends Component {
         if (!user.mailbox || !(/^\d*$/.test(user.mailbox))) {
             this.setState({
                 formError: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
                 errorMsg: "תיבת דואר חסרה וצריכה להכיל רק ספרות",
                 errorVisible: true
             });
@@ -60,6 +57,7 @@ export default class ForgotPasswordScreen extends Component {
         if (!user.cellphone && !user.phone) {
             this.setState({
                 formError: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
                 errorMsg: "עלייך למלא פלאפון או טלפון",
                 errorVisible: true
             });
@@ -69,6 +67,7 @@ export default class ForgotPasswordScreen extends Component {
         if (user.cellphone && !(/^\d*$/.test(user.cellphone))) {
             this.setState({
                 formError: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
                 errorMsg: "הפלאפון לא וואלידי",
                 errorVisible: true
             });
@@ -78,6 +77,7 @@ export default class ForgotPasswordScreen extends Component {
         if (user.phone && !(/^\d*$/.test(user.phone))) {
             this.setState({
                 formError: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
                 errorMsg: "הטלפון לא וואלידי",
                 errorVisible: true
             });
@@ -87,6 +87,7 @@ export default class ForgotPasswordScreen extends Component {
         if (!user.bornDate || user.bornDate === null) {
             this.setState({
                 formError: true,
+                errorHeader: 'שגיאה בעת מילוי טופס',
                 errorMsg: "תאריך הלידה חסר",
                 errorVisible: true
             });
@@ -103,19 +104,24 @@ export default class ForgotPasswordScreen extends Component {
 
         usersStorage.forgetPassword(this.state.user)
             .then(response => {
-                console.log('forgetPassword response ', response);
-                if (!response) {
-                    this.setState({showError: true});
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            showError: true,
+                            errorHeader: 'קרתה שגיאה בעת השליחה',
+                            errorMsg: mappers.errorMapper(response.response)
+                        });
                 } else {
-                    Alert.alert(
-                        'התראה',
-                        'במידה והפרטים נכונים תישלח אלייך סיסמא חדשה למייל. בבקשה לשנות אותה ברגע כניסה לאפליקציה',
-                    );
-                    this.props.navigation.navigate('LoginScreen');
+                    if (!response) {
+                        this.setState({showError: true});
+                    } else {
+                        Alert.alert(
+                            'התראה',
+                            'במידה והפרטים נכונים תישלח אלייך סיסמא חדשה למייל. יש לשנות אותה ברגע כניסה לאפליקציה',
+                        );
+                        this.props.navigation.navigate('LoginScreen');
+                    }
                 }
-            })
-            .catch(response => {
-                this.setState({showError: true});
             })
     };
 
@@ -260,7 +266,7 @@ export default class ForgotPasswordScreen extends Component {
 
                     {
                         this.state.errorVisible === true ?
-                            <FormValidationMessage>{this.state.errorMsg}</FormValidationMessage>
+                            <FormValidationMessage>{this.state.errorHeader + ":\n" + this.state.errorMsg}</FormValidationMessage>
                             : null
                     }
 
@@ -277,15 +283,6 @@ export default class ForgotPasswordScreen extends Component {
                             }}
                         />
                     </View>
-
-                    {this.state.showError ?
-                        <View>
-                            <Text style={styles.errorText}>
-                                ישנם פרטים שאינם נכונים לפי המידע השמור במערכת או שהמשתמש אינו קיים
-                            </Text>
-                        </View>
-                        : null
-                    }
 
                 </ScrollView>
             </View>

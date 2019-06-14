@@ -4,7 +4,7 @@ import {SERVER_URL} from "./constants";
 
 export default () => {
     var serviceProviderToken = store.get('serviceProviderToken');
-    console.log("serviceProviderToken ", serviceProviderToken);
+    // console.log("serviceProviderToken ", serviceProviderToken);
 
     if (serviceProviderToken === null || serviceProviderToken === undefined)
         return Promise.resolve(false);
@@ -15,7 +15,7 @@ export default () => {
             },
         )
             .then(validTokenResponse => {
-                console.log("validTokenResponse ", validTokenResponse);
+                // console.log("validTokenResponse ", validTokenResponse);
                 store.set('serviceProviderId', validTokenResponse.data.payload.serviceProviderId);
                 store.set('userId', validTokenResponse.data.payload.userId);
                 return true;

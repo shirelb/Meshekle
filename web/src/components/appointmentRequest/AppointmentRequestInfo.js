@@ -1,18 +1,24 @@
 import React from 'react';
 import '../styles.css';
-import {Button, Container, List, Modal} from 'semantic-ui-react';
+import {Button, Container, List, Message, Modal} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import strings from "../../shared/strings";
 import store from "store";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import mappers from "../../shared/mappers";
+import usersStorage from "../../storage/usersStorage";
 
 
 class AppointmentRequestInfo extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {appointmentRequest: this.props.location.state.appointmentRequest};
+        this.state = {
+            // appointmentRequest: this.props.location.state.appointmentRequest,
+            infoError: false,
+            infoErrorHeader: '',
+            infoErrorContent: ''
+        };
 
         this.handleDelete = this.handleDelete.bind(this);
 
@@ -22,12 +28,35 @@ class AppointmentRequestInfo extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.location.state.appointmentRequest)
-            this.setState({appointmentRequest: this.props.location.state.appointmentRequest});
-        else {
-            appointmentsStorage.getAppointmentRequestByAppointmentRequestID(store.get('serviceProviderId'), this.props.match.params, this.serviceProviderHeaders)
-                .then(({data: appointmentRequest}) => {
-                    this.setState({appointmentRequest});
+        if (this.props.location.state) {
+            if (this.props.location.state.appointmentRequest)
+                this.setState({appointmentRequest: this.props.location.state.appointmentRequest});
+        } else {
+            appointmentsStorage.getAppointmentRequestByAppointmentRequestID(store.get('serviceProviderId'), this.props.match.params.appointmentRequestId, this.serviceProviderHeaders)
+                .then((appointmentRequest) => {
+                    if (appointmentRequest.response) {
+                        if (appointmentRequest.response.status !== 200)
+                            this.setState({
+                                infoError: true,
+                                infoErrorHeader: 'קרתה שגיאה בעת הבאת פרטי בקשת התור',
+                                infoErrorContent: mappers.errorMapper(appointmentRequest.response)
+                            });
+                    } else {
+                        usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                            .then(user => {
+                                if (user.response) {
+                                    if (user.response.status !== 200)
+                                        this.setState({
+                                            infoError: true,
+                                            infoErrorHeader: 'קרתה שגיאה בעת הבאת פרטי בקשת התור',
+                                            infoErrorContent: mappers.errorMapper(user.response)
+                                        });
+                                } else {
+                                    appointmentRequest.clientName = user.fullname;
+                                    this.setState({appointmentRequest});
+                                }
+                            });
+                    }
                 });
         }
     }
@@ -35,21 +64,30 @@ class AppointmentRequestInfo extends React.Component {
     handleDelete() {
         appointmentsStorage.rejectAppointmentRequestById(this.state.appointmentRequest, this.serviceProviderHeaders)
             .then((response) => {
-                console.log('appointmentRequest handleDelete ', response);
-                this.props.history.goBack();
+                // console.log('appointmentRequest handleDelete ', response);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת מחיקת בקשת התור',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else
+                    this.props.history.goBack();
             });
     }
 
     render() {
-        const {appointmentRequest} = this.state;
+        const {appointmentRequest, infoError, infoErrorHeader, infoErrorContent} = this.state;
 
         return (
             <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | {appointmentRequest ? appointmentRequest.clientName : "פרטי בקשה"}</title>
+                    <title>Meshekle | פרטי בקשת
+                        התור {appointmentRequest ? appointmentRequest.clientName ? appointmentRequest.clientName : appointmentRequest.AppointmentDetail.clientId : ""}</title>
                 </Helmet>
 
-                <Modal.Header>{appointmentRequest ? appointmentRequest.clientName : ""}</Modal.Header>
+                <Modal.Header>{appointmentRequest ? appointmentRequest.clientName ? appointmentRequest.clientName : appointmentRequest.AppointmentDetail.clientId : ""}</Modal.Header>
                 <Modal.Content image>
                     {/*<Image wrapped size="small" src={`https://api.adorable.io/avatars/250/${user.email}`}/>*/}
                     {appointmentRequest ?
@@ -89,6 +127,15 @@ class AppointmentRequestInfo extends React.Component {
                                         )}
                                     </List>
                                 </div>
+
+                                {infoError ?
+                                    <Message
+                                        error
+                                        header={infoErrorHeader}
+                                        content={infoErrorContent}
+                                    />
+                                    : null
+                                }
                             </Container>
                         </Modal.Description>
                         :

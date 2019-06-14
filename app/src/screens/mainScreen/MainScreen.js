@@ -33,7 +33,7 @@ export default class MainScreen extends Component {
                     userFullname: userData.userFullname,
                 });
 
-                console.log('APP_SOCKET main page');
+                // console.log('APP_SOCKET main page');
                 connectToServerSocket(userData.userId);
             })
             .catch(error => {

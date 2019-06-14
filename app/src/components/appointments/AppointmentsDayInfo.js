@@ -17,6 +17,10 @@ export default class AppointmentsDayInfo extends Component {
             selectedDate: this.props.selectedDate,
             markedDates: this.props.markedDates,
             expanded: this.props.expanded,
+
+            errorVisible: false,
+            errorHeader: '',
+            errorContent: ""
         };
 
     }
@@ -40,8 +44,17 @@ export default class AppointmentsDayInfo extends Component {
     cancelAppointment = (appointment) => {
         appointmentsStorage.cancelAppointmentById(appointment, this.props.userHeaders)
             .then(response => {
-                console.log("user cancelAppointment ", response);
-                this.props.loadAppointments();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת מחיקת התור',
+                            errorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log("user cancelAppointment ", response);
+                    this.props.loadAppointments();
+                }
             })
     };
 
@@ -120,6 +133,14 @@ export default class AppointmentsDayInfo extends Component {
                                 })
                             }
                         </List.Section>
+
+                        {
+                            this.state.errorVisible === true ?
+                                <Text style={{color: 'red'}}>
+                                    {this.state.errorHeader + ":\n" + this.state.errorContent}
+                                </Text>
+                                : null
+                        }
                     </ScrollView>
                 </ScrollView>
             </Modal>
