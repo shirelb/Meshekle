@@ -169,7 +169,8 @@ class AppointmentForm extends Component {
             appointment.subject.length > 0 &&
             appointment.date !== '' &&
             appointment.startTime !== '' &&
-            appointment.endTime !== '') {
+            appointment.endTime !== '' &&
+            moment(appointment.startTime, 'h:mma').isBefore(moment(appointment.endTime, 'h:mma'))) {
 
             if (this.state.appointmentRequestEvent) {
                 if (!this.state.isAlertModal)
@@ -198,11 +199,18 @@ class AppointmentForm extends Component {
                         this.setState({appointment: {}});
                 });
         } else {
-            this.setState({
-                formError: true,
-                formErrorHeader: 'פרטי תור חסרים',
-                formErrorContent: 'נא להשלים את השדות החסרים'
-            });
+            !moment(appointment.startTime, 'h:mma').isBefore(moment(appointment.endTime, 'h:mma')) ?
+                this.setState({
+                    formError: true,
+                    formErrorHeader: 'פרטי תור לא תקינים',
+                    formErrorContent: 'שעת התחלה צריכה להיות קטנה משעת הסיום'
+                })
+                :
+                this.setState({
+                    formError: true,
+                    formErrorHeader: 'פרטי תור חסרים',
+                    formErrorContent: 'נא להשלים את השדות החסרים'
+                });
         }
     }
 
@@ -236,12 +244,16 @@ class AppointmentForm extends Component {
     };
 
     onChangeDate = date => {
+        this.setState({formError: false, formErrorHeader: '', formErrorContent: '', formComplete: false});
+
         let updateAppointment = this.state.appointment;
         updateAppointment.date = moment(date).format("YYYY-MM-DD");
         this.setState({appointment: updateAppointment})
     };
 
     onChangeTime = (time, isStart) => {
+        this.setState({formError: false, formErrorHeader: '', formErrorContent: '', formComplete: false});
+
         let updateAppointment = this.state.appointment;
         isStart ?
             updateAppointment.startTime = moment(time).format("HH:mm")

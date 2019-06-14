@@ -6,7 +6,7 @@ var getServiceProviders = function (userHeaders) {
         {headers: userHeaders}
     )
         .then(response => {
-            return response.data.filter(serviceProvider => serviceProvider.serviceProviderId !== 1 && serviceProvider.serviceProviderId !== "1");
+            return response.data.filter(serviceProvider => serviceProvider.serviceProviderId !== 1 && serviceProvider.serviceProviderId !== "1").filter(serviceProvider => serviceProvider.active === true);
         })
         .catch(error => {
             console.log('get serviceProviders error ', error)

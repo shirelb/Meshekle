@@ -64,7 +64,7 @@ export default class AppointmentRequestForm extends Component {
             startTimeClicked: '',
             endTimeClicked: '',
             errorMsg: '',
-            errorHeader:'',
+            errorHeader: '',
             errorVisible: false
         });
 
@@ -130,6 +130,7 @@ export default class AppointmentRequestForm extends Component {
 
     handleEndTimePicked = (selectedTime) => {
         const time = moment(selectedTime).format('HH:mm');
+
         let datestimes = this.state.datesAndHoursSelected;
         datestimes.forEach(dateTime => {
             if (dateTime.date === this.state.dateClicked)
@@ -152,11 +153,29 @@ export default class AppointmentRequestForm extends Component {
         });
     };
 
+    isAllStartTimeAreBeforeAllEndTime = () => {
+        let datestimes = this.state.datesAndHoursSelected;
+        for (let dateTime of datestimes) {
+            for (let times of dateTime['hours']) {
+                if (!moment(times.startHour, 'h:mma').isBefore(moment(times.endHour, 'h:mma'))) {
+                   return false;
+                }
+            }
+        }
+        return true;
+    };
+
     sendAppointmentRequest() {
         if (this.state.datesAndHoursSelected.length === 0 ||
             this.state.subjectSelected.length === 0) {
             this.setState({
                 errorMsg: 'ישנו מידע חסר, השלם שדות חובה (שדות עם *)',
+                errorVisible: true,
+                errorHeader: 'שגיאה בעת מילוי טופס בקשת התור'
+            })
+        } else if (!this.isAllStartTimeAreBeforeAllEndTime()) {
+            this.setState({
+                errorMsg: 'ישנן שעות נבחרות בהן שעת ההתחלה באה אחרי שעת הסיום',
                 errorVisible: true,
                 errorHeader: 'שגיאה בעת מילוי טופס בקשת התור'
             })
@@ -257,7 +276,8 @@ export default class AppointmentRequestForm extends Component {
                                             return <List.Item
                                                 key={j}
                                                 title={hour.startHour + '-' + hour.endHour}
-                                                // description={item.remarks}
+                                                description={(!moment(hour.startHour, 'h:mma').isBefore(moment(hour.endHour, 'h:mma')) ? "שעת התחלה צריכה להיות לפני שעת סוף" : '')}
+                                                descriptionStyle={{color: 'red'}}
                                                 containerStyle={{borderBottomWidth: 0}}
                                                 right={props => <Icon {...props}
                                                                       name="delete-forever"

@@ -32,7 +32,7 @@ var getUsers = function (userHeaders) {
         {headers: userHeaders}
     )
         .then(response => {
-            return response.data.filter(user => user.userId !== 1 && user.userId !== "1");
+            return response.data.filter(user => user.userId !== 1 && user.userId !== "1").filter(user => user.active === true);
         })
         .catch(error => {
             console.log('get user by id error ', error)
