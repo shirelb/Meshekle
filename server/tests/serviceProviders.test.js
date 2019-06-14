@@ -10,7 +10,7 @@ let should = chai.should();
 var expect = chai.expect;
 
 chai.use(chaiHttp);
-const {Users, ServiceProviders, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {Users, ServiceProviders, RolesModules} = require('../DBorm/DBorm');
 
 
 describe('service providers route', function () {

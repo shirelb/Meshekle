@@ -10,7 +10,7 @@ var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, RulesModules, Categories} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, RolesModules, Categories} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
@@ -97,6 +97,7 @@ router.post('/validToken', function (req, res) {
 router.get('/', function (req, res, next) {
     ServiceProviders.findAll()
         .then(serviceProviders => {
+            console.log(serviceProviders);
             res.status(200).send(serviceProviders);
         })
         .catch(err => {
@@ -112,6 +113,7 @@ router.get('/serviceProviderId/:serviceProviderId', function (req, res, next) {
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             }
+            console.log(serviceProviders);
             res.status(200).send(serviceProviders);
         })
         .catch(err => {
@@ -127,6 +129,7 @@ router.get('/userDetails/serviceProviderId/:serviceProviderId', function (req, r
             if (serviceProvider.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             }
+            console.log(serviceProvider);
             Users.findOne({
                 where: {
                     userId: serviceProvider[0].userId
@@ -160,6 +163,7 @@ router.get('/name/:name', function (req, res, next) {
                 return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
             }
             const idsList = ids.map((id) => id.dataValues.userId);
+            console.log(ids);
             ServiceProviders.findAll({
                 where: {
                     userId: {
@@ -171,6 +175,7 @@ router.get('/name/:name', function (req, res, next) {
                     if (serviceProviders.length === 0) {
                         return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
                     }
+                    console.log(serviceProviders);
                     res.status(200).send(serviceProviders);
                 })
                 .catch(err => {
@@ -196,6 +201,7 @@ router.get('/role/:role', function (req, res, next) {
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             }
+            console.log(serviceProviders);
             res.status(200).send(serviceProviders);
         })
         .catch(err => {
@@ -217,6 +223,7 @@ router.get('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType'
             if (serviceProviders.length === 0) {
                 return res.status(400).send({message: serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             }
+            console.log(serviceProviders);
             res.status(200).send(serviceProviders);
         })
         .catch(err => {
@@ -312,7 +319,7 @@ router.post('/add', function (req, res, next) {
                             validations.getUsersByUserIdPromise(newServiceProvider.userId)
                                 .then(users => {
                                     helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                        "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                                        "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                                 })
                                 .catch(err => {
                                     console.log(err);
@@ -370,7 +377,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                 validations.getUsersByUserIdPromise(updateServiceProvider.userId)
                     .then(users => {
                         helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + updateServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + updateServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);
@@ -569,6 +576,7 @@ router.get('/roles/serviceProviderId/:serviceProviderId', function (req, res, ne
         .then(roles => {
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
+            console.log(roles);
             res.status(200).send(roles.map(role => role.role));
         })
         .catch(err => {
@@ -599,8 +607,8 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
             })
                 .then(modules => {
                     const moduleList = modules.map(module => module.dataValues.module);
+                    console.log(moduleList);
                     res.status(200).send(moduleList);
-
                 })
                 .catch(err => {
                     console.log(err);
@@ -622,8 +630,9 @@ let takeValues = (dic) => {
 
 
 function isServiceProviderInputValid(serviceProviderInput) {
-    if (serviceProviderInput.appointmentWayType && !isAppWayTypeExists(serviceProviderInput.appointmentWayType))
-        return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
+    if (serviceProviderInput.appointmentWayType)
+        if (!isAppWayTypeExists(serviceProviderInput.appointmentWayType))
+            return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
     if (!isRoleExists(serviceProviderInput.role))
         return serviceProvidersRoute.INVALID_ROLE_INPUT;
     if (serviceProviderInput.phoneNumber.match(/^[0-9]+$/) === null || serviceProviderInput.phoneNumber.length < 9 || serviceProviderInput.phoneNumber.length > 10)
