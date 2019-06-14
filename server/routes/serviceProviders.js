@@ -6,8 +6,6 @@ var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
 var moment = require('moment');
 var router = express.Router();
-var nodemailer = require('nodemailer');
-var cors = require('cors');
 
 const Sequelize = require('sequelize');
 const {ServiceProviders, Users, RolesModules, Categories} = require('../DBorm/DBorm');
