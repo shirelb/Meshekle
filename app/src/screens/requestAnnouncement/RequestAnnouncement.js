@@ -1,40 +1,24 @@
 import React, {Component} from 'react';
 import {
-    FlatList,
     StyleSheet,
     View,
-    Switch,
-    RefreshControl,
     ScrollView,
     Alert,
     BackHandler
 } from 'react-native';
-import {Divider, Icon, List, ListItem, SearchBar, Text} from 'react-native-elements';
+import {Divider, Text} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
 import Button from "../../components/submitButton/Button"
 
+import announcementsStorage from "../../storage/announcementsStorage";
+import {Dropdown} from 'react-native-material-dropdown';
+import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
+
+
+var RNFS = require('react-native-fs');
 
 var t = require('tcomb-form-native');
 var Form = t.form.Form;
-
-import announcementsStorage from "../../storage/announcementsStorage";
-import moment from "moment";
-import {Dropdown} from "react-native-material-dropdown";
-import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
-var RNFS = require('react-native-fs');
-
-
-// var options = {
-//     fields: {
-//         eta: {
-//             label: 'ETA',
-//             mode: 'date',
-//             config: {
-//                 format: (date) => moment(date).format('YYYY-mm-d'),
-//             },
-//         },
-//     },
-// };
 
 var options = {
     fields: {
@@ -86,8 +70,6 @@ var Announcement = t.struct({
 
 export default class RequestAnnouncement extends Component {
 
-
-
     constructor(props) {
         super(props);
 
@@ -95,7 +77,7 @@ export default class RequestAnnouncement extends Component {
             categoryNameFilter: "---",
             categoriesDisplay: [],
             categories: [],
-            value: null,
+            value: {},
         };
 
     }
@@ -104,7 +86,6 @@ export default class RequestAnnouncement extends Component {
         BackHandler.addEventListener('hardwareBackPress', this.cancelChanges);
         phoneStorage.get('userData')
             .then(userData => {
-                // console.log('agenda componentDidMount userData ', userData);
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
@@ -169,7 +150,7 @@ export default class RequestAnnouncement extends Component {
 
     clearForm = () => {
         //this.refs.dropdown.;
-        this.setState({ value: null , categoryNameFilter: "---"});
+        this.setState({ value: {} , categoryNameFilter: "---"});
     };
 
     //Category dropdown filter
@@ -198,10 +179,6 @@ export default class RequestAnnouncement extends Component {
         DocumentPicker.show(
             {
                 filetype: [DocumentPickerUtil.allFiles()],
-                //All type of Files DocumentPickerUtil.allFiles()
-                //Only PDF DocumentPickerUtil.pdf()
-                //Audio DocumentPickerUtil.audio()
-                //Plain Text DocumentPickerUtil.plainText()
             },
             (error, res) => {
                 if(res) {
@@ -213,7 +190,7 @@ export default class RequestAnnouncement extends Component {
                             let value = this.state.value;
                             value.file = content;
                             value.fileName = res.fileName;
-                            this.setState({value: value});
+                            this.setState({value: value,fileName: value.fileName});
                         });
                 }
             }
@@ -245,6 +222,7 @@ export default class RequestAnnouncement extends Component {
                         label="הוסף קובץ (עד 1MB)"
                         onPress={this.uploadFile.bind(this)}
                     />
+                    <Text>{this.state.value.fileName}</Text>
 
                     <Divider style={{ backgroundColor: 'white' ,height:100}} />
 

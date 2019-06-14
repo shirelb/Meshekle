@@ -110,7 +110,6 @@ class AnnouncementForm extends Component {
         let reader = new FileReader();
         reader.readAsDataURL(file);
         let updatedAnnouncement = JSON.parse(JSON.stringify(this.state.announcement));
-        let prevValue = updatedAnnouncement.fileName;
         reader.onload = e => {
             console.log("file", e.target.result);
             let file = e.target.result;
@@ -121,10 +120,6 @@ class AnnouncementForm extends Component {
                 announcement: updatedAnnouncement
             });
         };
-        // while(! (updatedAnnouncement.fileName === prevValue) && ! (updatedAnnouncement.file === ''));
-
-
-
 
     };
 

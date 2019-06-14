@@ -1,0 +1,18 @@
+[
+  {
+  "userChoreId": 1,
+  "userId": "549963652",
+  "choreTypeName": "שמירה",
+  "date": "2020-05-11 21:00:16.000 +00:00",
+  "originDate": "2019-07-17 18:29:20.000 +00:00",
+  "isMark": true
+  },
+  {
+  "userChoreId": 2,
+  "userId": "972350803",
+  "choreTypeName": "שמירה",
+  "date": "2020-05-12 21:00:16.000 +00:00",
+  "originDate": "2019-07-17 18:29:20.000 +00:00",
+  "isMark": true
+  }
+]
