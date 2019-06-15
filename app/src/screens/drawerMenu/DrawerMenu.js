@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions,ScrollView, StackActions} from 'react-navigation';
-import {Linking, View} from 'react-native';
+import {DrawerActions, NavigationActions, ScrollView, StackActions} from 'react-navigation';
+import {Linking} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'
@@ -93,14 +93,16 @@ export default class DrawerMenu extends Component {
     componentDidMount() {
         APP_SOCKET.on("getUsers", this.loadUser.bind(this));
 
-        APP_SOCKET.on("getUserAppointments", this.setState({
-            mainBadgeVisible: 1,
-            appointmentsBadgeVisible: 1,
-        }));
-        APP_SOCKET.on("getUserChore", this.setState({
-            mainBadgeVisible: 1,
-            choresBadgeVisible: 1
-        }));
+        APP_SOCKET.on("getUserAppointments", this.turnOnBadge.bind(this, "AppointmentsScreen"));
+        APP_SOCKET.on("getUserChore", this.turnOnBadge.bind(this, "ChoresScreen"));
+
+        this.setState({
+            mainBadgeVisible: 0,
+            appointmentsBadgeVisible: 0,
+            choresBadgeVisible: 0,
+            phoneBookBadgeVisible: 0,
+            announcementsBadgeVisible: 0,
+        });
     }
 
     componentWillUnmount() {
@@ -109,6 +111,26 @@ export default class DrawerMenu extends Component {
         APP_SOCKET.off("getUserAppointments");
         APP_SOCKET.off("getUserChore");
     }
+
+    turnOnBadge = (route) => {
+        switch (route) {
+            case 'MainScreen':
+                this.setState({mainBadgeVisible: 1,});
+                break;
+            case 'AppointmentsScreen':
+                this.setState({mainBadgeVisible: 1, appointmentsBadgeVisible: 1,});
+                break;
+            case 'ChoresScreen':
+                this.setState({mainBadgeVisible: 1, choresBadgeVisible: 1,});
+                break;
+            case 'PhoneBookScreen':
+                this.setState({mainBadgeVisible: 1, phoneBookBadgeVisible: 1,});
+                break;
+            case 'AnnouncementsScreen':
+                this.setState({mainBadgeVisible: 1, announcementsBadgeVisible: 1,});
+                break;
+        }
+    };
 
     loadUser() {
         usersStorage.getUserById(this.userId, this.userHeaders)

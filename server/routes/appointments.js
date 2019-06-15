@@ -213,7 +213,7 @@ router.get('/serviceProvider/serviceProviderId/:serviceProviderId', function (re
                     {
                         model: AppointmentDetails,
                         where: {
-                            serviceProviderId: typeof req.params.serviceProviderId === 'string' ? parseInt(req.params.serviceProviderId) : req.params.serviceProviderId
+                            serviceProviderId: req.params.serviceProviderId
                         },
                         required: true
                     }
