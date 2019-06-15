@@ -182,6 +182,7 @@ SwapRequests.belongsTo(UsersChores, {
     targetKey: 'userChoreId'
 });
 
+
 if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
@@ -282,10 +283,32 @@ if (process.dbMode === "dev") {
                         )
                 });
 
-            RolesModules.create({
-                role: "Admin",
-                module: "all",
-            })
+            RolesModules.bulkCreate([
+                {
+                    role: "Admin",
+                    module: "all",
+                },
+                {
+                    role: "appointmentsHairDresser",
+                    module: "appointments"
+                },
+                {
+                    role: "appointmentsDentist",
+                    module: "appointments"
+                },
+                {
+                    role: "PhoneBookSecretary",
+                    module: "phoneBook"
+                },
+                {
+                    role: "ChoresSecretary",
+                    module: "chores"
+                },
+                {
+                    role: "AnnouncementsSecretary",
+                    module: "announcements"
+                },
+            ])
                 .then(response => {
                     Users.create({
                         userId: '1',
