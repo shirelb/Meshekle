@@ -5,7 +5,7 @@ var constants = require('./constants');
 module.exports = {
     sendToken: function (payload, res) {
             var token = jwt.sign(payload, constants.general.SUPER_SECRET, {
-                expiresIn: "10h" // expires in 10 hours
+                expiresIn: "7d" // expires in 10 hours
             });
 
             // return the information including token as JSON

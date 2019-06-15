@@ -57,7 +57,7 @@ export default class AppointmentsCalendar extends Component {
                             errorHeader: 'קרתה שגיאה בעת הבאת התורים',
                             errorContent: mappers.errorMapper(response.response)
                         });
-                } else {
+                   } else {
                     let markedDates = {};
 
                     response.data.forEach(appointment => {
@@ -109,12 +109,12 @@ export default class AppointmentsCalendar extends Component {
             updatedMarkedDates[selectedDay].appointments.forEach(appointment => {
                 serviceProvidersStorage.getServiceProviderUserDetails(appointment.AppointmentDetail.serviceProviderId, this.userHeaders)
                     .then(user => {
-                        if (response.response) {
-                            if (response.response.status !== 200)
+                        if (user.response) {
+                            if (user.response.status !== 200)
                                 this.setState({
                                     errorVisible: true,
                                     errorHeader: 'קרתה שגיאה בעת הבאת פרטי נותן השירות',
-                                    errorContent: mappers.errorMapper(response.response)
+                                    errorContent: mappers.errorMapper(user.response)
                                 });
                         } else {
                             appointment.serviceProviderFullname = user.data.fullname;
