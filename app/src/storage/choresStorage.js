@@ -16,6 +16,7 @@ var getUserChoresForUser = function (userId, userHeaders) {
         })
         .catch(error => {
             console.log('get user chores error ', error)
+            return error;
         });
 };
 
@@ -30,20 +31,15 @@ var getOtherWorkers = function(userId, userHeaders, type, month, year, day){
         .then(response => {
             let otherWorkers ="";
             response.data.usersChores.forEach(element=>{
-                if(moment(response.data.usersChores[element].date).format('DD-MM-YYYY')===String(moment(day).format('DD-MM-YYYY'))){
-                    otherWorkers= otherWorkers+String(response.data.usersChores[element].User.fullname+"\n");
+                if(moment(element.date).format('DD-MM-YYYY')===String(moment(day).format('DD-MM-YYYY'))){
+                    otherWorkers= otherWorkers+String(element.User.fullname+"\n");
                 }
             });
-            /*response.data.chores.forEach(element => {
-                if(element.date ===new Date(String(year+'-'+month+'-'+day))){
-                    otherWorkers = otherWorkers +', '+ String(element.userId);
-                    otherWorkers = "lll",
-                }
-            });*/
             return otherWorkers;
         })
         .catch(error => {
             console.log('get user chores error ', error)
+            return error;
         });
 };
 
@@ -60,6 +56,7 @@ var getChoreTypeSetting = function(userId, userHeaders, type){
         })
         .catch(error => {
             console.log('get user chores error ', error)
+            return error;
         });
 };
 
@@ -73,6 +70,7 @@ var getReplacementRequests = function(userId, userHeaders, type,status){
         })
         .catch(error => {
             console.log('get Replacement Requests error ', error)
+            return error;
         });
 };
 
@@ -93,7 +91,7 @@ var createSpecificReplacementRequest = function(userId, headers, choreIdOfSender
         })
         .catch(error => {
             console.log('create specific replacement request error ', error)
-            
+            return error;
         });
 };
 
@@ -114,6 +112,7 @@ var changeReplacementRequestStatus = function(userId, headers, choreIdOfSender, 
         })
         .catch(error => {
             console.log('change replacement request status error ', error)
+            return error;
         });
 };
 
@@ -134,6 +133,7 @@ var replaceUserChores = function(userId, headers, choreIdOfSender, choreIdOfRece
         })
         .catch(error => {
             console.log('replace UserChores error ', error)
+            return error;
         });
 };
 
@@ -153,6 +153,7 @@ var generalReplacementRequest = function(userId, headers, userChoreId ,isMark){
         })
         .catch(error => {
             console.log('general Replacement Request error ', error)
+            return error;
         });
 };
 
@@ -165,7 +166,8 @@ var getUserChoresForType = function (userId, userHeaders, type, month, year) {
             return response;
         })
         .catch(error => {
-            console.log('get user chores for type and month error ', error)
+            console.log('get user chores for type and month error ', error);
+            return error;
         });
 };
 

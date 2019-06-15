@@ -12,12 +12,6 @@ router.use(function (req, res, next) {
   authentications.verifyToken(req, res, next);
 });
 
-// router.post('/validToken', function (req, res) {
-//   res.status(200).send({
-//       message: constants.usersRoute.VALID_TOKEN,
-//       payload: req.decoded.payload
-//   });
-// });
 
 /* GET users chores listing. api1 */
 router.get('/usersChores/future/:future', function (req, res, next) {
@@ -819,7 +813,7 @@ router.post('/replacementRequests/specificRequest', function (req, res, next) {
             date = new Date(choreSender.dataValues.date);
             dateNow = Date.now();
             if(date<dateNow){
-                res.status(400).send({
+                return res.status(400).send({
                   "message": "לא ניתן לבקש החלפה עם תורנות עם תאריך בעבר",
                 });
             }
@@ -833,42 +827,28 @@ router.post('/replacementRequests/specificRequest', function (req, res, next) {
                 status: req.body.status,
               })
                   .then(newRequest => {
-                      res.status(200).send({"message": "replacement request successfully added!",newRequest});
+                      return res.status(200).send({"message": "replacement request successfully added!",newRequest});
                   })
                   .catch(err => {
                       console.log(err);
-                      res.status(500).send(err);
+                      return res.status(500).send(err);
                   })
                   //
                 }
                 else{
-                  res.status(400).send({"message": "לא ניתן לבקש החלפה בין 2 תורנויות מסוגים שונים"});
+                  return res.status(400).send({"message": "לא ניתן לבקש החלפה בין 2 תורנויות מסוגים שונים"});
                 }
             }
           }
           else{
-            res.status(200).send({"message": "תורנות של מבקש הבקשה לא קיימת!",newRequest});
+             return res.status(200).send({"message": "תורנות של מבקש הבקשה לא קיימת!",newRequest});
            } 
         })
         .catch(err=>{
-          res.status(500).send({
+          return res.status(500).send({
                   "message": "שגיאה!",
                 });
         })
-        //date = new Date(req.body.date);
-        //dateNow = Date.now();
-        //if(date<dateNow){
-        //    res.status(400).send({
-        //      "message": "Cannot schedule a user chore at a past date",
-        //    });
-        //}else{
-        //  console.log("\n the date is OK!\n")
-        //  validations.checkIfUserExist(req.body.userId, res)
-        //  .then(user=>{
-            //check if the user have releases for that chore
-        //    checkIfUserDoChoreType(req.body.userId, req.body.choreTypeName, res)
-        //    .then(ans=>{
-        //      if(ans){
                       
              
       }
@@ -952,11 +932,11 @@ router.put('/replacementRequests/changeStatus', function (req, res, next) {
                   status: req.body.status,
                 })
                     .then(newRequest => {
-                        res.status(200).send({"message": "change status replacement request successfully done!",newRequest});
+                        return res.status(200).send({"message": "change status replacement request successfully done!",newRequest});
                     })
                     .catch(err => {
                         console.log(err);
-                        res.status(500).send(err);
+                        return res.status(500).send(err);
                     })
               })
               

@@ -61,61 +61,50 @@ export default class ChoresCalendar extends Component {
     }
 
     loadUserChores() {
-        console.log("userid: ", this.userId);
         choresStorage.getUserChoresForUser(this.userId,this.userHeaders)
             .then(response => {
-                let markedDates = [];
+                if(response && response.status!==200){
+                    alert("בעיה בהבאת נתונים מהשרת, נסה לרענן עמוד.")
+                }
+                else{
+                    let markedDates = [];
+                    response.data.chores.forEach(userChore => {
+                        if ((userChore.date !== undefined) && (userChore.date !== null && (userChore.date)))
+                        {
+                            const date = moment(userChore.date).format('YYYY-MM-DD');
+                            if (markedDates[date] === undefined || markedDates[date] === null) {
+                                markedDates[date] = {marked: true, selected: userChore.isMark, userChores: [], selectedColor:'yellow'};
+                            }
+                            let requests = [choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, userChore.choreTypeName),choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, moment(date).format('MM'), moment(date).format('YYYY'), date)];
 
-                console.log("response= ", response);
-                response.data.chores.forEach(userChore => {
-                    if ((userChore.date !== undefined) && (userChore.date !== null && (userChore.date)))
-                    {
-                        const date = moment(userChore.date).format('YYYY-MM-DD');
-                        if (markedDates[date] === undefined || markedDates[date] === null) {
-                            markedDates[date] = {marked: true, selected: userChore.isMark, userChores: [], selectedColor:'yellow'};
+                            markedDates[date].selected= userChore.isMark||markedDates[date].selected;//uc.isMark;
+                            axios.all(requests)
+                            .then(responses=>{
+                                if(responses[1]===undefined ||responses[0].status!==200){
+                                    alert("בעיה בהבאת פרטי התורנות, נסה לרענן את העמוד");
+                                }
+                                else{
+                                console.log("LOAD USERSCHORES response: ", response);
+                                var uc = userChore;
+                                uc.type = responses[0].data;
+                                
+                                markedDates[date].userChores.push(uc);
+                                this.setState({
+                                    markedDates: markedDates,
+                                    workers: String(responses[1])
+                                });
+                                this.forceUpdate();
+                            }
+                            })
                         }
-                        let requests = [choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, userChore.choreTypeName),choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, moment(date).format('MM'), moment(date).format('YYYY'), date)];
+                    });
 
-                        markedDates[date].selected= userChore.isMark||markedDates[date].selected;//uc.isMark;
-                        //requests.push( choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, userChore.choreTypeName));
-                        //requests.push(choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, moment(date).format('MM'), moment(date).format('YYYY'), moment(date).format('DD')) );
-                        axios.all(requests)
-                        .then(responses=>{
-                            console.log("LOAD USERSCHORES response: ", response);
-                            var uc = userChore;
-                            uc.type = responses[0].data;
-                            //uc.workers = response[1];
-
-                            
-                            markedDates[date].userChores.push(uc);
-                            this.setState({
-                                markedDates: markedDates,
-                                workers: String(responses[1])
-                            });
-                            this.forceUpdate();
-                        })
-                        //choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, userChore.choreTypeName)
-                    //.then(itm => {
-                        //choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, "03", "2019", "09")
-                        //.then(res=>{
-                            //var uc = userChore;
-                            //uc.type = itm.data;
-                            //uc.type.workers = res.data;
-                        //})
-                        
-                    //console.log("item: ", this.state.item);
-                    //console.log("itm: ", itm);
-                    //---markedDates[date].userChores.push(uc);
-                ///--});
-                    }
-                });
-
-                this.setState({
-                    markedDates: markedDates
-                });
-                this.forceUpdate();
-
-                console.log('user  333  markedDates ', markedDates);
+                    this.setState({
+                        markedDates: markedDates
+                    });
+                    this.forceUpdate();
+                    //
+            }
             })
     }
 
@@ -227,8 +216,11 @@ export default class ChoresCalendar extends Component {
                 onPress={()=>{
                     choresStorage.getOtherWorkers(this.userId,this.userHeaders, item.choreTypeName, moment(item.date).format('MM'), moment(item.date).format('YYYY'), item.date)
                     .then(res=>{
-                    this.setState({choreModalVisible: true, type: item.type, userChoreSelected:item, workers:res});
-
+                        if(res===undefined){
+                            alert("אירעה בעיה בהבאת נתונים מהשרת, נסה לרענן עמוד");
+                        }else{
+                        this.setState({choreModalVisible: true, type: item.type, userChoreSelected:item, workers:res});
+                        }
                     })
                 }}
             />
@@ -376,8 +368,13 @@ export default class ChoresCalendar extends Component {
                                 onPress={() => {
                                     choresStorage.generalReplacementRequest(this.userId, this.userHeaders, this.state.userChoreSelected.userChoreId ,false)
                                     .then(res=>{
+                                        if(res && res.status!==200){
+                                            alert("בעיה! הפעולה לא בוצעה, נסה שנית.")
+                                        }
+                                    else{
                                         this.setState({alertModal:true, alertContent:"כעת התורנות שלך אינה מסומנת כמחפשת החלפה"})
                                         this.loadUserChores();
+                                    }
                                     })
                                 }}
                             />
@@ -387,8 +384,13 @@ export default class ChoresCalendar extends Component {
                                 onPress={() => {
                                     choresStorage.generalReplacementRequest(this.userId, this.userHeaders, this.state.userChoreSelected.userChoreId ,true)
                                     .then(res=>{
+                                        if(res && res.status!==200){
+                                            alert("בעיה! הפעולה לא בוצעה, נסה שנית.")
+                                        }
+                                        else{
                                         this.setState({alertModal:true, alertContent:"כעת התורנות שלך מסומנת כמחפשת החלפה"})
                                         this.loadUserChores();
+                                        }
                                     })
                                 }}
                             />}
