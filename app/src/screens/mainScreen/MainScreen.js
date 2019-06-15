@@ -4,6 +4,7 @@ import AgendaCalendar from "../../components/calendars/agendaCalendar/AgendaCale
 import strings from "../../shared/strings";
 import phoneStorage from 'react-native-simple-store';
 import {connectToServerSocket} from "../../shared/constants";
+import PushNotificationController from "../../PushNotificationController";
 
 window.navigator.userAgent = "react-native";
 
@@ -58,6 +59,7 @@ export default class MainScreen extends Component {
                     userId={this.state.userId}
                 />
 
+                <PushNotificationController/>
             </View>
         )
     }

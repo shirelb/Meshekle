@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions, StackActions} from 'react-navigation';
+import {DrawerActions, NavigationActions,ScrollView, StackActions} from 'react-navigation';
 import {Linking, View} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
@@ -18,6 +18,12 @@ export default class DrawerMenu extends Component {
             formModal: false,
             infoModal: false,
             userLoggedin: {},
+
+            mainBadgeVisible: 0,
+            appointmentsBadgeVisible: 0,
+            choresBadgeVisible: 0,
+            phoneBookBadgeVisible: 0,
+            announcementsBadgeVisible: 0,
         };
     }
 
@@ -26,7 +32,30 @@ export default class DrawerMenu extends Component {
             routeName: route
         });
         this.props.navigation.dispatch(navigateAction);
-        this.props.navigation.dispatch(DrawerActions.closeDrawer())
+        this.props.navigation.dispatch(DrawerActions.closeDrawer());
+
+        switch (route) {
+            case 'MainScreen':
+                this.setState({
+                    mainBadgeVisible: 0,
+                    appointmentsBadgeVisible: 0,
+                    choresBadgeVisible: 0,
+                    announcementsBadgeVisible: 0,
+                });
+                break;
+            case 'AppointmentsScreen':
+                this.setState({appointmentsBadgeVisible: 0,});
+                break;
+            case 'ChoresScreen':
+                this.setState({choresBadgeVisible: 0,});
+                break;
+            case 'PhoneBookScreen':
+                this.setState({phoneBookBadgeVisible: 0,});
+                break;
+            case 'AnnouncementsScreen':
+                this.setState({announcementsBadgeVisible: 0,});
+                break;
+        }
     };
 
     onLogoutPress = () => {
@@ -63,10 +92,22 @@ export default class DrawerMenu extends Component {
 
     componentDidMount() {
         APP_SOCKET.on("getUsers", this.loadUser.bind(this));
+
+        APP_SOCKET.on("getUserAppointments", this.setState({
+            mainBadgeVisible: 1,
+            appointmentsBadgeVisible: 1,
+        }));
+        APP_SOCKET.on("getUserChore", this.setState({
+            mainBadgeVisible: 1,
+            choresBadgeVisible: 1
+        }));
     }
 
     componentWillUnmount() {
         APP_SOCKET.off("getUsers");
+
+        APP_SOCKET.off("getUserAppointments");
+        APP_SOCKET.off("getUserChore");
     }
 
     loadUser() {
@@ -101,11 +142,11 @@ export default class DrawerMenu extends Component {
             formModal: true,
             infoModal: false,
         });
-    }
+    };
 
     render() {
         return (
-            <View style={{flex: 1, backgroundColor: '#ededed'}}>
+            <ScrollView style={{flex: 1, backgroundColor: '#ededed'}}>
                 <List containerStyle={{marginBottom: 20}}>
                     <ListItem
                         containerStyle={{height: 150}}
@@ -133,7 +174,11 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'home'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{ value: 3, textStyle: { color: 'orange' } }}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {backgroundColor: 'transparent', opacity: this.state.mainBadgeVisible}
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -144,7 +189,14 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'insert-invitation'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {
+                                backgroundColor: 'transparent',
+                                opacity: this.state.appointmentsBadgeVisible
+                            }
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -155,7 +207,11 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'transfer-within-a-station'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {backgroundColor: 'transparent', opacity: this.state.choresBadgeVisible}
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -166,7 +222,11 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'contacts'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {backgroundColor: 'transparent', opacity: this.state.phoneBookBadgeVisible}
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -177,7 +237,14 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'insert-comment'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {
+                                backgroundColor: 'transparent',
+                                opacity: this.state.announcementsBadgeVisible
+                            }
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -224,7 +291,7 @@ export default class DrawerMenu extends Component {
                     : null
                 }
 
-            </View>
+            </ScrollView>
         );
     }
 }
