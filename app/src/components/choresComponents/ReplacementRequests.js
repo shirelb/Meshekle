@@ -528,13 +528,13 @@ export default class ReplacementRequests extends Component {
                                 :
                                 <View></View>
                                 }
-                                <Button
+                                {/*<Button
                                 label='חזור'
                                 onPress={() => {
                                     console.log("\nclosepressed\n");
                                     this.setState({ choreModalVisible: false});
                                 }}
-                            />
+                            />*/}
                               { /* <Text>פרטי תורנות</Text>
                                 <Text>{this.state.userChoreSelected+' \n'                             
                                 }</Text>

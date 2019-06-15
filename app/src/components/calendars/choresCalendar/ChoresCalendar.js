@@ -50,6 +50,7 @@ export default class ChoresCalendar extends Component {
                 this.loadUserChores();
                 APP_SOCKET.on("getUserChore", this.loadUserChores.bind(this));
                 APP_SOCKET.on("getChangeInUserChores", this.loadUserChores.bind(this));
+                APP_SOCKET.on("removeUserChore", this.loadUserChores.bind(this));
             });
 
     }
@@ -219,37 +220,22 @@ export default class ChoresCalendar extends Component {
         return (
             <ListItem
                 roundAvatar
-                //title={moment(item.date).format('YYYY-MM-DD') }
                 title={item.isMark? item.choreTypeName+" <מסומן כמחפש/ת החלפה>": item.choreTypeName }
+                titleStyle={{fontSize:20, color:'#00BFFF'}} 
                 
                 containerStyle={{borderBottomWidth: 0}}
-                // rightIcon={<Icon name={'chevron-left'}/>}
-                // hideIcon
                 onPress={()=>{
                     choresStorage.getOtherWorkers(this.userId,this.userHeaders, item.choreTypeName, moment(item.date).format('MM'), moment(item.date).format('YYYY'), item.date)
                     .then(res=>{
                     this.setState({choreModalVisible: true, type: item.type, userChoreSelected:item, workers:res});
 
                     })
-                    //choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, item.choreTypeName)
-                    //.then(itm => {
-                        //this.setState({item: itm});
-                       // this.setState({ choreModalVisible: true, item: itm.body.type});
-                    //console.log("item: ", this.state.item);
-                    //console.log("itm: ", itm);
-                      //  });
-                    
                 }}
             />
         )
     };
 
-    /*getChoreSettings =  ({typeName}) => {
-        choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, typeName)
-            .then(itm => {
-                this.setState({item: itm});
-                });
-            };*/
+   
 
     render() {
         LocaleConfig.defaultLocale = 'il';
@@ -333,25 +319,21 @@ export default class ChoresCalendar extends Component {
                                     this.setState({dateModalVisible: false});
                                 }}
                             />
-                                <Text>XXXXX</Text>
                             </TouchableOpacity>
 
-                            <Text> {this.state.selectedDate} </Text>
+                            <Text style={{fontSize: 30, textAlign:'center'}}> {moment(this.state.selectedDate).format("DD-MM-YYYY")} </Text>
 
 
                             <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
                                 {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate]===undefined||this.state.markedDates[this.state.selectedDate].userChores===undefined||this.state.markedDates[this.state.selectedDate].userChores.length === 0 ?
-                                    <Text>אין לך תורנויות לתאריך זה </Text>
+                                    <Text style={{fontSize: 20}}>אין לך תורנויות לתאריך זה </Text>
                                     :
                                     <FlatList
                                         data={this.state.markedDates[this.state.selectedDate].userChores}
                                         renderItem={this.renderRow}
                                         keyExtractor={item => item.userId}
                                         ItemSeparatorComponent={this.renderSeparator}
-                                        /*onPress={
-                                            this.setModalVisible(!this.state.modalVisible);
-                                            this.setState({dateModalVisible: false, choreModalVisible: true})
-                                        }*/
+                                        
                                     />
                                 }
                             </List>
@@ -378,13 +360,13 @@ export default class ChoresCalendar extends Component {
                                 }}
                             />
                                 <Text>פרטי תורנות</Text>
-                                <Text> {this.state.selectedDate}</Text>
-                                <Text>{this.state.type.type.choreTypeName+' \n'                             
+                                <Text style={{fontSize: 18, fontWeight:'bold', textAlign:'center'}}> {moment(this.state.selectedDate).format('DD-MM-YYYY')}</Text>
+                                <Text style={{fontSize: 18, fontWeight:'bold', textAlign:'center'}}>{this.state.type.type.choreTypeName+' \n'                             
                                 }</Text>
                                 <Text>תורנים:</Text>
-                                <Text>{this.state.workers}</Text>
+                                <Text style={{fontSize: 18, textAlign:'center'}}>{this.state.workers}</Text>
                                 <Text>שעות פעילות:</Text>
-                                <Text>{this.state.type.type.endTime+'-'+this.state.type.type.startTime}</Text>
+                                <Text style={{fontSize: 18, textAlign:'center'}}>{this.state.type.type.endTime+'-'+this.state.type.type.startTime}</Text>
                                 {/*</TouchableOpacity>*/}
                             {moment(this.state.userChoreSelected.date)>=moment(Date.now())?
                             <View>

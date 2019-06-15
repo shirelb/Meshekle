@@ -68,22 +68,6 @@ modalUsersBuild() {
     for (us in usersInType) {
         usersInTypeNames.push(usersInType[us].text);
     }
-    // u = 0;
-    // usersStorage.getUsers()
-    //     .then(res => {
-    //         allUsers = res;
-    //         console.log("responst getallusers:", usersInType, this.state.users, res)
-            // for (u in res) {
-            //     if (usersInTypeNames.indexOf(allUsers[u].fullname) < 0) {
-            //         usersNotInType.push({
-            //             id: allUsers[u].userId,
-            //             key: "1",
-            //             text: allUsers[u].fullname,
-            //             value: allUsers[u].fullname
-            //         });
-            //     }
-
-            // }
             
                console.log("users iin typeee", usersInType);
             choresStorage.getUsersNotInType(this.serviceProviderId, this.serviceProviderHeaders, this.props.choreTypeSelected)
@@ -100,8 +84,6 @@ modalUsersBuild() {
                                         scrolling clearable 
                                        onChange={this.handleUserToAddChange}
                                        
-                                       //value={this.state.usersToAddToType}
-                                       //text ={this.state.usersNamesToAddToType} 
 
                 />);
                 content.push(<Button onClick={this.addUserToChoreType}>הוסף</Button>);

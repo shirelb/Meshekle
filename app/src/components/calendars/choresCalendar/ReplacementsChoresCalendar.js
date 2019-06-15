@@ -57,7 +57,7 @@ export default class ReplacementsChoresCalendar extends Component {
 
                 console.log("getUserChoresForType response= ", response);
                 response.data.usersChores.forEach(userChore => {
-                    if ((userChore.date !== undefined) && (userChore.date !== null && (userChore.date)))
+                    if ((userChore.date !== undefined) && (userChore.date !== null && (userChore.date)) && userChore.date!==this.props.userChoreSelected.date)
                     {
                         const date = moment(userChore.date).format('YYYY-MM-DD');
                         if (markedDates[date] === undefined || markedDates[date] === null) {
@@ -208,9 +208,8 @@ export default class ReplacementsChoresCalendar extends Component {
         return (
             <ListItem
                 roundAvatar
-                //title={moment(item.date).format('YYYY-MM-DD') }
                 title={item.isMark? String(item.User.fullname)+" <מחפש/ת החלפה>": String(item.User.fullname)}
-                
+                titleStyle={{fontSize:20, color:'#000080'}}
                 containerStyle={{borderBottomWidth: 0}}
                 // rightIcon={<Icon name={'chevron-left'}/>}
                 // hideIcon
@@ -320,13 +319,13 @@ export default class ReplacementsChoresCalendar extends Component {
                             />
                             </TouchableOpacity>
 
-                            <Text> {this.state.selectedDate} </Text>
+                            <Text style={{fontSize: 20, textAlign:'center'}}> {moment(this.state.selectedDate).format('DD-MM-YYYY')} </Text>
 
                             
 
                             <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
                                 {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].userChores.length === 0 ?
-                                    <Text>אין תורנויות לתאריך זה </Text>
+                                    <Text style={{fontSize: 20}}>אין תורנויות לתאריך זה </Text>
                                     :
                                     <FlatList
                                         data={this.state.markedDates[this.state.selectedDate].userChores}
@@ -362,13 +361,13 @@ export default class ReplacementsChoresCalendar extends Component {
                                     this.setState({dateModalVisible:true, choreModalVisible: false})
                                 }}
                             />
-                                <Text >
+                                <Text style={{fontSize: 18}}>
                                 שליחת בקשת החלפה:
                                 </Text>
-                                <Text>{this.state.choreModalUser.fullname+' \n'                             
+                                <Text style={{fontSize: 18, fontWeight:'bold', textAlign:'center'}}>{this.state.choreModalUser.fullname+' \n'                             
                                 }</Text>
-                                <Text>תאריך:</Text>
-                                <Text>{this.state.selectedDate}</Text>
+                                <Text style={{fontSize: 18}}>תאריך:</Text>
+                                <Text  style={{fontSize: 18, fontWeight:'bold', textAlign:'center'}}>{moment(this.state.selectedDate).format('DD-MM-YYYY')}</Text>
 
                             <Button
                                 label='בקש החלפה'

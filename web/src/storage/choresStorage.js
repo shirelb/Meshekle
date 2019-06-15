@@ -2,14 +2,11 @@ import axios from "axios";
 import {SERVER_URL,WEB_SOCKET} from "../shared/constants";
 import moment from 'moment';
 
-//import moment from "../components/appointment/AppointmentAdd";
 //WEB
 var getAllChoreTypes = (serviceProviderId, headers) => {
     return axios.get(`${SERVER_URL}/api/chores/choreTypes`,
         {
             headers: headers,
-            //params: {
-            //}
         }
     )
         .then((response) => {
@@ -20,21 +17,17 @@ var getAllChoreTypes = (serviceProviderId, headers) => {
                     choreTypes.push(response.data[type]);
                 }
                 else{
-                    console.log("else: ", type.serviceProviderId,  serviceProviderId)
                 }
 
             }
-            console.log('getAllChoreTypesForSeviceProvider id: ', serviceProviderId, ' and his types: ', choreTypes);
             return choreTypes;
         })
         .catch((error) => {
-            console.log('getAllChoreTypesForSeviceProvider ', serviceProviderId, ' ', error);
             return null;
         });
 };
 
 var getChoreTypeSetting = function(userId, userHeaders, type){
-    console.log("userHeaders: ",userHeaders);
     return axios.get(`${SERVER_URL}/api/chores/type/${type}/settings`,
         {
             headers: userHeaders, //
@@ -115,13 +108,11 @@ var getUserChoresForType = function(userId, userHeaders, type, date){
 };
 
 var getUsersForChoreType = function(userId, userHeaders, type){
-    console.log("type:getUsersForChoreType ",type);
     return axios.get(`${SERVER_URL}/api/chores/type/${type}/users`,
         {
             headers: userHeaders, //
         })
         .then(response => {
-            console.log("4:getUsersForChoreType ",response);
             return response;
         })
         .catch(error => {
@@ -136,7 +127,6 @@ var createNewUserChore = function(serviceProviderId, headers, typeName, userId, 
         userId: userId,
         choreTypeName: typeName,
         date: date,
-        //originDate: date,
         isMark: false
       },    
     
@@ -156,21 +146,19 @@ var createNewUserChore = function(serviceProviderId, headers, typeName, userId, 
 };
 
 var deleteUserChore = function(serviceProviderId, headers, id){//api29
-    console.log("id:deleteUserChore ",id);
     return axios.delete(`${SERVER_URL}/api/chores/userChoreId/${id}/delete`,
         {
             headers: headers, //
         })
         .then(response => {
+            WEB_SOCKET.emit('serviceProviderDeleteUserChore');
             return response;
         })
         .catch(error => {
-            console.log('deleting userchore error ', error)
         });
 };
 
 var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
-    console.log("typeName:deleteChoreType ",typeName);
     return axios.delete(`${SERVER_URL}/api/chores/type/${typeName}/delete`,
         {
             headers: headers, //
@@ -184,7 +172,6 @@ var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
 };
 
 var addUserToChoreType = function(serviceProviderId, headers, userId, typeName){
-    console.log("type: ",typeName,serviceProviderId );
     return axios.post(`${SERVER_URL}/api/chores/choreType/users/add/userId`,
     {
         userId: userId,
@@ -204,7 +191,6 @@ var addUserToChoreType = function(serviceProviderId, headers, userId, typeName){
 };
 
 var deleteUserFromChoreType = function(serviceProviderId, headers,userId, typeName){// api28
-    console.log("typeName:deleteUserFromChoreType ",typeName);
     return axios.delete(`${SERVER_URL}/api/chores/type/${typeName}/users/userId/${userId}`,
         {
             headers: headers, //
