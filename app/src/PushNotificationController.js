@@ -16,8 +16,8 @@ export default class PushNotificationController extends Component {
 
         AppState.addEventListener('change', this.handleAppStateChange);
 
-        APP_SOCKET.on("getUserAppointments", this.sendNewAppointmentNotification);
-        APP_SOCKET.on("getUserChore", this.sendNewAppointmentNotification);
+        APP_SOCKET.on("getUserAppointments", this.sendNewAppointmentNotification.bind(this));
+        APP_SOCKET.on("getUserChore", this.sendNewAppointmentNotification.bind(this));
     }
 
     componentWillUnmount() {
