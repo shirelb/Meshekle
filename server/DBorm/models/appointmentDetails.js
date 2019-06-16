@@ -10,7 +10,7 @@ module.exports = (sequelize, type) => {
             required: true
         },
         serviceProviderId: {
-            type: type.INTEGER,
+            type: type.STRING,
             required: true
         },
         role: {
