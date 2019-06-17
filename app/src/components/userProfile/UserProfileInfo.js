@@ -3,6 +3,7 @@ import {Image, Linking, Modal, ScrollView, StyleSheet, TextInput, TouchableOpaci
 import {Icon, Text} from "react-native-elements";
 import moment from "moment";
 import mappers from "../../shared/mappers";
+import strings from "../../shared/strings";
 
 
 export default class UserProfileInfo extends Component {
@@ -19,13 +20,16 @@ export default class UserProfileInfo extends Component {
 
     componentWillReceiveProps(nextProps, nextContext) {
         let roles = [];
+        let operationTime = [];
         nextProps.user.ServiceProviders ?
             nextProps.user.ServiceProviders.forEach(provider => {
                 roles.push(mappers.serviceProviderRolesMapper(provider.role));
+                operationTime.push(provider.operationTime);
             }) : null;
         this.setState({
             user: nextProps.user,
             roles: roles,
+            operationTime: operationTime,
         });
 
         this.setState({
@@ -163,7 +167,30 @@ export default class UserProfileInfo extends Component {
                                 <Text style={styles.textInfo}>
                                     {this.state.roles.join(", ")}
                                 </Text>
-                            </View> : null
+                                {JSON.parse(this.state.operationTime).map((dayTime, index) => {
+                                    return <View key={index}
+                                                 style={{
+                                                     flex: 3,
+                                                     justifyContent: 'space-around',
+                                                     flexDirection: 'column'
+                                                 }}>
+                                        <Text style={{marginLeft: 10}}>
+                                            {strings.days[dayTime.day]} :
+                                        </Text>
+                                        {
+                                            Array.isArray(dayTime.hours) ?
+                                                dayTime.hours.map((hours, j) => {
+                                                    return <Text style={{marginLeft: 10, direction: 'rtl'}} key={j}>
+                                                        {hours.startHour} - {hours.endHour}
+                                                    </Text>
+                                                })
+                                                : null
+                                        }
+                                    </View>
+                                })
+                                }
+                            </View>
+                            : null
                         }
 
                     </ScrollView>

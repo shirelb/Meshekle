@@ -202,7 +202,7 @@ router.get('/serviceProvider/serviceProviderId/:serviceProviderId', function (re
                     {
                         model: AppointmentDetails,
                         where: {
-                            serviceProviderId: typeof req.params.serviceProviderId === 'string' ? parseInt(req.params.serviceProviderId) : req.params.serviceProviderId
+                            serviceProviderId: req.params.serviceProviderId
                         },
                         required: true
                     }
@@ -231,9 +231,16 @@ router.put('/serviceProvider/update/status/appointmentRequestId/:appointmentRequ
                 requestId: typeof req.params.appointmentRequestId === 'string' ? parseInt(req.params.appointmentRequestId) : req.params.appointmentRequestId
             }
         })
-        .then(isUpdated => {
+        .then(async isUpdated => {
             if (isUpdated[0] === 0)
                 return res.status(400).send({"message": constants.usersRoute.APPOINTMENT_REQUEST_NOT_FOUND});
+
+            var registrationToken = await helpers.getRegistrationTokenOfUser(req.body.userId);
+            if (registrationToken !== null && registrationToken !== undefined) {
+                var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.UPDATE_APPOINTMENT_REQUEST, {resource: '' + req.params.appointmentRequestId}, registrationToken);
+                helpers.pushNotification(message);
+            }
+
             res.status(200).send({
                 "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
                 "result": isUpdated[0]

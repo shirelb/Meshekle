@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {ChoreTypes, ServiceProviders, sequelize, Users, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../../DBorm/DBorm');
+const {sequelize, Users, AppointmentDetails} = require('../../DBorm/DBorm');
 var constants = require('./constants');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -10,6 +10,8 @@ var transporter = nodemailer.createTransport({
         pass: 'geralemeshekle'
     }
 });
+var firebaseAdmin = require('firebase-admin');
+
 
 module.exports = {
     createAppointmentSetId: function () {
@@ -75,6 +77,41 @@ module.exports = {
                 console.log('Email sent: ' + info.response);
             }
         });
+    },
+
+    pushNotification: (message) => {
+        firebaseAdmin.messaging().send(message)
+            .then((response) => {
+                // Response is a message ID string.
+                console.log('firebase Successfully sent message:', response);
+            })
+            .catch((error) => {
+                console.log('firebase Error sending message:', error);
+            });
+    },
+
+    createMessageForNotification: (notificationTitle, notificationBody, msgData, registrationToken) => {
+        return {
+            data:  {
+                title: notificationTitle,
+                body: notificationBody,
+            },
+            token: registrationToken
+        }
+    },
+
+    getRegistrationTokenOfUser: (userId) => {
+        return Users.findAll({
+            where: {
+                userId: userId,
+            }
+        })
+            .then(users => {
+                return users[0].deviceRegistrationToken;
+            })
+            .catch(err => {
+                console.log(err);
+            });
     }
 
 };

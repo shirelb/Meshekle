@@ -180,7 +180,13 @@ router.put('/serviceProvider/cancel/appointmentId/:appointmentId', function (req
                     eventId: req.params.appointmentId
                 }
             })
-                .then((newEvent) => {
+                .then(async (newEvent) => {
+                    var registrationToken = await helpers.getRegistrationTokenOfUser(req.body.userId);
+                    if (registrationToken !== null && registrationToken !== undefined) {
+                        var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.CANCEL_APPOINTMENT, {resource: '' + req.params.appointmentId}, registrationToken);
+                        helpers.pushNotification(message);
+                    }
+
                     res.status(200).send({
                         "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
                         isUpdated,
@@ -250,7 +256,14 @@ router.post('/serviceProvider/set', function (req, res, next) {
                                     eventType: "Appointments",
                                     eventId: newAppointment.appointmentId
                                 })
-                                    .then((newEvent) => {
+                                    .then(async (newEvent) => {
+
+                                        var registrationToken = await helpers.getRegistrationTokenOfUser(req.body.userId);
+                                        if (registrationToken !== null && registrationToken !== undefined) {
+                                            var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.NEW_APPOINTMENT, {resource: JSON.stringify(newAppointment)}, registrationToken);
+                                            helpers.pushNotification(message);
+                                        }
+
                                         res.status(200).send({
                                             "message": constants.usersRoute.SUCCESSFUL_APPOINTMENT,
                                             newAppointmentDetails,
@@ -300,7 +313,13 @@ router.put('/serviceProvider/update/appointmentId/:appointmentId', function (req
                         appointmentId: req.params.appointmentId
                     }
                 })
-                .then(isUpdated => {
+                .then(async isUpdated => {
+                    var registrationToken = await helpers.getRegistrationTokenOfUser(req.body.clientId);
+                    if (registrationToken !== null && registrationToken !== undefined) {
+                        var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.UPDATE_APPOINTMENT, {resource: '' + req.params.appointmentId}, registrationToken);
+                        helpers.pushNotification(message);
+                    }
+
                     res.status(200).send({
                         "message": serviceProvidersRoute.APPOINTMENT_UPDATED,
                         "result": isUpdated[0]
