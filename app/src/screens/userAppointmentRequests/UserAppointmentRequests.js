@@ -27,8 +27,8 @@ export default class UserAppointmentRequests extends Component {
             errorHeader: '',
             errorContent: '',
 
-            selectedIndex: 2,
-            filterButtons: ['נדחה', 'אושר', 'ממתין לאישור'],
+            selectedIndex: 0,
+            filterButtons: ['ממתין לאישור', 'אושר','נדחה' ],
         };
 
     }
