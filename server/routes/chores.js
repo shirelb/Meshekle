@@ -12,13 +12,6 @@ router.use(function (req, res, next) {
   authentications.verifyToken(req, res, next);
 });
 
-// router.post('/validToken', function (req, res) {
-//   res.status(200).send({
-//       message: constants.usersRoute.VALID_TOKEN,
-//       payload: req.decoded.payload
-//   });
-// });
-
 /* GET users chores listing. api1 */
 router.get('/usersChores/future/:future', function (req, res, next) {
   if(req.params.future==="true"){

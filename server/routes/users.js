@@ -225,5 +225,35 @@ router.get('/events/userId/:userId', function (req, res, next) {
         })
 });
 
+/* POST save registration token of the device of a user . */
+router.put('/notifications/saveRegistrationToken', function (req, res) {
+    if (!req.body.userId || !req.body.registrationToken) {
+        res.status(400).send({"message": constants.usersRoute.AUTHENTICATION_FAILED});
+    } else {
+        validations.checkIfUserExist(req.body.userId, res)
+            .then(user => {
+                Users.update(
+                    {
+                        deviceRegistrationToken: req.body.registrationToken
+                    },
+                    {
+                        where: {
+                            userId: req.body.userId
+                        }
+                    })
+                    .then(isUpdated => {
+                        res.status(200).send({
+                            "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                            "result": isUpdated[0]
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+            });
+    }
+});
+
 
 module.exports = router;

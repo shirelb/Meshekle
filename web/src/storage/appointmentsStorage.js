@@ -138,7 +138,7 @@ var updateAppointment = (event, headers) => {
 
 var cancelAppointmentById = (appointment, headers) => {
     return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/cancel/appointmentId/${appointment.appointmentId}`,
-        {},
+        {userId: appointment.AppointmentDetail.clientId,},
         {
             headers: headers
         }
@@ -158,7 +158,7 @@ var cancelAppointmentById = (appointment, headers) => {
 
 var rejectAppointmentRequestById = (appointmentRequest, headers) => {
     return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequest.requestId}`,
-        {},
+        {userId: appointmentRequest.AppointmentDetail.clientId},
         {
             headers: headers,
             params: {

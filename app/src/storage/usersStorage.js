@@ -104,5 +104,31 @@ var forgetPassword = function (userDetailsRemembered) {
         });
 };
 
+var saveRegistrationToken = function (userId, registrationToken, userHeaders) {
+    return axios.put(`${SERVER_URL}/api/users/notifications/saveRegistrationToken`,
+        {
+            userId: userId,
+            registrationToken: registrationToken,
+        },
+        {headers: userHeaders}
+    )
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('saveRegistrationToken error ', error);
+            return error;
+        });
+};
 
-export default {getUserEvents, getUserById, userValidToken, userLogin, getUsers, updateUserById, forgetPassword};
+
+export default {
+    getUserEvents,
+    getUserById,
+    userValidToken,
+    userLogin,
+    getUsers,
+    updateUserById,
+    forgetPassword,
+    saveRegistrationToken
+};
