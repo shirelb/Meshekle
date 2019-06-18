@@ -5,7 +5,7 @@ import {Modal} from "react-native";
 import {CheckBox, FormInput, FormLabel, FormValidationMessage, Text} from "react-native-elements";
 import {List} from "react-native-paper";
 import {shallow} from "enzyme/build";
-import ReplacementRequests from "../../../components/choresComponents/ReplacementRequests";
+import ClosedReplacementRequests from "../../../components/choresComponents/ClosedReplacementRequests";
 import usersStorage from "../../../storage/usersStorage";
 import choresStorage from "../../../storage/choresStorage";
 import phoneStorage from "react-native-simple-store";
@@ -24,7 +24,7 @@ jest.mock("../../../storage/choresStorage");
 jest.mock("react-native-simple-store");
 
 
-describe("ReplacementRequests should", () => {
+describe("ClosedReplacementRequests should", () => {
     let wrapper = null;
     let componentInstance = null;
     const userTest = users[2];
@@ -48,11 +48,10 @@ describe("ReplacementRequests should", () => {
     choresStorage.getReplacementRequests = jest.fn().mockResolvedValue(swapRequests);
     choresStorage.changeReplacementRequestStatus = jest.fn().mockResolvedValue({status:200});
     choresStorage.replaceUserChores =  jest.fn().mockResolvedValue({status:200});
-    choresStorage.generalReplacementRequest =jest.fn().mockResolvedValue({status:200});
 
     beforeEach(async () => {
         jest.clearAllMocks();
-        wrapper = await shallow(<ReplacementRequests {...props} />);
+        wrapper = await shallow(<ClosedReplacementRequests {...props} />);
         componentInstance = wrapper.instance();
 
         await wrapper.update();
@@ -68,12 +67,18 @@ describe("ReplacementRequests should", () => {
 
         expect(wrapper.find(Modal)).toHaveLength(2);
         expect(wrapper.find(Button)).toHaveLength(3);
-        expect(wrapper.find("Text")).toHaveLength(5);
-        expect(wrapper.find("Text").at(0).props().children).toEqual('בקשות נכנסות:');
-        expect(wrapper.find("Text").at(1).props().children).toEqual('אין בקשות נכנסות');
-        expect(wrapper.find("Text").at(2).props().children).toEqual('בקשות יוצאות:');
-        expect(wrapper.find("Text").at(3).props().children).toEqual('אין בקשות יוצאות');
-        expect(wrapper.find("Text").at(4).props().children).toEqual('');
+        expect(wrapper.find("Text")).toHaveLength(11);
+        expect(wrapper.find("Text").at(0).props().children).toEqual('בקשות שהוחלפו:');
+        expect(wrapper.find("Text").at(1).props().children).toEqual('בקשות נכנסות:');
+        expect(wrapper.find("Text").at(2).props().children).toEqual('אין בקשות נכנסות');
+        expect(wrapper.find("Text").at(3).props().children).toEqual('בקשות יוצאות:');
+        expect(wrapper.find("Text").at(4).props().children).toEqual('אין בקשות יוצאות');
+        expect(wrapper.find("Text").at(5).props().children).toEqual('בקשות שנדחו:');
+        expect(wrapper.find("Text").at(6).props().children).toEqual('בקשות נכנסות:');
+        expect(wrapper.find("Text").at(7).props().children).toEqual('אין בקשות נכנסות');
+        expect(wrapper.find("Text").at(8).props().children).toEqual('בקשות יוצאות:');
+        expect(wrapper.find("Text").at(9).props().children).toEqual('אין בקשות יוצאות');
+        expect(wrapper.find("Text").at(10).props().children).toEqual('');
 
         expect(wrapper.find('Button').at(0).props().label).toEqual('סגור');
         expect(wrapper.find('Button').at(1).props().label).toEqual('חזור');
@@ -82,9 +87,12 @@ describe("ReplacementRequests should", () => {
 
     it("mounted with the right data", async () => {
 
-        expect(componentInstance.state.inRequests).toEqual([]);
-        expect(componentInstance.state.requestsTypes).toEqual([]);
-        expect(componentInstance.state.outRequests).toEqual([]);
+        expect(componentInstance.state.replacedIn).toEqual([]);
+        expect(componentInstance.state.requestsTypesReplaced).toEqual([]);
+        expect(componentInstance.state.replacedOut).toEqual([]);
+        expect(componentInstance.state.denyIn).toEqual([]);
+        expect(componentInstance.state.requestsTypesDeny).toEqual([]);
+        expect(componentInstance.state.denyOut).toEqual([]);
         expect(componentInstance.props.choreTypeName).toEqual("");
     });
 
