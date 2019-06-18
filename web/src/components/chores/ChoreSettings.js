@@ -1,5 +1,5 @@
 import React from 'react';
-import './styles.css'
+import '../../pages/choresManagementPage/styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table, Modal} from 'semantic-ui-react';
 import store from 'store';

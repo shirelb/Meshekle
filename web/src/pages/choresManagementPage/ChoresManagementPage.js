@@ -7,7 +7,7 @@ import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
 import choresStorage from "../../storage/choresStorage";
 import usersStorage from "../../storage/usersStorage";
-import ChoreSettings from "./ChoreSettings";
+import ChoreSettings from "../../components/chores/ChoreSettings";
 import CreateNewChoreType from "../../components/chores/CreateNewChoreType";
 import {Redirect, Route, Switch} from "react-router-dom";
 import ChoresCalendar from "../../components/calendars/ChoresCalendar"
