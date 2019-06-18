@@ -149,6 +149,7 @@ module.exports = {
         NOTIFICATION_TITLE: "משקל'ה",
         CANCEL_APPOINTMENT: "התור שלך בוטל",
         NEW_APPOINTMENT: "יש לך תור חדש",
+        NEW_APPOINTMENT: "מודעה חדשה פורסמה בקטגוריית ",
         UPDATE_APPOINTMENT: "התור שלך עודכן",
         UPDATE_APPOINTMENT_REQUEST: "בקשת התור שלך עודכנה",
     }

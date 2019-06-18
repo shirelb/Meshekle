@@ -7,7 +7,7 @@ import {Helmet} from 'react-helmet';
 import Page from '../../components/Page';
 import choresStorage from "../../storage/choresStorage";
 import usersStorage from "../../storage/usersStorage";
-import ChoreSettings from "./ChoreSettings";
+import ChoreSettings from "../../components/chores/ChoreSettings";
 import CreateNewChoreType from "../../components/chores/CreateNewChoreType";
 import {Redirect, Route, Switch} from "react-router-dom";
 import ChoresCalendar from "../../components/calendars/ChoresCalendar"
@@ -20,6 +20,7 @@ import ChoresHistory from '../../components/chores/ChoresHistory';
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import DraggableUser from '../../components/chores/DraggableUser';
 import UsersInTypeModal from '../../components/chores/UsersInTypeModal'
+import AnnouncementsManagementPage from "../announcementsManagementPage/AnnouncementsManagementPage";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -425,50 +426,6 @@ class ChoresManagementPage extends React.Component {
             });
     }
 
-    // addUserToChoreType(e, {userId}) {
-    //     let addUsersRequests = [];
-    //     let usersToAdd = this.state.usersToAddToType;
-    //     let user = 0;
-    //     for (user in usersToAdd) {
-    //         addUsersRequests.push(choresStorage.addUserToChoreType(serviceProviderId, serviceProviderHeaders, usersToAdd[user], this.state.choreTypeSelected));
-    //     }
-    //     axios.all(addUsersRequests)
-    //         .then(res => {
-    //             console.log("response addUserToChoreType", res[0].data);
-    //             let usersInType = this.state.users;
-    //             let usersNotInType = this.state.usersNotInType;
-    //             console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere1", usersNotInType);
-    //             let ur = 0;
-    //             let userAdded = 0;
-    //             let usersAdded = usersToAddToType//this.state.usersToAddToType;
-    //             for (userAdded in usersAdded) {
-    //                 for (ur in usersNotInType) {
-    //                     if (usersNotInType[ur].id === usersAdded[userAdded]) {
-    //                         console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere2")
-    //                         let added = usersNotInType.splice(ur, 1);
-    //                         usersInType.push(added[0]);
-    //                         console.log("added :", added[0]);
-    //                     }
-    //                 }
-    //             }
-    //             this.setState({users: usersInType, usersNotInType: usersNotInType});
-    //             usersToAddToType = [];
-    //         });
-    // }
-
-    // handleUserToAddChange(e, data) {
-    //     //console.log("handleUsertToAddChange user value",e.nativeEvent.currentTarget, "val:", value,  options, e, open)
-    //     console.log("handleUsertToAddChange user value", e.target.id === '')
-    //     //e.nativeEvent.srcElement.innerText = value[value.length-1];
-    //     //let usersToAddToType = this.state.usersToAddToType;
-    //     //let userNameToAddToType = this.state.userNameToAddToType;
-    //     if (e.target.id !== '') {
-    //         usersToAddToType.push(e.target.id);
-    //     }
-    //     //userNameToAddToType.push(value);
-    //     //this.setState({usersToAddToType: usersToAddToType,userNameToAddToType:e.target.innerText, usersNotInType:data.options});
-    // }
-
     handleUserToAdd(e, {userId}) {
     }
 
@@ -665,4 +622,4 @@ class ChoresManagementPage extends React.Component {
     }
 }
 
-export {ChoresManagementPage}
+export default ChoresManagementPage
