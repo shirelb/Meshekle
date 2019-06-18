@@ -23,7 +23,7 @@ var getAllChoreTypes = (serviceProviderId, headers) => {
             return choreTypes;
         })
         .catch((error) => {
-            return null;
+            return error;
         });
 };
 
@@ -39,7 +39,8 @@ var getChoreTypeSetting = function(userId, userHeaders, type){
             return response;
         })
         .catch(error => {
-            console.log('get user chores error ', error)
+            console.log('get user chores error ', error);
+            return error;
         });
 };
 
@@ -63,7 +64,8 @@ var editChoreTypeSetting = function(serviceProviderId, headers, typeSettings){
             return response;
         })
         .catch(error => {
-            console.log('get user chores error ', error)
+            console.log('get user chores error ', error);
+            return error;
         });
 };
 
@@ -89,7 +91,8 @@ var createNewChoreType = function(serviceProviderId, headers, typeSettings){
             return response;
         })
         .catch(error => {
-            console.log('add chore type error ', error, headers)
+            console.log('add chore type error ', error, headers);
+            return error;
         });
 };
 
@@ -103,7 +106,8 @@ var getUserChoresForType = function(userId, userHeaders, type, date){
             return response;
         })
         .catch(error => {
-            console.log('get user chores error ', error)
+            console.log('get user chores error ', error);
+            return error;
         });
 };
 
@@ -116,7 +120,8 @@ var getUsersForChoreType = function(userId, userHeaders, type){
             return response;
         })
         .catch(error => {
-            console.log('get users for type error ', error)
+            console.log('get users for type error ', error);
+            return error;
         });
 };
 
@@ -141,7 +146,8 @@ var createNewUserChore = function(serviceProviderId, headers, typeName, userId, 
             return response;
         })
         .catch(error => {
-            console.log('add chore type error ', error)
+            console.log('add chore type error ', error);
+            return error;
         });
 };
 
@@ -155,6 +161,7 @@ var deleteUserChore = function(serviceProviderId, headers, id){//api29
             return response;
         })
         .catch(error => {
+            return error;
         });
 };
 
@@ -167,7 +174,8 @@ var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
             return response;
         })
         .catch(error => {
-            console.log('deleting chore type error ', error)
+            console.log('deleting chore type error ', error);
+            return error;
         });
 };
 
@@ -186,7 +194,8 @@ var addUserToChoreType = function(serviceProviderId, headers, userId, typeName){
             return response;
         })
         .catch(error => {
-            console.log('add user to chore type error ', error)
+            console.log('add user to chore type error ', error);
+            return error;
         });
 };
 
@@ -199,7 +208,8 @@ var deleteUserFromChoreType = function(serviceProviderId, headers,userId, typeNa
             return response;
         })
         .catch(error => {
-            console.log('deleting user from chore type error ', error)
+            console.log('deleting user from chore type error ', error);
+            return error;
         });
 };
 
@@ -212,7 +222,8 @@ var getReplacementRequests = function(userId, userHeaders, type,status){
             return response;
         })
         .catch(error => {
-            console.log('get Replacement Requests error ', error)
+            console.log('get Replacement Requests error ', error);
+            return error;
         });
 };
 
@@ -232,7 +243,8 @@ var createUserchoreEvent = function(serviceProviderId, headers, userId,eventId){
             return response;
         })
         .catch(error => {
-            console.log('add chore event error ', error)
+            console.log('add chore event error ', error,headers);
+            return error;
         });
 };
 
@@ -245,7 +257,8 @@ var getAllPastUserChores = function(userId, userHeaders){
             return response;
         })
         .catch(error => {
-            console.log('get all past user chores error ', error)
+            console.log('get all past user chores error ', error);
+            return error;
         });
 };
 
@@ -258,7 +271,8 @@ var getUsersNotInType = function(userId, userHeaders, type){
             return response;
         })
         .catch(error => {
-            console.log('get users not in type error ', error)
+            console.log('get users not in type error ', error);
+            return error;
         });
 };
 

@@ -19,6 +19,7 @@ class EditChoreTypeSettings extends Component {
         this.state = {
             newSettings:props.settings,
             deviation:false,
+            editErrorMessage:"",
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -50,9 +51,13 @@ class EditChoreTypeSettings extends Component {
         this.serviceProviderId = store.get('serviceProviderId');
         choresStorage.editChoreTypeSetting(this.serviceProviderId, this.serviceProviderHeaders, this.state.newSettings)
         .then(res=>{
-            console.log("settings updated to ",  this.state.newSettings);
-            
-            this.props.onClose(e,this.state.newSettings);
+            console.log("res edit type ",  res);
+            if(res&& res!==undefined && res.status!==200){
+                this.setState({editErrorMessage:"אירעה בעיה בעדכון הפרטים, נסה שנית"})
+            }else{
+                this.setState({editErrorMessage:""})
+                this.props.onClose(e,this.state.newSettings);
+            }
         });
         
     }
@@ -69,14 +74,10 @@ class EditChoreTypeSettings extends Component {
 
     onChangeTime = (time, isStart) => {
         const {newSettings} = this.state;
-        //let updateSettings = this.state.newSettings;
         isStart ?
-            //updateSettings.startTime = moment(time).format("HH:mm")
             this.setState({newSettings: {...newSettings, startTime: moment(time).format("HH:mm")}})
             :
-            //updateSettings.endTime = moment(time).format("HH:mm");
             this.setState({newSettings: {...newSettings, endTime: moment(time).format("HH:mm")}})
-        //this.setState({newSettings: updateSettings});
     };
 
     handleCancel(){
@@ -161,7 +162,7 @@ class EditChoreTypeSettings extends Component {
                     <Message success header='פרטי תורנות הושלמו' content="פרטי התורנות עודכנו בהצלחה"/>
                     : null
                 }
-
+                <p style={{color:'red'}}>{this.state.editErrorMessage}</p>
                 <Form.Group>
                     <Form.Button disabled={this.state.deviation}  newSettings={this.state.newSettings} type="submit">{submitText}</Form.Button>
                     <Form.Button onClick={this.handleCancel}>בטל</Form.Button>

@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const UsersModel = require('./models/users');
 const ServiceProvidersModel = require('./models/serviceProviders');
 const PermissionsModel = require('./models/permissions');
-const RulesModulesModel = require('./models/rulesModules');
+const RolesModulesModel = require('./models/rolesModules');
 const CategoriesModel = require('./models/categories');
 const AnnouncementsModel = require('./models/announcements');
 const AnnouncementSubscriptionsModel = require('./models/announcementSubscriptions');
@@ -57,7 +57,7 @@ sequelize
 const Users = UsersModel(sequelize, Sequelize);
 const ServiceProviders = ServiceProvidersModel(sequelize, Sequelize);
 const Permissions = PermissionsModel(sequelize, Sequelize);
-const RulesModules = RulesModulesModel(sequelize, Sequelize);
+const RolesModules = RolesModulesModel(sequelize, Sequelize);
 const Categories = CategoriesModel(sequelize, Sequelize);
 const Announcements = AnnouncementsModel(sequelize, Sequelize);
 const AnnouncementSubscriptions = AnnouncementSubscriptionsModel(sequelize, Sequelize);
@@ -81,17 +81,20 @@ const Logs = LogsModel(sequelize, Sequelize);
 
 Events.belongsTo(ScheduledAppointments, {
     foreignKey: 'eventId',
-    targetKey: 'appointmentId'
+    targetKey: 'appointmentId',
+    constraints: false
 });
 
 Events.belongsTo(UsersChores, {
     foreignKey: 'eventId',
-    targetKey: 'userChoreId'
+    targetKey: 'userChoreId',
+    constraints: false
 });
 
 Events.belongsTo(Announcements, {
     foreignKey: 'eventId',
-    targetKey: 'announcementId'
+    targetKey: 'announcementId',
+    constraints: false
 });
 
 /*ScheduledAppointments.hasOne(Events, {
@@ -195,7 +198,7 @@ SwapRequests.belongsTo(UsersChores, {
 if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
-            RulesModules.bulkCreate([
+            RolesModules.bulkCreate([
                 {
                     role: "Admin",
                     module: "all",
@@ -292,7 +295,7 @@ if (process.dbMode === "dev") {
                         )
                 });
 
-            RulesModules.create({
+            RolesModules.create({
                 role: "Admin",
                 module: "all",
             })
@@ -330,7 +333,7 @@ module.exports = {
     Users,
     ServiceProviders,
     Permissions,
-    RulesModules,
+    RolesModules,
     Categories,
     Announcements,
     AnnouncementSubscriptions,

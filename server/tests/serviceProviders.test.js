@@ -10,7 +10,7 @@ let should = chai.should();
 var expect = chai.expect;
 
 chai.use(chaiHttp);
-const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {Users, ServiceProviders, ScheduledAppointments, AppointmentDetails, RolesModules, Permissions} = require('../DBorm/DBorm');
 
 
 describe('service providers route', function () {
@@ -1099,11 +1099,11 @@ function deleteServiceProvider(serviceProviderTest) {
 }
 
 function createRoleModule(roleModule) {
-    return RulesModules.create(roleModule);
+    return RolesModules.create(roleModule);
 }
 
 function deleteRoleModule(roleModule) {
-    return RulesModules.destroy({
+    return RolesModules.destroy({
         where: {
             role: roleModule.role,
             module: roleModule.module

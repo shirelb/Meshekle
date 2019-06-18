@@ -68,15 +68,20 @@ class CreateNewChoreType extends Component {
         this.serviceProviderId = store.get('serviceProviderId');
         choresStorage.createNewChoreType(this.serviceProviderId, this.serviceProviderHeaders, this.state.newSettings)
         .then(res=>{
-            console.log("settings updated to ",  this.state.newSettings,res.data);
-            //this.props.location.state.openModalRequest("סוג תורנות הוספה בהצלחה!");
-            this.props.openModalRequest("סוג תורנות הוספה בהצלחה!");
-            this.props.onCreateChoreType(this.state.newSettings);
+            console.log("res create new type ",  res);
+            if(res && res!==undefined && res.status!==200 && res.response!==undefined && res.response.data.message==="This choreType allready exist!"){
+                this.props.openModalRequest("סוג תורנות כבר קיים במערכת!");
+            }
+            else{
+                this.props.openModalRequest("סוג תורנות הוספה בהצלחה!");
+                this.props.onCreateChoreType(this.state.newSettings);
+            }
         })
         .catch(err=>{
+            console.log("err create new type ",  err);
             //console.log("settings updated to ",  this.state.newSettings);
             //this.props.location.state.openModalRequest("לא ניתן להוסיף את סוג התורנות הרצוי");
-            this.props.openModalRequest("לא ניתן להוסיף את סוג התורנות הרצוי"+"\n יש למלא את כל השדות הריקים ואין להוסיף שם תורנות קיים");
+            this.props.openModalRequest("אירעה בעיה בהוספת סוג התורנות. \nאנא בדוק שכל השדות מלאים, ששם התורנות אינו כבר קיים ונסה שנית.");
 
         });
         //this.props.onDeleteType();
