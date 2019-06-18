@@ -5,7 +5,7 @@ module.exports = {
         SUCCESSFUL_TOKEN: "Token generated successfully !",
 
     },
-    usersRoute:{
+    usersRoute: {
         USER_NOT_FOUND: "userId doesn't exist!",
         DETAILS_NOT_MATCH: "user details not match, cant renew password",
         APPOINTMENT_REQUEST_NOT_FOUND: "AppointmentRequest not found!",
@@ -27,7 +27,7 @@ module.exports = {
         SUCCESSFUL_INCIDENT: "Incident successfully added!",
         USER_UPDATE_SUCCESS: "User fields updated successfully!",
     },
-    serviceProvidersRoute:{
+    serviceProvidersRoute: {
         USER_NOT_FOUND: "User not found!",
         APPOINTMENT_NOT_FOUND: "Appointment not found!",
         SERVICE_PROVIDER_ALREADY_EXISTS: "Service provider already exists",
@@ -55,7 +55,7 @@ module.exports = {
 
         USER_ALREADY_EXISTS: "User is already exists",
     },
-    appointmentStatuses:{
+    appointmentStatuses: {
         APPOINTMENT_CANCELLED: "cancelled",
         APPOINTMENT_SET: "set"
     },
@@ -76,7 +76,7 @@ module.exports = {
         APPOINTMENT_REQUEST_APPROVED: "approved",
         APPOINTMENT_REQUEST_REJECTED: "rejected",
     },
-    appointmentWayTypes:{
+    appointmentWayTypes: {
         SLOT_WAY_TYPE: "Slots",
         DIALOG_WAY_TYPE: "Dialog",
         FAULT_WAY_TYPE: "Fault",
@@ -92,57 +92,64 @@ module.exports = {
         APPOINTMENTS_DENTIST_ROLE: "appointmentsDentist",
         APPOINTMENTS_HAIRDRESSER_ROLE: "appointmentsHairDresser",
     },
-    statueses:{
-        ON_AIR_STATUS:"On air",
-        REQUEST_STATUS:"Requested",
-        EXPIRED_STATUS:"Expired",
-        CANCELLED_STATUS:"Cancelled"
+    statueses: {
+        ON_AIR_STATUS: "On air",
+        REQUEST_STATUS: "Requested",
+        EXPIRED_STATUS: "Expired",
+        CANCELLED_STATUS: "Cancelled"
     },
-    categories:{
-        SECURITY_CATEGORY:"Security",
-        DINNING_ROOM_CATEGORY:"Dinning room",
-        SUPERMARKET_CATEGORY:"Supermarket",
-        HEALTH_CATEGORY:"Health",
-        VEHICLE_CATEGORY:"Vehicle",
-        SEWING_CATEGORY:"Sewing",
-        GYM_CATEGORY:"Gym",
-        TRIPS_CATEGORY:"Trips",
-        INFRASTRUCTURE_CATEGORY:"Infastructure",
-        CULTURE_CATEGORY:"Culture",
+    categories: {
+        SECURITY_CATEGORY: "Security",
+        DINNING_ROOM_CATEGORY: "Dinning room",
+        SUPERMARKET_CATEGORY: "Supermarket",
+        HEALTH_CATEGORY: "Health",
+        VEHICLE_CATEGORY: "Vehicle",
+        SEWING_CATEGORY: "Sewing",
+        GYM_CATEGORY: "Gym",
+        TRIPS_CATEGORY: "Trips",
+        INFRASTRUCTURE_CATEGORY: "Infastructure",
+        CULTURE_CATEGORY: "Culture",
     },
-    mailMessages:{
+    mailMessages: {
         ADD_USER_SUBJECT: "ברוכים הבאים למשקל'ה - אלה הם פרטי הכניסה שלך",
-        ADD_SERVICE_PROVIDER_SUBJECT:"תחום אחריות חדש במשקל'ה",
+        ADD_SERVICE_PROVIDER_SUBJECT: "תחום אחריות חדש במשקל'ה",
         BEFORE_CRED: "ברוכים הבאים למשקל'ה",
         BEFORE_ROLE: "יש לך תחום אחריות חדש במשקל'ה",
         REMINDER_END: "לא לשכוח לשנות את הסיסמא בכניסה הבאה לאפליקציה",
         REMINDER_SUBJECT: "תזכורת ממשקל'ה",
         MAIL_END: "יום מעולה, משפחת משקל'ה"
     },
-    announcementsRoute:{
+    announcementsRoute: {
         SERVICE_PROVIDER_NOT_FOUND: "Service provider not found!",
         USER_NOT_FOUND: "User not found!",
         ANNOUNCEMENT_NOT_FOUND: "Announcement not found!",
         ANNOUNCEMENT_DELETED_SUCC: "Announcement deleted successfully!",
-        INVALID_EXP_TIME_INPUT:"Expiration time is invalid!",
-        ILLEGAL_EXP_TIME_INPUT:"Expiration time is illegal!",
-        INVALID_DOE_INPUT:"Date Of Event time is invalid!",
-        ILLEGAL_DOE_INPUT:"Date Of Event time is illegal!",
-        ANNOUNCEMENT_UPDATE_SUCCESS:"Announcement updated successfully!",
-        STATUS_DOESNT_EXISTS :"Status doesnt exists!",
-        CATEGORY_DOESNT_EXISTS :"Category doesnt exists!",
-        ANNOUNCEMENT_STATUS_UPDATE_SUCCESS :"Status updated successfully!",
-        ANNOUNCEMENT_ADDED_SUCC :"Announcement added successfully!",
-        CATEGORY_NOT_FOUND :"Category not found!",
-        SUB_ALREADY_EXISTS :"Subscription already exists!",
-        SUB_ADDED_SUCC :"Subscription added successfully!",
-        SUB_NOT_FOUND :"Subscription not found!",
-        SUB_UPDATED_SUCC :"Subscription updated successfully!",
-        CATEGORY_ALREADY_EXISTS :"Category already exists!",
-        CATEGORY_ADDED_SUCC :"Category added successfully!",
-        EVENT_ADDED_SUCC :"Event added successfully!",
-        CATEGORY_UPDATED_SUCC :"Category updated successfully!",
-        CATEGORY_DELETED_SUCC :"Category deleted successfully!",
-        SUB_DELETED_SUCC :"Subscription deleted successfully!",
+        INVALID_EXP_TIME_INPUT: "Expiration time is invalid!",
+        ILLEGAL_EXP_TIME_INPUT: "Expiration time is illegal!",
+        INVALID_DOE_INPUT: "Date Of Event time is invalid!",
+        ILLEGAL_DOE_INPUT: "Date Of Event time is illegal!",
+        ANNOUNCEMENT_UPDATE_SUCCESS: "Announcement updated successfully!",
+        STATUS_DOESNT_EXISTS: "Status doesnt exists!",
+        CATEGORY_DOESNT_EXISTS: "Category doesnt exists!",
+        ANNOUNCEMENT_STATUS_UPDATE_SUCCESS: "Status updated successfully!",
+        ANNOUNCEMENT_ADDED_SUCC: "Announcement added successfully!",
+        CATEGORY_NOT_FOUND: "Category not found!",
+        SUB_ALREADY_EXISTS: "Subscription already exists!",
+        SUB_ADDED_SUCC: "Subscription added successfully!",
+        SUB_NOT_FOUND: "Subscription not found!",
+        SUB_UPDATED_SUCC: "Subscription updated successfully!",
+        CATEGORY_ALREADY_EXISTS: "Category already exists!",
+        CATEGORY_ADDED_SUCC: "Category added successfully!",
+        EVENT_ADDED_SUCC: "Event added successfully!",
+        CATEGORY_UPDATED_SUCC: "Category updated successfully!",
+        CATEGORY_DELETED_SUCC: "Category deleted successfully!",
+        SUB_DELETED_SUCC: "Subscription deleted successfully!",
     },
+    notifications: {
+        NOTIFICATION_TITLE: "משקל'ה",
+        CANCEL_APPOINTMENT: "התור שלך בוטל",
+        NEW_APPOINTMENT: "יש לך תור חדש",
+        UPDATE_APPOINTMENT: "התור שלך עודכן",
+        UPDATE_APPOINTMENT_REQUEST: "בקשת התור שלך עודכנה",
+    }
 };

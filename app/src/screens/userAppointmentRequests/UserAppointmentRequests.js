@@ -6,7 +6,7 @@ import appointmentsStorage from "../../storage/appointmentsStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import AppointmentRequestInfo from "../../components/appointmentRequest/AppointmentRequestInfo";
 import {APP_SOCKET} from "../../shared/constants";
-import {Icon, SearchBar} from "react-native-elements";
+import {ButtonGroup, Icon, SearchBar} from "react-native-elements";
 import mappers from "../../shared/mappers";
 
 
@@ -25,7 +25,10 @@ export default class UserAppointmentRequests extends Component {
 
             errorVisible: false,
             errorHeader: '',
-            errorContent: ''
+            errorContent: '',
+
+            selectedIndex: 0,
+            filterButtons: ['ממתין לאישור', 'אושר','נדחה' ],
         };
 
     }
@@ -86,7 +89,9 @@ export default class UserAppointmentRequests extends Component {
                                         appointmentRequest.expanded = false;
 
                                         this.setState({
-                                            userAppointmentRequests: userAppointmentRequests,
+                                            userAppointmentRequests: userAppointmentRequests.filter((item) => {
+                                                return item.status.toLowerCase().match('requested');
+                                            })
                                         });
 
                                         this.userAppointmentRequests = userAppointmentRequests;
@@ -113,22 +118,18 @@ export default class UserAppointmentRequests extends Component {
     };
 
     updateSearch = search => {
-        // console.log("in search ", search);
-        // this.setState({search});
         let searchText = search.toLowerCase();
         let userAppointmentRequests = this.state.userAppointmentRequests;
         let filteredByNameOrRole = userAppointmentRequests.filter((item) => {
             return item.serviceProviderFullname.toLowerCase().match(searchText) || item.AppointmentDetail.role.toLowerCase().match(searchText);
         });
-        // let filteredByRole = userAppointmentRequests.filter((item) => {
-        //     return item.role.toLowerCase().match(searchText)
-        // });
         if (!searchText || searchText === '') {
             this.setState({
-                userAppointmentRequests: this.userAppointmentRequests
+                userAppointmentRequests: this.userAppointmentRequests.filter((item) => {
+                    return mappers.appointmentRequestStatusMapper(item.status.toLowerCase()).match(this.state.filterButtons[this.state.selectedIndex]);
+                })
             })
         } else if (!Array.isArray(filteredByNameOrRole) && !filteredByNameOrRole.length) {
-            // set no data flag to true so as to render flatlist conditionally
             this.setState({
                 noAppointmentRequestsFound: true
             })
@@ -176,7 +177,26 @@ export default class UserAppointmentRequests extends Component {
         })
     };
 
+    updateGroupBtnIndex = (selectedIndex) => {
+        let filteredByStatus = this.userAppointmentRequests.filter((item) => {
+            return mappers.appointmentRequestStatusMapper(item.status.toLowerCase()).match(this.state.filterButtons[selectedIndex]);
+        });
+        if (!Array.isArray(filteredByStatus) && !filteredByStatus.length) {
+            this.setState({
+                noAppointmentRequestsFound: true
+            })
+        } else if (Array.isArray(filteredByStatus)) {
+            this.setState({
+                noAppointmentRequestsFound: false,
+                userAppointmentRequests: filteredByStatus
+            })
+        }
+        this.setState({selectedIndex})
+    };
+
     render() {
+        const {selectedIndex, filterButtons} = this.state;
+
         return (
             <ScrollView refreshControl={
                 <RefreshControl
@@ -198,7 +218,12 @@ export default class UserAppointmentRequests extends Component {
                     // round
                 />
 
-                {/*{this.state.noAppointmentRequestsFound ?*/}
+                <ButtonGroup
+                    onPress={this.updateGroupBtnIndex}
+                    selectedIndex={selectedIndex}
+                    buttons={filterButtons}
+                />
+
                 {this.state.userAppointmentRequests.length === 0 ?
                     <Text>אין לך בקשות תורים</Text>
                     :
@@ -211,16 +236,19 @@ export default class UserAppointmentRequests extends Component {
                                 justifyContent: 'flex-start',
                                 alignItems: 'center',
                             }}>
-                                <View style={{width: 30 + '%'}}>
-                                    <Icon
-                                        name="delete-forever"
-                                        color={'red'}
-                                        // containerStyle={{marginLeft: 10}}
-                                        // raised
-                                        onPress={() => this.cancelAppointmentRequest(item)}
-                                    />
-                                </View>
-                                <View style={{width: 70 + '%'}}>
+                                {item.status === 'requested' ?
+                                    <View style={{width: 30 + '%'}}>
+                                        <Icon
+                                            name="delete-forever"
+                                            color={'red'}
+                                            // containerStyle={{marginLeft: 10}}
+                                            // raised
+                                            onPress={() => this.cancelAppointmentRequest(item)}
+                                        />
+                                    </View>
+                                    : null
+                                }
+                                <View style={item.status === 'requested' ? {width: 70 + '%'} : {width: 100 + '%'}}>
                                     <List.Accordion
                                         // title={moment(item.startDateAndTime).format('HH:mm') + '-' + moment(item.endDateAndTime).format('HH:mm')}
                                         title={mappers.serviceProviderRolesMapper(item.AppointmentDetail.role)}
@@ -299,6 +327,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
+    button: {
+        alignItems: 'center',
+        backgroundColor: '#DDDDDD',
+        padding: 10
+    },
 });
 

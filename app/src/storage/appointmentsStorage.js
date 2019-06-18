@@ -6,9 +6,6 @@ var getUserAppointmentRequests = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/appointmentRequests/user/userId/${userId}`,
         {
             headers: userHeaders,
-            params: {
-                status: 'requested'
-            },
         })
         .then(response => {
             return response;
