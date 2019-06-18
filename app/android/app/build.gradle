@@ -138,24 +138,27 @@ android {
 }
 
 dependencies {
-//    implementation project(':react-native-firebase')
-//    implementation project(':react-native-push-notification')
-    compile project(':react-native-share')
-    compile project(':rn-fetch-blob')
-    compile project(':react-native-fs')
-    compile project(':react-native-document-picker')
+    implementation project(':react-native-firebase')
+//        exclude group: "com.google.android.gms"
+//    })
+    implementation project(':react-native-push-notification')
+    implementation  project(':react-native-share')
+    implementation  project(':rn-fetch-blob')
+    implementation  project(':react-native-fs')
+    implementation  project(':react-native-document-picker')
     implementation project(':react-native-image-crop-picker')
-    compile project(':react-native-vector-icons')
-    compile project(':react-native-gesture-handler')
+    implementation  project(':react-native-vector-icons')
+    implementation  project(':react-native-gesture-handler')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
-//    implementation 'com.google.firebase:firebase-core:16.0.9'
+//    implementation "com.google.android.gms:play-services-gcm:16.0.0"
+//    implementation 'com.google.firebase:firebase-core:17.0.0'
 //    implementation "com.google.firebase:firebase-messaging:18.0.0"
 }
 
-//apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'
 
 
 // Run this once to be able to run the application with BUCK
