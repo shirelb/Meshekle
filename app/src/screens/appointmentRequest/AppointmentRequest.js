@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {Icon, List, ListItem, SearchBar} from 'react-native-elements';
 import phoneStorage from "react-native-simple-store";
 import AppointmentRequestForm from "../../components/appointmentRequest/AppointmentRequestForm";
@@ -18,6 +18,10 @@ export default class AppointmentRequest extends Component {
             formModal: false,
             serviceProviderSelected: {},
             noServiceProviderFound: false,
+
+            errorHeader:'',
+            errorContent:'',
+            errorVisible:false
         };
 
         this.serviceProviders = [];
@@ -39,26 +43,44 @@ export default class AppointmentRequest extends Component {
     loadServiceProviders() {
         serviceProvidersStorage.getServiceProviders(this.userHeaders)
             .then(serviceProviders => {
-                // console.log("serviceProviders ",serviceProviders.length);
+                if (serviceProviders.response) {
+                    if (serviceProviders.response.status !== 200)
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת הבאת נותני השירות',
+                            errorContent: mappers.errorMapper(serviceProviders.response)
+                        });
+                } else {
+                    // console.log("serviceProviders ",serviceProviders.length);
 
-                let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
+                    let appointmentsServiceProviders = serviceProviders.filter(provider => strings.appointmentsServiceProviderRoles.includes(provider.role));
 
-                appointmentsServiceProviders.forEach(provider => {
-                    provider.role = mappers.serviceProviderRolesMapper(provider.role);
+                    appointmentsServiceProviders.forEach(provider => {
+                        provider.role = mappers.serviceProviderRolesMapper(provider.role);
 
-                    usersStorage.getUserById(provider.userId, this.userHeaders)
-                        .then(user => {
-                            provider.fullname = user.data[0].fullname;
+                        usersStorage.getUserById(provider.userId, this.userHeaders)
+                            .then(user => {
+                                if (user.response) {
+                                    if (user.response.status !== 200)
+                                        this.setState({
+                                            errorVisible: true,
+                                            errorHeader: 'קרתה שגיאה בעת הבאת פרטי נותן השירות',
+                                            errorContent: mappers.errorMapper(user.response)
+                                        });
+                                } else {
+                                    provider.fullname = user.data[0].fullname;
 
-                            this.setState({
-                                serviceProviders: appointmentsServiceProviders,
-                            });
+                                    this.setState({
+                                        serviceProviders: appointmentsServiceProviders,
+                                    });
 
-                            this.serviceProviders = appointmentsServiceProviders;
+                                    this.serviceProviders = appointmentsServiceProviders;
 
-                            // console.log(" 2  2 serviceProviders ",serviceProviders.length);
-                        })
-                })
+                                    // console.log(" 2  2 serviceProviders ",serviceProviders.length);
+                                }
+                            })
+                    })
+                }
             });
     };
 
@@ -92,7 +114,7 @@ export default class AppointmentRequest extends Component {
     };
 
     updateSearch = search => {
-        console.log("in search ", search);
+        // console.log("in search ", search);
         // this.setState({search});
         let searchText = search.toLowerCase();
         let serviceProviders = this.state.serviceProviders;
@@ -156,6 +178,15 @@ export default class AppointmentRequest extends Component {
                         />
                     }
                 </List>
+
+                {
+                    this.state.errorVisible === true ?
+                        <Text style={{color: 'red'}}>
+                            {this.state.errorHeader + ":\n" + this.state.errorContent}
+                        </Text>
+                        : null
+                }
+
                 <AppointmentRequestForm
                     modalVisible={this.state.formModal}
                     userHeaders={this.userHeaders}

@@ -39,6 +39,9 @@ module.exports = (sequelize, type) => {
         },
         image: {
             type: type.STRING,
+        },
+        deviceRegistrationToken: {
+            type: type.STRING,
         }
     });
 };

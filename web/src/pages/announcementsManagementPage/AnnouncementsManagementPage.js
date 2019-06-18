@@ -15,6 +15,7 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import CategoryAdd from "../../components/announcement/CategoryAdd";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import Modal from 'react-awesome-modal';
+import AppointmentsManagementPage from "../appointmentsManagementPage/AppointmentsManagementPage";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -59,13 +60,9 @@ class AnnouncementsManagementPage extends React.Component {
         this.serviceProviderId = store.get('serviceProviderId');
         this.getUsers();
         this.getAllServiceProviders();
-        // if(this.serviceProviderId === '1' || this.role === 'AnnouncementsSecretary') {
-        //     this.getAllCategories();
-        //}
         this.getCategories();
         this.getAnnouncementsRequests();
         this.getAnsweredAnnouncements();
-
 
     }
     componentDidMount() {
@@ -94,7 +91,7 @@ class AnnouncementsManagementPage extends React.Component {
       serviceProvidersStorage.getServiceProviders(this.serviceProviderHeaders)
           .then(response => {
               this.setState({serviceProviders: response})
-              if(this.state.serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary')
+              if(this.serviceProviderId === '1' || this.state.serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary')
                   this.getAllCategories();
           });
     };
@@ -181,16 +178,10 @@ class AnnouncementsManagementPage extends React.Component {
         this.setState({pageAnnouncementsRequests: pageAnnouncementsRequests + 1});
     }
 
-    // handleDelete(userId) {
-    //     const {users} = this.state;
-    //
-    //     this.setState({
-    //         users: users.filter(u => u.id !== userId),
-    //     });
-    // }
 
 
-    onClick = () => {
+
+    addAnnouncementClick = () => {
 
         this.props.history.push(`${this.props.match.path}/addAnnouncement`, {
             serviceProviderId: this.serviceProviderId,
@@ -308,7 +299,7 @@ class AnnouncementsManagementPage extends React.Component {
             .then(response => {
                 if(response.status === 200) {
                     this.getUsers();
-                    if(this.serviceProviderId === '1') {
+                    if(this.serviceProviderId === '1' || this.state.serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary') {
                         this.getAllServiceProviders();
                         this.getAllCategories();
                     }
@@ -507,9 +498,10 @@ class AnnouncementsManagementPage extends React.Component {
                                     <Table.Cell><a className="btn btn-default" download={announcement.fileName}
                                                    href={announcement.file ? "data:application/octet-stream;base64,"+announcement.file: ""}>{announcement.fileName? announcement.fileName : "אין קובץ"}</a>
                                     </Table.Cell>
-                                    <Table.Cell><button className="ui icon button" onClick={()=>this.handleUpdate(announcement)}>
-                                        <i className="edit icon"></i>
-                                    </button>
+                                    <Table.Cell>
+                                        <button className="ui icon button" onClick={()=>this.handleUpdate(announcement)}>
+                                            <i className="edit icon"></i>
+                                        </button>
                                         <button className="ui icon button" onClick={()=>this.handleRemoveButton(announcement.announcementId)}>
                                             <i className="trash alternate icon"></i>
                                         </button>
@@ -541,7 +533,7 @@ class AnnouncementsManagementPage extends React.Component {
                         </Table.Footer>
                     </Table>
                     <Button positive
-                            onClick={this.onClick.bind(this)}
+                            onClick={this.addAnnouncementClick.bind(this)}
                     >{strings.announcementsPageStrings.ADD_ANNOUNCEMENT}</Button>
 
                     {(this.serviceProviderId === '1' || (serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0] && serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary') ) ?
@@ -667,4 +659,4 @@ class AnnouncementsManagementPage extends React.Component {
     }
 }
 
-export {AnnouncementsManagementPage}
+export default AnnouncementsManagementPage

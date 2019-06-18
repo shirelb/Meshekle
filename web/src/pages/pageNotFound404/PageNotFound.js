@@ -12,7 +12,7 @@ const PageNotFound = () => (
 
             <div style={{marginTop: 20, textAlign: "center"}}>
                 <Header as={'h1'}> 404 </Header>
-                <Header as={'h2'}> Page not found </Header>
+                <Header as={'h2'}> דף לא נמצא </Header>
             </div>
         </Grid.Column>
     </Grid>

@@ -7,8 +7,7 @@ import {Dropdown} from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
 import ZoomImage from 'react-native-zoom-image';
-import RNFetchBlob from 'rn-fetch-blob'
-import Button from "../../components/submitButton/Button"
+import Button from "../../components/submitButton/Button";
 import usersStorage from  "../../storage/usersStorage";
 var RNFS = require('react-native-fs');
 
@@ -21,9 +20,9 @@ const addEventToCalenderAlert = (announcement) => {
         'שמור אירוע '+ announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf("T")),
         'האם ברצונך לשמור את האירוע ביומן?',
         [
-            {text: 'OK', onPress: () => saveEvent(uId, announcement.announcementId)},
+            {text: 'אישור', onPress: () => saveEvent(uId, announcement.announcementId)},
             {
-                text: 'Cancel',
+                text: 'בטל',
                 onPress: () => console.log('Cancel Pressed'),
                 style: 'cancel',
             },
@@ -39,7 +38,7 @@ const saveEvent = (userId,announcementId) => {
                 'אישור אירוע',
                 'האירוע נשמר בהצלחה',
                 [
-                    {text: 'OK', onPress: () => console.log('Ok Pressed')},
+                    {text: 'אישור', onPress: () => console.log('Ok Pressed')},
                 ]
             );
         });
@@ -54,9 +53,9 @@ const requestSaveFilePermission=() =>{
                 message:
                     'Cool Photo App needs access to your camera ' +
                     'so you can take awesome pictures.',
-                buttonNeutral: 'Ask Me Later',
-                buttonNegative: 'Cancel',
-                buttonPositive: 'OK',
+                buttonNeutral: 'שאל אותי אחר כך',
+                buttonNegative: 'ביטול',
+                buttonPositive: 'אישור',
             },
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -88,8 +87,6 @@ export default class AnnouncementsScreen extends Component {
             categoriesDisplay:[],
             users:[],
         };
-        // this.saveFile = this.saveFile.bind(this);
-        // this.sellAsset = this.sellAsset.bind(this);
 
     }
 
@@ -199,11 +196,6 @@ export default class AnnouncementsScreen extends Component {
                     (categoryName === "הכל" || categoriesWithFilterdName.includes(a.categoryId))
             }), categoryNameFilter: categoryName});
     };
-
-
-
-
-
 
     //Sections of the accordion
     setSections = sections => {
@@ -341,13 +333,6 @@ export default class AnnouncementsScreen extends Component {
         this.props.navigation.navigate('UserAnnouncementsRequests')
     };
 
-    downloadAnnouncementFile = (announcement) => {
-        console.log(announcement);
-        let PictureDir = RNFetchBlob.fs.dirs.PictureDir;
-        let path = PictureDir + "/me_"+Math.floor(date.getTime() + date.getSeconds() / 2);
-        RNFS.writeFile(path,announcement.file,'base64')
-            .then(() => console.log("file downloaded"));
-    };
 
     onNavigateOut = () => {
         this.setState({
@@ -367,7 +352,7 @@ export default class AnnouncementsScreen extends Component {
 
                     <Dropdown
                         containerStyle={styles.dropdownStyle}
-                        label='Choose Category filter'
+                        label='בחר קטגוריה'
                         data={this.state.categoriesDisplay}
                         value={this.state.categoryNameFilter}
                         onChangeText={this.updateDropdown.bind(this)}

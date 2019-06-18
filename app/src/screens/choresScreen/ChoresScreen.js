@@ -6,10 +6,10 @@ import ChoresCalendar from "../../components/calendars/choresCalendar/ChoresCale
 export default class ChoresScreen extends Component {
     render() {
         return (
-            <View style={styles.container}>
-                <Text>
+            <View>
+              {/*  <Text>
                     התורנויות שלי
-                </Text>
+                </Text>*/}
 
                 <ChoresCalendar userId="1"/>
             </View>

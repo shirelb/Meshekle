@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions} from 'react-navigation';
-import {View,Linking } from 'react-native';
+import {DrawerActions, NavigationActions, ScrollView, StackActions} from 'react-navigation';
+import {Linking} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'
@@ -18,6 +18,12 @@ export default class DrawerMenu extends Component {
             formModal: false,
             infoModal: false,
             userLoggedin: {},
+
+            mainBadgeVisible: 0,
+            appointmentsBadgeVisible: 0,
+            choresBadgeVisible: 0,
+            phoneBookBadgeVisible: 0,
+            announcementsBadgeVisible: 0,
         };
     }
 
@@ -26,10 +32,34 @@ export default class DrawerMenu extends Component {
             routeName: route
         });
         this.props.navigation.dispatch(navigateAction);
-        this.props.navigation.dispatch(DrawerActions.closeDrawer())
+        this.props.navigation.dispatch(DrawerActions.closeDrawer());
+
+        switch (route) {
+            case 'MainScreen':
+                this.setState({
+                    mainBadgeVisible: 0,
+                    appointmentsBadgeVisible: 0,
+                    choresBadgeVisible: 0,
+                    announcementsBadgeVisible: 0,
+                });
+                break;
+            case 'AppointmentsScreen':
+                this.setState({appointmentsBadgeVisible: 0,});
+                break;
+            case 'ChoresScreen':
+                this.setState({choresBadgeVisible: 0,});
+                break;
+            case 'PhoneBookScreen':
+                this.setState({phoneBookBadgeVisible: 0,});
+                break;
+            case 'AnnouncementsScreen':
+                this.setState({announcementsBadgeVisible: 0,});
+                break;
+        }
     };
 
     onLogoutPress = () => {
+        const navigation = this.props.navigation;
         phoneStorage.update('userData', {
             token: null,
             userId: null,
@@ -38,6 +68,13 @@ export default class DrawerMenu extends Component {
             .then(() => {
                 APP_SOCKET.emit('disconnectAppClient', {userId: this.userId});
                 this.props.navigation.navigate('Auth');
+                const resetAction = StackActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({routeName: 'LoginScreen'})
+                    ]
+                });
+                setTimeout(this.props.navigation.dispatch.bind(null, resetAction), 500);
             })
     };
 
@@ -55,23 +92,62 @@ export default class DrawerMenu extends Component {
 
     componentDidMount() {
         APP_SOCKET.on("getUsers", this.loadUser.bind(this));
+
+        APP_SOCKET.on("getUserAppointments", this.turnOnBadge.bind(this, "AppointmentsScreen"));
+        APP_SOCKET.on("getUserChore", this.turnOnBadge.bind(this, "ChoresScreen"));
+
+        this.setState({
+            mainBadgeVisible: 0,
+            appointmentsBadgeVisible: 0,
+            choresBadgeVisible: 0,
+            phoneBookBadgeVisible: 0,
+            announcementsBadgeVisible: 0,
+        });
     }
 
     componentWillUnmount() {
         APP_SOCKET.off("getUsers");
+
+        APP_SOCKET.off("getUserAppointments");
+        APP_SOCKET.off("getUserChore");
     }
+
+    turnOnBadge = (route) => {
+        switch (route) {
+            case 'MainScreen':
+                this.setState({mainBadgeVisible: 1,});
+                break;
+            case 'AppointmentsScreen':
+                this.setState({mainBadgeVisible: 1, appointmentsBadgeVisible: 1,});
+                break;
+            case 'ChoresScreen':
+                this.setState({mainBadgeVisible: 1, choresBadgeVisible: 1,});
+                break;
+            case 'PhoneBookScreen':
+                this.setState({mainBadgeVisible: 1, phoneBookBadgeVisible: 1,});
+                break;
+            case 'AnnouncementsScreen':
+                this.setState({mainBadgeVisible: 1, announcementsBadgeVisible: 1,});
+                break;
+        }
+    };
 
     loadUser() {
         usersStorage.getUserById(this.userId, this.userHeaders)
             .then(user => {
-                console.log("DrawerMenu user ", user);
-                let userLoggedin = user.data[0];
+                if (user.response) {
+                    if (user.response.status !== 200) {
+                    }
+                } else {
+                    // console.log("DrawerMenu user ", user);
+                    let userLoggedin = user.data[0];
 
-                this.setState({
-                    userLoggedin: userLoggedin,
-                    formModal: false,
-                    infoModal: false,
-                });
+                    this.setState({
+                        userLoggedin: userLoggedin,
+                        formModal: false,
+                        infoModal: false,
+                    });
+                }
             })
     };
 
@@ -87,13 +163,12 @@ export default class DrawerMenu extends Component {
         this.setState({
             formModal: true,
             infoModal: false,
-            // userLoggedin: {},
         });
-    }
+    };
 
     render() {
         return (
-            <View style={{flex: 1, backgroundColor: '#ededed'}}>
+            <ScrollView style={{flex: 1, backgroundColor: '#ededed'}}>
                 <List containerStyle={{marginBottom: 20}}>
                     <ListItem
                         containerStyle={{height: 150}}
@@ -121,7 +196,11 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'home'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{ value: 3, textStyle: { color: 'orange' } }}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {backgroundColor: 'transparent', opacity: this.state.mainBadgeVisible}
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -132,7 +211,14 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'insert-invitation'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {
+                                backgroundColor: 'transparent',
+                                opacity: this.state.appointmentsBadgeVisible
+                            }
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -143,7 +229,11 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'transfer-within-a-station'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {backgroundColor: 'transparent', opacity: this.state.choresBadgeVisible}
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -154,7 +244,11 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'contacts'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {backgroundColor: 'transparent', opacity: this.state.phoneBookBadgeVisible}
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -165,7 +259,14 @@ export default class DrawerMenu extends Component {
                         // subtitle="test"
                         leftIcon={{name: 'insert-comment'}}
                         rightIcon={<Icon name={'chevron-left'}/>}
-                        // badge={{value: 3, textStyle: {color: 'orange'}}}
+                        badge={{
+                            value: '👋',
+                            textStyle: {color: '#00adf5'},
+                            containerStyle: {
+                                backgroundColor: 'transparent',
+                                opacity: this.state.announcementsBadgeVisible
+                            }
+                        }}
                     />
                     <ListItem
                         // roundAvatar
@@ -212,7 +313,7 @@ export default class DrawerMenu extends Component {
                     : null
                 }
 
-            </View>
+            </ScrollView>
         );
     }
 }

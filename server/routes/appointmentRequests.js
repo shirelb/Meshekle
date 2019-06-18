@@ -50,30 +50,28 @@ router.post('/user/request', function (req, res, next) {
 router.get('/user/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            if (user.dataValues) {
-                let whereClause = {};
-                req.query.status ? whereClause.status = req.query.status : null;
-                req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
-                AppointmentRequests.findAll({
-                    where: whereClause,
-                    include: [
-                        {
-                            model: AppointmentDetails,
-                            where: {
-                                clientId: req.params.userId,
-                            },
-                            required: true
-                        }
-                    ]
+            let whereClause = {};
+            req.query.status ? whereClause.status = req.query.status : null;
+            req.query.appointmentRequestId ? whereClause.requestId = req.query.appointmentRequestId : null;
+            AppointmentRequests.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: AppointmentDetails,
+                        where: {
+                            clientId: req.params.userId,
+                        },
+                        required: true
+                    }
+                ]
+            })
+                .then(userAppointments => {
+                    console.log(userAppointments);
+                    res.status(200).send(userAppointments);
                 })
-                    .then(userAppointments => {
-                        console.log(userAppointments);
-                        res.status(200).send(userAppointments);
-                    })
-                    .catch(err => {
-                        res.status(500).send(err);
-                    })
-            }
+                .catch(err => {
+                    res.status(500).send(err);
+                })
         })
 });
 
@@ -204,7 +202,7 @@ router.get('/serviceProvider/serviceProviderId/:serviceProviderId', function (re
                     {
                         model: AppointmentDetails,
                         where: {
-                            serviceProviderId: typeof req.params.serviceProviderId==='string'? parseInt(req.params.serviceProviderId):req.params.serviceProviderId
+                            serviceProviderId: req.params.serviceProviderId
                         },
                         required: true
                     }
@@ -233,9 +231,16 @@ router.put('/serviceProvider/update/status/appointmentRequestId/:appointmentRequ
                 requestId: typeof req.params.appointmentRequestId === 'string' ? parseInt(req.params.appointmentRequestId) : req.params.appointmentRequestId
             }
         })
-        .then(isUpdated => {
+        .then(async isUpdated => {
             if (isUpdated[0] === 0)
-                return res.status(400).send({"message": serviceProvidersRoute.APPOINTMENT_NOT_FOUND});
+                return res.status(400).send({"message": constants.usersRoute.APPOINTMENT_REQUEST_NOT_FOUND});
+
+            var registrationToken = await helpers.getRegistrationTokenOfUser(req.body.userId);
+            if (registrationToken !== null && registrationToken !== undefined) {
+                var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.UPDATE_APPOINTMENT_REQUEST, {resource: '' + req.params.appointmentRequestId}, registrationToken);
+                helpers.pushNotification(message);
+            }
+
             res.status(200).send({
                 "message": serviceProvidersRoute.APPOINTMENT_STATUS_CACELLED,
                 "result": isUpdated[0]

@@ -2,39 +2,41 @@ import axios from "axios";
 import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import store from "store";
 
-const serviceProviderHeaders = {
-    'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+const getServiceProviderHeaders = () => {
+    return {
+        'Authorization': 'Bearer ' + store.get('serviceProviderToken')
+    };
 };
 
-var getUserByUserID = (userId, headers) => {
+var getUserByUserID = (userId, headers = null) => {
     return axios.get(`${SERVER_URL}/api/users/userId/${userId}`,
-        {headers: headers}
+        {headers: headers ? headers : getServiceProviderHeaders()}
     )
         .then((response) => {
             return response.data[0];
         })
         .catch((error) => {
             console.log('getUserByUserID ', userId, ' error ', error);
-            return null;
+            return error;
         });
 };
 
-var getUsers = () => {
+var getUsers = (headers = null) => {
     return axios.get(`${SERVER_URL}/api/users`,
-        {headers: serviceProviderHeaders}
+        {headers: headers ? headers : getServiceProviderHeaders()}
     )
         .then((response) => {
             return response.data.filter(user => user.userId !== 1 && user.userId !== "1");
         })
         .catch((error) => {
             console.log('getUsers error ', error);
-            return null;
+            return error;
         });
 };
 
-var deleteUserByUserID = (userId, headers) => {
+var deleteUserByUserID = (userId, headers = null) => {
     return axios.delete(`${SERVER_URL}/api/serviceProviders/users/userId/${userId}/delete`,
-        {headers: headers}
+        {headers: headers ? headers : getServiceProviderHeaders()}
     )
         .then((response) => {
             WEB_SOCKET.emit('userShallowDeleted');
@@ -43,7 +45,7 @@ var deleteUserByUserID = (userId, headers) => {
         })
         .catch((error) => {
             console.log('deleteUserByUserID ', userId, ' error ', error);
-            return null;
+            return error;
         });
 };
 
@@ -69,7 +71,7 @@ var createUser = (newUser, serviceProviderHeaders) => {
         })
         .catch((error) => {
             console.log('createUser error ', error);
-            return null;
+            return error;
         });
 };
 
@@ -95,7 +97,7 @@ var updateUserById = function (updatedUser, serviceProviderHeaders) {
         })
         .catch(error => {
             console.log('updateUserById error ', error);
-            return null;
+            return error;
         });
 };
 

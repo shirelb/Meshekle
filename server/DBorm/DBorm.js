@@ -1,7 +1,6 @@
 const Sequelize = require('sequelize');
 const UsersModel = require('./models/users');
 const ServiceProvidersModel = require('./models/serviceProviders');
-const PermissionsModel = require('./models/permissions');
 const RolesModulesModel = require('./models/rolesModules');
 const CategoriesModel = require('./models/categories');
 const AnnouncementsModel = require('./models/announcements');
@@ -21,7 +20,6 @@ const ApartmentConstraintsModel = require('./models/apartmentConstraints')
 const ApartmentReservationsModel = require('./models/apartmentReservations');
 const UserYearUtilizationModel = require('./models/userYearUtilization');
 const EventsModel = require('./models/events');
-const LogsModel = require('./models/logs');
 
 const sequelize = new Sequelize('database', 'username', 'password', {
     host: 'localhost',
@@ -56,7 +54,6 @@ sequelize
 
 const Users = UsersModel(sequelize, Sequelize);
 const ServiceProviders = ServiceProvidersModel(sequelize, Sequelize);
-const Permissions = PermissionsModel(sequelize, Sequelize);
 const RolesModules = RolesModulesModel(sequelize, Sequelize);
 const Categories = CategoriesModel(sequelize, Sequelize);
 const Announcements = AnnouncementsModel(sequelize, Sequelize);
@@ -76,7 +73,6 @@ const ApartmentConstraints = ApartmentConstraintsModel(sequelize, Sequelize);
 const ApartmentReservations = ApartmentReservationsModel(sequelize, Sequelize);
 const UserYearUtilization = UserYearUtilizationModel(sequelize, Sequelize);
 const Events = EventsModel(sequelize, Sequelize);
-const Logs = LogsModel(sequelize, Sequelize);
 
 
 Events.belongsTo(ScheduledAppointments, {
@@ -97,20 +93,11 @@ Events.belongsTo(Announcements, {
     constraints: false
 });
 
-/*ScheduledAppointments.hasOne(Events, {
+Events.belongsTo(Incidents, {
     foreignKey: 'eventId',
-    targetKey: 'appointmentId'
-});*/
-
-/*Events.belongsTo(Users, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
-});*/
-
-/*Users.hasMany(Events, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
-});*/
+    targetKey: 'incidentId',
+    constraints: false
+});
 
 Users.hasMany(AppointmentDetails, {
     foreignKey: 'userId',
@@ -194,6 +181,7 @@ SwapRequests.belongsTo(UsersChores, {
     foreignKey: 'choreIdOfSender',
     targetKey: 'userChoreId'
 });
+
 
 if (process.dbMode === "dev") {
     sequelize.sync({force: true})
@@ -295,10 +283,32 @@ if (process.dbMode === "dev") {
                         )
                 });
 
-            RolesModules.create({
-                role: "Admin",
-                module: "all",
-            })
+            RolesModules.bulkCreate([
+                {
+                    role: "Admin",
+                    module: "all",
+                },
+                {
+                    role: "appointmentsHairDresser",
+                    module: "appointments"
+                },
+                {
+                    role: "appointmentsDentist",
+                    module: "appointments"
+                },
+                {
+                    role: "PhoneBookSecretary",
+                    module: "phoneBook"
+                },
+                {
+                    role: "ChoresSecretary",
+                    module: "chores"
+                },
+                {
+                    role: "AnnouncementsSecretary",
+                    module: "announcements"
+                },
+            ])
                 .then(response => {
                     Users.create({
                         userId: '1',
@@ -332,7 +342,6 @@ module.exports = {
     sequelize,
     Users,
     ServiceProviders,
-    Permissions,
     RolesModules,
     Categories,
     Announcements,
@@ -352,5 +361,4 @@ module.exports = {
     ApartmentReservations,
     UserYearUtilization,
     Events,
-    Logs
 };

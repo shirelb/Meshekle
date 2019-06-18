@@ -46,7 +46,7 @@ export default class ReplacementsChoresCalendar extends Component {
                 APP_SOCKET.on("usersMadeChoreReplacement", this.loadUserChores.bind(this));
 
             });
-            
+
     }
 
     loadUserChores() {

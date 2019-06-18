@@ -4,7 +4,7 @@ var router = express.Router();
 var jwt = require('jsonwebtoken');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const {sequelize, Users, ServiceProviders, AppointmentRequests, AppointmentDetails, ScheduledAppointments, Incidents, UsersChoresTypes, Events} = require('../DBorm/DBorm');
+const {sequelize, Users, ServiceProviders, Events} = require('../DBorm/DBorm');
 var validations = require('./shared/validations');
 var constants = require('./shared/constants');
 var authentications = require('./shared/authentications');
@@ -17,22 +17,19 @@ router.post('/login/authenticate', function (req, res) {
     } else {
         validations.checkIfUserExist(req.body.userId, res)
             .then(user => {
-                if (user !== undefined && user.dataValues) {
-                    var payload = {
-                        userId: user.userId,
-                        userFullname: user.fullname,
-                    };
-                    user.userId === req.body.userId &&
-                    user.password === req.body.password ?
-                        authentications.sendToken(payload, res)
-                        :
-                        res.status(400).send({
-                            "success": false,
-                            "message": constants.usersRoute.AUTHENTICATION_FAILED,
-                            "token": 'null'
-                        });
-
-                }
+                var payload = {
+                    userId: user.userId,
+                    userFullname: user.fullname,
+                };
+                user.userId === req.body.userId &&
+                user.password === req.body.password ?
+                    authentications.sendToken(payload, res)
+                    :
+                    res.status(400).send({
+                        "success": false,
+                        "message": constants.usersRoute.AUTHENTICATION_FAILED,
+                        "token": 'null'
+                    });
             });
     }
 });
@@ -85,9 +82,9 @@ router.put('/forgetPassword', function (req, res) {
                         "result": user.dataValues.password
                     });
                     helpers.sendMail(user.email, constants.mailMessages.REMINDER_SUBJECT,
-                        "Hello " + user.fullname +
-                        "\nYour username is: " + user.userId +
-                        "\nYour password is: " + user.dataValues.password +
+                        "שלום " + user.fullname +
+                        "\nשם המשתמש שלך:\n " + "\n" + user.userId +
+                        "\nהסיסמא שלך: \n" + "\n" + user.dataValues.password +
                         "\n" + constants.mailMessages.REMINDER_END +
                         "\n" + constants.mailMessages.MAIL_END);
                 })
@@ -209,25 +206,53 @@ router.put('/update/userId/:userId', function (req, res, next) {
 router.get('/events/userId/:userId', function (req, res, next) {
     validations.checkIfUserExist(req.params.userId, res)
         .then(user => {
-            if (user.dataValues) {
-                Events.findAll({
-                    where: {
-                        userId: req.params.userId,
-                    },
-                    include: [{all: true, nested: true}]
+            Events.findAll({
+                where: {
+                    userId: req.params.userId,
+                },
+                include: [{all: true, nested: true}]
+            })
+                .then(userEvents => {
+                    console.log(userEvents);
+                    res.status(200).send(userEvents);
                 })
-                    .then(userEvents => {
-                        console.log(userEvents);
-                        res.status(200).send(userEvents);
+                .catch(err => {
+                    res.status(500).send({
+                        "message": constants.general.SOMETHING_WENT_WRONG,
+                        err
+                    });
+                })
+        })
+});
+
+/* POST save registration token of the device of a user . */
+router.put('/notifications/saveRegistrationToken', function (req, res) {
+    if (!req.body.userId || !req.body.registrationToken) {
+        res.status(400).send({"message": constants.usersRoute.AUTHENTICATION_FAILED});
+    } else {
+        validations.checkIfUserExist(req.body.userId, res)
+            .then(user => {
+                Users.update(
+                    {
+                        deviceRegistrationToken: req.body.registrationToken
+                    },
+                    {
+                        where: {
+                            userId: req.body.userId
+                        }
                     })
-                    .catch(err => {
-                        res.status(500).send({
-                            "message": constants.general.SOMETHING_WENT_WRONG,
-                            err
+                    .then(isUpdated => {
+                        res.status(200).send({
+                            "message": constants.usersRoute.USER_UPDATE_SUCCESS,
+                            "result": isUpdated[0]
                         });
                     })
-            }
-        })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).send(err);
+                    })
+            });
+    }
 });
 
 

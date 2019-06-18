@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {FlatList, Modal, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, Modal, StyleSheet, RefreshControl, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {Calendar, LocaleConfig} from "react-native-calendars";
 import moment from "moment";
 import phoneStorage from "react-native-simple-store";
@@ -289,6 +289,14 @@ export default class ChoresCalendar extends Component {
                 }}
             />
         );
+    };
+
+    onRefresh = () => {
+        this.setState({refreshing: true});
+
+        this.loadUserChores();
+
+        this.setState({refreshing: false});
     };
 
     render() {

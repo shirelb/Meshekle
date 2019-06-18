@@ -9,7 +9,6 @@ module.exports = (sequelize, type) => {
             type: type.STRING,
             required: true
         },
-        
-        
+
     });
 };

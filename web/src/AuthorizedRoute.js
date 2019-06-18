@@ -10,11 +10,11 @@ class AuthorizedRoute extends React.Component {
         // getLoggedUser()
         isLoggedIn()
             .then(answer => {
-                console.log('hhhh compooooo abs ', answer);
+                // console.log('hhhh compooooo abs ', answer);
                 this.setState({isLoggedIn: answer});
             })
             .catch(answer => {
-                console.log('hhhh compooooo abs ', answer);
+                // console.log('hhhh compooooo abs ', answer);
                 this.setState({isLoggedIn: answer});
             });
     }

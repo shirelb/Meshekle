@@ -451,7 +451,7 @@ class ChoresManagementPage extends React.Component {
     handleUserToAdd(e, {userId}) {
     }
 
-    
+
 
     openModalRequest(content) {
         this.setState({openModal: true, contentModal: content});

@@ -1,6 +1,6 @@
 module.exports = (sequelize, type) => {
     return sequelize.define('TimeSlotBoards', {
-        timeSlotBourdId:{
+            timeSlotBoardId:{
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true,

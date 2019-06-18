@@ -67,6 +67,7 @@ export default class DraggableAppointmentRequest extends React.Component {
                                               color={`${colorCardByRole[appointmentRequest.AppointmentDetail.role]}`}
                                               style={{color: `${this.props.colorEventByRole[appointmentRequest.AppointmentDetail.role]}`}}>
                                     <Icon name='info circle'
+                                          size={'large'}
                                           onClick={this.props.onClick.bind(this, appointmentRequest)}/>
                                     <Card.Header>{appointmentRequest.clientName}</Card.Header>
                                     {/*<Card.Meta>{this.props.cardMeta?this.props.cardMeta:null}</Card.Meta>*/}

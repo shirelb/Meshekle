@@ -1,0 +1,12 @@
+[
+  {
+    "categoryId": 1,
+    "categoryName":"Culture",
+    "serviceProviderId": "900261801"
+  },
+  {
+    "categoryId": 2,
+    "categoryName":"Sport",
+    "serviceProviderId": "900261801"
+  }
+]

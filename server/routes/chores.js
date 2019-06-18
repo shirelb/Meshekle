@@ -1009,26 +1009,24 @@ router.put('/replacementRequests/replace', function (req, res, next) {
                                 res.status(500).send(err);
                             })
                       }
-                
+
                 else{
                   res.status(400).send({"message":"user not do this chore"});
                 }
-              
+
             })
             .catch(err=>{
               res.status(404).send({"message":constants.usersRoute.USER_NOT_FOUND,err});
             })
-        
+
   });
 
   /* GET users of choreType by choreTypeName api22. */
 router.get('/type/:type/users/not', function (req, res, next) {
-  console.log("\n\n\n 1\n\n\n");
   validations.checkIfChoreTypeExist(req.params.type, res)
   .then(type=>{
-    console.log("\n\n\n 2\n\n\n"+ids+"\n\n\n");
     if(type){
-    Users.findAll({ 
+    Users.findAll({
       where:{
         userId:{
       [Op.notIn]:  ids}
