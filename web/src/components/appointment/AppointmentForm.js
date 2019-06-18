@@ -115,14 +115,16 @@ class AppointmentForm extends Component {
                         });
                 } else {
                     let serviceProvider = serviceProviders.filter(provider => provider.role === currentRole)[0];
-                    JSON.parse(serviceProvider.subjects).map((subject, index) => {
-                        subjectOptions.push({key: index, text: subject, value: subject});
-                    });
+                    if(serviceProvider) {
+                        JSON.parse(serviceProvider.subjects).map((subject, index) => {
+                            subjectOptions.push({key: index, text: subject, value: subject});
+                        });
 
-                    calledFromConstructor ?
-                        Object.assign(this.state, {subjectOptions: subjectOptions})
-                        :
-                        this.setState({subjectOptions: subjectOptions})
+                        calledFromConstructor ?
+                            Object.assign(this.state, {subjectOptions: subjectOptions})
+                            :
+                            this.setState({subjectOptions: subjectOptions})
+                    }
                 }
             });
     };

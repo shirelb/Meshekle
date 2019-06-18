@@ -57,7 +57,7 @@ export default class AppointmentsCalendar extends Component {
                             errorHeader: 'קרתה שגיאה בעת הבאת התורים',
                             errorContent: mappers.errorMapper(response.response)
                         });
-                   } else {
+                } else {
                     let markedDates = {};
 
                     response.data.forEach(appointment => {

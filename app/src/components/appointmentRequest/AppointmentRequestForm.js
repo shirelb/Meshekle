@@ -8,6 +8,7 @@ import {List} from "react-native-paper";
 import moment from 'moment';
 import appointmentsStorage from "../../storage/appointmentsStorage";
 import mappers from "../../shared/mappers";
+import strings from "../../shared/strings";
 
 
 export default class AppointmentRequestForm extends Component {
@@ -158,7 +159,7 @@ export default class AppointmentRequestForm extends Component {
         for (let dateTime of datestimes) {
             for (let times of dateTime['hours']) {
                 if (!moment(times.startHour, 'h:mma').isBefore(moment(times.endHour, 'h:mma'))) {
-                   return false;
+                    return false;
                 }
             }
         }
@@ -233,22 +234,42 @@ export default class AppointmentRequestForm extends Component {
                 <View style={{marginTop: 20}}>
                     <ScrollView>
                         <Text h4 style={styles.textTitle}>בקשת תור</Text>
-                        {/*<Header
-                                backgroundColor={'white'}
-                                // leftComponent={{ icon: 'menu', color: '#fff' }}
-                                centerComponent={{ text: 'בקשת תור', style: { color: '#050505',fontWeight: 'bold',fontSize:26 } }}
-                                // rightComponent={{ icon: 'home', color: '#fff' }}
-                            />*/}
 
                         <FormLabel>*נותן שירות</FormLabel>
-                        <Text style={{marginLeft: 10}}>
+                        <Text style={{marginLeft: 10, marginRight: 10}}>
                             {this.props.serviceProvider.fullname}
                         </Text>
 
                         <FormLabel> *ענף</FormLabel>
-                        <Text style={{marginLeft: 10}}>
+                        <Text style={{marginLeft: 10, marginRight: 10}}>
                             {this.props.serviceProvider.role}
                         </Text>
+
+                        <FormLabel> *שעות פעילות</FormLabel>
+                        {this.props.serviceProvider.operationTime ?
+                            JSON.parse(this.props.serviceProvider.operationTime).map((dayTime, index) => {
+                                return <View key={index}
+                                             style={{
+                                                 flex: 3,
+                                                 justifyContent: 'space-around',
+                                                 flexDirection: 'row'
+                                             }}>
+                                    <Text style={{marginLeft: 10}}>
+                                        {strings.days[dayTime.day]} :
+                                    </Text>
+                                    {
+                                        Array.isArray(dayTime.hours) ?
+                                            dayTime.hours.map((hours, j) => {
+                                                return <Text style={{marginLeft: 10, direction: 'rtl'}} key={j}>
+                                                    {hours.startHour} - {hours.endHour}
+                                                </Text>
+                                            })
+                                            : null
+                                    }
+                                </View>
+                            })
+                            : null
+                        }
 
                         <FormLabel> *תאריכים ושעות אופציונאליים</FormLabel>
                         <List.Section title={this.state.selectedDate}>

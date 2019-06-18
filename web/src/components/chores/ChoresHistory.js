@@ -47,7 +47,8 @@ class ChoresHistory extends React.Component {
                 phone: "",
                 appointmentWayType: "",
                 active: "",
-            }
+            },
+            loadingErrorMessage:""
         };
 
         this.incrementPage = this.incrementPage.bind(this);
@@ -80,22 +81,30 @@ class ChoresHistory extends React.Component {
         console.log("in load chores!!!!!")
         choresStorage.getAllPastUserChores(this.serviceProviderId,this.serviceProviderHeaders)
             .then((response) => {
-                let chores = [];
-                let chore = 0;
-                for(chore in response.data){
-                    let c = response.data[chore];
-                    c.fullname = response.data[chore].User.fullname;
-                    chores.push(c);
+                console.log("hisory response", response)
+                if(response && response!==undefined && response.status!==200){
+                    this.setState({loadingErrorMessage:"אירעה בעיה בטעינת הנתונים, נא לרענן את העמוד."})
                 }
-                const totalPagesChores = Math.ceil(chores.length / TOTAL_PER_PAGE);
+                else{
 
-                this.setState({
-                    chores: chores,
-                    pageChores: 0,
-                    totalPagesChores,
-                });
+                    let chores = [];
+                    let chore = 0;
+                    for(chore in response.data){
+                        let c = response.data[chore];
+                        c.fullname = response.data[chore].User.fullname;
+                        chores.push(c);
+                    }
+                    const totalPagesChores = Math.ceil(chores.length / TOTAL_PER_PAGE);
 
-                this.chores = chores;
+                    this.setState({
+                        chores: chores,
+                        pageChores: 0,
+                        totalPagesChores,
+                        loadingErrorMessage:"",
+                    });
+
+                    this.chores = chores;
+                }
             });
     }
 
@@ -209,7 +218,8 @@ choresFilterColumnsAndTexts = _.omitBy(this.state.choresFilterColumnsAndTexts, (
                     <Helmet>
                         <title>Meshekle | User-Chores history</title>
                     </Helmet>
-
+                    <br/><br/><br/>
+                    <p style={{color:'red'}}>{this.state.loadingErrorMessage}</p>
                     <Button icon
                             onClick={() => helpers.exportToPDF('MeshekleHistoryToPrint', 'divHistoryToPrint', 'landscape')}>
                         <Icon name="file pdf outline"/>

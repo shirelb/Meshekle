@@ -16,6 +16,10 @@ module.exports = function (socket,pushToWebClient,pushToAppClient, pushToAllAppC
         console.log('socket serviceProviderPostUserChore data ', data);
         pushToAppClient(data, 'getUserChore');
     });
+    socket.on('serviceProviderDeleteUserChore', (data) => {
+        console.log('socket serviceProviderPostUserChore data ', data);
+        pushToAllAppClient( 'removeUserChore');
+    });
 
     // socket.on('serviceProviderUpdateAppointment', (data) => {
     //     console.log('socket serviceProviderUpdateAppointment data ', data);

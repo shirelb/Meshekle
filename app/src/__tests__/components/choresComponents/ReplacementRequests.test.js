@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from "../../../components/submitButton/Button";
 
 import {Modal} from "react-native";
 import {CheckBox, FormInput, FormLabel, FormValidationMessage, Text} from "react-native-elements";
@@ -65,27 +66,18 @@ describe("ReplacementRequests should", () => {
 
     it("render what the user see", async () => {
 
-        expect(wrapper.find(Modal)).toHaveLength(1);
-        expect(wrapper.find(Text)).toHaveLength(6);
-        expect(wrapper.find(Text).at(0).props().children).toEqual('בקשת תור');
-        expect(wrapper.find(Text).at(1).props().children).toEqual(appointmentRequestTest.serviceProviderFullname);
-        expect(wrapper.find(Text).at(2).props().children).toEqual(mappers.serviceProviderRolesMapper(appointmentRequestTest.AppointmentDetail.role));
-        expect(wrapper.find(Text).at(3).props().children).toEqual(mappers.appointmentRequestStatusMapper(appointmentRequestTest.status));
-        expect(wrapper.find(Text).at(4).props().children).toEqual(JSON.parse(appointmentRequestTest.AppointmentDetail.subject).join(", "));
-        expect(wrapper.find(Text).at(5).props().children).toEqual(appointmentRequestTest.notes);
-        expect(wrapper.find('FormLabel')).toHaveLength(6);
-        expect(wrapper.find('FormLabel').at(0).props().children).toEqual('נותן שירות');
-        expect(wrapper.find('FormLabel').at(1).props().children).toEqual(" ענף");
-        expect(wrapper.find('FormLabel').at(2).props().children).toEqual(" סטאטוס");
-        expect(wrapper.find('FormLabel').at(3).props().children).toEqual("נושא");
-        expect(wrapper.find('FormLabel').at(4).props().children).toEqual(' תאריכים ושעות אופציונאליים');
-        expect(wrapper.find('FormLabel').at(5).props().children).toEqual('הערות');
-        expect(wrapper.find(List.Section)).toHaveLength(1);
-        expect(wrapper.find(List.Accordion)).toHaveLength(2);
-        expect(wrapper.find(List.Item)).toHaveLength(4);
-        expect(wrapper.find('Button')).toHaveLength(2);
-        expect(wrapper.find('Button').at(0).props().label).toEqual('מחק');
+        expect(wrapper.find(Modal)).toHaveLength(2);
+        expect(wrapper.find(Button)).toHaveLength(3);
+        expect(wrapper.find("Text")).toHaveLength(5);
+        expect(wrapper.find("Text").at(0).props().children).toEqual('בקשות נכנסות:');
+        expect(wrapper.find("Text").at(1).props().children).toEqual('אין בקשות נכנסות');
+        expect(wrapper.find("Text").at(2).props().children).toEqual('בקשות יוצאות:');
+        expect(wrapper.find("Text").at(3).props().children).toEqual('אין בקשות יוצאות');
+        expect(wrapper.find("Text").at(4).props().children).toEqual('');
+
+        expect(wrapper.find('Button').at(0).props().label).toEqual('סגור');
         expect(wrapper.find('Button').at(1).props().label).toEqual('חזור');
+        expect(wrapper.find('Button').at(2).props().label).toEqual('סגור');
     });
 
     it("mounted with the right data", async () => {

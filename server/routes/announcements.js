@@ -527,10 +527,29 @@ router.put('/update/announcementId/:announcementId', function (req, res, next) {
                 .then(isUpdated => {
                     if (isUpdated[0] === 0)
                         return res.status(400).send({"message": announcementsRoute.ANNOUNCEMENT_NOT_FOUND});
-                    res.status(200).send({
-                        "message": announcementsRoute.ANNOUNCEMENT_UPDATE_SUCCESS,
-                        "result": isUpdated[0]
-                    });
+
+                    if(req.body.status ==='On air'){
+                        validations.getSubsByCategoryIdPromise(req.body.categoryId)
+                            .then(async subs=>{
+                                subs.forEach(async sub=> {
+                                    var registrationToken = await helpers.getRegistrationTokenOfUser(sub.userId);
+                                    if (registrationToken !== null && registrationToken !== undefined) {
+                                        var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.NEW_APPOINTMENT + "תרבות", {resource: {}}, registrationToken);
+                                        helpers.pushNotification(message);
+                                    }
+
+                                });
+                                res.status(200).send({
+                                    "message": announcementsRoute.ANNOUNCEMENT_UPDATE_SUCCESS,
+                                    "result": isUpdated[0]
+                                });
+                            })
+                    }else{
+                        res.status(200).send({
+                            "message": announcementsRoute.ANNOUNCEMENT_UPDATE_SUCCESS,
+                            "result": isUpdated[0]
+                        });
+                    }
                 })
                 .catch(err => {
                     console.log(err);
@@ -559,10 +578,28 @@ router.post('/add', function (req, res, next) {
         status: req.body.status,
     })
         .then(newAnnouncement => {
-            res.status(200).send({
-                "message": announcementsRoute.ANNOUNCEMENT_ADDED_SUCC,
-                "result": newAnnouncement.dataValues
-            });
+            if(req.body.status ==='On air'){
+                validations.getSubsByCategoryIdPromise(req.body.categoryId)
+                    .then(async subs=>{
+                        subs.forEach(async sub=> {
+                            var registrationToken = await helpers.getRegistrationTokenOfUser(sub.userId);
+                            if (registrationToken !== null && registrationToken !== undefined) {
+                                var message = helpers.createMessageForNotification(constants.notifications.NOTIFICATION_TITLE, constants.notifications.NEW_APPOINTMENT + "תרבות", {resource: {}}, registrationToken);
+                                helpers.pushNotification(message);
+                            }
+
+                        });
+                        res.status(200).send({
+                            "message": announcementsRoute.ANNOUNCEMENT_ADDED_SUCC,
+                            "result": newAnnouncement.dataValues
+                        });
+                    })
+            }else{
+                res.status(200).send({
+                    "message": announcementsRoute.ANNOUNCEMENT_ADDED_SUCC,
+                    "result": newAnnouncement.dataValues
+                });
+            }
         })
         .catch(err => {
             console.log(err);

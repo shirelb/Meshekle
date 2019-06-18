@@ -239,12 +239,16 @@ export default class AnnouncementsScreen extends Component {
                     {section.content}
                 </Animatable.Text>
 
+                <Animatable.Text  animation={isActive ? 'bounceIn' : undefined} >
+                    {section.dateOfEvent ? "תאריך אירוע: " + section.dateOfEvent.substring(0,section.dateOfEvent.indexOf("T")) : ""}
+                </Animatable.Text>
 
-                <TouchableOpacity onPress={()=>{addEventToCalenderAlert(section)}}>
-                    <Animatable.Text animation={isActive ? 'bounceIn' : undefined} >
-                        {section.dateOfEvent ? "תאריך אירוע: " + section.dateOfEvent.substring(0,section.dateOfEvent.indexOf("T")) : ""}
-                    </Animatable.Text>
-                </TouchableOpacity>
+
+                <Button
+                    containerStyle={styles.downloadButton}
+                    label="שמור את האירוע"
+                    onPress={()=>{addEventToCalenderAlert(section)}}
+                />
 
                 {section.fileName ?
                     <Button
@@ -309,6 +313,7 @@ export default class AnnouncementsScreen extends Component {
                     :
                     null
                 }
+
             </Animatable.View>
         );
     }
@@ -475,7 +480,6 @@ const styles = StyleSheet.create({
     img: {
         borderWidth: 3,
         borderColor: '#45b7d5',
-
     },
     button: {
         height: 36,
@@ -496,6 +500,11 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         alignSelf: 'stretch',
         justifyContent: 'center'
+    },
+    dateOfEventText: {
+        textDecorationLine:"underline",
+        fontSize:14,
+        color: 'blue',
     },
 });
 

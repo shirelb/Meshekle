@@ -19,6 +19,14 @@ var appointmentsRouter = require('./routes/appointments');
 var appointmentRequestsRouter = require('./routes/appointmentRequests');
 var incidentsRouter = require('./routes/incidents');
 
+// for push notification
+var firebaseAdmin = require('firebase-admin');
+var firebaseServiceAccount = require("./meshekle-firebase-adminsdk-2f4ll-af78a541e1.json");
+firebaseAdmin.initializeApp({
+    credential: firebaseAdmin.credential.cert(firebaseServiceAccount),
+    databaseURL: "https://meshekle.firebaseio.com"
+});
+
 var app = express();
 
 var pathToWebBuild = '../web';

@@ -1,5 +1,5 @@
 import React from 'react';
-import './styles.css'
+import '../../pages/choresManagementPage/styles.css'
 import 'semantic-ui-css/semantic.min.css';
 import {Button, Header, Icon, Menu, Table, Modal} from 'semantic-ui-react';
 import store from 'store';
@@ -30,6 +30,7 @@ export default class ChoreSettings extends React.Component {
             onUpdateSettings: this.props.onUpdateSettings,//this.props.location.state.onUpdateSettings,
             openModal:false,
             contentModal:'',
+            errorDeleteType:"",
         };
         
 
@@ -73,19 +74,20 @@ export default class ChoreSettings extends React.Component {
       }
     
     displayDays (days){
-        console.log("daysarray before: ", days);
         let ans = '';
         ans = days.replace('[', '');
-        console.log("daysarray after: ", ans);
     }
 
     deleteChoreType(){
         choresStorage.deleteChoreType(serviceProviderId, serviceProviderHeaders, this.state.settings.choreTypeName)
         .then(res=>{
-            console.log("response of deleteChoreType: ", res);
-            this.setState({openModal:false, contentModal:''});
-            this.props.onDeleteType();
-            this.props.history.goBack();
+            if(res!==undefined && res.status!==200){
+                this.setState({errorDeleteType:"בעיה במחיקת סוג תורנות, נסה שנית."})
+            }else{
+                this.setState({openModal:false, contentModal:'', errorDeleteType:""});
+                this.props.onDeleteType();
+                this.props.history.goBack();
+            }
         });
     }
     
@@ -99,7 +101,6 @@ export default class ChoreSettings extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log("in rwillreceiveprops nextProps.location:", nextProps.location)
         this.setState({settings:nextProps.location.state.settings}) ;
     }
 
@@ -125,8 +126,8 @@ export default class ChoreSettings extends React.Component {
         <h4>שעת סיום : {this.props.settings.endTime}</h4>
         <h4> צבע :<text> {this.props.settings.color}</text> </h4>
 
+        <p style={{colore:'red'}}>{this.state.errorDeleteType}</p>
         <Button negative onClick={this.deleteChoreTypeRequest}>מחיקת סוג תורנות</Button>
-        
         <Modal trigger={<Button positive>ערוך פרטים</Button>}
         closeIcon={false}>
     <Modal.Header>עריכת פרטי תורנות</Modal.Header>
