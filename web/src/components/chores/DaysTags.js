@@ -114,13 +114,14 @@ export default class DaysTags extends Component {
 
   handleEnTagClick(index) {
     let unTags = this.state.unchoosedTags;
-    console.log('!!!The tag at index '+index + this.state.tags[index] + ' was clicked', this.state.tags[index]);
+    console.log('!!!The tag at index '+index + this.state.tags[index] + ' was clicked', this.state.tags[index].text);
 
     let newTag = this.state.tags;
-    let days = this.state.days;
-    days.replace(String(newTag[index].text), " ");
+    let days=""
+    days.replace(newTag[index].text, " ");
     let removedTag= newTag.splice(index, 1);
-    console.log('The tag at index ' + removedTag + ' was clicked', removedTag);
+    newTag.map(e=>days = days+" "+ e.text)//String(this.state.days);
+    console.log('The tag at index ' + removedTag + ' was clicked',days);
     unTags.push(removedTag[0])
     this.setState({'tags': newTag, 'unchoosedTags': unTags, days:days});
     this.props.onChange(days);

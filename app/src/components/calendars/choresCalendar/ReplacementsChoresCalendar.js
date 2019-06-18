@@ -53,11 +53,15 @@ export default class ReplacementsChoresCalendar extends Component {
         console.log("userid: ", this.userId);
         choresStorage.getUserChoresForType(this.userId,this.userHeaders, this.props.choreTypeName, "04", "2019")
             .then(response => {
+                if(response && response.status!==200){
+                    alert("בעיה בהבאת נתונים מהשרת, נסה לרענן עמוד.")
+                }
+                else{
                 let markedDates = [];
 
                 console.log("getUserChoresForType response= ", response);
                 response.data.usersChores.forEach(userChore => {
-                    if ((userChore.date !== undefined) && (userChore.date !== null && (userChore.date)))
+                    if ((userChore.date !== undefined) && (userChore.date !== null && (userChore.date)) && userChore.date!==this.props.userChoreSelected.date)
                     {
                         const date = moment(userChore.date).format('YYYY-MM-DD');
                         if (markedDates[date] === undefined || markedDates[date] === null) {
@@ -67,43 +71,29 @@ export default class ReplacementsChoresCalendar extends Component {
                             choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, moment(date).format('MM'), moment(date).format('YYYY'), moment(date).format('DD'))];
                         markedDates[date].selected= userChore.isMark||markedDates[date].selected;//uc.isMark;
 
-                        //requests.push( choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, userChore.choreTypeName));
-                        //requests.push(choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, moment(date).format('MM'), moment(date).format('YYYY'), moment(date).format('DD')) );
                         axios.all(requests)
                         .then(responses=>{
-                            console.log("LOAD USERSCHORES response: ", response);
-                            var uc = userChore;
-                            uc.type = responses[0].data;
-                            //uc.workers = response[1].data;
-                            //markedDates[date]= 'red'
-                            markedDates[date].userChores.push(uc);
-                            this.setState({
-                                markedDates: markedDates,
-                                workers: String(responses[1])
-                            });
-                            this.forceUpdate();
+                            if(responses[1]===undefined ||responses[0].status!==200){
+                                alert("בעיה בהבאת פרטי התורנות, נסה לרענן את העמוד");
+                            }
+                            else{
+                                var uc = userChore;
+                                uc.type = responses[0].data;
+                                markedDates[date].userChores.push(uc);
+                                this.setState({
+                                    markedDates: markedDates,
+                                    workers: String(responses[1])
+                                });
+                                this.forceUpdate();
+                            }
                         })
-                        //choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, userChore.choreTypeName)
-                    //.then(itm => {
-                        //choresStorage.getOtherWorkers(this.userId,this.userHeaders, userChore.choreTypeName, "03", "2019", "09")
-                        //.then(res=>{
-                            //var uc = userChore;
-                            //uc.type = itm.data;
-                            //uc.type.workers = res.data;
-                        //})
-                        
-                    //console.log("item: ", this.state.item);
-                    //console.log("itm: ", itm);
-                    //---markedDates[date].userChores.push(uc);
-                ///--});
                     }
                 });
 
                 this.setState({
                     markedDates: markedDates
                 });
-
-                console.log('user  333  markedDates ', markedDates);
+            }
             })
     }
 
@@ -208,44 +198,34 @@ export default class ReplacementsChoresCalendar extends Component {
         return (
             <ListItem
                 roundAvatar
-                //title={moment(item.date).format('YYYY-MM-DD') }
                 title={item.isMark? String(item.User.fullname)+" <מחפש/ת החלפה>": String(item.User.fullname)}
-                
+                titleStyle={{fontSize:20, color:'#000080'}}
                 containerStyle={{borderBottomWidth: 0}}
                 // rightIcon={<Icon name={'chevron-left'}/>}
                 // hideIcon
                 onPress={()=>{
                     this.setState({choreModalVisible: true, type: item.type, choreModalUser: item.User, choreModalUserChore:item});
-                    //choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, item.choreTypeName)
-                    //.then(itm => {
-                        //this.setState({item: itm});
-                       // this.setState({ choreModalVisible: true, item: itm.body.type});
-                    //console.log("item: ", this.state.item);
-                    //console.log("itm: ", itm);
-                      //  });
                     
                 }}
             />
         )
     };
 
-    /*getChoreSettings =  ({typeName}) => {
-        choresStorage.getChoreTypeSetting(this.userId,this.userHeaders, typeName)
-            .then(itm => {
-                this.setState({item: itm});
-                });
-            };*/
-
     sendReplacementRequest(userChoreSender){
         choresStorage.createSpecificReplacementRequest(this.userId, this.userHeaders, userChoreSender.userChoreId, this.state.choreModalUserChore.userChoreId, "requested")
         .then(res=>{
-            if(res!==undefined){
+            if(res!==undefined&& res.status===200){
                 this.setState({alertModalVisible:true, alertModalContent:"בקשה נשלחה ל"+this.state.choreModalUserChore.User.fullname})
             }
             else{
                 choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, userChoreSender.userChoreId, this.state.choreModalUserChore.userChoreId, "requested")
                 .then(r=>{
-                    this.setState({alertModalVisible:true, alertModalContent:"בקשה נשלחה ל"+this.state.choreModalUserChore.User.fullname+" בעבר, אך נשלחה כעת שנית"})
+                    if(r.status===200){
+                        this.setState({alertModalVisible:true, alertModalContent:"בקשה נשלחה ל"+this.state.choreModalUserChore.User.fullname+" בעבר, אך נשלחה כעת שנית"})
+                    }
+                    else{
+                        alert("בעיה! נסה שנית .");
+                    }
                 })
             }
         })
@@ -320,13 +300,13 @@ export default class ReplacementsChoresCalendar extends Component {
                             />
                             </TouchableOpacity>
 
-                            <Text> {this.state.selectedDate} </Text>
+                            <Text style={{fontSize: 20, textAlign:'center'}}> {moment(this.state.selectedDate).format('DD-MM-YYYY')} </Text>
 
                             
 
                             <List containerStyle={{borderTopWidth: 0, borderBottomWidth: 0}}>
                                 {this.state.selectedDate === '' || this.state.markedDates[this.state.selectedDate].userChores.length === 0 ?
-                                    <Text>אין תורנויות לתאריך זה </Text>
+                                    <Text style={{fontSize: 20}}>אין תורנויות לתאריך זה </Text>
                                     :
                                     <FlatList
                                         data={this.state.markedDates[this.state.selectedDate].userChores}
@@ -362,13 +342,13 @@ export default class ReplacementsChoresCalendar extends Component {
                                     this.setState({dateModalVisible:true, choreModalVisible: false})
                                 }}
                             />
-                                <Text >
+                                <Text style={{fontSize: 18}}>
                                 שליחת בקשת החלפה:
                                 </Text>
-                                <Text>{this.state.choreModalUser.fullname+' \n'                             
+                                <Text style={{fontSize: 18, fontWeight:'bold', textAlign:'center'}}>{this.state.choreModalUser.fullname+' \n'                             
                                 }</Text>
-                                <Text>תאריך:</Text>
-                                <Text>{this.state.selectedDate}</Text>
+                                <Text style={{fontSize: 18}}>תאריך:</Text>
+                                <Text  style={{fontSize: 18, fontWeight:'bold', textAlign:'center'}}>{moment(this.state.selectedDate).format('DD-MM-YYYY')}</Text>
 
                             <Button
                                 label='בקש החלפה'

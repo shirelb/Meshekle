@@ -28,7 +28,10 @@ class UsersInTypeModal extends React.Component {
             usersToAddToType:[],
             usersNamesToAddToType:[],
             usersNotInType:[],
-            usersInType: [],
+            usersInType: this.props.usersInType,
+            errorDeleteUserFromChoreType:this.props.errorDeleteUserFromChoreType,
+            erroraddingUser:"",
+            getUsersNotInTypeErrorMessage:"",
         };
 
 
@@ -50,7 +53,10 @@ class UsersInTypeModal extends React.Component {
         this.modalUsersBuild();
     }
     componentWillReceiveProps(nextProps){
-        this.setState({usersInType:this.props.usersInType});
+        if(this.props.isOpenModalUsers===false){
+            this.setState({erroraddingUser:""})
+        }
+        this.setState({usersInType:this.props.usersInType, errorDeleteUserFromChoreType:this.props.errorDeleteUserFromChoreType})
         this.modalUsersBuild();
     }
 
@@ -68,40 +74,25 @@ modalUsersBuild() {
     for (us in usersInType) {
         usersInTypeNames.push(usersInType[us].text);
     }
-    // u = 0;
-    // usersStorage.getUsers()
-    //     .then(res => {
-    //         allUsers = res;
-    //         console.log("responst getallusers:", usersInType, this.state.users, res)
-            // for (u in res) {
-            //     if (usersInTypeNames.indexOf(allUsers[u].fullname) < 0) {
-            //         usersNotInType.push({
-            //             id: allUsers[u].userId,
-            //             key: "1",
-            //             text: allUsers[u].fullname,
-            //             value: allUsers[u].fullname
-            //         });
-            //     }
-
-            // }
             
-               console.log("users iin typeee", usersInType);
-            choresStorage.getUsersNotInType(this.serviceProviderId, this.serviceProviderHeaders, this.props.choreTypeSelected)
-            .then(usersFound=>{
+    choresStorage.getUsersNotInType(this.serviceProviderId, this.serviceProviderHeaders, this.props.choreTypeSelected)
+    .then(usersFound=>{
+        if(usersFound && usersFound!==undefined && usersFound.status!==200){
+            this.setState({getUsersNotInTypeErrorMessage:"אירעה בעיה בהבאת משתמשים הלא רשומים לסוג התורנות, נסה שנית"})
+        }
+        else{
                 let usersNotInType = usersFound.data.uses.map(el=>{
                     return {id: el.userId,
                         key: el.userId,
                         text: el.fullname,
                         value: el.userId}
                 })
-                this.setState({usersNotInType: usersNotInType});
+                this.setState({usersNotInType: usersNotInType, getUsersNotInTypeErrorMessage:""});
                 content.push(<Dropdown multiple search fluid selection placeholder='בחר משתמש להוספה'
                                        options={this.state.usersNotInType}
                                         scrolling clearable 
                                        onChange={this.handleUserToAddChange}
                                        
-                                       //value={this.state.usersToAddToType}
-                                       //text ={this.state.usersNamesToAddToType} 
 
                 />);
                 content.push(<Button onClick={this.addUserToChoreType}>הוסף</Button>);
@@ -113,7 +104,7 @@ modalUsersBuild() {
                 content.push(<br/>)
                 content.push(<h5>יש ללחוץ על משתמש להסרתו מסוג תורנות</h5>)
                 this.setState({contentModal:(<div>{content}</div>)}) ;
-
+            }
             })
         //});
 }
@@ -151,20 +142,23 @@ addUserToChoreType(e, {userId}) {
     }
     axios.all(addUsersRequests)
         .then(res => {
-            console.log("response addUserToChoreType", res[0].data);
+            let user = 0;
+            for (user in res) {
+                if(res[user].status!==200){
+                    this.setState({erroraddingUser:"יתכן ואירעה בעיה בהוספת חלק מהמשתמשים בתורנות, עבורם נסה שנית"})
+                }
+            }
+            console.log("response addUserToChoreType", res[0]);
             let usersInType = this.state.usersInType;
             let usersNotInType = this.state.usersNotInType;
-            console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere1", usersNotInType);
             let ur = 0;
             let userAdded = 0;
             let usersAdded = res.map(r=>r.data.userChoreType.userId)//usersToAddToType//this.state.usersToAddToType;
-            console.log("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeereere2",usersAdded)
             for (userAdded in usersAdded) {
                 for (ur in usersNotInType) {
                     if (usersNotInType[ur].id === usersAdded[userAdded]) {
                         let added = usersNotInType.splice(ur, 1);
                         usersInType.push(added[0]);
-                        console.log("added :", added[0]);
                     }
                 }
             }
@@ -184,7 +178,9 @@ render(){
                                         <Modal.Content>
                                             {this.state.contentModal}
                                             {/* this.modalUsersContent*/}
-
+                                            <p style={{color:'red'}}>{this.state.errorDeleteUserFromChoreType}</p>
+                                            <p style={{color:'red'}}>{this.state.erroraddingUser}</p>
+                                            <p style={{color:'red'}}>{this.state.getUsersNotInTypeErrorMessage}</p>
                                         </Modal.Content>
                                     </Modal>
     )
