@@ -10,7 +10,7 @@ var nodemailer = require('nodemailer');
 var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RolesModules, Permissions} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
@@ -573,7 +573,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             const rolesList = roles.map(role => role.dataValues.role);
-            RulesModules.findAll({
+            RolesModules.findAll({
                 attributes: ['module'],
                 where: {
                     role: {

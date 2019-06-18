@@ -1,5 +1,5 @@
 module.exports = (sequelize, type) => {
-    return sequelize.define('RulesModules', {
+    return sequelize.define('RolesModules', {
         role:{
             type: type.STRING,
             primaryKey: true,

@@ -40,7 +40,8 @@ class ReplacementRequests extends Component {
             choreType:this.props.choreType,
             deviation:false,
             month:'',
-
+            replacementRequestErrorMessage:"",
+            
         };
         this.incrementPage = this.incrementPage.bind(this);
         this.decrementPage = this.decrementPage.bind(this);
@@ -66,37 +67,35 @@ class ReplacementRequests extends Component {
         reqs.push(choresStorage.getReplacementRequests(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreType, 'canceled'));
         axios.all(reqs)
         .then(res=>{
-            res[0].data.requests.map(re_=>{
-                if(re_.choreOfSender.choreTypeName===this.props.choreType ){
-                    if(Number(moment(re_.choreOfSender.date).format('MM'))===Number(month)|| Number(moment(re_.choreOfReceiver.date).format('MM'))===Number(month)){
-                        
-                        requestsRequested[month].push(re_);
+            if(((res[0]&&res[0]!==undefined && res[0].status!==200) || (res[1]&&res[1]!==undefined && res[1].status!==200)|| (res[2]&&res[2]!==undefined && res[2].status!==200)||(res[3]&&res[3]!==undefined && res[3].status!==200))){
+                this.setState({replacementRequestErrorMessage:"אירעה בעיה בהבאת נתונים מהשרת, רענן עמוד."});
+            }
+            else{
+                this.setState({replacementRequestErrorMessage:""});
+
+                res[0].data.requests.map(re_=>{
+                    if(re_.choreOfSender.choreTypeName===this.props.choreType ){
+                        if(Number(moment(re_.choreOfSender.date).format('MM'))===Number(month)|| Number(moment(re_.choreOfReceiver.date).format('MM'))===Number(month)){  
+                            requestsRequested[month].push(re_);
+                        }
                     }
-                    console.log("re.choreOfSender.requestsRequested[month]:",requestsRequested[month], Number(moment(re_.choreOfSender.date).format('MM'))===Number(month));
-                }
-            })
-            //requestsDenied = res[1].data.requests;
-            //requestsReplaced = res[2].data.requests;
-            res[1].data.requests.map(re=>{
-                if(re.choreOfSender.choreTypeName===this.props.choreType){
-                    console.log("re.choreOfSender.choreTypeName:", re.choreOfSender.choreTypeName);
-                    requestsDenied[month].push(re);
-                }
-            })
-            res[2].data.requests.map(re=>{
-                if(re.choreOfSender.choreTypeName===this.props.choreType){
-                    console.log("re.choreOfSender.choreTypeName:", re.choreOfSender.choreTypeName);
-                    requestsReplaced[month].push(re);
-                }
-            })
-            res[3].data.requests.map(re=>{
-                if(re.choreOfSender.choreTypeName===this.props.choreType){
-                    console.log("re.choreOfSender.choreTypeName:", re.choreOfSender.choreTypeName);
-                    requestsCanceled.push(re);
-                }
-            })
-            //requestsCanceled = res[3].data.requests;
-            //this.setState({requestsRequested:res[0].data.requests, requestsDenied:res[1].data.requests, requestsReplaced:res[2].data.requests, requestsCanceled:res[3].data.requests});
+                })
+                res[1].data.requests.map(re=>{
+                    if(re.choreOfSender.choreTypeName===this.props.choreType){
+                        requestsDenied[month].push(re);
+                    }
+                })
+                res[2].data.requests.map(re=>{
+                    if(re.choreOfSender.choreTypeName===this.props.choreType){
+                        requestsReplaced[month].push(re);
+                    }
+                })
+                res[3].data.requests.map(re=>{
+                    if(re.choreOfSender.choreTypeName===this.props.choreType){
+                        requestsCanceled.push(re);
+                    }
+                })
+            }
         })
     }
 
@@ -195,7 +194,9 @@ class ReplacementRequests extends Component {
 
         return (
             <div>
-        <NumericInput number min={1} max={12}  name='month' onChange={(value)=>{
+            <p style={{color:'red'}}>{this.state.replacementRequestErrorMessage}</p>
+            <div>
+        <label>חודש</label><NumericInput title={"בחר חודש"} number min={1} max={12}  name='month' onChange={(value)=>{
         console.log("handlechange: ", 'month', value)
         if(value>12){
             this.setState({deviation:true})
@@ -203,7 +204,7 @@ class ReplacementRequests extends Component {
         else{
         this.setState({deviation: false,  month: value});
         month = value;
-        console.log("after set state ", month);}}}/>
+        console.log("after set state ", month);}}}/></div>
                 <label style={{color:'red'}}>{this.state.deviation?"חריגה" : ""}</label>
             <Tab panes={panes} defaultActiveIndex={0} renderActiveOnly/>
             </div>

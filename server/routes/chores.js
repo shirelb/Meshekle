@@ -7,12 +7,11 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var constants = require('./shared/constants');
 
-
 router.use(function (req, res, next) {
   authentications.verifyToken(req, res, next);
 });
 
-
+var ids=[];
 /* GET users chores listing. api1 */
 router.get('/usersChores/future/:future', function (req, res, next) {
   if(req.params.future==="true"){
@@ -196,8 +195,8 @@ router.get('/type/:type/users', function (req, res, next) {
       })
           .then(usersChoreType => {
               //console.log('getting userIds of choreType by choreTypeName seccussfully done'+usersChoreType);
-              if(usersChoreType && usersChoreType.length>0){
-                this.ids = usersChoreType.map(u=> u.userId);
+              if(usersChoreType && usersChoreType!==undefined&& usersChoreType.length>0){
+                ids = usersChoreType.map(u=> u.userId);
                 res.status(200).send({"message":"getting users of choretype seccessfully done",usersChoreType});
               }
               else{
@@ -1024,16 +1023,18 @@ router.put('/replacementRequests/replace', function (req, res, next) {
 
   /* GET users of choreType by choreTypeName api22. */
 router.get('/type/:type/users/not', function (req, res, next) {
+  console.log("\n\n\n 1\n\n\n");
   validations.checkIfChoreTypeExist(req.params.type, res)
   .then(type=>{
+    console.log("\n\n\n 2\n\n\n"+ids+"\n\n\n");
     if(type){
     Users.findAll({ 
       where:{
         userId:{
-      [Op.notIn]:  this.ids}
+      [Op.notIn]:  ids}
     }})
     .then(uses=>{
-      //console.log("\n\n\n users not in type:", uses);
+      console.log("\n\n\n users not in type:", uses);
       res.status(200).send({"message":"lala",uses});
     })
     }

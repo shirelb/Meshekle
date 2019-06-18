@@ -100,6 +100,8 @@ export default class OriginChoresCalendar extends Component {
             choreTypeName: props.choreTypeName,
             userschores:[],
             workersToChooseContent:"",
+            errorMessageDeleting:this.props.errorMessageDeleting,
+            getUsersChoresErrorMessage:"",
             
         };
 
@@ -120,6 +122,7 @@ export default class OriginChoresCalendar extends Component {
 
         this.jq('#calendar').fullCalendar('removeEvents');
         this.jq('#calendar').fullCalendar('addEventSource', nextProps.events);
+        this.setState({errorMessageDeleting:this.props.errorMessageDeleting});
     }
     componentWillMount(){
         this.getUserschoresForType();
@@ -138,14 +141,20 @@ export default class OriginChoresCalendar extends Component {
         let usrChores = [];
         choresStorage.getUserChoresForType(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName)
             .then(res => {
-                usrChores = res.data.usersChores.map(e=> {e.title = e.User.fullname;e.date=e.originDate; return e;});
-                this.setState({
-                    settings: this.props.settings,
-                    userschores: usrChores
-                });
-                this.forceUpdate();
-                this.jq('#calendar').fullCalendar('removeEvents');
-                this.jq('#calendar').fullCalendar('addEventSource', this.state.userschores);
+                if((res &&res!==undefined && res.status!==200)){
+                    this.setState({getUsersChoresErrorMessage:"אירעה בעיה בטעינת התורנויות, נסה לרענן את העמוד"})
+                }
+                else{
+                    usrChores = res.data.usersChores.map(e=> {e.title = e.User.fullname;e.date=e.originDate; return e;});
+                    this.setState({
+                        settings: this.props.settings,
+                        userschores: usrChores,
+                        getUsersChoresErrorMessage:"",
+                    });
+                    this.forceUpdate();
+                    this.jq('#calendar').fullCalendar('removeEvents');
+                    this.jq('#calendar').fullCalendar('addEventSource', this.state.userschores);
+                }
             })
             .catch(e => {
                 
@@ -262,6 +271,9 @@ export default class OriginChoresCalendar extends Component {
             for( j=0;j<workersDay.length;j++){
                 ans.push(<h4><br/>{workersDay[j].User.fullname}&nbsp;&nbsp;&nbsp;&nbsp; <Button choreId={workersDay[j].userChoreId} onClick={this.props.deleteUserChore}>הסר תורן</Button><br/></h4>)
             }
+            if(this.state.errorMessageDeleting!==""){
+                ans.push(<p style={{color:'red'}}>{this.state.errorMessageDeleting}</p>)
+            }
 
             var loopTimes = (this.props.settings.numberOfWorkers)-j;
             if(loopTimes<0){
@@ -298,7 +310,7 @@ export default class OriginChoresCalendar extends Component {
     }
 
     closeModal(){
-        this.setState({openModal:false, usersChoosed:[], usersChoosedNames:[] });
+        this.setState({openModal:false, usersChoosed:[], usersChoosedNames:[] , errorMessageDeleting:""});
         this.forceUpdate();
     }
 
@@ -344,7 +356,7 @@ export default class OriginChoresCalendar extends Component {
             >
               <Header>!הפעולה בוצעה בהצלחה</Header>
               <p>תורנויות עבור:{this.props.createUserChoreResult.users} נוספו למערכת</p>
-
+              <p style={{color:'red'}}>{this.props.createUserChoreResult.reqFaild}</p>
               <Button
                 content='אישור'
                 positive
