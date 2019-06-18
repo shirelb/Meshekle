@@ -20,6 +20,7 @@ import ChoresHistory from '../../components/chores/ChoresHistory';
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import DraggableUser from '../../components/chores/DraggableUser';
 import UsersInTypeModal from '../../components/chores/UsersInTypeModal'
+import AnnouncementsManagementPage from "../announcementsManagementPage/AnnouncementsManagementPage";
 
 
 const TOTAL_PER_PAGE = 10;
@@ -651,4 +652,4 @@ class ChoresManagementPage extends React.Component {
     }
 }
 
-export {ChoresManagementPage}
+export default ChoresManagementPage
