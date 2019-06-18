@@ -31,7 +31,6 @@ require("jquery-ui/ui/widgets/draggable");
 require("jquery-ui/ui/widgets/droppable");
 
 
-var userschores = [];
 export default class ChoresCalendar extends Component {
     constructor(props) {
         super(props);
@@ -74,8 +73,6 @@ export default class ChoresCalendar extends Component {
             
 
             eventReceive: function (event) {
-                console.log('event, ' + event + ', was added, (need date here)', moment(event.target).format('DD-MM-YYYY'));
-                console.log('eventReceive function');
                 props.onDraggedUser(event, "dayEvent", event.target);
             },
 
@@ -87,14 +84,12 @@ export default class ChoresCalendar extends Component {
 
             handleWindowResize: true,
             windowResizeDelay: 200,
-            //defaultView:''
         };
         this.state = {
             openModal: false,
             modalDate: '',
             settings: '',
             usersChoosed: [],
-            value: '',
             openPortal: false,
             portalContent: '',
             portalUserChoresCreated: false,
@@ -103,7 +98,9 @@ export default class ChoresCalendar extends Component {
             calendarDisplay: this.props.calendarDisplay,
             choreTypeName: props.choreTypeName,
             userschores: [],
-
+            workersToChooseContent:"",
+            errorMessageDeleting:this.props.errorMessageDeleting,
+            getUsersChoresErrorMessage: "",
         }
 
         this.root = null;
@@ -114,52 +111,84 @@ export default class ChoresCalendar extends Component {
         this.createUserChoresRequest = this.createUserChoresRequest.bind(this);
         this.getUserschoresForType = this.getUserschoresForType.bind(this);
         this.onDropEvent = this.onDropEvent.bind(this);
+        this.deleteUserChore = this.deleteUserChore.bind(this);
 
     }
 
     componentWillReceiveProps(nextProps) {
         this.fullcalendarConfig.events = nextProps.events;
-
+        this.workersToChoose();
         this.jq('#calendar').fullCalendar('removeEvents');
         this.jq('#calendar').fullCalendar('addEventSource', nextProps.events);
+        this.setState({errorMessageDeleting:this.props.errorMessageDeleting});
+        console.log("calendar will receive props", this.state.errorMessageDeleting)
     }
 
     componentWillUnmount() {
         WEB_SOCKET.off("getChangeInUserChores");
     }
 
+    componentWillMount(){
+        this.getUserschoresForType();
+        //this.jq('#calendar').fullCalendar('removeEvents');
+        //this.jq('#calendar').fullCalendar('addEventSource', this.state.userschores);
+    }
+
     getUserschoresForType() {
+        let usrChores = [];
         choresStorage.getUserChoresForType(this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName)
             .then(res => {
-                console.log("in getUserschoresForType:", this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName)
-                let usrChores = res.data.usersChores;
-                this.setState({
-                    settings: this.props.settings,
-                    userschores: usrChores
-                });
-                userschores = usrChores;
+                console.log("in getUserschoresForType:",res,  res.data.usersChores.map(e=>  {e.title = e.User.fullname; return e;}));
+                if((res &&res!==undefined && res.status!==200)){
+                    this.setState({getUsersChoresErrorMessage:"אירעה בעיה בטעינת התורנויות, נסה לרענן את העמוד"})
+                }
+                else{
+                    usrChores = res.data.usersChores.map(e=> {e.title = e.User.fullname; return e;});
+                    this.setState({
+                        settings: this.props.settings,
+                        userschores: usrChores,
+                        getUsersChoresErrorMessage:""
+                    });
+                    this.forceUpdate();
+                    this.jq('#calendar').fullCalendar('removeEvents');
+                    this.jq('#calendar').fullCalendar('addEventSource', this.state.userschores);
+                }
             })
             .catch(e => {
-                console.log("in getUserschoresForType eror:", e, this.props.serviceProviderId, this.props.serviceProviderHeaders, this.props.choreTypeName)
-
+                
             })
+            return usrChores;
     }
 
     onDropEvent(event) {
+        console.log("on dropingggg in calendar", event);
         let usersChoosed = [];
-        usersChoosed.push(event.user.userId);
+        usersChoosed.push(event.User.userId);
         let usersChoosedNames = [];
-        usersChoosedNames.push(event.user.fullname);
-        console.log("on dropinggggg-", moment(event.start._d).format('DD-MM-YYYY'), usersChoosedNames, usersChoosed)
+        usersChoosedNames.push(event.User.fullname);
+        console.log("on dropinggggg-", moment(event.start._d).format('DD-MM-YYYY'), usersChoosedNames, usersChoosed, event)
         let reqs = [];
-        reqs.push(this.props.deleteUserChore(event, {choreId: event.userChore.userChoreId}));
+        reqs.push(this.props.deleteUserChore(event, {choreId: event.userChoreId}));
         reqs.push(this.createUserChoresRequest(event, {
-            usersChoosed: [event.user.userId],
-            usersChoosedNames: [event.user.fullname],
+            usersChoosed: [event.User.userId],
+            usersChoosedNames: [event.User.fullname],
             date: event.start._d
         }));
         axios.all(reqs).then(res => {
-
+            this.jq('#calendar').fullCalendar( 'addEvent',{
+                allDay: false,
+                date: res[1].data.newUserChore.date,
+                originDate: res[1].data.newUserChore.originDate,
+                endTime: this.state.settings.endTime,
+                startTime: this.state.settings.startTime,
+                id: res[1].data.newUserChore.userChoreId,
+                isMark: false,
+                title:  res[1].data.newUserChore.User.fullname,
+                user: res[1].data.newUserChore.User,
+                User: res[1].data.newUserChore.User,
+                userChore: res[1].data.newUserChore,
+            } )
+            
         })
     }
 
@@ -175,28 +204,23 @@ export default class ChoresCalendar extends Component {
 
         this.jq('#calendar').fullCalendar(this.fullcalendarConfig);
 
-        console.log("calendarHandler");
         $('#calendar').droppable();
         this.jq('#calendar').droppable();
     }
 
     onSelectSlot(e) {
-        console.log("e:", e);
         this.setState({openModal: true, modalDate: e});
         this.forceUpdate();
-        this.modalContent = [];
-        this.modalContent = this.workersToChoose();
+        this.workersToChoose();
     }
 
     handleWorkerChange(event, {name}) {
-        console.log("in handle worker change", name, event._targetInst);
         let workers = this.state.usersChoosed;
         let workersNames = this.state.usersChoosedNames;
         if (workers.indexOf(event.target.id) < 0) {
             workers[name] = event.target.id;
             workersNames[name] = event.target.innerText;
             this.setState({usersChoosed: workers, usersChoosedNames: workersNames});
-            console.log("workers= and usersChoosedNames", workers, workersNames);
 
         } else {
             this.setState({openPortal: true, portalContent: 'לא ניתן לבחור אותו תורן פעמיים'})
@@ -208,14 +232,19 @@ export default class ChoresCalendar extends Component {
         this.forceUpdate();
         let users = usersChoosed;
         let usersNames = usersChoosedNames;
-        console.log("createUserChoresRequest ", this.state.usersChoosed, usersChoosed);
-        if (usersChoosed && usersChoosed.length === 0) {
+        if (usersChoosed&& usersChoosed!==undefined && usersChoosed.length === 0) {
             users = this.state.usersChoosed
             usersNames = this.state.usersChoosedNames;
         }
         this.props.createUserChores(e, users, usersNames, date);
         this.setState({usersChoosed: [], usersChoosedNames: []});
-        console.log("back from create user chores request:", this.state.usersChoosed, this.state.usersChoosedNames)
+        
+    }
+
+    deleteUserChore(e, {choreId}){
+        this.props.deleteUserChore(e, {choreId});
+        this.setState({userschores:this.state.userschores.filter(el=>el.userChoreId!==choreId)});
+       
     }
 
     workersToChoose() {
@@ -224,10 +253,7 @@ export default class ChoresCalendar extends Component {
         let ans = [];
         let past = moment(event).isBefore(moment().format('YYYY-MM-DD'));
         let settings = this.props.settings;
-        console.log("workersToChoose event:settings.choreTypeName", this.props.choreTypeName, this.props.getUserChoresForType(this.props.choreTypeName));
-        let usrChores = userschores;
-
-        console.log("workersToChoose event:ודרCיםרקד", usrChores);
+        let usrChores = this.state.userschores;
 
         let workersDay = [];
         usrChores.map(chore => {
@@ -237,7 +263,6 @@ export default class ChoresCalendar extends Component {
         });
         if (past) {
             ans.push(<Header>תורנים:</Header>);
-            console.log("usrChores after filter past:", workersDay);
             let j = 0;
             for (j = 0; j < workersDay.length; j++) {
                 ans.push(<h4>
@@ -246,14 +271,15 @@ export default class ChoresCalendar extends Component {
             }
         } else {
             ans.push(<Header>יש לבחור {String(this.props.settings.numberOfWorkers)} תורנים:</Header>);
-            console.log("usrChores after filter:", workersDay, this.props.usersOfType);
             let j = 0;
             for (j = 0; j < workersDay.length; j++) {
-                console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", workersDay[j])
                 ans.push(<h4>
                     <br/>{workersDay[j].User.fullname}&nbsp;&nbsp;&nbsp;&nbsp;{"( תאריך מקורי: " + moment(workersDay[j].originDate).format('DD-MM-YYYY') + ")"}
-                    <Button choreId={workersDay[j].userChoreId} onClick={this.props.deleteUserChore}>הסר
+                    <Button choreId={workersDay[j].userChoreId} onClick={this.deleteUserChore}>הסר
                         תורן</Button><br/></h4>)
+            }
+            if(this.state.errorMessageDeleting!==""){
+                ans.push(<p style={{color:'red'}}>{this.state.errorMessageDeleting}</p>)
             }
 
             var loopTimes = (this.props.settings.numberOfWorkers) - j;
@@ -263,10 +289,8 @@ export default class ChoresCalendar extends Component {
             let usersOfType = this.props.usersOfType;
             let usersOfType1 = [];
             let j1 = 0;
-            console.log("workersDay, usersOfType-", workersDay, usersOfType);
             for (j = 0; j < workersDay.length; j++) {
                 for (j1 = 0; j1 < usersOfType.length; j1++) {
-                    console.log("usersOfType[j1].id , workersDay[j1].user.id:", usersOfType[j1].id, workersDay[j])
                     if (usersOfType[j1].id !== workersDay[j].User.userId) {
                         usersOfType1.push(usersOfType[j1]);
                     }
@@ -275,14 +299,13 @@ export default class ChoresCalendar extends Component {
             if (workersDay.length === 0) {
                 usersOfType1 = usersOfType;
             }
-            console.log("usersOfType1: ", usersOfType1);
             for (var i = 0; i < loopTimes; i++) {
                 ans.push(<Select search placeholder='בחר תורן' options={usersOfType1}
                                  onChange={this.handleWorkerChange} name={i}
                 />);
             }
             if (loopTimes === 0) {
-                ans.push(<Button disabled positive onClick={this.props.createUserChores}
+                ans.push(<Button disabled positive onClick={this.createUserChoresRequest}
                                  usersChoosed={this.state.usersChoosed} usersChoosedNames={this.state.usersChoosedNames}
                                  date={this.state.modalDate}>קבע תורנות עבור המשתמשים</Button>);
             } else {
@@ -292,20 +315,21 @@ export default class ChoresCalendar extends Component {
             }
         }
         ans.push(<Button onClick={this.closeModal}>סגור</Button>);
+        this.setState({workersToChooseContent: <Table.Body>{ans}</Table.Body>})
         return <Table.Body>{ans}</Table.Body>
     }
 
     closeModal() {
-        this.setState({openModal: false, usersChoosed: [], usersChoosedNames: []});
+        this.setState({openModal: false, usersChoosed: [], usersChoosedNames: [],errorMessageDeleting:""});
         this.forceUpdate();
     }
 
 
     render() {
-
-        console.log("renser this.props.events;", (String(window.location).includes("setting")));
+        
         return (
             <div>
+                    <p style={{color:'red'}}>{this.state.getUsersChoresErrorMessage}</p>
                 <div id='calendar'
                      hidden={(String(window.location).includes("settings")) || (String(window.location).includes("newChoreType"))}>
                     <Header>{this.props.match}</Header>
@@ -316,13 +340,12 @@ export default class ChoresCalendar extends Component {
                         יצא לPDF
                     </Button>
 
-                    <Modal id="calendarModal" open={this.state.openModal}
-                    >
+                    <Modal id="calendarModal" open={this.state.openModal}>
                         <Modal.Header> תורנות
                             ליום {String(moment(this.state.modalDate).format("dddd : DD-MM-YYYY"))}</Modal.Header>
                         <Modal.Content>
 
-                            {this.modalContent}
+                            {this.state.workersToChooseContent}
 
                         </Modal.Content>
                     </Modal>
@@ -340,7 +363,7 @@ export default class ChoresCalendar extends Component {
                                     >
                                         <Header>!הפעולה בוצעה בהצלחה</Header>
                                         <p>תורנויות עבור:{this.props.createUserChoreResult.users} נוספו למערכת</p>
-
+                                        <p style={{color:'red'}}>{this.props.createUserChoreResult.reqFaild}</p>
                                         <Button
                                             content='אישור'
                                             positive
