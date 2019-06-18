@@ -4,7 +4,7 @@ import android.app.Application;
 import cl.json.RNSharePackage;
 import cl.json.ShareApplication;
 import com.RNFetchBlob.RNFetchBlobPackage;
-import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
+//import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -15,9 +15,9 @@ import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
 import com.rnfs.RNFSPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
-import io.invertase.firebase.RNFirebasePackage;
-import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
+
+//import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
+//import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +35,10 @@ public class MainApplication extends Application implements ReactApplication, Sh
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
-                    new RNFirebasePackage(),
-                    new RNFirebaseMessagingPackage(),
-                    new RNFirebaseNotificationsPackage(),
-                    new ReactNativePushNotificationPackage(),
+//                    new RNFirebasePackage(),
+//                    new RNFirebaseMessagingPackage(),
+//                    new RNFirebaseNotificationsPackage(),
+//                    new ReactNativePushNotificationPackage(),
                     new RNSharePackage(),
                     new RNFetchBlobPackage(),
                     new RNFSPackage(),

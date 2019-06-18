@@ -49,9 +49,9 @@ export default class MainScreen extends Component {
 
 
     onRegister(token) {
-        // console.log(token);
+        console.log("firebase registered ", token);
         // this.setState({registerToken: token.token, fcmRegistered: true});
-        usersStorage.saveRegistrationToken(this.userId,token.token, this.userHeaders)
+        usersStorage.saveRegistrationToken(this.userId, token.token, this.userHeaders)
             .then(response => {
                 if (response.response) {
                     if (response.response.status !== 200) {
@@ -62,7 +62,7 @@ export default class MainScreen extends Component {
                         });
                     }
                 } else {
-                    console.log(`registered device with token ${token}`);
+                    console.log(`firebase registered device with token ${token}`);
                 }
             });
     }
@@ -81,7 +81,7 @@ export default class MainScreen extends Component {
                     האירועים שלי
                 </Text>
 
-                 <AgendaCalendar
+                <AgendaCalendar
                     userId={this.state.userId}
                 />
 
