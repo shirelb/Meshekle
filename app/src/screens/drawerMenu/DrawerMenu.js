@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import {DrawerActions, NavigationActions, ScrollView, StackActions} from 'react-navigation';
-import {Linking} from 'react-native';
+import {DrawerActions, NavigationActions, StackActions} from 'react-navigation';
+import {Linking, ScrollView} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import {Avatar, Icon, List, ListItem} from 'react-native-elements'
 import strings from '../../shared/strings'

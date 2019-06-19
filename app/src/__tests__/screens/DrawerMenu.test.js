@@ -50,13 +50,14 @@ describe("DrawerMenu should", () => {
         await wrapper.update();
 
         expect(wrapper.find('List')).toHaveLength(1);
-        expect(wrapper.find('ListItem')).toHaveLength(7);
+        expect(wrapper.find('ListItem')).toHaveLength(8);
         expect(wrapper.find('ListItem').at(1).props().title).toEqual(strings.drawerMenu.MAIN_SCREEN_NAME);
         expect(wrapper.find('ListItem').at(2).props().title).toEqual(strings.drawerMenu.APPOINTMENTS_SCREEN_NAME);
         expect(wrapper.find('ListItem').at(3).props().title).toEqual(strings.drawerMenu.CHORES_SCREEN_NAME);
         expect(wrapper.find('ListItem').at(4).props().title).toEqual(strings.drawerMenu.PhoneBook_SCREEN_NAME);
         expect(wrapper.find('ListItem').at(5).props().title).toEqual(strings.drawerMenu.ANNOUNCEMENTS_SCREEN_NAME);
-        expect(wrapper.find('ListItem').at(6).props().title).toEqual(strings.drawerMenu.LOGOUT);
+        expect(wrapper.find('ListItem').at(6).props().title).toEqual(strings.drawerMenu.REPORT);
+        expect(wrapper.find('ListItem').at(7).props().title).toEqual(strings.drawerMenu.LOGOUT);
         expect(wrapper.find('UserProfileInfo')).toHaveLength(0);
         expect(wrapper.find('UserProfileForm')).toHaveLength(0);
 

@@ -1,0 +1,127 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoginPage should renders Login when user is NOT authenticated 1`] = `
+LoginPage {
+  "context": Object {},
+  "handleChange": [Function],
+  "onSubmit": [Function],
+  "props": Object {
+    "location": Object {
+      "pathname": "/login",
+    },
+    "match": Object {
+      "isExact": true,
+      "path": "/login",
+      "url": "/login",
+    },
+  },
+  "refs": Object {},
+  "setState": [Function],
+  "state": Object {
+    "err": Array [],
+    "error": false,
+    "isLoggedIn": false,
+    "password": "",
+    "redirectToReferrer": false,
+    "userId": "",
+  },
+  "updater": Updater {
+    "_callbacks": Array [],
+    "_renderer": ReactShallowRenderer {
+      "_context": Object {},
+      "_didScheduleRenderPhaseUpdate": false,
+      "_dispatcher": Object {
+        "readContext": [Function],
+        "useCallback": [Function],
+        "useContext": [Function],
+        "useDebugValue": [Function],
+        "useEffect": [Function],
+        "useImperativeHandle": [Function],
+        "useLayoutEffect": [Function],
+        "useMemo": [Function],
+        "useReducer": [Function],
+        "useRef": [Function],
+        "useState": [Function],
+      },
+      "_element": <LoginPage
+        location={
+          Object {
+            "pathname": "/login",
+          }
+        }
+        match={
+          Object {
+            "isExact": true,
+            "path": "/login",
+            "url": "/login",
+          }
+        }
+      />,
+      "_firstWorkInProgressHook": null,
+      "_forcedUpdate": false,
+      "_instance": [Circular],
+      "_isReRender": false,
+      "_newState": null,
+      "_numberOfReRenders": 0,
+      "_renderPhaseUpdates": null,
+      "_rendered": <Grid>
+        <HelmetWrapper
+          defer={true}
+          encodeSpecialCharacters={true}
+        >
+          <title>
+            Meshekle | Login
+          </title>
+        </HelmetWrapper>
+        <GridColumn
+          width={6}
+        />
+        <GridColumn
+          width={4}
+        >
+          <Form
+            as="form"
+            className="loginForm"
+            error={false}
+            onSubmit={[Function]}
+          >
+            <Header
+              as="h1"
+            >
+              התחבר
+            </Header>
+            <FormInput
+              as={[Function]}
+              control={[Function]}
+              inline={true}
+              label="ת.ז."
+              name="userId"
+              onChange={[Function]}
+            />
+            <FormInput
+              as={[Function]}
+              control={[Function]}
+              inline={true}
+              label="סיסמא"
+              name="password"
+              onChange={[Function]}
+              type="password"
+            />
+            <FormButton
+              as={[Function]}
+              control={[Function]}
+              type="submit"
+            >
+              שלח
+            </FormButton>
+          </Form>
+        </GridColumn>
+      </Grid>,
+      "_rendering": false,
+      "_updater": [Circular],
+      "_workInProgressHook": null,
+    },
+  },
+  "validate": [Function],
+}
+`;

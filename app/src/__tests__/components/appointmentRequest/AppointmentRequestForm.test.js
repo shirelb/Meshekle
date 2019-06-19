@@ -66,17 +66,17 @@ describe("AppointmentRequestForm should", () => {
         await wrapper.update();
 
         expect(wrapper.find(Modal)).toHaveLength(1);
-        expect(wrapper.find(Text)).toHaveLength(4);
+        expect(wrapper.find(Text)).toHaveLength(7);
         expect(wrapper.find(Text).at(0).props().children).toEqual('בקשת תור');
         expect(wrapper.find(Text).at(1).props().children).toEqual(serviceProviderTest.fullname);
         expect(wrapper.find(Text).at(2).props().children).toEqual(serviceProviderTest.role);
-        expect(wrapper.find(Text).at(3).props().children).toEqual('');
-        expect(wrapper.find('FormLabel')).toHaveLength(5);
+        expect(wrapper.find('FormLabel')).toHaveLength(6);
         expect(wrapper.find('FormLabel').at(0).props().children).toEqual('*נותן שירות');
         expect(wrapper.find('FormLabel').at(1).props().children).toEqual(" *ענף");
-        expect(wrapper.find('FormLabel').at(2).props().children).toEqual(' *תאריכים ושעות אופציונאליים');
-        expect(wrapper.find('FormLabel').at(3).props().children).toEqual("*נושא");
-        expect(wrapper.find('FormLabel').at(4).props().children).toEqual('הערות');
+        expect(wrapper.find('FormLabel').at(2).props().children).toEqual(' *שעות פעילות');
+        expect(wrapper.find('FormLabel').at(3).props().children).toEqual(' *תאריכים ושעות אופציונאליים');
+        expect(wrapper.find('FormLabel').at(4).props().children).toEqual("*נושא");
+        expect(wrapper.find('FormLabel').at(5).props().children).toEqual('הערות');
         expect(wrapper.find(List.Section)).toHaveLength(1);
         expect(wrapper.find(List.Accordion)).toHaveLength(0);
         expect(wrapper.find(List.Item)).toHaveLength(0);

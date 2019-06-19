@@ -45,6 +45,9 @@ describe("AppointmentEdit should", () => {
             url: '/appointments/428/edit',
         },
         serviceProviderRoles: ["appointmentsHairDresser"],
+        getUsersForAppointmentForm: jest.fn(),
+        getServiceProviderRoles: jest.fn(),
+        userOptions: [],
     };
     const mockStore = {
         serviceProviderId: "549963652",
@@ -92,7 +95,10 @@ describe("AppointmentEdit should", () => {
                 path: '/appointments/428/edit',
                 url: '/appointments/428/edit',
             },
-            serviceProviderRoles:["appointmentsHairDresser"],
+            serviceProviderRoles: ["appointmentsHairDresser"],
+            getUsersForAppointmentForm: jest.fn(),
+            getServiceProviderRoles: jest.fn(),
+            userOptions: [],
         };
 
         const arrResponse = setupComponent('shallow', AppointmentEdit, null, props, "/appointments/428/edit");
@@ -131,18 +137,26 @@ describe("AppointmentEdit should", () => {
     });
 
     test("mounted with the right data, without appointment in props", async () => {
+        appointmentsStorage.getAppointmentByAppointmentID.mockResolvedValue(appointmentsOf549963652[0]);
+
         const props = {
             history: history,
             location: {
                 pathname: '/appointments/428/edit',
-                state:{}
+                state: undefined
             },
             match: {
                 isExact: true,
                 path: '/appointments/428/edit',
                 url: '/appointments/428/edit',
+                params:{
+                    appointmentId:413
+                }
             },
-            serviceProviderRoles:["appointmentsHairDresser"],
+            serviceProviderRoles: ["appointmentsHairDresser"],
+            getUsersForAppointmentForm: jest.fn(),
+            getServiceProviderRoles: jest.fn(),
+            userOptions: [],
         };
         const arrResponse = await setupComponent('shallow', AppointmentEdit, history, props, "/appointments/428/edit");
         wrapper = arrResponse[0];
@@ -182,7 +196,7 @@ describe("AppointmentEdit should", () => {
         componentInstance = arrResponse[1];
 
         await componentInstance.handleSubmit(appointmentsOf549963652[1]);
-        expect(componentInstance.props.history.location.pathname).toEqual('/appointments');
+        expect(componentInstance.props.history.location.pathname).toEqual('/');
     });
 
     test("render with what the user see", async () => {

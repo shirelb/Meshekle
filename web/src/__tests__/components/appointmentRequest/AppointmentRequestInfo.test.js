@@ -138,16 +138,21 @@ describe("AppointmentRequestInfo should", () => {
     });
 
     test("mounted with the right data, without appointment in props", async () => {
+        appointmentsStorage.getAppointmentRequestByAppointmentRequestID.mockResolvedValue(appointmentRequestsOf549963652[0]);
+
         const props = {
             history: history,
             location: {
                 pathname: '/appointments/requests/413',
-                state: {}
+                state: undefined
             },
             match: {
                 isExact: true,
                 path: '/appointments/requests/413',
                 url: '/appointments/requests/413',
+                params:{
+                    appointmentRequestId:413
+                }
             },
             serviceProviderRoles: ["appointmentsHairDresser"],
         };

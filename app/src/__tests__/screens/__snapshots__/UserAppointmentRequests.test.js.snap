@@ -24,6 +24,17 @@ exports[`UserAppointmentRequests should match snapshot 1`] = `
     round={false}
     showLoadingIcon={false}
   />
+  <ButtonGroup
+    buttons={
+      Array [
+        "ממתין לאישור",
+        "אושר",
+        "נדחה",
+      ]
+    }
+    onPress={[Function]}
+    selectedIndex={0}
+  />
   <withTheme(List.Section)>
     <View
       key="907"
@@ -39,25 +50,7 @@ exports[`UserAppointmentRequests should match snapshot 1`] = `
       <View
         style={
           Object {
-            "width": "30%",
-          }
-        }
-      >
-        <Icon
-          color="red"
-          name="delete-forever"
-          onPress={[Function]}
-          raised={false}
-          reverse={false}
-          reverseColor="white"
-          size={24}
-          underlayColor="white"
-        />
-      </View>
-      <View
-        style={
-          Object {
-            "width": "70%",
+            "width": "100%",
           }
         }
       >
@@ -101,25 +94,7 @@ exports[`UserAppointmentRequests should match snapshot 1`] = `
       <View
         style={
           Object {
-            "width": "30%",
-          }
-        }
-      >
-        <Icon
-          color="red"
-          name="delete-forever"
-          onPress={[Function]}
-          raised={false}
-          reverse={false}
-          reverseColor="white"
-          size={24}
-          underlayColor="white"
-        />
-      </View>
-      <View
-        style={
-          Object {
-            "width": "70%",
+            "width": "100%",
           }
         }
       >

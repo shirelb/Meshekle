@@ -1,43 +1,55 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AgendaCalendar should match snapshot 1`] = `
-<AgendaView
-  items={
-    Object {
-      "2019-06-04": Array [],
-    }
+<ScrollViewMock
+  refreshControl={
+    <RefreshControlMock
+      onRefresh={[Function]}
+      refreshing={false}
+    />
   }
-  renderDay={[Function]}
-  renderEmptyDate={[Function]}
-  renderItem={[Function]}
-  rowHasChanged={[Function]}
-  theme={
-    Object {
-      "agendaBackgroundColor": "#424242",
-      "agendaDayNumColor": "green",
-      "agendaDayTextColor": "yellow",
-      "agendaKnobColor": "blue",
-      "agendaTodayColor": "orange",
-      "arrowColor": "orange",
-      "backgroundColor": "#f7f7f7",
-      "calendarBackground": "#ffffff",
-      "dayTextColor": "#2d4150",
-      "dotColor": "#00adf5",
-      "monthTextColor": "blue",
-      "selectedDayBackgroundColor": "#00adf5",
-      "selectedDayTextColor": "#ffffff",
-      "selectedDotColor": "#ffffff",
-      "textDayFontFamily": "monospace",
-      "textDayFontSize": 16,
-      "textDayHeaderFontFamily": "monospace",
-      "textDayHeaderFontSize": 16,
-      "textDisabledColor": "#d9e1e8",
-      "textMonthFontFamily": "monospace",
-      "textMonthFontSize": 16,
-      "textMonthFontWeight": "bold",
-      "textSectionTitleColor": "#5a646d",
-      "todayTextColor": "#00adf5",
+>
+  <AgendaView
+    items={Object {}}
+    renderDay={[Function]}
+    renderEmptyData={[Function]}
+    renderEmptyDate={[Function]}
+    renderItem={[Function]}
+    rowHasChanged={[Function]}
+    style={
+      Object {
+        "height": 889.3333333333334,
+        "paddingTop": 5,
+      }
     }
-  }
-/>
+    theme={
+      Object {
+        "agendaBackgroundColor": "#424242",
+        "agendaDayNumColor": "green",
+        "agendaDayTextColor": "yellow",
+        "agendaKnobColor": "blue",
+        "agendaTodayColor": "orange",
+        "arrowColor": "orange",
+        "backgroundColor": "#f7f7f7",
+        "calendarBackground": "#ffffff",
+        "dayTextColor": "#2d4150",
+        "dotColor": "#00adf5",
+        "monthTextColor": "blue",
+        "selectedDayBackgroundColor": "#00adf5",
+        "selectedDayTextColor": "#ffffff",
+        "selectedDotColor": "#ffffff",
+        "textDayFontFamily": "monospace",
+        "textDayFontSize": 16,
+        "textDayHeaderFontFamily": "monospace",
+        "textDayHeaderFontSize": 16,
+        "textDisabledColor": "#d9e1e8",
+        "textMonthFontFamily": "monospace",
+        "textMonthFontSize": 16,
+        "textMonthFontWeight": "bold",
+        "textSectionTitleColor": "#5a646d",
+        "todayTextColor": "#00adf5",
+      }
+    }
+  />
+</ScrollViewMock>
 `;

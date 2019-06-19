@@ -118,7 +118,7 @@ describe("AppointmentsReportPage should", () => {
         expect(mountWrapper.find('Link')).toHaveLength(1);
         expect(mountWrapper.find('Link').first().find('Button')).toHaveLength(1);
         expect(mountWrapper.find('Link').first().find('Button').props().children[2]).toEqual(strings.mainPageStrings.SETTINGS_PAGE_TITLE);
-        expect(mountWrapper.find('Button')).toHaveLength(3);
+        expect(mountWrapper.find('Button')).toHaveLength(4);
         expect(mountWrapper.find('Button').at(1).props().children[2]).toEqual(strings.mainPageStrings.BACK_TO_APPOINTMENTS_PAGE_TITLE);
         expect(mountWrapper.find('Button').at(2).props().children[1]).toEqual('   יצא לPDF');
         expect(mountWrapper.find('Table')).toHaveLength(1);
