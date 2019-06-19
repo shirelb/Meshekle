@@ -334,7 +334,7 @@ class AppointmentsManagementPage extends React.Component {
         appointment.startDateAndTime = moment(event.start).format();
         appointment.endDateAndTime = moment(event.end).format();
 
-        const idx = events.indexOf(event);
+        const idx = events.findIndex(item => item.id ===event.id)
 
         const updatedEvent = {...event, appointment: appointment};
 
