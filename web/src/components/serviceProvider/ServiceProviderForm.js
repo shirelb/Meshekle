@@ -279,6 +279,19 @@ class ServiceProviderForm extends React.Component {
                     fieldOperationTimeError: true
                 });
                 return false;
+            } else {
+                for (let dateTime of serviceProvider.operationTime) {
+                    for (let times of dateTime['hours']) {
+                        if (!moment(times.startHour, 'h:mma').isBefore(moment(times.endHour, 'h:mma'))) {
+                            this.setState({
+                                formError: true,
+                                formErrorContent: "לא תקין. זמן התחלה אחרי זמן סוף",
+                                fieldOperationTimeError: true
+                            });
+                            return false;
+                        }
+                    }
+                }
             }
         }
 
@@ -308,7 +321,7 @@ class ServiceProviderForm extends React.Component {
 
             handleSubmit(serviceProvider)
                 .then(res => {
-                    if (res) {
+                    if (res.response) {
                         if (res.response.status !== 200)
                             this.setState({
                                 formError: true,
