@@ -42,8 +42,8 @@ export default class ChoresCalendar extends Component {
             header: {
                 left: 'next,prev',
                 center: 'title',
-                right: '',
-                //right: 'month,basicWeek,basicDay,agendaWeek,agendaDay,listWeek',
+                //right: '',
+                right: 'month'//,basicWeek,basicDay,agendaWeek,agendaDay,listWeek',
             },
             // themeSystem:'bootstrap4',
             isRTL: true,
@@ -70,13 +70,13 @@ export default class ChoresCalendar extends Component {
             selectMirror: true,
             unselectAuto: true,
             eventDrop: null,
-            
+
 
             eventReceive: function (event) {
                 props.onDraggedUser(event, "dayEvent", event.target);
             },
 
-           
+
 
             eventResize: null,
 
@@ -93,7 +93,6 @@ export default class ChoresCalendar extends Component {
             openPortal: false,
             portalContent: '',
             portalUserChoresCreated: false,
-            portalNeedToDeleteUserChores: false,
             usersChoosedNames: [],
             calendarDisplay: this.props.calendarDisplay,
             choreTypeName: props.choreTypeName,
@@ -155,7 +154,7 @@ export default class ChoresCalendar extends Component {
                 }
             })
             .catch(e => {
-                
+
             })
             return usrChores;
     }
@@ -188,7 +187,7 @@ export default class ChoresCalendar extends Component {
                 User: res[1].data.newUserChore.User,
                 userChore: res[1].data.newUserChore,
             } )
-            
+
         })
     }
 
@@ -238,13 +237,13 @@ export default class ChoresCalendar extends Component {
         }
         this.props.createUserChores(e, users, usersNames, date);
         this.setState({usersChoosed: [], usersChoosedNames: []});
-        
+
     }
 
     deleteUserChore(e, {choreId}){
         this.props.deleteUserChore(e, {choreId});
         this.setState({userschores:this.state.userschores.filter(el=>el.userChoreId!==choreId)});
-       
+
     }
 
     workersToChoose() {
@@ -326,7 +325,7 @@ export default class ChoresCalendar extends Component {
 
 
     render() {
-        
+
         return (
             <div>
                     <p style={{color:'red'}}>{this.state.getUsersChoresErrorMessage}</p>
@@ -375,7 +374,29 @@ export default class ChoresCalendar extends Component {
                             </Grid.Column>
                         </Grid>
                         :
-                        <div></div>
+                        <div> <Grid columns={2}>
+                            <Grid.Column>
+                                <Portal name='portalUserChoresFaild' onClose={this.handleClosePortal} open={this.props.createUserChoreResult.name==='portalUserChoresFaild'}>
+                                    <Segment
+                                        style={{
+                                            left: '40%',
+                                            position: 'fixed',
+                                            top: '50%',
+                                            zIndex: 1000,
+                                        }}
+                                    >
+                                        <Header>!הפעולה נכשלה</Header>
+                                        <Button
+                                            content='אישור'
+                                            positive
+                                            onClick={this.props.handleClosePortal}
+                                        />
+                                    </Segment>
+                                </Portal>
+
+                            </Grid.Column>
+                        </Grid>
+</div>
                     }
                     {this.state.openPortal ?
                         <Portal onClose={() => {

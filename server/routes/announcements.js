@@ -16,12 +16,12 @@ router.get('/setExpired', function (req, res, next) {
     Announcements.update(
         {status:"Expired"},
         {
-            where: {
-                expirationTime: {
-                    [Op.lt]: new Date()
-                }
+        where: {
+            expirationTime: {
+                [Op.lt]: new Date()
             }
-        })
+        }
+    })
         .then(isUpdated => {
             res.status(200).send(isUpdated);
         })
@@ -30,7 +30,6 @@ router.get('/setExpired', function (req, res, next) {
             res.status(500).send(err);
         })
 });
-
 
 router.use(function (req, res, next) {
     authentications.verifyToken(req, res, next);

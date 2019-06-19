@@ -4,7 +4,6 @@ import {shallow} from "enzyme/build";
 
 import AuthLoadingScreen from "../../screens/authLoadingScreen/AuthLoadingScreen";
 import phoneStorage from "react-native-simple-store";
-import usersStorage from "../../storage/usersStorage";
 
 
 jest.mock("../../storage/usersStorage");

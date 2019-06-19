@@ -17,10 +17,7 @@ jest.mock("react-navigation");
 describe("DrawerMenu should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const props = {};
-    const userTest = users[2];
-    const userIdTest = "972350803";
-    const userFullnameTest = "Dion Revance";
+
     const mockStore = {
         userData: {
             serviceProviderId: "549963652",
@@ -86,17 +83,17 @@ describe("DrawerMenu should", () => {
         expect(componentInstance.props.navigation.navigate).toHaveBeenCalled();
     });
 
-    xit("navigate To Screen", async () => {
-        NavigationActions.navigate = jest.fn();
-        DrawerActions.closeDrawer.jest.fn();
-
-        wrapper = shallow(<DrawerMenu navigation={navigation}/>);
-        componentInstance = wrapper.instance();
-
-        // await componentInstance.navigateToScreen('AppointmentsScreen');
-        await wrapper.find('ListItem').at(2).props().onPress('AppointmentsScreen');
-        expect(NavigationActions.navigate).toHaveBeenCalledTimes(1);
-        expect(componentInstance.props.navigation.dispatch).toHaveBeenCalledTimes(2);
-    });
+    // xit("navigate To Screen", async () => {
+    //     NavigationActions.navigate = jest.fn();
+    //     DrawerActions.closeDrawer.jest.fn();
+    //
+    //     wrapper = shallow(<DrawerMenu navigation={navigation}/>);
+    //     componentInstance = wrapper.instance();
+    //
+    //     // await componentInstance.navigateToScreen('AppointmentsScreen');
+    //     await wrapper.find('ListItem').at(2).props().onPress('AppointmentsScreen');
+    //     expect(NavigationActions.navigate).toHaveBeenCalledTimes(1);
+    //     expect(componentInstance.props.navigation.dispatch).toHaveBeenCalledTimes(2);
+    // });
 
 });

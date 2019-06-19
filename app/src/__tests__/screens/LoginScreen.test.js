@@ -15,7 +15,6 @@ jest.mock("react-native-simple-store");
 describe("LoginScreen should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const props = {};
     const userIdTest = "972350803";
     const userFullnameTest = "Dion Revance";
     const passwordTest = "Qw345678";

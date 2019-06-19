@@ -16,8 +16,6 @@ jest.mock("react-native-simple-store");
 describe("AppointmentsScreen should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const props = {};
-    const userTest = users[2];
     const userIdTest = "972350803";
     const userFullnameTest = "Dion Revance";
 

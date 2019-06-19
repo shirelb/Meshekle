@@ -3,7 +3,6 @@ import {shallow} from "enzyme/build";
 import {setupComponent} from "../../testHelpers";
 import PageNotFound from "../../../pages/pageNotFound404/PageNotFound";
 import store from 'store';
-import moment from 'moment';
 import {createMemoryHistory} from 'history';
 import AppointmentRequestInfo from "../../../components/appointmentRequest/AppointmentRequestInfo";
 import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";

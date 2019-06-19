@@ -7,15 +7,13 @@ import phoneStorage from "react-native-simple-store";
 
 import categories from "../jsons/categories";
 import announcementsStorage from "../../storage/announcementsStorage";
-import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
+import { DocumentPickerUtil } from 'react-native-document-picker';
 
 jest.mock("../../storage/serviceProvidersStorage");
 jest.mock("../../storage/usersStorage");
 jest.mock("../../storage/announcementsStorage");
 jest.mock("react-native-simple-store");
 
-
-//TODO: FIX THE IMPORT PROBLEM
 
 describe("Request announcements screen should", () => {
     let wrapper = null;
@@ -35,7 +33,6 @@ describe("Request announcements screen should", () => {
     const navigation = {navigate: jest.fn()};
     announcementsStorage.addAnnouncement = jest.fn().mockResolvedValue({status:200});
     announcementsStorage.getUniqueCategories = jest.fn().mockResolvedValue({data:categories});
-    DocumentPicker.show= jest.fn();
     DocumentPickerUtil.allFiles= jest.fn();
 
     phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
@@ -60,7 +57,7 @@ describe("Request announcements screen should", () => {
 
         expect(componentInstance.state.categoryNameFilter).toEqual('---');
         expect(componentInstance.state.categoriesDisplay.length).toEqual(3);
-        expect(componentInstance.state.categories.length).toEqual(3);
+        expect(componentInstance.state.categories.length).toEqual(2);
         expect(componentInstance.state.value).toEqual({});
     });
 
@@ -71,7 +68,6 @@ describe("Request announcements screen should", () => {
 
         expect(wrapper.find('Form')).toHaveLength(1);
         expect(wrapper.find('Button')).toHaveLength(4);
-        expect(wrapper.find('Text')).toHaveLength(1);
         expect(wrapper.find('Divider')).toHaveLength(1);
 
     });
@@ -80,7 +76,7 @@ describe("Request announcements screen should", () => {
     it("handle on Announcements request send Press", async () => {
         wrapper = shallow(<RequestAnnouncement navigation={navigation}/>);
         componentInstance = wrapper.instance();
-
+        componentInstance.setState({value:{},categoryNameFilter:"Sport",categories:categories});
         await wrapper.find('Button').at(1).props().onPress();
         expect(componentInstance.props.navigation.navigate).toHaveBeenCalled();
     });

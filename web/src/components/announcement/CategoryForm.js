@@ -102,8 +102,8 @@ class CategoryForm extends Component {
             text: s.name,
             value: s
         }));
+        serProvsOptions = serProvsOptions.filter((item,pos)=> {return serProvsOptions.map(i=>i.text).indexOf(item.text) === pos});
 
-        console.log('sasaaads ', this.state);
 
         return (
             <Form onSubmit={this.handleSubmit} error={formError}>

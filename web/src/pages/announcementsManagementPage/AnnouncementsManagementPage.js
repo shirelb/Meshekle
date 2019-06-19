@@ -1,8 +1,8 @@
 import React from 'react';
 import './styles.css'
 import 'semantic-ui-css/semantic.min.css';
-import {Button, Header, Icon, Menu, Table, Image} from 'semantic-ui-react';
-import {Link, Redirect, Route, Switch} from "react-router-dom";
+import {Button, Icon, Menu, Table} from 'semantic-ui-react';
+import { Route, Switch} from "react-router-dom";
 import store from 'store';
 import times from 'lodash.times';
 import {Helmet} from 'react-helmet';
@@ -15,7 +15,6 @@ import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import CategoryAdd from "../../components/announcement/CategoryAdd";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import Modal from 'react-awesome-modal';
-import AppointmentsManagementPage from "../appointmentsManagementPage/AppointmentsManagementPage";
 
 const TOTAL_PER_PAGE = 10;
 
@@ -61,6 +60,7 @@ class AnnouncementsManagementPage extends React.Component {
         this.getUsers();
         this.getAllServiceProviders();
         this.getCategories();
+        this.getAllCategories();
         this.getAnnouncementsRequests();
         this.getAnsweredAnnouncements();
 
@@ -90,7 +90,7 @@ class AnnouncementsManagementPage extends React.Component {
     getAllServiceProviders(){
       serviceProvidersStorage.getServiceProviders(this.serviceProviderHeaders)
           .then(response => {
-              this.setState({serviceProviders: response})
+              this.setState({serviceProviders: response});
               if(this.serviceProviderId === '1' || this.state.serviceProviders.filter(s => s.serviceProviderId === this.serviceProviderId)[0].role === 'AnnouncementsSecretary')
                   this.getAllCategories();
           });
@@ -154,11 +154,7 @@ class AnnouncementsManagementPage extends React.Component {
             });
     }
 
-    blobToFile(theBlob, fileName){
-        theBlob.lastModifiedDate = new Date();
-        theBlob.name = fileName;
-        return theBlob;
-    }
+
 
     setPage(page) {
         return () => {
@@ -377,7 +373,7 @@ class AnnouncementsManagementPage extends React.Component {
     render() {
         // console.log('app props ', this.props);
 
-        const {serviceProviders ,categoriesToManage, announcementsRequests,filteredAnnouncementsRequests, pageAnnouncementsRequests, totalPagesAnnouncementsRequests, announcements, filteredAnnouncements, pageAnnouncements, totalPagesAnnouncements, categories, users,  pageCategories, totalPagesCategories} = this.state;
+        const {serviceProviders ,categoriesToManage, announcementsRequests,filteredAnnouncementsRequests, pageAnnouncementsRequests, totalPagesAnnouncementsRequests, announcements, filteredAnnouncements, pageAnnouncements, totalPagesAnnouncements, users,  pageCategories, totalPagesCategories} = this.state;
         const startIndexReq = pageAnnouncementsRequests * TOTAL_PER_PAGE;
         const startIndexAnn = pageAnnouncements * TOTAL_PER_PAGE;
         const startIndexCat = pageCategories * TOTAL_PER_PAGE;
@@ -419,9 +415,13 @@ class AnnouncementsManagementPage extends React.Component {
                                     <Table.Cell><a onClick={()=>this.openModal(announcementReq.content)}>תוכן המודעה</a></Table.Cell>
                                     <Table.Cell>{announcementReq.expirationTime.substring(0,announcementReq.expirationTime.indexOf('T'))}</Table.Cell>
                                     <Table.Cell>{announcementReq.dateOfEvent?announcementReq.dateOfEvent.substring(0,announcementReq.dateOfEvent.indexOf('T')):""}</Table.Cell>
-                                    <Table.Cell><a className="btn btn-default" download={announcementReq.fileName}
-                                                   href={announcementReq.file ? "data:application/octet-stream;base64,"+announcementReq.file.toString(): ""}>{announcementReq.fileName? announcementReq.fileName : "אין קובץ"}</a>
-                                    </Table.Cell>
+                                    {announcementReq.file?
+                                        <Table.Cell><a className="btn btn-default" download={announcementReq.fileName}
+                                                       href={announcementReq.file ? "data:application/octet-stream;base64," + announcementReq.file.toString() : ""}>{announcementReq.fileName ? announcementReq.fileName : "אין קובץ"}</a>
+                                        </Table.Cell>
+                                        :
+                                        <Table.Cell>אין קובץ</Table.Cell>
+                                    }
                                     <Table.Cell>
                                         <button className="ui icon button" onClick={()=>this.handleApproveButton(announcementReq.announcementId)}>
                                             <i className="check icon"></i>
@@ -495,9 +495,14 @@ class AnnouncementsManagementPage extends React.Component {
                                     <Table.Cell>{announcement.expirationTime.substring(0,announcement.expirationTime.indexOf('T'))}</Table.Cell>
                                     <Table.Cell>{announcement.dateOfEvent?announcement.dateOfEvent.substring(0,announcement.dateOfEvent.indexOf('T')):""}</Table.Cell>
                                     <Table.Cell>{announcement.status}</Table.Cell>
-                                    <Table.Cell><a className="btn btn-default" download={announcement.fileName}
-                                                   href={announcement.file ? "data:application/octet-stream;base64,"+announcement.file: ""}>{announcement.fileName? announcement.fileName : "אין קובץ"}</a>
-                                    </Table.Cell>
+                                    {announcement.file?
+                                        <Table.Cell><a className="btn btn-default" download={announcement.fileName}
+                                                       href={announcement.file ? "data:application/octet-stream;base64," + announcement.file : ""}>{announcement.fileName ? announcement.fileName : "אין קובץ"}</a>
+                                        </Table.Cell>
+                                        :
+                                        <Table.Cell>אין קובץ</Table.Cell>
+                                    }
+
                                     <Table.Cell>
                                         <button className="ui icon button" onClick={()=>this.handleUpdate(announcement)}>
                                             <i className="edit icon"></i>

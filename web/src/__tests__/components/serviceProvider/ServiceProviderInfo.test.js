@@ -3,12 +3,9 @@ import {shallow} from "enzyme/build";
 import {setupComponent} from "../../testHelpers";
 import PageNotFound from "../../../pages/pageNotFound404/PageNotFound";
 import store from 'store';
-import moment from 'moment';
 import {createMemoryHistory} from 'history';
 import ServiceProviderInfo from "../../../components/serviceProvider/ServiceProviderInfo";
-import usersStorage from "../../../storage/usersStorage";
 import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
-import users from "../../jsons/users";
 import strings from "../../../shared/strings";
 
 
