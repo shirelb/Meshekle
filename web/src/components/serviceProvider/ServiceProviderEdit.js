@@ -95,6 +95,7 @@ class ServiceProviderEdit extends React.Component {
                     this.props.history.goBack();
                     if (this.props.location.state.serviceProvider)
                         this.props.history.goBack();
+                    return response;
                 }
             })
     }

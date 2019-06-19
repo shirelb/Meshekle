@@ -18,7 +18,7 @@ class AppointmentEdit extends React.Component {
         if (this.props.serviceProviderRoles === undefined)
             this.props.getServiceProviderRoles();
 
-        this.state = {appointment: this.props.location.state.appointment};
+        this.state = {appointment: this.props.location.state ? this.props.location.state.appointment : {}};
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -69,7 +69,7 @@ class AppointmentEdit extends React.Component {
                         return roles;
                 } else {
                     appointment.appointmentId = this.state.appointment.appointmentId;
-                   return appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
+                    return appointmentsStorage.updateAppointment(appointment, this.serviceProviderHeaders)
                         .then((response) => {
                             if (response.response) {
                                 if (response.response.status !== 200)
@@ -78,6 +78,7 @@ class AppointmentEdit extends React.Component {
                                 this.props.history.goBack();
                                 if (this.props.location.state.openedFrom === "AppointmentInfo")
                                     this.props.history.goBack();
+                                return response;
                             }
                         })
                 }
@@ -98,7 +99,8 @@ class AppointmentEdit extends React.Component {
         return (
             <Modal size='small' open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                 <Helmet>
-                    <title>Meshekle | ערוך תור מס {appointment ? appointment.appointmentId.toString() : ""}</title>
+                    <title>Meshekle | ערוך תור
+                        מס {appointment ? appointment.appointmentId ? appointment.appointmentId.toString() : '' : ""}</title>
                 </Helmet>
 
                 <Grid padded>

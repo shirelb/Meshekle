@@ -61,6 +61,7 @@ class AnnouncementsManagementPage extends React.Component {
         this.getUsers();
         this.getAllServiceProviders();
         this.getCategories();
+        this.getAllCategories();
         this.getAnnouncementsRequests();
         this.getAnsweredAnnouncements();
 

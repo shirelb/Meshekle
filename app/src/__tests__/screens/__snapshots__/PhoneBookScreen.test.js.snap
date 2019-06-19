@@ -1,7 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`PhoneBookScreen should match snapshot 1`] = `
-<View>
+<ScrollViewMock
+  refreshControl={
+    <RefreshControlMock
+      onRefresh={[Function]}
+      refreshing={false}
+    />
+  }
+>
   <List
     containerStyle={
       Object {
@@ -33,5 +40,5 @@ exports[`PhoneBookScreen should match snapshot 1`] = `
     openedFrom="PhoneBookScreen"
     user={Object {}}
   />
-</View>
+</ScrollViewMock>
 `;

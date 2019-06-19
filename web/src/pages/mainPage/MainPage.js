@@ -66,7 +66,7 @@ class Home extends Component {
                                         {
                                             Array.isArray(this.props.serviceProviderRoles) ?
                                                 this.props.serviceProviderPermissions.includes("all") ?
-                                                    Object.keys(strings.modulesIconsNames).slice(1, Object.keys(strings.modulesIconsNames).length - 1).map((module) => {
+                                                    Object.keys(strings.modulesIconsNames).slice(1, Object.keys(strings.modulesIconsNames).length - 2).map((module) => {
                                                         return <Grid.Column>
                                                             <Header as='h3' icon>
                                                                 <Icon name={strings.modulesIconsNames[module]}/>

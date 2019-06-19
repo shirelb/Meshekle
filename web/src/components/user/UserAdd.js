@@ -1,8 +1,6 @@
 import React from 'react';
-import {post} from 'axios';
 import UserForm from './UserForm';
 import {Helmet} from 'react-helmet';
-import Page from '../Page';
 import usersStorage from "../../storage/usersStorage";
 import store from "store";
 import {Grid, Header, Modal} from "semantic-ui-react";
@@ -24,7 +22,7 @@ class UserAdd extends React.Component {
     }
 
     handleSubmit(user) {
-        usersStorage.createUser(user, this.serviceProviderHeaders)
+        return usersStorage.createUser(user, this.serviceProviderHeaders)
             .then(response => {
                 // console.log('user created ', response);
                 if (response.response) {
@@ -32,6 +30,7 @@ class UserAdd extends React.Component {
                         return response;
                 } else {
                     this.props.history.goBack();
+                    return response;
                 }
             });
     }

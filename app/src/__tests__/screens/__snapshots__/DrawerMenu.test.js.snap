@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DrawerMenu should match snapshot 1`] = `
-<View
+<ScrollViewMock
   style={
     Object {
       "backgroundColor": "#ededed",
@@ -71,6 +71,18 @@ exports[`DrawerMenu should match snapshot 1`] = `
       underlayColor="white"
     />
     <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
       chevronColor="#bdc6cf"
       disabled={false}
       hideChevron={false}
@@ -102,6 +114,18 @@ exports[`DrawerMenu should match snapshot 1`] = `
       underlayColor="white"
     />
     <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
       chevronColor="#bdc6cf"
       disabled={false}
       hideChevron={false}
@@ -133,6 +157,18 @@ exports[`DrawerMenu should match snapshot 1`] = `
       underlayColor="white"
     />
     <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
       chevronColor="#bdc6cf"
       disabled={false}
       hideChevron={false}
@@ -164,6 +200,18 @@ exports[`DrawerMenu should match snapshot 1`] = `
       underlayColor="white"
     />
     <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
       chevronColor="#bdc6cf"
       disabled={false}
       hideChevron={false}
@@ -195,6 +243,18 @@ exports[`DrawerMenu should match snapshot 1`] = `
       underlayColor="white"
     />
     <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
       chevronColor="#bdc6cf"
       disabled={false}
       hideChevron={false}
@@ -231,6 +291,31 @@ exports[`DrawerMenu should match snapshot 1`] = `
       hideChevron={true}
       leftIcon={
         Object {
+          "name": "error",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        Object {
+          "name": "chevron-right",
+        }
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="דווח על תקלה"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={true}
+      leftIcon={
+        Object {
           "name": "power",
         }
       }
@@ -251,5 +336,5 @@ exports[`DrawerMenu should match snapshot 1`] = `
       underlayColor="white"
     />
   </List>
-</View>
+</ScrollViewMock>
 `;

@@ -253,7 +253,20 @@ describe("AppointmentForm should", () => {
             preventDefault() {
             }
         });
-        expect(componentInstance.state.appointment).toEqual({});
+        expect(componentInstance.state.appointment).toEqual({
+            "clientName": "Padget Creaser",
+            "date": "2019-09-04",
+            "endTime": "08:13",
+            "remarks": "orci pede venenatis non sodales sed tincidunt",
+            "role": "appointmentsHairDresser",
+            "startTime": "09:35",
+            "subject": [
+                "החלקה",
+                "גוונים",
+                "צבע",
+                "תספורת"
+            ]
+        });
     });
 
     test("handleChange", async () => {
