@@ -61,7 +61,7 @@ describe("AgendaCalendar should", () => {
         await wrapper.update();
 
         expect(wrapper.find(Agenda)).toHaveLength(1);
-        expect(wrapper.find(Card)).toHaveLength(6);
+        expect(wrapper.find(Card)).toHaveLength(0);
     });
 
     it("mounted with the right data", async () => {
@@ -71,7 +71,6 @@ describe("AgendaCalendar should", () => {
         expect(Object.values(componentInstance.state.items)[2][0].type).toEqual('Appointments');
         expect(Object.values(componentInstance.state.items)[3][0].type).toEqual('Appointments');
         expect(Object.values(componentInstance.state.items)[4][0].type).toEqual('Appointments');
-        expect(Object.values(componentInstance.state.items)[5][0].type).toEqual('Chores');
     });
 
 });
