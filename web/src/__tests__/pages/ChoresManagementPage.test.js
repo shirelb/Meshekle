@@ -74,24 +74,24 @@ describe("ChoresManagementPage should", () => {
     afterEach(() => {
     });
 
-    test.skip('match snapshot', async () => {
-        const props = {
-            location: {
-                pathname: '/chores'
-            },
-            match: {
-                isExact: true,
-                path: '/chores',
-                url: '/chores',
-            }
-        };
-
-        const arrResponse = setupComponent('shallow', ChoresManagementPage, null, props, "/chores");
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    // test.skip('match snapshot', async () => {
+    //     const props = {
+    //         location: {
+    //             pathname: '/chores'
+    //         },
+    //         match: {
+    //             isExact: true,
+    //             path: '/chores',
+    //             url: '/chores',
+    //         }
+    //     };
+    //
+    //     const arrResponse = setupComponent('shallow', ChoresManagementPage, null, props, "/chores");
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders ChoresManagementPage for /chores", async () => {
         const arrResponse = await setupComponent('shallow', ChoresManagementPage, history, props, "/chores");

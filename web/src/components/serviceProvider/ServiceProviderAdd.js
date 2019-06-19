@@ -30,6 +30,7 @@ class ServiceProviderAdd extends React.Component {
                 } else {
                     // console.log('serviceProvider created ', response);
                     this.props.history.goBack();
+                    return response;
                 }
             });
     }

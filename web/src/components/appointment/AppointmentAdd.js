@@ -52,6 +52,7 @@ class AppointmentAdd extends React.Component {
                                     this.props.approveAppointmentRequest(appointmentRequestEvent);
 
                                 this.props.history.goBack()
+                                return response;
                             }
                         })
             })

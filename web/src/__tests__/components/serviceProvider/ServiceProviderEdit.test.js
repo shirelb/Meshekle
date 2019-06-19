@@ -120,51 +120,51 @@ describe("ServiceProviderEdit should", () => {
     afterEach(() => {
     });
 
-    test.skip('match snapshot with slotInfo', async () => {
-        const props = {
-            location: {
-                pathname: '/appointments/set',
-                state: {
-                    slotInfo: slotInfo
-                }
-            },
-            match: {
-                isExact: true,
-                path: '/appointments/set',
-                url: '/appointments/set',
-            },
-            serviceProviderRoles:["appointmentsHairDresser"],
-        };
-
-        const arrResponse = setupComponent('shallow', AppointmentAdd, null, props, "/appointments/set");
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-    test.skip('match snapshot with appointmentRequestDropped', async () => {
-        const props = {
-            location: {
-                pathname: '/appointments/set',
-                state: {
-                    appointmentRequestDropped: appointmentRequestDropped
-                }
-            },
-            match: {
-                isExact: true,
-                path: '/appointments/set',
-                url: '/appointments/set',
-            },
-            serviceProviderRoles:["appointmentsHairDresser"],
-        };
-
-        const arrResponse = setupComponent('shallow', AppointmentAdd, null, props, "/appointments/set");
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    // test.skip('match snapshot with slotInfo', async () => {
+    //     const props = {
+    //         location: {
+    //             pathname: '/appointments/set',
+    //             state: {
+    //                 slotInfo: slotInfo
+    //             }
+    //         },
+    //         match: {
+    //             isExact: true,
+    //             path: '/appointments/set',
+    //             url: '/appointments/set',
+    //         },
+    //         serviceProviderRoles:["appointmentsHairDresser"],
+    //     };
+    //
+    //     const arrResponse = setupComponent('shallow', AppointmentAdd, null, props, "/appointments/set");
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    // test.skip('match snapshot with appointmentRequestDropped', async () => {
+    //     const props = {
+    //         location: {
+    //             pathname: '/appointments/set',
+    //             state: {
+    //                 appointmentRequestDropped: appointmentRequestDropped
+    //             }
+    //         },
+    //         match: {
+    //             isExact: true,
+    //             path: '/appointments/set',
+    //             url: '/appointments/set',
+    //         },
+    //         serviceProviderRoles:["appointmentsHairDresser"],
+    //     };
+    //
+    //     const arrResponse = setupComponent('shallow', AppointmentAdd, null, props, "/appointments/set");
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders ServiceProviderEdit for /phoneBook/serviceProvider/549963652/edit", async () => {
         const arrResponse = await setupComponent('shallow', ServiceProviderEdit, history, props, "/phoneBook/serviceProvider/549963652/edit");

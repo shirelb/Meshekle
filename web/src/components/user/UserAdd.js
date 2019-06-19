@@ -24,7 +24,7 @@ class UserAdd extends React.Component {
     }
 
     handleSubmit(user) {
-        usersStorage.createUser(user, this.serviceProviderHeaders)
+       return usersStorage.createUser(user, this.serviceProviderHeaders)
             .then(response => {
                 // console.log('user created ', response);
                 if (response.response) {
@@ -32,6 +32,7 @@ class UserAdd extends React.Component {
                         return response;
                 } else {
                     this.props.history.goBack();
+                    return response;
                 }
             });
     }

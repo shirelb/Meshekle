@@ -78,6 +78,7 @@ class AppointmentEdit extends React.Component {
                                 this.props.history.goBack();
                                 if (this.props.location.state.openedFrom === "AppointmentInfo")
                                     this.props.history.goBack();
+                                return response;
                             }
                         })
                 }

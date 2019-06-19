@@ -75,24 +75,24 @@ describe("AnnouncementsManagementPage should", () => {
     afterEach(() => {
     });
 
-    test.skip('match snapshot', async () => {
-        const props = {
-            location: {
-                pathname: '/announcements'
-            },
-            match: {
-                isExact: true,
-                path: '/announcements',
-                url: '/announcements',
-            }
-        };
-
-        const arrResponse = setupComponent('shallow', AnnouncementsManagementPage, null, props, "/announcements");
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    // test.skip('match snapshot', async () => {
+    //     const props = {
+    //         location: {
+    //             pathname: '/announcements'
+    //         },
+    //         match: {
+    //             isExact: true,
+    //             path: '/announcements',
+    //             url: '/announcements',
+    //         }
+    //     };
+    //
+    //     const arrResponse = setupComponent('shallow', AnnouncementsManagementPage, null, props, "/announcements");
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders AnnouncementsManagementPage for /announcements", async () => {
         const arrResponse = await setupComponent('shallow', AnnouncementsManagementPage, history, props, "/announcements");

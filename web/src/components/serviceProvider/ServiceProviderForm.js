@@ -308,7 +308,7 @@ class ServiceProviderForm extends React.Component {
 
             handleSubmit(serviceProvider)
                 .then(res => {
-                    if (res) {
+                    if (res.response) {
                         if (res.response.status !== 200)
                             this.setState({
                                 formError: true,

@@ -191,7 +191,7 @@ class UserForm extends React.Component {
 
             handleSubmit(user)
                 .then(res => {
-                    if (res) {
+                    if (res.response) {
                         if (res.response.status !== 200)
                             this.setState({
                                 formError: true,

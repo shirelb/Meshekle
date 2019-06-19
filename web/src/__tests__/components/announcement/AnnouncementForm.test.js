@@ -3,15 +3,8 @@ import {shallow} from "enzyme/build";
 import {setupComponent} from "../../testHelpers";
 import PageNotFound from "../../../pages/pageNotFound404/PageNotFound";
 import store from 'store';
-import moment from 'moment';
 import {createMemoryHistory} from 'history';
 import AnnouncementForm from "../../../components/announcement/AnnouncementForm";
-import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
-import announcementsStorage from "../../../storage/announcementsStorage";
-import usersStorage from "../../../storage/usersStorage";
-import users from "../../jsons/users";
-import serviceProviders from "../../jsons/serviceProviders";
-import answeredAnnouncements from "../../jsons/answeredAnnouncements";
 import categories from "../../jsons/categories";
 
 
@@ -111,35 +104,35 @@ describe("AnnouncementsForm should", () => {
     afterEach(() => {
     });
 
-    test.skip('match snapshot with slotInfo', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
-            slotInfo: slotInfo,
-            submitText: "קבע",
-        }), pathAdd);
-
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-
-
-    test.skip('match snapshot with add announcement', async () => {
-        const arrResponse = await setupComponent('shallow', AnnouncementForm, addHistory,addProps, pathAdd);
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-    test.skip('match snapshot with edit announcement ', async () => {
-        const arrResponse = await setupComponent('shallow', AnnouncementForm, editHistory,editProps, pathEdit);
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    // test.skip('match snapshot with slotInfo', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
+    //         slotInfo: slotInfo,
+    //         submitText: "קבע",
+    //     }), pathAdd);
+    //
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    //
+    //
+    // test.skip('match snapshot with add announcement', async () => {
+    //     const arrResponse = await setupComponent('shallow', AnnouncementForm, addHistory,addProps, pathAdd);
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    // test.skip('match snapshot with edit announcement ', async () => {
+    //     const arrResponse = await setupComponent('shallow', AnnouncementForm, editHistory,editProps, pathEdit);
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders AnnouncementForm for /announcements/addAnnouncements", async () => {
         const arrResponse = await setupComponent('shallow', AnnouncementForm, addHistory,addProps, pathAdd);

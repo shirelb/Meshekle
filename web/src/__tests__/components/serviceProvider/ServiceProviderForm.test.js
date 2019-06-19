@@ -3,13 +3,11 @@ import {shallow} from "enzyme/build";
 import {setupComponent} from "../../testHelpers";
 import PageNotFound from "../../../pages/pageNotFound404/PageNotFound";
 import store from 'store';
-import moment from 'moment';
 import {createMemoryHistory} from 'history';
 import ServiceProviderForm from "../../../components/serviceProvider/ServiceProviderForm";
 import usersStorage from "../../../storage/usersStorage";
 import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
 import users from "../../jsons/users";
-import categories from "../../jsons/categories";
 
 
 jest.mock("store");
@@ -87,7 +85,7 @@ describe("ServiceProviderForm should", () => {
             url: editPath,
         },
         serviceProvider:serviceProviderToEdit,
-        handleSubmit: (serviceProvider) => true,
+        handleSubmit: jest.fn().mockResolvedValue({response:{status:200}}),
         submitText:'עדכן',
     };
 
@@ -115,41 +113,41 @@ describe("ServiceProviderForm should", () => {
 
     afterEach(() => {
     });
-
-    test.skip('match snapshot with slotInfo', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
-            slotInfo: slotInfo,
-            submitText: "קבע",
-        }), pathAdd);
-
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-    test.skip('match snapshot with appointment', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathEdit, {
-            appointment: appointmentTest,
-            submitText: "עדכן"
-        }), pathEdit);
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-    test.skip('match snapshot with appointmentRequest', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
-            appointmentRequestEvent: appointmentRequestTest,
-            submitText: "קבע",
-        }), pathAdd);
-
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    //
+    // test.skip('match snapshot with slotInfo', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
+    //         slotInfo: slotInfo,
+    //         submitText: "קבע",
+    //     }), pathAdd);
+    //
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    // test.skip('match snapshot with appointment', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathEdit, {
+    //         appointment: appointmentTest,
+    //         submitText: "עדכן"
+    //     }), pathEdit);
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    // test.skip('match snapshot with appointmentRequest', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
+    //         appointmentRequestEvent: appointmentRequestTest,
+    //         submitText: "קבע",
+    //     }), pathAdd);
+    //
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders ServiceProviderForm for "+addPath, async () => {
         const arrResponse = await setupComponent('shallow', ServiceProviderForm, addHistory, addProps, addPath);
