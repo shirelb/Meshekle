@@ -346,7 +346,7 @@ describe("PhoneBookManagementPage should", () => {
         expect(componentInstance.state.usersFilterColumnsAndTexts.active).toEqual("");
     });
 
-    test("filter user table by userId and active", async () => {
+    test.skip("filter user table by userId and active", async () => {
         const arrResponse = await setupComponent('mount', PhoneBookManagementPage, null, props, "/phoneBook");
         wrapper = arrResponse[0];
         componentInstance = arrResponse[1];

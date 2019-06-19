@@ -49,6 +49,7 @@ class UserEdit extends React.Component {
                 } else {
                     this.props.history.goBack();
                     this.props.history.goBack();
+                    return response;
                 }
             })
     }

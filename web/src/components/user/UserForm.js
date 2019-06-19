@@ -191,7 +191,7 @@ class UserForm extends React.Component {
 
             handleSubmit(user)
                 .then(res => {
-                    if (res) {
+                    if (res.response) {
                         if (res.response.status !== 200)
                             this.setState({
                                 formError: true,
@@ -293,6 +293,7 @@ class UserForm extends React.Component {
                         value={userId}
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
+                        disabled={userId !== ''}
                     />
                     <Form.Input
                         error={this.state.fieldFullnameError}
