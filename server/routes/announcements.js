@@ -11,6 +11,26 @@ const {Events, Announcements, AnnouncementSubscriptions, Categories} = require('
 const Op = Sequelize.Op;
 
 
+// SET all expired announcements status to expired
+router.get('/setExpired', function (req, res, next) {
+    Announcements.update(
+        {status:"Expired"},
+        {
+        where: {
+            expirationTime: {
+                [Op.lt]: new Date()
+            }
+        }
+    })
+        .then(isUpdated => {
+            res.status(200).send(isUpdated);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+});
+
 router.use(function (req, res, next) {
     authentications.verifyToken(req, res, next);
 });
@@ -103,26 +123,6 @@ router.get('/expired', function (req, res, next) {
     })
         .then(Announcements => {
             res.status(200).send(Announcements);
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
-});
-
-// SET all expired announcements status to expired
-router.get('/setExpired', function (req, res, next) {
-    Announcements.update(
-        {status:"Expired"},
-        {
-        where: {
-            expirationTime: {
-                [Op.lt]: new Date()
-            }
-        }
-    })
-        .then(isUpdated => {
-            res.status(200).send(isUpdated);
         })
         .catch(err => {
             console.log(err);
