@@ -20,10 +20,7 @@ jest.mock("react-native-simple-store");
 describe("AppointmentsDayInfo should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const userTest = users[2];
-    const appointmentRequestTest = user013637605AppointmentRequests[0];
-    const userIdTest = "972350803";
-    const userFullnameTest = "Dion Revance";
+
     const props = {
         dateModalVisible: true,
         selectedDate: "2019-07-02",

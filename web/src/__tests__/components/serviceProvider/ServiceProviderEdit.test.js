@@ -3,14 +3,11 @@ import {shallow} from "enzyme/build";
 import {setupComponent} from "../../testHelpers";
 import PageNotFound from "../../../pages/pageNotFound404/PageNotFound";
 import store from 'store';
-import moment from 'moment';
 import {createMemoryHistory} from 'history';
 import ServiceProviderEdit from "../../../components/serviceProvider/ServiceProviderEdit";
 import serviceProvidersStorage from "../../../storage/serviceProvidersStorage";
 import usersStorage from "../../../storage/usersStorage";
 import users from "../../jsons/users";
-import serviceProviders from "../../jsons/serviceProviders";
-import AnnouncementAdd from "../../../components/announcement/AnnouncementAdd";
 
 jest.mock("store");
 jest.mock("../../../storage/usersStorage");

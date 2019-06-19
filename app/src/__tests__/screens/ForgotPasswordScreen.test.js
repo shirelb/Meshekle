@@ -21,7 +21,6 @@ jest.mock("react-native-simple-store");
 describe("ForgotPasswordScreen should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const props = {};
     const userTest = users[2];
     const userIdTest = "972350803";
     const userFullnameTest = "Dion Revance";
@@ -43,10 +42,10 @@ describe("ForgotPasswordScreen should", () => {
         jest.clearAllMocks();
     });
 
-    xit('match snapshot', async () => {
-        wrapper = shallow(<ForgotPasswordScreen/>);
-        expect(wrapper).toMatchSnapshot();
-    });
+    // xit('match snapshot', async () => {
+    //     wrapper = shallow(<ForgotPasswordScreen/>);
+    //     expect(wrapper).toMatchSnapshot();
+    // });
 
     it("render what the user see", async () => {
         wrapper = shallow(<ForgotPasswordScreen/>);

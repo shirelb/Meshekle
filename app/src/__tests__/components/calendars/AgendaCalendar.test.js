@@ -22,7 +22,6 @@ describe("AgendaCalendar should", () => {
     let wrapper = null;
     let componentInstance = null;
     const userIdTest = "135985058";
-    const userTest = users.findIndex(user => user.userId === userIdTest);
     const props = {};
     const mockStore = {
         userData: {
@@ -30,7 +29,6 @@ describe("AgendaCalendar should", () => {
             token: "some token"
         }
     };
-    const navigation = {navigate: jest.fn(), dispatch: jest.fn()};
 
     phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
     phoneStorage.update = jest.fn().mockImplementation((key, value) => Promise.resolve(mockStore[key] = value));

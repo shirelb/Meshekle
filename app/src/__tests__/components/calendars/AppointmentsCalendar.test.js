@@ -20,7 +20,6 @@ describe("AppointmentsCalendar should", () => {
     let wrapper = null;
     let componentInstance = null;
     const userIdTest = "135985058";
-    const userTest = users.findIndex(user => user.userId === userIdTest);
     const props = {};
     const mockStore = {
         userData: {
@@ -28,7 +27,6 @@ describe("AppointmentsCalendar should", () => {
             token: "some token"
         }
     };
-    const navigation = {navigate: jest.fn(), dispatch: jest.fn()};
 
     phoneStorage.get = jest.fn().mockImplementation((key) => Promise.resolve(mockStore[key]));
     phoneStorage.update = jest.fn().mockImplementation((key, value) => Promise.resolve(mockStore[key] = value));
@@ -44,10 +42,10 @@ describe("AppointmentsCalendar should", () => {
         jest.clearAllMocks();
     });
 
-    it('match snapshot', async () => {
-        wrapper = shallow(<AppointmentsCalendar {...props} />);
-        expect(wrapper).toMatchSnapshot();
-    });
+    // it('match snapshot', async () => {
+    //     wrapper = shallow(<AppointmentsCalendar {...props} />);
+    //     expect(wrapper).toMatchSnapshot();
+    // });
 
     it("render what the user see", async () => {
         wrapper = await shallow(<AppointmentsCalendar {...props} />);

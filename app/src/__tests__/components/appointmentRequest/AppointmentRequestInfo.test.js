@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {Modal} from "react-native";
-import {CheckBox, FormInput, FormLabel, FormValidationMessage, Text} from "react-native-elements";
+import {FormLabel, Text} from "react-native-elements";
 import {List} from "react-native-paper";
 import {shallow} from "enzyme/build";
 import AppointmentRequestInfo from "../../../components/appointmentRequest/AppointmentRequestInfo";
@@ -22,10 +22,8 @@ jest.mock("react-native-simple-store");
 describe("AppointmentRequestInfo should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const userTest = users[2];
     const appointmentRequestTest = user013637605AppointmentRequests[0];
-    const userIdTest = "972350803";
-    const userFullnameTest = "Dion Revance";
+
     const props = {
         modalVisible: true,
         appointmentRequest: appointmentRequestTest,

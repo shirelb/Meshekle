@@ -6,9 +6,6 @@ import store from 'store';
 import moment from 'moment';
 import {createMemoryHistory} from 'history';
 import UserForm from "../../../components/user/UserForm";
-import usersStorage from "../../../storage/usersStorage";
-import users from "../../jsons/users";
-import categories from "../../jsons/categories";
 
 
 jest.mock("store");
@@ -56,7 +53,7 @@ describe("UserForm should", () => {
             path: addPath,
             url: addPath,
         },
-        handleSubmit: (announcement) => true,
+        handleSubmit: jest.fn().mockResolvedValue({data:{status:200}}),
         submitText:'הוסף',
     };
 
@@ -71,7 +68,7 @@ describe("UserForm should", () => {
             url: editPath,
         },
         user:userToEdit,
-        handleSubmit: (announcement) => true,
+        handleSubmit: jest.fn().mockResolvedValue({data:{status:200}}),
         submitText:'עדכן',
     };
 
@@ -97,41 +94,41 @@ describe("UserForm should", () => {
 
     afterEach(() => {
     });
-
-    test.skip('match snapshot with slotInfo', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
-            slotInfo: slotInfo,
-            submitText: "קבע",
-        }), pathAdd);
-
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-    test.skip('match snapshot with appointment', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathEdit, {
-            appointment: appointmentTest,
-            submitText: "עדכן"
-        }), pathEdit);
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
-
-    test.skip('match snapshot with appointmentRequest', async () => {
-        const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
-            appointmentRequestEvent: appointmentRequestTest,
-            submitText: "קבע",
-        }), pathAdd);
-
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    //
+    // test.skip('match snapshot with slotInfo', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
+    //         slotInfo: slotInfo,
+    //         submitText: "קבע",
+    //     }), pathAdd);
+    //
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    // test.skip('match snapshot with appointment', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathEdit, {
+    //         appointment: appointmentTest,
+    //         submitText: "עדכן"
+    //     }), pathEdit);
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
+    //
+    // test.skip('match snapshot with appointmentRequest', async () => {
+    //     const arrResponse = setupComponent('shallow', AppointmentForm, null, buildProps(null, pathAdd, {
+    //         appointmentRequestEvent: appointmentRequestTest,
+    //         submitText: "קבע",
+    //     }), pathAdd);
+    //
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders UserForm for "+addPath, async () => {
         const arrResponse = await setupComponent('shallow', UserForm, addHistory, addProps, addPath);

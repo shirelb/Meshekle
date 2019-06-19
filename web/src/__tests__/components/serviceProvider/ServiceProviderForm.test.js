@@ -70,7 +70,7 @@ describe("ServiceProviderForm should", () => {
             path: addPath,
             url: addPath,
         },
-        handleSubmit: (serviceProvider) => true,
+        handleSubmit: jest.fn().mockResolvedValue({data:{status:200}}),
         submitText:'הוסף',
     };
 
@@ -85,7 +85,7 @@ describe("ServiceProviderForm should", () => {
             url: editPath,
         },
         serviceProvider:serviceProviderToEdit,
-        handleSubmit: jest.fn().mockResolvedValue({response:{status:200}}),
+        handleSubmit: jest.fn().mockResolvedValue({data:{status:200}}),
         submitText:'עדכן',
     };
 
