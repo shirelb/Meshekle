@@ -6,15 +6,13 @@ var getUserAppointmentRequests = function (userId, userHeaders) {
     return axios.get(`${SERVER_URL}/api/appointmentRequests/user/userId/${userId}`,
         {
             headers: userHeaders,
-            params: {
-                status: 'requested'
-            },
         })
         .then(response => {
             return response;
         })
         .catch(error => {
             console.log('get user appointment requests error ', error)
+            return error;
         });
 };
 
@@ -31,6 +29,7 @@ var getUserAppointments = function (userId, userHeaders) {
         })
         .catch(error => {
             console.log('get user appointments error ', error)
+            return error;
         });
 };
 
@@ -45,6 +44,7 @@ var getUserAppointmentById = function (userId, userHeaders, eventId) {
         })
         .catch(error => {
             console.log('get user appointments by id error ', error)
+            return error;
         });
 };
 
@@ -70,6 +70,7 @@ var postUserAppointmentRequest = function (userId, serviceProvider, appointmentR
         })
         .catch(error => {
             console.log('post user appointment request error ', error)
+            return error;
         });
 };
 
@@ -95,6 +96,27 @@ var cancelAppointmentRequestById = (appointmentRequest, headers) => {
         })
         .catch((error) => {
             console.log('reject appointment request error ', error);
+            return error;
+        });
+};
+
+var cancelAppointmentById = (appointment, headers) => {
+    return axios.put(`${SERVER_URL}/api/appointments/user/cancel/userId/${appointment.AppointmentDetail.clientId}/appointmentId/${appointment.appointmentId}`,
+        {},
+        {
+            headers: headers
+        }
+    )
+        .then((response) => {
+            APP_SOCKET.emit('userCancelAppointment', {
+                serviceProviderId: appointment.AppointmentDetail.serviceProviderId,
+            });
+
+            return response
+        })
+        .catch((error) => {
+            console.log('cancel appointment error ', error);
+            return error;
         });
 };
 
@@ -104,5 +126,6 @@ export default {
     getUserAppointmentById,
     postUserAppointmentRequest,
     getUserAppointmentRequests,
-    cancelAppointmentRequestById
+    cancelAppointmentRequestById,
+    cancelAppointmentById,
 };

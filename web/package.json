@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "create-react-class": "^15.6.3",
     "fs": "0.0.1-security",
     "fullcalendar": "^3.10.0",
@@ -16,11 +16,14 @@
     "lodash.times": "^4.3.2",
     "moment": "^2.24.0",
     "react": "^16.6.3",
+    "react-awesome-modal": "^2.0.5",
+    "react-csv": "^1.1.1",
     "react-datetime": "^2.16.3",
     "react-dnd": "^7.4.5",
     "react-dnd-html5-backend": "^7.4.4",
     "react-dom": "^16.6.3",
     "react-helmet": "^5.2.0",
+    "react-numeric-input": "^2.2.3",
     "react-router-dom": "^4.3.1",
     "react-tag-input": "^6.4.0",
     "semantic-ui-css": "^2.4.1",
@@ -29,7 +32,12 @@
     "store": "^2.0.12"
   },
   "devDependencies": {
-    "react-scripts": "^2.1.8"
+    "babel-jest": "^24.7.1",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.13.0",
+    "enzyme-to-json": "^3.3.5",
+    "jest": "^24.7.1",
+    "react-scripts": "3.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -45,5 +53,10 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "jest": {
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ]
+  }
 }

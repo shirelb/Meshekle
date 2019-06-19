@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoginScreen should match snapshot 1`] = `
+<View
+  style={
+    Object {
+      "alignItems": "center",
+      "backgroundColor": "#FFF",
+      "flex": 1,
+      "justifyContent": "space-between",
+    }
+  }
+>
+  <Image
+    source={
+      Object {
+        "testUri": "../../../src/images/logo4000.png",
+      }
+    }
+    style={
+      Object {
+        "alignSelf": "center",
+        "flex": 1,
+        "resizeMode": "contain",
+        "width": "100%",
+      }
+    }
+  />
+  <Text
+    style={
+      Object {
+        "color": "#3e3e3e",
+        "fontSize": 25,
+        "fontWeight": "bold",
+        "textAlign": "center",
+      }
+    }
+  >
+    משקל'ה
+  </Text>
+  <View
+    style={
+      Object {
+        "flex": 1,
+        "justifyContent": "center",
+        "width": "80%",
+      }
+    }
+  >
+    <FormTextInput
+      onChangeText={[Function]}
+      onFocus={[Function]}
+      placeholder="ת.ז."
+      value=""
+    />
+    <FormTextInput
+      onChangeText={[Function]}
+      onFocus={[Function]}
+      placeholder="סיסמא"
+      secureTextEntry={true}
+      value=""
+    />
+    <Button
+      label="התחבר"
+      onPress={[Function]}
+    />
+    <Button
+      label="שכחתי סיסמא"
+      onPress={[Function]}
+    />
+  </View>
+</View>
+`;

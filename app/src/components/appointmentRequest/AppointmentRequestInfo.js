@@ -45,12 +45,6 @@ export default class AppointmentRequestInfo extends Component {
                 <View style={{marginTop: 20}}>
                     <ScrollView>
                         <Text h4 style={styles.textTitle}>בקשת תור</Text>
-                        {/*<Header
-                                backgroundColor={'white'}
-                                // leftComponent={{ icon: 'menu', color: '#fff' }}
-                                centerComponent={{ text: 'בקשת תור', style: { color: '#050505',fontWeight: 'bold',fontSize:26 } }}
-                                // rightComponent={{ icon: 'home', color: '#fff' }}
-                            />*/}
 
                         <FormLabel>נותן שירות</FormLabel>
                         <Text style={{marginLeft: 10}}>
@@ -59,7 +53,7 @@ export default class AppointmentRequestInfo extends Component {
 
                         <FormLabel> ענף</FormLabel>
                         <Text style={{marginLeft: 10}}>
-                            {appointmentRequest.AppointmentDetail.role}
+                            {mappers.serviceProviderRolesMapper(appointmentRequest.AppointmentDetail.role)}
                         </Text>
 
                         <FormLabel> סטאטוס</FormLabel>

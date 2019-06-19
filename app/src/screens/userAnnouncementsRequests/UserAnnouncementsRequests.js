@@ -1,13 +1,16 @@
 import React, {Component} from 'react';
-import {Platform, RefreshControl,Switch, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+    BackHandler
+} from 'react-native';
 import phoneStorage from "react-native-simple-store";
 import announcementsStorage from "../../storage/announcementsStorage";
-import {Icon, SearchBar} from 'react-native-elements'
-import { Dropdown } from 'react-native-material-dropdown';
 import * as Animatable from 'react-native-animatable';
 import Accordion from 'react-native-collapsible/Accordion';
-import { Divider } from 'react-native-elements';
-import {Image} from "react-native-animatable";
 import ZoomImage from 'react-native-zoom-image';
 import {Easing} from 'react-native';
 import Button from "../../components/submitButton/Button"
@@ -31,6 +34,7 @@ export default class UserAnnouncementsRequests extends Component {
 
 
     componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.backButtonPress);
         phoneStorage.get('userData')
             .then(userData => {
                 // console.log('agenda componentDidMount userData ', userData);
@@ -73,7 +77,7 @@ export default class UserAnnouncementsRequests extends Component {
         this.setState({refreshing: true});
 
         this.loadUserAnnouncements();
-        this.loadCategories();
+        this.loadAllCategories();
 
         this.setState({refreshing: false});
     };
@@ -162,6 +166,7 @@ export default class UserAnnouncementsRequests extends Component {
 
     backButtonPress = () => {
         this.props.navigation.navigate('AnnouncementsScreen');
+        return true;
     };
 
     render() {

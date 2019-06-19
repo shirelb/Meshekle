@@ -6,23 +6,32 @@ var serviceProvidersRoute = constants.serviceProvidersRoute;
 var express = require('express');
 var moment = require('moment');
 var router = express.Router();
-var nodemailer = require('nodemailer');
-var cors = require('cors');
 
 const Sequelize = require('sequelize');
-const {ServiceProviders, Users, Events, AppointmentRequests, ScheduledAppointments, AppointmentDetails, RulesModules, Permissions} = require('../DBorm/DBorm');
+const {ServiceProviders, Users, RolesModules, Categories} = require('../DBorm/DBorm');
 const Op = Sequelize.Op;
 
 var sha512 = require('js-sha512');
 
-var transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'meshekle2019@gmail.com',
-        pass: 'geralemeshekle'
-    }
-});
 
+var serviceProviderRolesMapper = function (value) {
+    switch (value) {
+        case "Admin":
+            return "מנהלה";
+        case "PhoneBookSecretary":
+            return "מזכירות ספר טלפונים";
+        case "ChoresSecretary":
+            return "מזכירות תורנויות";
+        case "AnnouncementsSecretary":
+            return "מזכירות לוח מודעות";
+        case "appointmentsHairDresser":
+            return "מספרה";
+        case "appointmentsDentist":
+            return "מרפאת שיניים";
+        default:
+            return value;
+    }
+};
 
 //Login from service provider by userId and password
 router.post('/login/authenticate', function (req, res, next) {
@@ -199,7 +208,7 @@ router.get('/role/:role', function (req, res, next) {
         })
 });
 
-// GET appointmentWayType by serviceProvidersId
+// GET appointmentWayType by serviceProvidersId and role
 router.get('/serviceProviderId/:serviceProviderId/role/:role/appointmentWayType', function (req, res, next) {
     ServiceProviders.findAll({
         attributes: ['appointmentWayType'],
@@ -297,19 +306,29 @@ router.post('/add', function (req, res, next) {
                     active: req.body.active === null ? false : req.body.active,
                 })
                     .then(newServiceProvider => {
-                        res.status(200).send({
-                            "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
-                            "result": newServiceProvider.dataValues
-                        });
-                        validations.getUsersByUserIdPromise(newServiceProvider.userId)
-                            .then(users => {
-                                helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                    "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).send(err);
-                            })
+                        Categories.create({
+                            categoryName: serviceProviderRolesMapper(req.body.role),
+                            serviceProviderId: req.body.serviceProviderId
+                        }).then(() => {
+                            res.status(200).send({
+                                "message": serviceProvidersRoute.SERVICE_PROVIDER_ADDED_SUCC,
+                                "result": newServiceProvider.dataValues
+                            });
+                            validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                                .then(users => {
+                                    helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
+                                        "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + serviceProviderRolesMapper(newServiceProvider.role) + "\n" + constants.mailMessages.MAIL_END);
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                    res.status(500).send(err);
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.status(500).send(err);
+                        })
+
                     })
                     .catch(err => {
                         console.log(err);
@@ -353,10 +372,10 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                     "message": serviceProvidersRoute.SERVICE_PROVIDER_ROLE_ADDED_SUCC,
                     "result": updateServiceProvider.dataValues
                 });
-                validations.getUsersByUserIdPromise(newServiceProvider.userId)
+                validations.getUsersByUserIdPromise(updateServiceProvider.userId)
                     .then(users => {
                         helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "Hello " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n Your new role: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + serviceProviderRolesMapper(updateServiceProvider.role) + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);
@@ -451,7 +470,7 @@ router.post('/users/add', function (req, res, next) {
                         "result": {"userId": newUser.userId, "password": randomPassword}
                     });
                     helpers.sendMail(newUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                        "Hello " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + newUser.userId + "\nYour password: " + randomPassword + "\n" + constants.mailMessages.MAIL_END);
+                        "שלום " + newUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + newUser.userId + "\nהסיסמא שלך: :\n" + "\n" + randomPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                 })
                 .catch(err => {
                     console.log(err);
@@ -488,7 +507,7 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
                                 "result": updatedUser.dataValues
                             });
                             helpers.sendMail(updatedUser.email, constants.mailMessages.ADD_USER_SUBJECT,
-                                "Hello " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n Your username: " + updatedUser.userId + "\nYour new password is: " + newPassword + "\n" + constants.mailMessages.MAIL_END);
+                                "שלום " + updatedUser.fullname + ",\n" + constants.mailMessages.BEFORE_CRED + "\n שם המשתמש שלך: :\n" + "\n" + updatedUser.userId + "\nהסיסמא החדשה שלך::\n " + "\n" + newPassword + "\n" + constants.mailMessages.REMINDER_END + "\n" + constants.mailMessages.MAIL_END);
                         })
                 })
                 .catch(err => {
@@ -500,22 +519,25 @@ router.put('/users/renewPassword/userId/:userId', function (req, res, next) {
 
 // DELETE a user by userId
 router.delete('/users/userId/:userId/delete', function (req, res, next) {
-    Users.destroy(
-        {
-            where: {
-                userId: req.params.userId
-            }
-        })
-        .then(numOfDeletes => {
-            if (numOfDeletes === 0) {
-                return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
-            }
-            res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).send(err);
-        })
+    validations.checkIfUserExist(req.params.userId, res)
+        .then(user => {
+            Users.destroy(
+                {
+                    where: {
+                        userId: req.params.userId
+                    }
+                })
+                .then(numOfDeletes => {
+                    if (numOfDeletes === 0) {
+                        return res.status(400).send({"message": serviceProvidersRoute.USER_NOT_FOUND});
+                    }
+                    res.status(200).send({"message": serviceProvidersRoute.USER_DEL_SUCC, "result": numOfDeletes});
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send(err);
+                })
+        });
 });
 
 // GET operation time of service provider with role.
@@ -573,7 +595,7 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
             if (roles.length === 0)
                 return res.status(400).send({"message": serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND});
             const rolesList = roles.map(role => role.dataValues.role);
-            RulesModules.findAll({
+            RolesModules.findAll({
                 attributes: ['module'],
                 where: {
                     role: {
@@ -585,23 +607,6 @@ router.get('/serviceProviderId/:serviceProviderId/permissions', function (req, r
                     const moduleList = modules.map(module => module.dataValues.module);
                     console.log(moduleList);
                     res.status(200).send(moduleList);
-                    /* Permissions.findAll({
-                         attributes: ['operationName'],
-                         where: {
-                             module: {
-                                 [Op.in]: moduleList
-                             }
-                         }
-                     })
-                         .then(permissions => {
-                             console.log(permissions);
-                             res.status(200).send(permissions.map(permission => permission.operationName));
-                         })
-                         .catch(err => {
-                             console.log(err);
-                             res.status(500).send(err);
-                         })*/
-
                 })
                 .catch(err => {
                     console.log(err);
@@ -623,8 +628,9 @@ let takeValues = (dic) => {
 
 
 function isServiceProviderInputValid(serviceProviderInput) {
-    if (serviceProviderInput.appointmentWayType & !isAppWayTypeExists(serviceProviderInput.appointmentWayType))
-        return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
+    if (serviceProviderInput.appointmentWayType)
+        if (!isAppWayTypeExists(serviceProviderInput.appointmentWayType))
+            return serviceProvidersRoute.INVALID_APP_WAY_TYPE_INPUT;
     if (!isRoleExists(serviceProviderInput.role))
         return serviceProvidersRoute.INVALID_ROLE_INPUT;
     if (serviceProviderInput.phoneNumber.match(/^[0-9]+$/) === null || serviceProviderInput.phoneNumber.length < 9 || serviceProviderInput.phoneNumber.length > 10)
@@ -640,8 +646,9 @@ function isUserInputValid(userInput) {
         return serviceProvidersRoute.INVALID_BORN_DATE_INPUT;
     if (isNaN(userInput.mailbox))
         return serviceProvidersRoute.INVALID_MAIL_BOX_INPUT;
-    if (userInput.phone.match(/^[0-9]+$/) === null)
-        return serviceProvidersRoute.INVALID_PHONE_INPUT;
+    if (userInput.phone)
+        if (userInput.phone.match(/^[0-9]+$/) === null)
+            return serviceProvidersRoute.INVALID_PHONE_INPUT;
     if (userInput.cellphone.match(/^[0-9]+$/) === null)
         return serviceProvidersRoute.INVALID_PHONE_INPUT;
     return '';
@@ -659,12 +666,10 @@ function isAppWayTypeExists(wayType) {
 }
 
 function validateEmail(email) {
-    // var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    var re = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+    var re = /^[^@]+@[^@]+\.[^@]+$/;
     return re.test(String(email).toLowerCase());
 }
 
-//userInput.cellphone.match(/^[0-9]+$/) === null
 function validateBornDate(bornDateString) {
     let splitted = moment(bornDateString).format("YYYY-MM-DD").split('-');
     if (splitted.length !== 3)

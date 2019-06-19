@@ -3,13 +3,12 @@ import {Image, Linking, Modal, ScrollView, StyleSheet, TextInput, TouchableOpaci
 import {Icon, Text} from "react-native-elements";
 import moment from "moment";
 import mappers from "../../shared/mappers";
+import strings from "../../shared/strings";
 
 
 export default class UserProfileInfo extends Component {
     constructor(props) {
         super(props);
-
-        console.log('this.props. ', this.props);
 
         this.state = {
             modalVisible: this.props.modalVisible,
@@ -21,13 +20,16 @@ export default class UserProfileInfo extends Component {
 
     componentWillReceiveProps(nextProps, nextContext) {
         let roles = [];
+        let operationTime = [];
         nextProps.user.ServiceProviders ?
             nextProps.user.ServiceProviders.forEach(provider => {
                 roles.push(mappers.serviceProviderRolesMapper(provider.role));
+                operationTime.push(provider.operationTime);
             }) : null;
         this.setState({
             user: nextProps.user,
             roles: roles,
+            operationTime: operationTime,
         });
 
         this.setState({
@@ -89,7 +91,6 @@ export default class UserProfileInfo extends Component {
                             {this.state.openedFrom === "DrawerMenu" ?
                                 <TouchableOpacity
                                     onPress={() => {
-                                        // this.setModalVisible(!this.state.modalVisible);
                                         this.setState({modalVisible: false, user: {}});
                                         this.props.setFormModalVisible();
                                     }}
@@ -142,9 +143,13 @@ export default class UserProfileInfo extends Component {
                                 <Text style={styles.textInfo}>{user.phone}</Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.viewInfo}>
-                            <Icon name='mail-outline' style={styles.iconInfo}/>
-                            <Text style={styles.textInfo}>{user.email}</Text>
+                        <View pointerEvents={this.state.openedFrom === "DrawerMenu" ? 'none' : 'auto'}>
+                            <TouchableOpacity style={styles.viewInfo}
+                                              onPress={() => Linking.openURL(`mailto:${user.email}`)}>
+                                {/*title="support@example.com">*/}
+                                <Icon name='mail-outline' style={styles.iconInfo}/>
+                                <Text style={styles.textInfo}>{user.email}</Text>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.viewInfo}>
                             <Icon name='envelope-square' type='font-awesome'
@@ -162,18 +167,31 @@ export default class UserProfileInfo extends Component {
                                 <Text style={styles.textInfo}>
                                     {this.state.roles.join(", ")}
                                 </Text>
-                            </View> : null
+                                {JSON.parse(this.state.operationTime).map((dayTime, index) => {
+                                    return <View key={index}
+                                                 style={{
+                                                     flex: 3,
+                                                     justifyContent: 'space-around',
+                                                     flexDirection: 'column'
+                                                 }}>
+                                        <Text style={{marginLeft: 10}}>
+                                            {strings.days[dayTime.day]} :
+                                        </Text>
+                                        {
+                                            Array.isArray(dayTime.hours) ?
+                                                dayTime.hours.map((hours, j) => {
+                                                    return <Text style={{marginLeft: 10, direction: 'rtl'}} key={j}>
+                                                        {hours.startHour} - {hours.endHour}
+                                                    </Text>
+                                                })
+                                                : null
+                                        }
+                                    </View>
+                                })
+                                }
+                            </View>
+                            : null
                         }
-
-                        {/*<View style={{marginTop: 20}}>
-                            <Button
-                                label='חזור'
-                                onPress={() => {
-                                    this.setModalVisible(!this.state.modalVisible);
-                                                        this.setState({user: {}})
-                                }}
-                            />
-                        </View>*/}
 
                     </ScrollView>
 

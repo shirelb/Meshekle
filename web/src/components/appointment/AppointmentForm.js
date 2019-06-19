@@ -4,42 +4,10 @@ import moment from 'moment';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import '../styles.css';
-import usersStorage from "../../storage/usersStorage";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
 import strings from "../../shared/strings";
-
-
-let userOptions = {};
-
-usersStorage.getUsers()
-    .then(users => {
-        console.log('users ', users);
-        if (Array.isArray(users))
-            userOptions = users.filter(u => u.active).map(item =>
-                ({
-                    key: item.userId,
-                    text: item.fullname,
-                    value: item.fullname
-                })
-            )
-    });
-
-
-let rolesOptions = {};
-
-serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
-    .then(serviceProvidersFound => {
-        console.log('serviceProvidersFound ', serviceProvidersFound);
-        if (Array.isArray(serviceProvidersFound))
-            rolesOptions = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item, index) =>
-                ({
-                    key: index,
-                    text: strings.roles[item.role],
-                    value: item.role
-                })
-            )
-    });
+import mappers from "../../shared/mappers";
 
 
 class AppointmentForm extends Component {
@@ -47,20 +15,36 @@ class AppointmentForm extends Component {
     constructor(props) {
         super(props);
 
-        const {slotInfo, appointment, appointmentRequestEvent} = props;
+        const {slotInfo, appointment, appointmentRequestEvent, userOptions, serviceProviderRoles} = props;
+
 
         this.state = {
             formError: false,
+            formErrorHeader: "",
+            formErrorContent: "",
             formComplete: false,
             isAlertModal: false,
 
             subjectOptions: [],
         };
 
-
-        if (slotInfo) {
-            console.log('slotInfo ', slotInfo);
-            this.state = {
+        if (userOptions === undefined || serviceProviderRoles === undefined) {
+            Object.assign(this.state, {
+                appointment: {
+                    date: '',
+                    startTime: '',
+                    endTime: '',
+                    subject: [],
+                    clientName: '',
+                    role: '',
+                    remarks: '',
+                },
+                subjectOptions: [],
+            });
+        } else if (slotInfo) {
+            // console.log('slotInfo ', slotInfo);
+            // this.state = {
+            Object.assign(this.state, {
                 appointment: {
                     date: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format('YYYY-MM-DD') : '',
                     startTime: moment.isMoment(slotInfo.start) ? moment(slotInfo.start).format("HH:mm") : '',
@@ -68,11 +52,13 @@ class AppointmentForm extends Component {
                     subject: [],
                     clientName: '',
                     role: '',
+                    remarks: '',
                 },
                 subjectOptions: [],
-            };
+            });
         } else if (appointment) {
-            this.state = {
+            // this.state = {
+            Object.assign(this.state, {
                 appointment: {
                     date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
                     // date: moment(appointment.startDateAndTime),
@@ -84,50 +70,73 @@ class AppointmentForm extends Component {
                     remarks: appointment.remarks,
                 },
                 subjectOptions: [],
-            };
+            });
         } else if (appointmentRequestEvent) {
-            this.state = {
+            // let role = strings.roles[appointmentRequestEvent.appointmentRequest.AppointmentDetail.role];
+            // this.state = {
+            Object.assign(this.state, {
                 appointment: {
                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
                     remarks: appointmentRequestEvent.appointmentRequest.notes,
                     role: appointmentRequestEvent.appointmentRequest.AppointmentDetail.role,
+                    // Object.keys(strings.roles).find(role =>
+                    // strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role) === undefined ?
+                    // strings.roles[appointmentRequestEvent.appointmentRequest.AppointmentDetail.role]
+                    // :
+                    // Object.keys(strings.roles).find(role => strings.roles[role] === appointmentRequestEvent.appointmentRequest.AppointmentDetail.role),
                 },
                 appointmentRequestEvent: appointmentRequestEvent,
                 subjectOptions: [],
-            };
+            });
         }
 
-        console.log('constructor  state', this.state);
+        // this.getServiceProviderRoles();
+
+        // console.log('constructor  state', this.state);
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    getSubjectsOfServiceProviderRole = () => {
+    getSubjectsOfServiceProviderRole = (currentRole, calledFromConstructor) => {
         let subjectOptions = [];
         serviceProvidersStorage.getServiceProviderById(store.get('serviceProviderId'))
             .then(serviceProviders => {
-                let serviceProvider = serviceProviders.filter(provider => provider.role === this.state.appointment.role)[0];
-                JSON.parse(serviceProvider.subjects).map((subject, index) => {
-                    subjectOptions.push({key: index, text: subject, value: subject});
-                });
-                this.setState({subjectOptions: subjectOptions})
+                if (serviceProviders.response) {
+                    if (serviceProviders.response.status !== 200)
+                        this.setState({
+                            formError: true,
+                            formErrorHeader: 'קרתה שגיאה בעת הבאת הנושאים של נותן השירות',
+                            formErrorContent: mappers.errorMapper(serviceProviders.response)
+                        });
+                } else {
+                    let serviceProvider = serviceProviders.filter(provider => provider.role === currentRole)[0];
+                    if(serviceProvider) {
+                        JSON.parse(serviceProvider.subjects).map((subject, index) => {
+                            subjectOptions.push({key: index, text: subject, value: subject});
+                        });
+
+                        calledFromConstructor ?
+                            Object.assign(this.state, {subjectOptions: subjectOptions})
+                            :
+                            this.setState({subjectOptions: subjectOptions})
+                    }
+                }
             });
     };
 
     componentWillReceiveProps(nextProps) {
         const {appointment, appointmentRequestEvent} = nextProps;
+        // this.getServiceProviderRoles();
 
         if (appointment) {
             this.setState({
                 appointment: {
                     date: moment(appointment.startDateAndTime).format("YYYY-MM-DD"),
-                    // date: moment(appointment.startDateAndTime),
                     startTime: moment(appointment.startDateAndTime).format("HH:mm"),
                     endTime: moment(appointment.endDateAndTime).format("HH:mm"),
                     role: appointment.AppointmentDetail.role,
@@ -135,41 +144,35 @@ class AppointmentForm extends Component {
                     clientName: appointment.clientName,
                     remarks: appointment.remarks,
                 },
-            })
+            });
+
+            this.getSubjectsOfServiceProviderRole(appointment.AppointmentDetail.role, false);
         }
         if (appointmentRequestEvent) {
             this.setState({
-                /* appointment: {
-                     date: moment(appointmentRequestEvent.start).format("YYYY-MM-DD"),
-                     // date: moment(appointment.startDateAndTime),
-                     startTime: moment(appointmentRequestEvent.start).format("HH:mm"),
-                     endTime: moment(appointmentRequestEvent.end).format("HH:mm"),
-                     subject: JSON.parse(appointmentRequestEvent.appointmentRequest.AppointmentDetail.subject),
-                     clientName: appointmentRequestEvent.appointmentRequest.clientName,
-                     remarks: appointmentRequestEvent.appointmentRequest.notes,
-                 },*/
                 appointmentRequestEvent: appointmentRequestEvent,
-            })
+            });
+
+            this.getSubjectsOfServiceProviderRole(appointmentRequestEvent.appointmentRequest.AppointmentDetail.role, false);
         }
 
-        this.getSubjectsOfServiceProviderRole();
-
-        console.log('will recive props  ', this.state.appointment);
-        console.log('will recive props  ', appointment);
+        // console.log('will recive props  ', this.state.appointment);
+        // console.log('will recive props  ', appointment);
     }
 
     handleSubmit(e) {
         e.preventDefault();
 
         const {appointment} = this.state;
-        const {handleSubmit} = this.props;
+        const {handleSubmit, userOptions} = this.props;
 
         if (appointment.clientName !== '' &&
             appointment.role !== '' &&
             appointment.subject.length > 0 &&
             appointment.date !== '' &&
             appointment.startTime !== '' &&
-            appointment.endTime !== '') {
+            appointment.endTime !== '' &&
+            moment(appointment.startTime, 'h:mma').isBefore(moment(appointment.endTime, 'h:mma'))) {
 
             if (this.state.appointmentRequestEvent) {
                 if (!this.state.isAlertModal)
@@ -185,21 +188,42 @@ class AppointmentForm extends Component {
             updateAppointment.clientId = (userOptions.filter(user => user.value === appointment.clientName))[0].key;
             this.setState({appointment: updateAppointment});
 
-            handleSubmit(updateAppointment);
-            this.setState({appointment: {}});
+            handleSubmit(updateAppointment)
+                .then(res => {
+                    if (res.response) {
+                        if (res.response.status !== 200)
+                            this.setState({
+                                formError: true,
+                                formErrorHeader: 'קרתה שגיאה בעת הוספת התור',
+                                formErrorContent: mappers.errorMapper(res.response)
+                            });
+                    } else
+                        this.setState({appointment: {}});
+                });
         } else {
-            this.setState({formError: true});
+            !moment(appointment.startTime, 'h:mma').isBefore(moment(appointment.endTime, 'h:mma')) ?
+                this.setState({
+                    formError: true,
+                    formErrorHeader: 'פרטי תור לא תקינים',
+                    formErrorContent: 'שעת התחלה צריכה להיות קטנה משעת הסיום'
+                })
+                :
+                this.setState({
+                    formError: true,
+                    formErrorHeader: 'פרטי תור חסרים',
+                    formErrorContent: 'נא להשלים את השדות החסרים'
+                });
         }
     }
 
     handleChange(e, {name, value}) {
         const {appointment} = this.state;
 
-        this.setState({formError: false, formComplete: false});
+        this.setState({formError: false, formErrorHeader: '', formErrorContent: '', formComplete: false});
         this.setState({appointment: {...appointment, [name]: value}});
 
         if (name === "role")
-            this.getSubjectsOfServiceProviderRole();
+            this.getSubjectsOfServiceProviderRole(value, false);
     }
 
     handleClear = (e) => {
@@ -215,17 +239,23 @@ class AppointmentForm extends Component {
                 remarks: '',
             },
             formError: false,
+            formErrorHeader: "",
+            formErrorContent: "",
             formComplete: false,
         });
     };
 
     onChangeDate = date => {
+        this.setState({formError: false, formErrorHeader: '', formErrorContent: '', formComplete: false});
+
         let updateAppointment = this.state.appointment;
         updateAppointment.date = moment(date).format("YYYY-MM-DD");
         this.setState({appointment: updateAppointment})
     };
 
     onChangeTime = (time, isStart) => {
+        this.setState({formError: false, formErrorHeader: '', formErrorContent: '', formComplete: false});
+
         let updateAppointment = this.state.appointment;
         isStart ?
             updateAppointment.startTime = moment(time).format("HH:mm")
@@ -268,10 +298,22 @@ class AppointmentForm extends Component {
     };
 
     render() {
-        const {appointment, formError, formComplete} = this.state;
-        const {handleCancel, submitText} = this.props;
+        const {appointment, formError, formErrorHeader, formErrorContent, formComplete} = this.state;
+        const {handleCancel, submitText, userOptions, serviceProviderRoles} = this.props;
+        let rolesOptions = [];
 
-        console.log('sasaaads ', this.state);
+        if (serviceProviderRoles)
+            if (Array.isArray(serviceProviderRoles))
+                rolesOptions = serviceProviderRoles.map((item, index) =>
+                    ({
+                        key: index,
+                        text: strings.roles[item],
+                        value: item
+                    })
+                );
+
+
+        // console.log('sasaaads ', this.state);
 
         return (
             <Form onSubmit={this.handleSubmit} error={formError}>
@@ -454,8 +496,8 @@ class AppointmentForm extends Component {
                 {formError ?
                     <Message
                         error
-                        header='פרטי תור חסרים'
-                        content='נא להשלים את השדות החסרים'
+                        header={formErrorHeader}
+                        content={formErrorContent}
                     />
                     : null
                 }

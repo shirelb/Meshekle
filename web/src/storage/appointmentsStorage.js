@@ -1,5 +1,5 @@
 import axios from "axios";
-import {SERVER_URL,WEB_SOCKET} from "../shared/constants";
+import {SERVER_URL, WEB_SOCKET} from "../shared/constants";
 import moment from "moment";
 
 
@@ -14,12 +14,12 @@ var getAppointmentByAppointmentID = (serviceProviderId, appointmentId, headers) 
     )
         .then((response) => {
             let appointment = response.data[0];
-            console.log('getAppointmentByAppointmentID ', appointmentId, ' ', appointment);
+            // console.log('getAppointmentByAppointmentID ', appointmentId, ' ', appointment);
             return appointment;
         })
         .catch((error) => {
             console.log('getAppointmentByAppointmentID ', appointmentId, ' ', error);
-            return null;
+            return error;
         });
 };
 
@@ -34,12 +34,12 @@ var getAppointmentRequestByAppointmentRequestID = (serviceProviderId, appointmen
     )
         .then((response) => {
             let appointmentRequest = response.data[0];
-            console.log('getAppointmentByAppointmentID ', appointmentRequestId, ' ', appointmentRequest);
+            // console.log('getAppointmentByAppointmentID ', appointmentRequestId, ' ', appointmentRequest);
             return appointmentRequest;
         })
         .catch((error) => {
             console.log('getAppointmentByAppointmentID ', appointmentRequestId, ' ', error);
-            return null;
+            return error;
         });
 };
 
@@ -57,6 +57,7 @@ var getServiceProviderAppointmentRequests = (serviceProviderId, headers) => {
         })
         .catch((error) => {
             console.log('get service provider appointment requests error ', error);
+            return error;
         });
 };
 
@@ -74,6 +75,7 @@ var getServiceProviderAppointments = (serviceProviderId, headers) => {
         })
         .catch((error) => {
             console.log('get service provider appointment requests error ', error);
+            return error;
         });
 };
 
@@ -102,14 +104,15 @@ var setAppointment = (appointment, serviceProviderId, roles, headers) => {
         })
         .catch((error) => {
             console.log('add appointment ', error);
+            return error;
         });
 };
 
 var updateAppointment = (event, headers) => {
     return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/update/appointmentId/${event.appointmentId}`,
         {
-            startDateAndTime: moment(event.date+ ' ' + event.startTime).toDate(),
-            endDateAndTime: moment(event.date+ ' ' + event.endTime).toDate(),
+            startDateAndTime: moment(event.date + ' ' + event.startTime).toDate(),
+            endDateAndTime: moment(event.date + ' ' + event.endTime).toDate(),
             remarks: event.remarks,
 
             subject: JSON.stringify(event.subject),
@@ -129,12 +132,13 @@ var updateAppointment = (event, headers) => {
         })
         .catch((error) => {
             console.log('update appointment error ', error);
+            return error;
         });
 };
 
 var cancelAppointmentById = (appointment, headers) => {
     return axios.put(`${SERVER_URL}/api/appointments/serviceProvider/cancel/appointmentId/${appointment.appointmentId}`,
-        {},
+        {userId: appointment.AppointmentDetail.clientId,},
         {
             headers: headers
         }
@@ -148,12 +152,13 @@ var cancelAppointmentById = (appointment, headers) => {
         })
         .catch((error) => {
             console.log('cancel appointment error ', error);
+            return error;
         });
 };
 
 var rejectAppointmentRequestById = (appointmentRequest, headers) => {
     return axios.put(`${SERVER_URL}/api/appointmentRequests/serviceProvider/update/status/appointmentRequestId/${appointmentRequest.requestId}`,
-        {},
+        {userId: appointmentRequest.AppointmentDetail.clientId},
         {
             headers: headers,
             params: {
@@ -170,6 +175,7 @@ var rejectAppointmentRequestById = (appointmentRequest, headers) => {
         })
         .catch((error) => {
             console.log('reject appointment request error ', error);
+            return error;
         });
 };
 
@@ -192,6 +198,7 @@ var approveAppointmentRequestById = (appointmentRequest, headers) => {
         })
         .catch((error) => {
             console.log('approve appointment request error ', error);
+            return error;
         });
 };
 

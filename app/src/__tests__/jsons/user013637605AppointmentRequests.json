@@ -1,0 +1,40 @@
+[
+    {
+        "requestId": 907,
+        "optionalTimes": "[{\"date\":\"2019-03-29\",\"hours\":[{\"startHour\":\"4:51\",\"endHour\":\"20:55\"},{\"startHour\":\"7:24\",\"endHour\":\"23:41\"}]},{\"date\":\"2018-06-28\",\"hours\":[{\"startHour\":\"8:45\",\"endHour\":\"22:50\"},{\"startHour\":\"1:21\",\"endHour\":\"17:10\"}]}]",
+        "notes": "Nulla tempus.",
+        "status": "rejected",
+        "createdAt": "2019-06-02T08:23:51.061Z",
+        "updatedAt": "2019-06-02T08:23:51.061Z",
+        "appointmentId": null,
+        "AppointmentDetail": {
+            "appointmentId": 907,
+            "clientId": "013637605",
+            "serviceProviderId": 271635459,
+            "role": "appointmentsHairDresser",
+            "subject": "[\"פן\", \"תספורת\", \"צבע\", \"גוונים\"]",
+            "createdAt": "2019-06-02T08:23:51.027Z",
+            "updatedAt": "2019-06-02T08:23:51.027Z",
+            "userId": null
+        }
+    },
+    {
+        "requestId": 961,
+        "optionalTimes": "[{\"date\":\"2018-07-18\",\"hours\":[{\"startHour\":\"5:54\",\"endHour\":\"19:31\"},{\"startHour\":\"7:07\",\"endHour\":\"13:54\"}]},{\"date\":\"2018-06-09\",\"hours\":[{\"startHour\":\"7:22\",\"endHour\":\"17:10\"},{\"startHour\":\"4:42\",\"endHour\":\"12:03\"}]}]",
+        "notes": "Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc.",
+        "status": "approved",
+        "createdAt": "2019-06-02T08:23:51.061Z",
+        "updatedAt": "2019-06-02T08:23:51.061Z",
+        "appointmentId": null,
+        "AppointmentDetail": {
+            "appointmentId": 961,
+            "clientId": "013637605",
+            "serviceProviderId": 795376926,
+            "role": "appointmentsDentist",
+            "subject": "[\"טיפול שורש\", \"עקירה\", \"שיננית\", \"יישור שיניים\"]",
+            "createdAt": "2019-06-02T08:23:51.027Z",
+            "updatedAt": "2019-06-02T08:23:51.027Z",
+            "userId": null
+        }
+    }
+]

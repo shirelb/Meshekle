@@ -1,12 +1,17 @@
 var express = require('express');
 var router = express.Router();
-const {UsersChores, ChoreTypes, UsersChoresTypes, Users, SwapRequests} = require('../DBorm/DBorm');
+const {UsersChores, ChoreTypes, UsersChoresTypes, Users, SwapRequests, Events} = require('../DBorm/DBorm');
 const validations = require('./shared/validations');
+const authentications = require('./shared/authentications');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var constants = require('./shared/constants');
 
+router.use(function (req, res, next) {
+  authentications.verifyToken(req, res, next);
+});
 
+var ids=[];
 /* GET users chores listing. api1 */
 router.get('/usersChores/future/:future', function (req, res, next) {
   if(req.params.future==="true"){
@@ -15,7 +20,8 @@ router.get('/usersChores/future/:future', function (req, res, next) {
                 date:{
                   [Op.gte]: Date.now()
                 }
-              }
+              },
+              //include:[{all:true, nested:false}]
         })
         .then(chores => {
             console.log(chores);
@@ -32,7 +38,8 @@ router.get('/usersChores/future/:future', function (req, res, next) {
                 date:{
                   [Op.lte]: Date.now()
                 }
-              }
+              },
+              include:[{all:true, nested:false}]
         })
         .then(chores => {
             console.log(chores);
@@ -188,7 +195,8 @@ router.get('/type/:type/users', function (req, res, next) {
       })
           .then(usersChoreType => {
               //console.log('getting userIds of choreType by choreTypeName seccussfully done'+usersChoreType);
-              if(usersChoreType && usersChoreType.length>0){
+              if(usersChoreType && usersChoreType!==undefined&& usersChoreType.length>0){
+                ids = usersChoreType.map(u=> u.userId);
                 res.status(200).send({"message":"getting users of choretype seccessfully done",usersChoreType});
               }
               else{
@@ -540,9 +548,8 @@ router.post('/choreType/users/add/userId', function (req, res, next) {
            console.log("here111111111111111");
            res.status(400).send({"message": "choreType is not exist!",userChoreType});
          }    
-         }).catch(err => {
-           console.log("Something went wrong!"+err);
-           console.log("here2222222222222222");
+         })
+         .catch(err => {
            res.status(400).send({"message":"choreType is not exist!",err});
             });
 
@@ -793,8 +800,8 @@ router.get('/replacementRequests/status/:status', function (req, res, next) {
 
 //api 12
 router.post('/replacementRequests/specificRequest', function (req, res, next) {
-  //TODO: check if the useschores are in the future
-  //TODO: check if the useschores are in the same type
+  // check if the useschores are in the future-yes
+  // check if the useschores are in the same type-yes
   validations.checkIfUserChoreExist(req.body.choreIdOfSender, res)
   .then(choreSender=>{
       if (choreSender){
@@ -804,7 +811,7 @@ router.post('/replacementRequests/specificRequest', function (req, res, next) {
             date = new Date(choreSender.dataValues.date);
             dateNow = Date.now();
             if(date<dateNow){
-                res.status(400).send({
+                return res.status(400).send({
                   "message": "לא ניתן לבקש החלפה עם תורנות עם תאריך בעבר",
                 });
             }
@@ -818,42 +825,28 @@ router.post('/replacementRequests/specificRequest', function (req, res, next) {
                 status: req.body.status,
               })
                   .then(newRequest => {
-                      res.status(200).send({"message": "replacement request successfully added!",newRequest});
+                      return res.status(200).send({"message": "replacement request successfully added!",newRequest});
                   })
                   .catch(err => {
                       console.log(err);
-                      res.status(500).send(err);
+                      return res.status(500).send(err);
                   })
                   //
                 }
                 else{
-                  res.status(400).send({"message": "לא ניתן לבקש החלפה בין 2 תורנויות מסוגים שונים"});
+                  return res.status(400).send({"message": "לא ניתן לבקש החלפה בין 2 תורנויות מסוגים שונים"});
                 }
             }
           }
           else{
-            res.status(200).send({"message": "תורנות של מבקש הבקשה לא קיימת!",newRequest});
+             return res.status(200).send({"message": "תורנות של מבקש הבקשה לא קיימת!",newRequest});
            } 
         })
         .catch(err=>{
-          res.status(500).send({
+          return res.status(500).send({
                   "message": "שגיאה!",
                 });
         })
-        //date = new Date(req.body.date);
-        //dateNow = Date.now();
-        //if(date<dateNow){
-        //    res.status(400).send({
-        //      "message": "Cannot schedule a user chore at a past date",
-        //    });
-        //}else{
-        //  console.log("\n the date is OK!\n")
-        //  validations.checkIfUserExist(req.body.userId, res)
-        //  .then(user=>{
-            //check if the user have releases for that chore
-        //    checkIfUserDoChoreType(req.body.userId, req.body.choreTypeName, res)
-        //    .then(ans=>{
-        //      if(ans){
                       
              
       }
@@ -937,11 +930,11 @@ router.put('/replacementRequests/changeStatus', function (req, res, next) {
                   status: req.body.status,
                 })
                     .then(newRequest => {
-                        res.status(200).send({"message": "change status replacement request successfully done!",newRequest});
+                        return res.status(200).send({"message": "change status replacement request successfully done!",newRequest});
                     })
                     .catch(err => {
                         console.log(err);
-                        res.status(500).send(err);
+                        return res.status(500).send(err);
                     })
               })
               
@@ -996,6 +989,62 @@ router.put('/replacementRequests/replace', function (req, res, next) {
 
 });
 
+/* POST event userChore (related to api18). */
+  router.post('/add/event/userChore', function (req, res, next) {
+            console.log("\n the date is OK!\n")
+            validations.checkIfUserExist(req.body.userId, res)
+            .then(user=>{
+                if(user){
+                        Events.create({
+                          userId: req.body.userId,
+                          eventType: req.body.eventType,
+                          eventId: req.body.eventId,
+                        })
+                            .then(newEvent => {
+                                res.status(200).send({"message": "event successfully added!",newEvent});
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).send(err);
+                            })
+                      }
+
+                else{
+                  res.status(400).send({"message":"user not do this chore"});
+                }
+
+            })
+            .catch(err=>{
+              res.status(404).send({"message":constants.usersRoute.USER_NOT_FOUND,err});
+            })
+
+  });
+
+  /* GET users of choreType by choreTypeName api22. */
+router.get('/type/:type/users/not', function (req, res, next) {
+  validations.checkIfChoreTypeExist(req.params.type, res)
+  .then(type=>{
+    if(type){
+    Users.findAll({
+      where:{
+        userId:{
+      [Op.notIn]:  ids}
+    }})
+    .then(uses=>{
+      console.log("\n\n\n users not in type:", uses);
+      res.status(200).send({"message":"lala",uses});
+    })
+    }
+    else{
+      res.status(400).send({"message":"choreType is not exist",err});
+    }
+  })
+  .catch(err=>{
+    res.status(400).send({"message":"choreType is not exist",err});
+  })
+});
+
+
 checkIfUserDoChoreType = function(userId, type, res){
   return UsersChoresTypes.findOne({
     where: {
@@ -1018,4 +1067,6 @@ checkIfUserDoChoreType = function(userId, type, res){
         });
     })
 }
+
+
 module.exports = router;

@@ -1,0 +1,340 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DrawerMenu should match snapshot 1`] = `
+<ScrollViewMock
+  style={
+    Object {
+      "backgroundColor": "#ededed",
+      "flex": 1,
+    }
+  }
+>
+  <List
+    containerStyle={
+      Object {
+        "marginBottom": 20,
+      }
+    }
+  >
+    <ListItem
+      avatar={
+        <Avatar
+          activeOpacity={0.7}
+          editButton={
+            Object {
+              "iconColor": "#fff",
+              "iconName": "mode-edit",
+              "iconType": "material",
+              "size": null,
+              "style": null,
+              "underlayColor": "#000",
+            }
+          }
+          large={true}
+          onEditPress={null}
+          rounded={true}
+          showEditButton={false}
+          source={
+            Object {
+              "uri": undefined,
+            }
+          }
+        />
+      }
+      chevronColor="#bdc6cf"
+      containerStyle={
+        Object {
+          "height": 150,
+        }
+      }
+      disabled={false}
+      hideChevron={true}
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        Object {
+          "name": "chevron-right",
+        }
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={true}
+      subtitle="צפייה בפרופיל"
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      titleNumberOfLines={1}
+      titleStyle={
+        Object {
+          "fontSize": 20,
+        }
+      }
+      underlayColor="white"
+    />
+    <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={false}
+      leftIcon={
+        Object {
+          "name": "home",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        <Icon
+          color="black"
+          name="chevron-left"
+          raised={false}
+          reverse={false}
+          reverseColor="white"
+          size={24}
+          underlayColor="white"
+        />
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="בית"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={false}
+      leftIcon={
+        Object {
+          "name": "insert-invitation",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        <Icon
+          color="black"
+          name="chevron-left"
+          raised={false}
+          reverse={false}
+          reverseColor="white"
+          size={24}
+          underlayColor="white"
+        />
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="תורים"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={false}
+      leftIcon={
+        Object {
+          "name": "transfer-within-a-station",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        <Icon
+          color="black"
+          name="chevron-left"
+          raised={false}
+          reverse={false}
+          reverseColor="white"
+          size={24}
+          underlayColor="white"
+        />
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="תורנויות"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={false}
+      leftIcon={
+        Object {
+          "name": "contacts",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        <Icon
+          color="black"
+          name="chevron-left"
+          raised={false}
+          reverse={false}
+          reverseColor="white"
+          size={24}
+          underlayColor="white"
+        />
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="ספר טלפונים"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      badge={
+        Object {
+          "containerStyle": Object {
+            "backgroundColor": "transparent",
+            "opacity": 0,
+          },
+          "textStyle": Object {
+            "color": "#00adf5",
+          },
+          "value": "👋",
+        }
+      }
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={false}
+      leftIcon={
+        Object {
+          "name": "insert-comment",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        <Icon
+          color="black"
+          name="chevron-left"
+          raised={false}
+          reverse={false}
+          reverseColor="white"
+          size={24}
+          underlayColor="white"
+        />
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="לוח מודעות"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={true}
+      leftIcon={
+        Object {
+          "name": "error",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        Object {
+          "name": "chevron-right",
+        }
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="דווח על תקלה"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+    <ListItem
+      chevronColor="#bdc6cf"
+      disabled={false}
+      hideChevron={true}
+      leftIcon={
+        Object {
+          "name": "power",
+        }
+      }
+      leftIconUnderlayColor="white"
+      onPress={[Function]}
+      rightIcon={
+        Object {
+          "name": "chevron-right",
+        }
+      }
+      rightTitleNumberOfLines={1}
+      roundAvatar={false}
+      subtitleNumberOfLines={1}
+      switchButton={false}
+      textInputEditable={true}
+      title="התנתק"
+      titleNumberOfLines={1}
+      underlayColor="white"
+    />
+  </List>
+</ScrollViewMock>
+`;

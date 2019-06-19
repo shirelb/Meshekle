@@ -1,13 +1,11 @@
 import React from 'react';
-import {get, patch} from 'axios';
+import {get} from 'axios';
 import {Helmet} from 'react-helmet';
 import UserForm from './UserForm';
-import Page from '../Page';
 import store from "store";
-import appointmentsStorage from "../../storage/appointmentsStorage";
 import usersStorage from "../../storage/usersStorage";
-import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import {Grid, Header, Modal} from "semantic-ui-react";
+import mappers from "../../shared/mappers";
 
 class UserEdit extends React.Component {
     constructor(props) {
@@ -24,27 +22,42 @@ class UserEdit extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.location.state.user)
-            this.setState({user: this.props.location.state.user});
-        else
+        if (this.props.location.state) {
+            if (this.props.location.state.user)
+                this.setState({user: this.props.location.state.user});
+        } else
             usersStorage.getUserByUserID(this.props.match.params.userId, this.serviceProviderHeaders)
                 .then(user => {
-                    this.setState({user: user});
+                    if (user.response) {
+                        if (user.response.status !== 200)
+                            this.setState({
+                                infoError: true,
+                                infoErrorHeader: 'קרתה שגיאה בעת הבאת פרטי משתמש',
+                                infoErrorContent: mappers.errorMapper(user.response)
+                            });
+                    } else
+                        this.setState({user: user});
                 })
     }
 
     handleSubmit(user) {
-        usersStorage.updateUserById(user, this.serviceProviderHeaders)
+        return usersStorage.updateUserById(user, this.serviceProviderHeaders)
             .then((response) => {
-                this.props.history.goBack();
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return response;
+                } else {
+                    this.props.history.goBack();
+                    this.props.history.goBack();
+                    return response;
+                }
             })
     }
 
     handleCancel(e) {
         e.preventDefault();
 
-        console.log('you have canceled');
+        // console.log('you have canceled');
 
         this.props.history.goBack();
     }

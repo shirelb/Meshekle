@@ -1,15 +1,12 @@
 import axios from "axios";
-import {SERVER_URL} from "../shared/constants";
+import {SERVER_URL,WEB_SOCKET} from "../shared/constants";
 import moment from 'moment';
 
-//import moment from "../components/appointment/AppointmentAdd";
 //WEB
 var getAllChoreTypes = (serviceProviderId, headers) => {
     return axios.get(`${SERVER_URL}/api/chores/choreTypes`,
         {
             headers: headers,
-            //params: {
-            //}
         }
     )
         .then((response) => {
@@ -20,21 +17,17 @@ var getAllChoreTypes = (serviceProviderId, headers) => {
                     choreTypes.push(response.data[type]);
                 }
                 else{
-                    console.log("else: ", type.serviceProviderId,  serviceProviderId)
                 }
 
             }
-            console.log('getAllChoreTypesForSeviceProvider id: ', serviceProviderId, ' and his types: ', choreTypes);
             return choreTypes;
         })
         .catch((error) => {
-            console.log('getAllChoreTypesForSeviceProvider ', serviceProviderId, ' ', error);
-            return null;
+            return error;
         });
 };
 
 var getChoreTypeSetting = function(userId, userHeaders, type){
-    console.log("type: ",type);
     return axios.get(`${SERVER_URL}/api/chores/type/${type}/settings`,
         {
             headers: userHeaders, //
@@ -46,7 +39,8 @@ var getChoreTypeSetting = function(userId, userHeaders, type){
             return response;
         })
         .catch(error => {
-            console.log('get user chores error ', error)
+            console.log('get user chores error ', error);
+            return error;
         });
 };
 
@@ -70,7 +64,8 @@ var editChoreTypeSetting = function(serviceProviderId, headers, typeSettings){
             return response;
         })
         .catch(error => {
-            console.log('get user chores error ', error)
+            console.log('get user chores error ', error);
+            return error;
         });
 };
 
@@ -89,14 +84,15 @@ var createNewChoreType = function(serviceProviderId, headers, typeSettings){
       },    
     
     {
-            headers: headers, //
+            headers: headers //
             
         })
         .then(response => {
             return response;
         })
         .catch(error => {
-            console.log('add chore type error ', error)
+            console.log('add chore type error ', error, headers);
+            return error;
         });
 };
 
@@ -110,12 +106,12 @@ var getUserChoresForType = function(userId, userHeaders, type, date){
             return response;
         })
         .catch(error => {
-            console.log('get user chores error ', error)
+            console.log('get user chores error ', error);
+            return error;
         });
 };
 
 var getUsersForChoreType = function(userId, userHeaders, type){
-    console.log("type:getUsersForChoreType ",type);
     return axios.get(`${SERVER_URL}/api/chores/type/${type}/users`,
         {
             headers: userHeaders, //
@@ -124,7 +120,8 @@ var getUsersForChoreType = function(userId, userHeaders, type){
             return response;
         })
         .catch(error => {
-            console.log('get users for type error ', error)
+            console.log('get users for type error ', error);
+            return error;
         });
 };
 
@@ -135,7 +132,6 @@ var createNewUserChore = function(serviceProviderId, headers, typeName, userId, 
         userId: userId,
         choreTypeName: typeName,
         date: date,
-        //originDate: date,
         isMark: false
       },    
     
@@ -144,29 +140,32 @@ var createNewUserChore = function(serviceProviderId, headers, typeName, userId, 
             
         })
         .then(response => {
+            WEB_SOCKET.emit('serviceProviderPostUserChore', {
+                userId: userId,
+            });
             return response;
         })
         .catch(error => {
-            console.log('add chore type error ', error)
+            console.log('add chore type error ', error);
+            return error;
         });
 };
 
 var deleteUserChore = function(serviceProviderId, headers, id){//api29
-    console.log("id:deleteUserChore ",id);
     return axios.delete(`${SERVER_URL}/api/chores/userChoreId/${id}/delete`,
         {
             headers: headers, //
         })
         .then(response => {
+            WEB_SOCKET.emit('serviceProviderDeleteUserChore');
             return response;
         })
         .catch(error => {
-            console.log('delete userchore error ', error)
+            return error;
         });
 };
 
 var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
-    console.log("typeName:deleteChoreType ",typeName);
     return axios.delete(`${SERVER_URL}/api/chores/type/${typeName}/delete`,
         {
             headers: headers, //
@@ -175,12 +174,12 @@ var deleteChoreType = function(serviceProviderId, headers, typeName){// api28
             return response;
         })
         .catch(error => {
-            console.log('delete chore type error ', error)
+            console.log('deleting chore type error ', error);
+            return error;
         });
 };
 
 var addUserToChoreType = function(serviceProviderId, headers, userId, typeName){
-    console.log("type: ",typeName,serviceProviderId );
     return axios.post(`${SERVER_URL}/api/chores/choreType/users/add/userId`,
     {
         userId: userId,
@@ -195,12 +194,12 @@ var addUserToChoreType = function(serviceProviderId, headers, userId, typeName){
             return response;
         })
         .catch(error => {
-            console.log('add user to chore type error ', error)
+            console.log('add user to chore type error ', error);
+            return error;
         });
 };
 
 var deleteUserFromChoreType = function(serviceProviderId, headers,userId, typeName){// api28
-    console.log("typeName:deleteUserFromChoreType ",typeName);
     return axios.delete(`${SERVER_URL}/api/chores/type/${typeName}/users/userId/${userId}`,
         {
             headers: headers, //
@@ -209,7 +208,8 @@ var deleteUserFromChoreType = function(serviceProviderId, headers,userId, typeNa
             return response;
         })
         .catch(error => {
-            console.log('delete user from chore type error ', error)
+            console.log('deleting user from chore type error ', error);
+            return error;
         });
 };
 
@@ -222,11 +222,59 @@ var getReplacementRequests = function(userId, userHeaders, type,status){
             return response;
         })
         .catch(error => {
-            console.log('get Replacement Requests error ', error)
+            console.log('get Replacement Requests error ', error);
+            return error;
         });
 };
 
-//delete('/type/:type/users/userId/:userId'
+var createUserchoreEvent = function(serviceProviderId, headers, userId,eventId){
+    return axios.post(`${SERVER_URL}/api/chores/add/event/userChore`,
+    {
+        userId: userId,
+        eventType: 'UsersChores',
+        eventId: eventId,
+      },    
+    
+    {
+            headers: headers, //
+            
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('add chore event error ', error,headers);
+            return error;
+        });
+};
+
+var getAllPastUserChores = function(userId, userHeaders){
+    return axios.get(`${SERVER_URL}/api/chores/usersChores/future/false`,
+        {
+            headers: userHeaders, //
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get all past user chores error ', error);
+            return error;
+        });
+};
+
+var getUsersNotInType = function(userId, userHeaders, type){
+    return axios.get(`${SERVER_URL}/api/chores/type/${type}/users/not`,
+        {
+            headers: userHeaders, //
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            console.log('get users not in type error ', error);
+            return error;
+        });
+};
 
 export default {
     getAllChoreTypes,
@@ -240,5 +288,8 @@ export default {
     deleteChoreType,
     addUserToChoreType,
     deleteUserFromChoreType,
-    getReplacementRequests
+    getReplacementRequests,
+    createUserchoreEvent,
+    getAllPastUserChores,
+    getUsersNotInType
 }

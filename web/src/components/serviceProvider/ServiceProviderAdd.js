@@ -22,17 +22,23 @@ class ServiceProviderAdd extends React.Component {
     }
 
     handleSubmit(serviceProvider) {
-        serviceProvidersStorage.createServiceProvider(serviceProvider)
+       return serviceProvidersStorage.createServiceProvider(serviceProvider)
             .then(response => {
-                console.log('serviceProvider created ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return response;
+                } else {
+                    // console.log('serviceProvider created ', response);
+                    this.props.history.goBack();
+                    return response;
+                }
             });
     }
 
     handleCancel(e) {
         e.preventDefault();
 
-        console.log('you have canceled');
+        // console.log('you have canceled');
 
         this.props.history.goBack();
     }

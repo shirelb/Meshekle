@@ -1,10 +1,28 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Avatar, Card} from 'react-native-elements';
 import {Agenda, LocaleConfig} from 'react-native-calendars';
-import {localConfig} from '../localConfig';
+import '../localConfig';
 import phoneStorage from "react-native-simple-store";
 import usersStorage from "../../../storage/usersStorage";
-import appointmentsStorage from "../../../storage/appointmentsStorage";
+import moment from "moment";
+import 'moment/locale/he.js';
+import mappers from "../../../shared/mappers";
+import {APP_SOCKET} from "../../../shared/constants";
+
+moment.locale('he');
+
+const module2color = {
+    Appointments: 'purple', //'#00adf5',
+    UsersChores: 'red',
+    Announcements: 'green',
+};
+
+const module2selectedDotColor = {
+    Appointments: 'purple',
+    UsersChores: 'red',
+    Announcements: 'green',
+};
 
 
 export default class AgendaCalendar extends Component {
@@ -12,6 +30,10 @@ export default class AgendaCalendar extends Component {
         super(props);
 
         this.state = {
+            refreshing: false,
+            errorHeader: '',
+            errorContent: '',
+            errorVisible: false,
             items: {}
             /* '2018-12-30': [{text: 'item 30 - any js object'}],
              '2018-12-31': [{text: 'item 31 - any js object'}],
@@ -30,196 +52,328 @@ export default class AgendaCalendar extends Component {
     componentDidMount() {
         phoneStorage.get('userData')
             .then(userData => {
-                console.log('agenda componentDidMount userData ', userData);
+                // console.log('agenda componentDidMount userData ', userData);
                 this.userHeaders = {
                     'Authorization': 'Bearer ' + userData.token
                 };
                 this.userId = userData.userId;
-                this.loadItems();
+
+                this.serviceProviders = [];
+                usersStorage.getUsers(this.userHeaders)
+                    .then(serviceProvidersFound => {
+                        if (serviceProvidersFound.response) {
+                            if (serviceProvidersFound.response.status !== 200) {
+                                this.setState({
+                                    errorVisible: true,
+                                    errorHeader: 'קרתה שגיאה בעת הבאת פרטי משתמשים',
+                                    errorContent: mappers.errorMapper(response.response)
+                                });
+                            }
+                        } else {
+                            this.serviceProviders = serviceProvidersFound.filter(user => user['ServiceProviders'].length > 0);
+
+                            this.loadItems();
+                        }
+                    });
             });
+
+        APP_SOCKET.on("getUserAppointments", this.loadItems.bind(this));
+        APP_SOCKET.on("getUserChore", this.loadItems.bind(this));
     }
+
+    componentWillUnmount() {
+        APP_SOCKET.off("getUserAppointments");
+        APP_SOCKET.off("getUserChore");
+    }
+
+    onRefresh = () => {
+        this.setState({
+            refreshing: true,
+
+            errorMsg: '',
+            errorHeader: '',
+            errorVisible: false
+        });
+
+        this.loadItems();
+    };
 
     loadItems() {
         let newItems = {};
-        var promises = [];
-        usersStorage.getUserEvents(this.userId,this.userHeaders)
+        let serviceProviderUserDetails = this.serviceProviders;
+        usersStorage.getUserEvents(this.userId, this.userHeaders)
             .then(response => {
-                let events = response.data;
-                if (events.length > 0) {
-                    events.forEach((event) => {
-                        switch (event.eventType) {
-                            case 'Appointments':
-                                promises.push(appointmentsStorage.getUserAppointmentById(this.userId,this.userHeaders,event.eventId));
-                                break;
-                            // TODO add case of chores here
-                        }
-                    });
-
-                    Promise.all(promises)
-                        .then((results) => {
-                            results.forEach((response, i) => {
-                                let item = {};
-                                switch (events[i].eventType) {
-                                    case 'Appointments':
-                                        let appointment = response.data[0];
-                                        item.itemId = appointment.appointmentId;
-                                        item.date = this.getDateStringFromDateAndTime(appointment.startDateAndTime);
-                                        item.startTime = this.getTimeStringFromDateAndTime(appointment.startDateAndTime);
-                                        item.endTime = this.getTimeStringFromDateAndTime(appointment.endDateAndTime);
-                                        item.role = appointment.AppointmentDetail.role;
-                                        item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
-                                        item.subject = appointment.AppointmentDetail.subject;
-                                        // TODO add request of get service provider by id to get his name.
-                                        if (newItems[item.date]) {
-                                            newItems[item.date].push(item);
-                                        } else {
-                                            newItems[item.date] = [item];
-                                        }
-                                        break;
-                                    // TODO add case of chores here
-                                }
-                            });
-
-                            // console.log('newItems ', newItems);
-                            this.setState({
-                                items: newItems
-                            });
-                        })
-                        .catch(err => {
-                            console.log('err ', err)
+                if (response.response) {
+                    if (response.response.status !== 200) {
+                        this.setState({
+                            errorVisible: true,
+                            errorHeader: 'קרתה שגיאה בעת הבאת אירועי המשתמש',
+                            errorContent: mappers.errorMapper(response.response)
                         });
+                    }
+                } else {
+                    let events = response.data;
+                    if (events.length > 0) {
+                        events.forEach((event) => {
+                            let item = {};
+                            switch (event.eventType) {
+                                case 'Appointments':
+                                    let appointment = event['ScheduledAppointment'];
+                                    item.type = event.eventType;
+                                    item.itemId = appointment.appointmentId;
+                                    item.date = moment(appointment.startDateAndTime).format("YYYY-MM-DD");
+                                    item.startTime = moment(appointment.startDateAndTime).format("HH:mm");
+                                    item.endTime = moment(appointment.endDateAndTime).format("HH:mm");
+                                    item.role = mappers.serviceProviderRolesMapper(appointment.AppointmentDetail.role);
+                                    item.serviceProviderId = appointment.AppointmentDetail.serviceProviderId;
+                                    item.subject = JSON.parse(appointment.AppointmentDetail.subject).join(", ");
+                                    let serviceProvider = serviceProviderUserDetails.filter(provider => provider.userId === appointment.AppointmentDetail.serviceProviderId.toString())[0];
+                                    if (serviceProvider) {
+                                        item.serviceProviderFullname = serviceProvider.fullname;
+                                        item.serviceProviderImage = serviceProvider.image;
+                                    } else {
+                                        item.serviceProviderFullname = "";
+                                        item.serviceProviderImage = "";
+                                    }
+                                    break;
+                                case 'UsersChores':
+                                    let chore = event['UsersChore'];
+                                    item.type = event.eventType;
+                                    item.date = moment(chore.date).format("YYYY-MM-DD");
+                                    item.title = chore.choreTypeName;
+                                    item.startTime = moment(chore.date).format("HH:mm");
+                                    item.endTime = moment(chore.date).format("HH:mm");
+                                    break;
+                                case 'Announcements': {
+                                    let announcement = event['Announcement'];
+                                    item.type = event.eventType;
+                                    item.itemId = announcement.announcementId;
+                                    item.date = moment(announcement.dateOfEvent).format("YYYY-MM-DD");
+                                    item.title = announcement.title;
+                                    item.content = announcement.content;
+                                    break;
+                                }
+                            }
+                            if (newItems[item.date]) {
+                                newItems[item.date].push(item);
+                            } else {
+                                newItems[item.date] = [item];
+                            }
+                        });
+                        this.setState({
+                            items: newItems,
+                            refreshing: false
+                        });
+                    }
                 }
             })
     }
 
     onDayPress = (date) => {
-        console.log('in day press ');
         this.setState({
-            date: new Date(date.year, date.month - 1, date.day),
-        });
-    };
-
-    onDayChange = (date) => {
-        console.log('in day change ');
-        this.setState({
-            date: new Date(date.year, date.month - 1, date.day),
+            date: moment(date).subtract(1, 'months'),
         });
     };
 
 
-    renderItem(item) {
-        return (
-            <View style={[styles.item, {height: item.height}]}>
-                <Text>{item.startTime} - {item.endTime}</Text>
-                <Text>{item.subject}</Text>
-                <Text>{item.serviceProviderId}</Text>
-                <Text>{item.role}</Text>
-            </View>
-        );
-    }
+    renderItem = (item) => {
+        switch (item.type) {
+            case 'Appointments':
+                return (
+                    <Card
+                        title={`תור ל ${item.role} - ${item.serviceProviderFullname}`}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.startTime} - {item.endTime}</Text>
 
-    renderDay(day) {
-        // renderDay={(day, item) => (<Text>{day ? day.day : 'item'} {day ? day.month.toLocaleString() : 'item'} </Text>)}
+                            <Avatar
+                                width={50}
+                                rounded
+                                source={{uri: item.serviceProviderImage}}
+                                // avatarStyle={{height: 40, width: 40}}
+                            />
+                        </View>
+                        <Text h3>{item.subject}</Text>
+                    </Card>
+                );
+            case 'UsersChores':
+                return (
+                    <Card
+                        title={`תורנות`}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.title}</Text>
 
-        return (
-            <View style={styles.dayMonthContainer}>
-                <Text style={styles.day}>{day ? day.day : null} </Text>
-                <Text style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].monthNamesShort[day.month - 1] : null} </Text>
-                <Text style={styles.dayMonth}>{day ? LocaleConfig.locales['il'].dayNames[new Date(day.timestamp).getDay()] : null} </Text>
-            </View>
-        );
-    }
 
-    renderEmptyDate() {
-        return (
-            <View style={styles.emptyDate}><Text>  </Text></View>
-        );
-    }
+                        </View>
+                    </Card>
+                );
+            case 'Announcements': {
+                return (
+                    <Card
+                        title={`מודעה - ${item.title} `}
+                        // containerStyle={{width: 70 + '%'}}
+                    >
+                        <View style={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Text style={{marginBottom: 10}}>{item.dateOfEvent}</Text>
 
-    rowHasChanged(r1, r2) {
-        return r1.name !== r2.name;
-    }
 
-    getDateStringFromDateAndTime = (dateAndTime) => {
-        const date = new Date(dateAndTime);
-        return date.toISOString().split('T')[0];
+                        </View>
+                        <Text h3>{item.content}</Text>
+                    </Card>
+                );
+            }
+
+        }
     };
-    getTimeStringFromDateAndTime = (dateAndTime) => {
-        const date = new Date(dateAndTime);
-        return date.toISOString().split('T')[1].split('.')[0].slice(0, -3);
+
+    renderDay = (day) => {
+        if (day !== undefined) {
+            let color = moment().format("YYYY-MM-DD") === day.dateString ? '#00adf5' : '#2d4150';
+            return (
+                <View style={{marginTop: 15, marginLeft: 15}}>
+                    <Text style={[styles.day, {color: color}]}>{day.day} </Text>
+                    <Text
+                        style={[styles.dayMonth, {color: color}]}>{moment(day.dateString).format("MMM")} </Text>
+                    <Text
+                        style={[styles.dayMonth, {color: color}]}>{moment(day.dateString).format("dddd")} </Text>
+                </View>
+            );
+        } else {
+            return <View style={{width: 18 + '%'}}><Text> </Text></View>
+        }
     };
+
+    renderEmptyDate = () => {
+        // return <View style={{width: 18 + '%'}}><Text> אין אירועים בתאריך זה </Text></View>
+        return <View style={styles.emptyDate}><Text> אין אירועים בתאריך זה </Text></View>
+    };
+
+    rowHasChanged = (r1, r2) => {
+        return r1.itemId !== r2.itemId;
+    };
+
 
     render() {
         LocaleConfig.defaultLocale = 'il';
 
-        let currDay = new Date; // get current date
-        let currDayStr = new Date().toUTCString(); // get current date
-        let first = currDay.getDate() - currDay.getDay(); // First day is the day of the month - the day of the week
-        let last = first + 6; // last day is the first day + 6
-        let firstDay = new Date(currDay.setDate(first)).toUTCString();
-        let lastDay = new Date(currDay.setDate(last)).toUTCString();
+        // let currDay = new Date; // get current date
+        // let currDayStr = new Date().toUTCString(); // get current date
+        // let first = currDay.getDate() - currDay.getDay(); // First day is the day of the month - the day of the week
+        // let last = first + 6; // last day is the first day + 6
+        // let firstDay = new Date(currDay.setDate(first)).toUTCString();
+        // let lastDay = new Date(currDay.setDate(last)).toUTCString();
+
+        const today = moment();
+        const from_date = today.startOf('week');
+        const to_date = today.endOf('week');
 
         return (
-            <Agenda
-                items={this.state.items}
-                // loadItemsForMonth={this.loadItems.bind(this)}
-                selected={currDayStr}//{'2012-05-22'}
-                // minDate={firstDay}//{'2012-05-20'}
-                // maxDate={lastDay}//{'2012-05-27'}
-                // callback that fires when the calendar is opened or closed
-                // callback that gets called on day press
-                // onDayPress={this.onDayPress.bind(this)}
-                // callback that gets called when day changes while scrolling agenda list
-                // onDayChange={this.onDayChange.bind(this)}
-                renderItem={this.renderItem.bind(this)}
-                renderEmptyDate={this.renderEmptyDate.bind(this)}
-                renderDay={this.renderDay.bind(this)}
-                rowHasChanged={this.rowHasChanged.bind(this)}
-                hideKnob={true}
-                // markingType={'period'}
-                // markedDates={{
-                //     '2019-01-08': {textColor: '#666'},
-                //     '2019-01-09': {textColor: '#666'},
-                //     '2019-01-04': {startingDay: true, endingDay: true, color: 'blue'},
-                //     '2019-01-01': {startingDay: true, color: 'blue'},
-                //     '2019-01-02': {endingDay: true, color: 'gray'},
-                //     '2019-01-03': {startingDay: true, color: 'gray'},
-                //     '2019-01-05': {color: 'gray'},
-                //     '2019-01-06': {endingDay: true, color: 'gray'}
-                // }}
-                // monthFormat={'yyyy'}
-                // theme={{calendarBackground: 'red', agendaKnobColor: 'green'}}
-                // Specify theme properties to override specific styles for calendar parts. Default = {}
-                theme={{
-                    // backgroundColor: '#ffffff',
-                    // calendarBackground: '#ffffff',
-                    // textSectionTitleColor: '#b6c1cd',
-                    // selectedDayBackgroundColor: '#00adf5',
-                    // selectedDayTextColor: '#ffffff',
-                    // todayTextColor: '#00adf5',
-                    // dayTextColor: '#2d4150',
-                    // textDisabledColor: '#d9e1e8',
-                    // dotColor: '#00adf5',
-                    // selectedDotColor: '#ffffff',
-                    // arrowColor: 'orange',
-                    // monthTextColor: 'blue',
-                    // textDayFontFamily: 'monospace',
-                    // textMonthFontFamily: 'monospace',
-                    // textDayHeaderFontFamily: 'monospace',
-                    // textDayFontSize: 16,
-                    // textMonthFontSize: 16,
-                    // textDayHeaderFontSize: 16
-                    // agendaDayTextColor: 'yellow',
-                    // agendaDayNumColor: 'green',
-                    // agendaTodayColor: 'red',
-                    // agendaKnobColor: 'blue'
-                }}
-            />
+            <ScrollView
+                // style={styles.calendar}
+                refreshControl={<RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}
+                />
+                }>
+                <Agenda
+                    items={this.state.items}
+                    // loadItemsForMonth={this.loadItems.bind(this)}
+                    // selected={today.format("YYYY-MM-DD")}//{'2012-05-22'}
+                    // minDate={from_date}//{'2012-05-20'}
+                    // maxDate={to_date}//{'2012-05-27'}
+                    // callback that fires when the calendar is opened or closed
+                    // callback that gets called on day press
+                    // onDayPress={this.onDayPress}
+                    // callback that gets called when day changes while scrolling agenda list
+                    // onDayChange={this.onDayChange}
+                    renderItem={this.renderItem}
+                    renderEmptyDate={this.renderEmptyDate}
+                    renderEmptyData={this.renderEmptyDate}
+                    renderDay={this.renderDay}
+                    rowHasChanged={this.rowHasChanged}
+                    // onRefresh={this.onRefresh}
+                    // refreshing={this.state.refreshing}
+                    // refreshControl = {null}
+                    // hideKnob={true}
+                    // markingType={'period'}
+                    // markedDates={{
+                    //     '2019-01-08': {textColor: '#666'},
+                    //     '2019-01-09': {textColor: '#666'},
+                    //     '2019-01-04': {startingDay: true, endingDay: true, color: 'blue'},
+                    //     '2019-01-01': {startingDay: true, color: 'blue'},
+                    //     '2019-01-02': {endingDay: true, color: 'gray'},
+                    //     '2019-01-03': {startingDay: true, color: 'gray'},
+                    //     '2019-01-05': {color: 'gray'},
+                    //     '2019-01-06': {endingDay: true, color: 'gray'}
+                    // }}
+                    // monthFormat={'yyyy'}
+                    // theme={{calendarBackground: 'red', agendaKnobColor: 'green'}}
+                    // Specify theme properties to override specific styles for calendar parts. Default = {}
+                    theme={{
+                        backgroundColor: '#f7f7f7',
+                        calendarBackground: '#ffffff',
+                        textSectionTitleColor: '#5a646d',
+                        selectedDayBackgroundColor: '#00adf5',
+                        selectedDayTextColor: '#ffffff',
+                        todayTextColor: '#00adf5',
+                        dayTextColor: '#2d4150',
+                        textDisabledColor: '#d9e1e8',
+                        dotColor: '#00adf5',
+                        selectedDotColor: '#ffffff',
+                        arrowColor: 'orange',
+                        monthTextColor: 'blue',
+                        textDayFontFamily: 'monospace',
+                        textMonthFontFamily: 'monospace',
+                        textDayHeaderFontFamily: 'monospace',
+                        textMonthFontWeight: 'bold',
+                        textDayFontSize: 16,
+                        textMonthFontSize: 16,
+                        textDayHeaderFontSize: 16,
+                        agendaDayTextColor: 'yellow',
+                        agendaDayNumColor: 'green',
+                        agendaTodayColor: 'orange',
+                        agendaKnobColor: 'blue',
+                        agendaBackgroundColor: '#424242',
+                    }}
+                    style={styles.calendar}
+                />
+
+                {
+                    this.state.errorVisible === true ?
+                        <Text style={{color: 'red'}}>
+                            {this.state.errorHeader + ":\n" + this.state.errorContent}
+                        </Text>
+                        : null
+                }
+            </ScrollView>
         );
     }
 }
 
 const styles = StyleSheet.create({
+    calendar: {
+        // borderTopWidth: 2,
+        // marginTop: 5,
+        paddingTop: 5,
+        // borderBottomWidth: 2,
+        // borderColor: '#eee',
+        height: Dimensions.get('window').height * 2 / 3,
+    },
     item: {
         backgroundColor: 'white',
         flex: 1,
@@ -229,20 +383,25 @@ const styles = StyleSheet.create({
         marginTop: 17
     },
     emptyDate: {
-        height: 15,
-        flex: 1,
-        paddingTop: 30,
+        flex: 1, justifyContent: "center", alignItems: "center",
+        // height: 15,
+        // flex: 1,
+        // paddingTop: 30,
         borderTopWidth: 2,
         borderTopColor: 'grey',
         borderBottomWidth: 2,
         borderBottomColor: 'grey',
+        // textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: 18,
     },
-    dayMonthContainer:{
+    dayMonthContainer: {
         height: 100,
         // borderTopWidth: 2,
         // borderTopColor: 'grey',
+        // marginRight: 30
     },
-    day:{
+    day: {
         fontSize: 20,
         fontWeight: '300',
         // color: appStyle.agendaDayMonthColor,

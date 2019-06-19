@@ -20,8 +20,8 @@ import usersStorage from "../../storage/usersStorage";
 import {connectToServerSocket, WEB_SOCKET} from "../../shared/constants";
 import ServiceProviderEdit from "../../components/serviceProvider/ServiceProviderEdit";
 import helpers from "../../shared/helpers";
+import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 
-const TOTAL_PER_PAGE = 10;
 
 const colorEventByRole = {
     appointmentsHairDresser: "#3a87ad",
@@ -30,11 +30,10 @@ const colorEventByRole = {
 
 
 const hex2rgba = (hex, alpha = 1) => {
-    try{
+    try {
         const [r, g, b] = hex.match(/\w\w/g).map(x => parseInt(x, 16));
         return `rgba(${r},${g},${b},${alpha})`;
-    }
-    catch (e) {
+    } catch (e) {
         return hex;
     }
 
@@ -46,20 +45,11 @@ class AppointmentsManagementPage extends React.Component {
         this.state = {
             appointments: [],
             appointmentRequests: [],
-            calendarEvents: [],
-            page: 0,
-            totalPages: 0,
-            openPopup: false,
-            eventPopup: {},
             highlightTableRow: null,
             appointmentRequestHoovering: {requestId: -1},
             appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
         };
 
-        this.incrementPage = this.incrementPage.bind(this);
-        this.decrementPage = this.decrementPage.bind(this);
-        this.setPage = this.setPage.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
         this.updateAfterMoveOrResizeEvent = this.updateAfterMoveOrResizeEvent.bind(this);
 
         this.serviceProviderHeaders = '';
@@ -72,17 +62,44 @@ class AppointmentsManagementPage extends React.Component {
         this.userId = store.get('userId');
         this.serviceProviderId = store.get('serviceProviderId');
 
+        this.getServiceProviderRoles();
         this.getServiceProviderAppointments();
         this.getServiceProviderAppointmentRequests();
+        this.getUsersForAppointmentForm();
 
         connectToServerSocket(store.get('serviceProviderId'));
 
         WEB_SOCKET.on("getServiceProviderAppointmentRequests", this.getServiceProviderAppointmentRequests.bind(this));
+        WEB_SOCKET.on("getServiceProviderAppointments", this.getServiceProviderAppointments.bind(this));
     }
 
     componentWillUnmount() {
         WEB_SOCKET.off("getServiceProviderAppointmentRequests");
+        WEB_SOCKET.off("getServiceProviderAppointments");
     }
+
+    getUsersForAppointmentForm = () => {
+        let userOptions = {};
+
+        usersStorage.getUsers(this.serviceProviderHeaders)
+            .then(users => {
+                if (users.response) {
+                    if (users.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('users ', users);
+                    if (Array.isArray(users))
+                        userOptions = users.filter(u => u.active).map(item =>
+                            ({
+                                key: item.userId,
+                                text: item.fullname,
+                                value: item.fullname
+                            })
+                        );
+                    this.setState({userOptions: userOptions})
+                }
+            });
+    };
 
     getServiceProviderAppointmentRequests() {
         this.setState({
@@ -91,46 +108,45 @@ class AppointmentsManagementPage extends React.Component {
 
         appointmentsStorage.getServiceProviderAppointmentRequests(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
-                const appointmentRequests = response.data;
-                const totalPages = Math.ceil(appointmentRequests.length / TOTAL_PER_PAGE);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    const appointmentRequests = response.data;
 
-                if (appointmentRequests.length === 0) {
-                    this.setState({
-                        appointmentRequests: appointmentRequests,
-                    });
-                } else
-                    appointmentRequests.map((appointmentRequest, index) => {
-                        usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                            .then(user => {
-                                appointmentRequest.clientName = user.fullname;
-                                appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
+                    if (appointmentRequests.length === 0) {
+                        this.setState({
+                            appointmentRequests: appointmentRequests,
+                        });
+                    } else
+                        appointmentRequests.map((appointmentRequest, index) => {
+                            usersStorage.getUserByUserID(appointmentRequest.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                                .then(user => {
+                                    appointmentRequest.clientName = user.fullname;
+                                    appointmentRequest.optionalTimes = JSON.parse(appointmentRequest.optionalTimes);
 
-                                let appointmentRequestEvent = {
-                                    id: appointmentRequest.requestId,
-                                    title: appointmentRequest.clientName,
-                                    allDay: false,
-                                    start: null,
-                                    end: null,
-                                    appointmentRequest: appointmentRequest,
-                                    // color:'#b7d2ff',
-                                    backgroundColor: hex2rgba(colorEventByRole[appointmentRequest.AppointmentDetail.role], 0.5),
-                                };
+                                    let appointmentRequestEvent = {
+                                        id: appointmentRequest.requestId,
+                                        title: appointmentRequest.clientName,
+                                        allDay: false,
+                                        start: null,
+                                        end: null,
+                                        appointmentRequest: appointmentRequest,
+                                        // color:'#b7d2ff',
+                                        backgroundColor: hex2rgba(colorEventByRole[appointmentRequest.AppointmentDetail.role], 0.5),
+                                    };
 
-                                let appointmentRequestsEvents = this.state.appointmentRequests;
-                                if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
-                                    appointmentRequestsEvents.push(appointmentRequestEvent);
-                                    this.setState({
-                                        appointmentRequests: appointmentRequestsEvents
-                                    });
-                                }
+                                    let appointmentRequestsEvents = this.state.appointmentRequests;
+                                    if (appointmentRequestsEvents.filter(item => item.id === appointmentRequest.requestId).length === 0) {
+                                        appointmentRequestsEvents.push(appointmentRequestEvent);
+                                        this.setState({
+                                            appointmentRequests: appointmentRequestsEvents
+                                        });
+                                    }
 
-                            });
-                    });
-
-                this.setState({
-                    page: 0,
-                    totalPages,
-                });
+                                });
+                        });
+                }
             });
     }
 
@@ -149,80 +165,78 @@ class AppointmentsManagementPage extends React.Component {
     getServiceProviderAppointments() {
         appointmentsStorage.getServiceProviderAppointments(this.serviceProviderId, this.serviceProviderHeaders)
             .then((response) => {
-                this.setState({
-                    appointments: [],
-                    appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
-                });
-
-                const appointments = response.data;
-                const totalPages = Math.ceil(appointments.length / TOTAL_PER_PAGE);
-
-                if (appointments.length === 0) {
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
                     this.setState({
-                        appointments: appointments,
-                    });
-                } else
-                    appointments.map((appointment, index) => {
-                        usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
-                            .then(user => {
-                                let appointmentEvent = {};
-                                appointment.clientName = user.fullname;
-
-                                appointmentEvent.id = appointment.appointmentId;
-                                appointmentEvent.title = user.fullname;
-                                appointmentEvent.allDay = false;
-                                appointmentEvent.start = moment(appointment.startDateAndTime);
-                                appointmentEvent.end = moment(appointment.endDateAndTime);
-                                appointmentEvent.appointment = appointment;
-                                appointmentEvent.backgroundColor = colorEventByRole[appointment.AppointmentDetail.role];
-
-                                let appointmentsEvents = this.state.appointments;
-                                appointmentsEvents.push(appointmentEvent);
-                                this.setState({
-                                    appointments: appointmentsEvents
-                                });
-
-                                let appointmentByRoleCount = this.state.appointmentByRoleCount;
-                                appointmentByRoleCount[appointment.AppointmentDetail.role] = appointmentByRoleCount[appointment.AppointmentDetail.role] + 1;
-                                this.setState({
-                                    appointmentByRoleCount: appointmentByRoleCount
-                                });
-                            });
+                        appointments: [],
+                        appointmentByRoleCount: {appointmentsHairDresser: 0, appointmentsDentist: 0}
                     });
 
-                this.setState({
-                    page: 0,
-                    totalPages,
-                });
+                    const appointments = response.data;
 
+                    if (appointments.length === 0) {
+                        this.setState({
+                            appointments: appointments,
+                        });
+                    } else
+                        appointments.map((appointment, index) => {
+                            usersStorage.getUserByUserID(appointment.AppointmentDetail.clientId, this.serviceProviderHeaders)
+                                .then(user => {
+                                    if (user.response) {
+                                        if (user.response.status !== 200)
+                                            return;
+                                    } else {
+                                        let appointmentEvent = {};
+                                        appointment.clientName = user.fullname;
+
+                                        appointmentEvent.id = appointment.appointmentId;
+                                        appointmentEvent.title = user.fullname;
+                                        appointmentEvent.allDay = false;
+                                        appointmentEvent.start = moment(appointment.startDateAndTime);
+                                        appointmentEvent.end = moment(appointment.endDateAndTime);
+                                        appointmentEvent.appointment = appointment;
+                                        appointmentEvent.backgroundColor = colorEventByRole[appointment.AppointmentDetail.role];
+
+                                        let appointmentsEvents = this.state.appointments;
+                                        appointmentsEvents.push(appointmentEvent);
+                                        this.setState({
+                                            appointments: appointmentsEvents
+                                        });
+
+                                        let appointmentByRoleCount = this.state.appointmentByRoleCount;
+                                        appointmentByRoleCount[appointment.AppointmentDetail.role] = appointmentByRoleCount[appointment.AppointmentDetail.role] + 1;
+                                        this.setState({
+                                            appointmentByRoleCount: appointmentByRoleCount
+                                        });
+                                    }
+                                });
+                        });
+                }
             });
     }
 
-    setPage(page) {
-        return () => {
-            this.setState({page});
-        };
-    }
+    getServiceProviderRoles = () => {
+        let serviceProviderRoles = {};
+        this.setState({serviceProviderRoles: {}});
 
-    decrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page - 1});
-    }
-
-    incrementPage() {
-        const {page} = this.state;
-
-        this.setState({page: page + 1});
-    }
-
-    handleDelete(appointmentId) {
-        const {appointments} = this.state;
-
-        this.setState({
-            appointments: appointments.filter(a => a.id !== appointmentId),
-        });
-    }
+        serviceProvidersStorage.getServiceProviderById(store.get("serviceProviderId"))
+            .then(serviceProvidersFound => {
+                if (serviceProvidersFound.response) {
+                    if (serviceProvidersFound.response.status !== 200)
+                        return;
+                } else {
+                    // console.log('serviceProvidersFound ', serviceProvidersFound);
+                    if (Array.isArray(serviceProvidersFound)) {
+                        serviceProviderRoles = serviceProvidersFound.filter(provider => provider.role.includes("appointments")).map((item) =>
+                            item.role
+                        );
+                        this.setState({serviceProviderRoles: serviceProviderRoles})
+                    }
+                }
+            });
+    };
 
     hoverOnAppointmentRequest = (appointmentRequest) => {
         let isAppointmentsWithOptional = this.state.appointments.filter(obj => obj.id === appointmentRequest.requestId && obj.status === 'optional');
@@ -262,7 +276,7 @@ class AppointmentsManagementPage extends React.Component {
     };
 
     onSelectEvent = event => {
-        console.log('onSelectEvent=event  ', event);
+        // console.log('onSelectEvent=event  ', event);
         // if (event.appointmentId === this.state.highlightTableRow)
         //     this.setState({highlightTableRow: null});
         // else {
@@ -286,12 +300,16 @@ class AppointmentsManagementPage extends React.Component {
         var appointmentRequests = this.state.appointmentRequests;
         appointmentsStorage.approveAppointmentRequestById(appointmentRequestEventDropped.appointmentRequest, this.serviceProviderHeaders)
             .then(response => {
-                console.log('appointmentRequest approved ', response);
-
-                let updatedAppointmentsRequests = appointmentRequests.filter(function (obj) {
-                    return obj.appointmentRequest.requestId !== appointmentRequestEventDropped.appointmentRequest.requestId;
-                });
-                this.setState({appointmentRequests: updatedAppointmentsRequests})
+                // console.log('appointmentRequest approved ', response);
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    let updatedAppointmentsRequests = appointmentRequests.filter(function (obj) {
+                        return obj.appointmentRequest.requestId !== appointmentRequestEventDropped.appointmentRequest.requestId;
+                    });
+                    this.setState({appointmentRequests: updatedAppointmentsRequests})
+                }
             });
     };
 
@@ -316,7 +334,7 @@ class AppointmentsManagementPage extends React.Component {
         appointment.startDateAndTime = moment(event.start).format();
         appointment.endDateAndTime = moment(event.end).format();
 
-        const idx = events.indexOf(event);
+        const idx = events.findIndex(item => item.id ===event.id)
 
         const updatedEvent = {...event, appointment: appointment};
 
@@ -339,9 +357,14 @@ class AppointmentsManagementPage extends React.Component {
 
         appointmentsStorage.updateAppointment(event, this.serviceProviderHeaders)
             .then((response) => {
-                this.setState({
-                    appointments: nextEvents,
-                })
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        return;
+                } else {
+                    this.setState({
+                        appointments: nextEvents,
+                    })
+                }
             })
     };
 
@@ -392,17 +415,19 @@ class AppointmentsManagementPage extends React.Component {
                         <Grid.Column width={3}></Grid.Column>
 
                         <div className={"right floated five"}>
-                            {Object.keys(colorEventByRole).map(role => {
-                                return <Label style={{
-                                    color: "white",
-                                    backgroundColor: `${colorEventByRole[role]}`,
-                                    marginLeft: 10
-                                }}>
-                                    {strings.roles[role]}
-                                    &nbsp;&nbsp;
-                                    <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
-                                </Label>
-                            })
+                            {Array.isArray(this.state.serviceProviderRoles) ?
+                                this.state.serviceProviderRoles.map(role => {
+                                    return <Label style={{
+                                        color: "white",
+                                        backgroundColor: `${colorEventByRole[role]}`,
+                                        marginLeft: 10
+                                    }}>
+                                        {strings.roles[role]}
+                                        &nbsp;&nbsp;
+                                        <Label.Detail>{appointmentByRoleCount[role]}</Label.Detail>
+                                    </Label>
+                                })
+                                : null
                             }
                         </div>
 
@@ -452,13 +477,35 @@ class AppointmentsManagementPage extends React.Component {
                         <Route exec path={`${this.props.match.path}/requests/:appointmentRequestId`}
                                component={AppointmentRequestInfo}/>
                         <Route exec path={`${this.props.match.path}/set`} render={(props) => (
-                            <AppointmentAdd {...props}
-                                            approveAppointmentRequest={(appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent)}/>
+                            <AppointmentAdd
+                                {...props}
+                                approveAppointmentRequest={(appointmentRequestEvent) => this.approveAppointmentRequest(appointmentRequestEvent)}
+                                userOptions={this.state.userOptions}
+                                getUsersForAppointmentForm={this.getUsersForAppointmentForm}
+                                serviceProviderRoles={this.state.serviceProviderRoles}
+                                getServiceProviderRoles={this.getServiceProviderRoles}
+                            />
                         )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId`}
-                               component={AppointmentInfo}/>
+                               render={(props) => (
+                                   <AppointmentInfo
+                                       {...props}
+                                       userOptions={this.state.userOptions}
+                                       getUsersForAppointmentForm={this.getUsersForAppointmentForm}
+                                       serviceProviderRoles={this.state.serviceProviderRoles}
+                                       getServiceProviderRoles={this.getServiceProviderRoles}
+                                   />
+                               )}/>
                         <Route exec path={`${this.props.match.path}/:appointmentId/edit`}
-                               component={AppointmentEdit}/>
+                               render={(props) => (
+                                   <AppointmentEdit
+                                       {...props}
+                                       userOptions={this.state.userOptions}
+                                       getUsersForAppointmentForm={this.getUsersForAppointmentForm}
+                                       serviceProviderRoles={this.state.serviceProviderRoles}
+                                       getServiceProviderRoles={this.getServiceProviderRoles}
+                                   />
+                               )}/>
 
                         {/*{
                             (this.props.location.pathname === window.location.pathname) ?

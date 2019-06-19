@@ -3,7 +3,6 @@ import {Helmet} from 'react-helmet';
 import AppointmentForm from "./AppointmentForm";
 import {Grid, Header, Modal} from "semantic-ui-react";
 import store from "store";
-import mappers from "../../shared/mappers";
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import appointmentsStorage from "../../storage/appointmentsStorage";
 
@@ -11,6 +10,10 @@ class AppointmentAdd extends React.Component {
     constructor(props) {
         super(props);
 
+        if (this.props.userOptions === undefined)
+            this.props.getUsersForAppointmentForm();
+        if (this.props.serviceProviderRoles === undefined)
+            this.props.getServiceProviderRoles();
         if (this.props.location.state.slotInfo)
             this.state = {
                 slotInfo: this.props.location.state.slotInfo
@@ -31,22 +34,28 @@ class AppointmentAdd extends React.Component {
     }
 
     handleSubmit(appointment) {
-        var appointmentRequestEvent=this.state.appointmentRequestEvent;
-        serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'))
+        var appointmentRequestEvent = this.state.appointmentRequestEvent;
+        return serviceProvidersStorage.getRolesOfServiceProvider(store.get('serviceProviderId'), this.serviceProviderHeaders)
             .then(roles => {
-                let serviceProviderRoles = roles;
+                if (roles.response) {
+                    if (roles.response.status !== 200)
+                        return roles;
+                } else
+                    return appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), roles, this.serviceProviderHeaders)
+                        .then((response) => {
+                            // console.log(response);
+                            if (response.response) {
+                                if (response.response.status !== 200)
+                                    return response;
+                            } else {
+                                if (appointmentRequestEvent)
+                                    this.props.approveAppointmentRequest(appointmentRequestEvent);
 
-                appointmentsStorage.setAppointment(appointment, store.get('serviceProviderId'), serviceProviderRoles, this.serviceProviderHeaders)
-                    .then((response) => {
-                        console.log(response);
-
-                        if (appointmentRequestEvent)
-                            this.props.approveAppointmentRequest(appointmentRequestEvent);
-
-                        this.props.history.goBack()
-                    })
-
-            });
+                                this.props.history.goBack();
+                                return response;
+                            }
+                        })
+            })
     }
 
     handleCancel(e) {
@@ -73,8 +82,9 @@ class AppointmentAdd extends React.Component {
                             handleSubmit={this.handleSubmit}
                             handleCancel={this.handleCancel}
                             slotInfo={this.state.slotInfo}
-                            // announcement={}
                             appointmentRequestEvent={this.state.appointmentRequestEvent}
+                            userOptions={this.props.userOptions}
+                            serviceProviderRoles={this.props.serviceProviderRoles}
                         />
                     </Grid.Column>
                 </Grid>

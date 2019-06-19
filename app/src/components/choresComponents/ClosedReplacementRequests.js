@@ -65,6 +65,10 @@ export default class ClosedReplacementRequests extends Component {
     loadReplacedRequests() {
         choresStorage.getReplacementRequests(this.userId,this.userHeaders, this.props.choreTypeName, "replaced")
             .then(response => {
+                if(response && response.status!==200){
+                    alert("בעיה בטעינת נתונים, נסה לרענן את העמוד.")
+                }
+                else{
                 let inRequests = [];
                 let outRequests = [];
                 let requestsTypes = [];
@@ -105,9 +109,10 @@ export default class ClosedReplacementRequests extends Component {
                     requestsTypesReplaced: requestsTypes,                    
                     replacedOut:outRequests,
                 });
+            }
             })
             .catch(err=>{
-
+                alert("אירעה שגיאה")
             })
 
     }
@@ -115,46 +120,50 @@ export default class ClosedReplacementRequests extends Component {
     loadDenyRequests() {
         choresStorage.getReplacementRequests(this.userId,this.userHeaders, this.props.choreTypeName, "deny")
             .then(response => {
-                let inRequests = [];
-                let outRequests = [];
-                let requestsTypes = [];
+                if(response && response.status!==200){
+                    alert("שגיאה בטעינת נתונים, נסה לרענן עמוד.")
+                }
+                else{
+                    let inRequests = [];
+                    let outRequests = [];
+                    let requestsTypes = [];
 
-                console.log("response= ", response);
-                response.data.requests.forEach(request => {
-                    if ((request.choreOfReceiver !== undefined) && (request.choreOfReceiver !== null) && (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfReceiver.userId === this.userId))
-                    {
-                        if(inRequests[request.choreOfReceiver.choreTypeName]===undefined){
-                            inRequests[request.choreOfReceiver.choreTypeName] = [];
+                    response.data.requests.forEach(request => {
+                        if ((request.choreOfReceiver !== undefined) && (request.choreOfReceiver !== null) && (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfReceiver.userId === this.userId))
+                        {
+                            if(inRequests[request.choreOfReceiver.choreTypeName]===undefined){
+                                inRequests[request.choreOfReceiver.choreTypeName] = [];
+                                inRequests[request.choreOfReceiver.choreTypeName].push(request);
+                                if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
+                                    requestsTypes.push(request.choreOfReceiver.choreTypeName);
+                                }
+                            }
+                            else{
                             inRequests[request.choreOfReceiver.choreTypeName].push(request);
-                            if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
-                                requestsTypes.push(request.choreOfReceiver.choreTypeName);
                             }
                         }
-                        else{
-                        inRequests[request.choreOfReceiver.choreTypeName].push(request);
-                        }
-                    }
-                    if ((request.choreOfSender !== undefined) && (request.choreOfSender !== null)&& (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfSender.userId === this.userId))
-                    {
-                        if(outRequests[request.choreOfReceiver.choreTypeName]===undefined){
-                            outRequests[request.choreOfReceiver.choreTypeName] = [];
+                        if ((request.choreOfSender !== undefined) && (request.choreOfSender !== null)&& (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfSender.userId === this.userId))
+                        {
+                            if(outRequests[request.choreOfReceiver.choreTypeName]===undefined){
+                                outRequests[request.choreOfReceiver.choreTypeName] = [];
+                                outRequests[request.choreOfReceiver.choreTypeName].push(request);
+                                if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
+                                    requestsTypes.push(request.choreOfReceiver.choreTypeName);
+                                }
+                            }else{
                             outRequests[request.choreOfReceiver.choreTypeName].push(request);
-                            if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
-                                requestsTypes.push(request.choreOfReceiver.choreTypeName);
+                            
                             }
-                        }else{
-                        outRequests[request.choreOfReceiver.choreTypeName].push(request);
-                        
+
                         }
+                    });
 
-                    }
-                });
-
-                this.setState({
-                    denyIn: inRequests,
-                    requestsTypesDeny: requestsTypes,                    
-                    denyOut:outRequests,
-                });
+                    this.setState({
+                        denyIn: inRequests,
+                        requestsTypesDeny: requestsTypes,                    
+                        denyOut:outRequests,
+                    });
+            }
             })
             .catch(err=>{
 
@@ -178,7 +187,12 @@ export default class ClosedReplacementRequests extends Component {
     renewReplacementRequest(){
         choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "requested")
         .then(res=>{
-            this.setState({alertModal:true, alertContent:"בקשת ההחלפה נשלחה שנית בהצלחה"})
+            if(res && res.status===200){
+                this.setState({alertModal:true, alertContent:"בקשת ההחלפה נשלחה שנית בהצלחה"})
+            }
+            else{
+                alert("בעיה! נסה שנית.")
+            }
         })
     }
 
@@ -355,28 +369,50 @@ export default class ClosedReplacementRequests extends Component {
         let reqs = [];
             choresStorage.getReplacementRequests(this.userId,this.userHeaders, this.props.choreTypeName, "requested")
             .then(response=>{
-                let req = 0;
-                let requests = []
-                let allReplacementRequests = response.data.requests;
-                for(req in allReplacementRequests){
-                    if(allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfSender||
-                        allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfSender){
-                        requests.push([choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, allReplacementRequests[req].choreIdOfSender, allReplacementRequests[req].choreIdOfReceiver, "canceled")])
-                    }
+                if(response && response.status!==200){
+                    alert("בעיה בטעינת נתונים, נסה לרענן את העמוד.")
                 }
-                axios.all(requests)
-                .then(res=>{
-                    reqss = requests;
-                    reqs = [];
-                    reqs.push([ choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "replaced"),choresStorage.replaceUserChores(this.userId, this.userHeaders,this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver)]);  
-                    axios.all(reqs)
-                    .then(res=>{   
-                            this.setState({reqs: reqss.length, alertModal:true,alertContent:String('החלפת תורנויות בוצעה בהצלחה. כעת, התורנות שלך הועברה לתאריך:'+String(this.state.userChoreSelected.choreOfSender.date))})
+                else{
+                    let req = 0;
+                    let requests = []
+                    let allReplacementRequests = response.data.requests;
+                    for(req in allReplacementRequests){
+                        if(allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfSender||
+                            allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfSender){
+                            requests.push([choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, allReplacementRequests[req].choreIdOfSender, allReplacementRequests[req].choreIdOfReceiver, "canceled")])
+                        }
+                    }
+                    axios.all(requests)
+                    .then(res=>{
+                        req=0;
+                        let faild=false;
+                        for(req in res){
+                            if(res[req] && res[req].status!==200){
+                                faild=true;
+                            }
+                        }
+                        if(faild){
+                            alert("אירעה בעיה, נסה שנית")
+                        }
+                        else{
+                            let reqss = requests;
+                            reqs = [];
+                            reqs.push([ choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "replaced"),choresStorage.replaceUserChores(this.userId, this.userHeaders,this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver)]);  
+                            axios.all(reqs)
+                            .then(res=>{ 
+                                if(res[0]&&res[0].status!==200){
+                                    alert("אירעה שגיאה, נסה שנית")
+                                } 
+                                else{
+                                    this.setState({reqs: reqss.length, alertModal:true,alertContent:String('החלפת תורנויות בוצעה בהצלחה. כעת, התורנות שלך הועברה לתאריך:'+String(this.state.userChoreSelected.choreOfSender.date))})
+                                }
+                            })
+                            .catch(err=>{
+                                this.setState({alertModal:true,alertContent:String('משהו השתבש,. ההחלפה לא בוצעה, והתורנות שלך נותרה בתאריך המקורי: '+String(this.state.userChoreSelected.choreOfReceiver.date))})
+                            })
+                        }
                     })
-                    .catch(err=>{
-                        this.setState({alertModal:true,alertContent:String('משהו השתבש,. ההחלפה לא בוצעה, והתורנות שלך נותרה בתאריך המקורי: '+String(this.state.userChoreSelected.choreOfReceiver.date))})
-                    })
-                })
+                }
             })
          //})
     }
@@ -419,18 +455,20 @@ export default class ClosedReplacementRequests extends Component {
                     transparent={false}
                     visible={this.state.choreModalVisible}
                     onRequestClose={() => {
-                        console.log('choreModal has been closed.');
+                        this.setState({choreModalVisible:false});
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
                         {this.state.userChoreSelected.choreOfSender!==undefined && this.state.userChoreSelected.choreOfSender.userId===this.userId ?
                         <View>
-                        <Text>התקבלה דחיה לבקשה שלך מהמשתמש:</Text>
+                        {this.state.userChoreSelected.status==='replaced'?<Text>ההחלפה בוצעה!  </Text>:<Text>התקבלה דחיה לבקשה שלך מהמשתמש:</Text>}
+                        <Text>פרטי הבקשה: </Text>
+                        <Text>תורנות:</Text>
                         <Text> {this.state.userChoreSelected.choreOfReceiver.choreTypeName}</Text>
-                        <Text> לגבי התורנות שלך:</Text>
-                        <Text>{moment(this.state.userChoreSelected.choreOfSender.date).format('DD-MM-YYYY')+' \n'    +this.state.userChoreSelected.choreOfSender.choreTypeName}</Text>
-                                <Text> {'עם:\n'+this.state.userChoreSelected.choreOfReceiver.User.fullname+' \n'    +
-                                this.state.userChoreSelected.choreOfReceiver.choreTypeName+' \n' + 'בתאריך:' +
+                        <Text>שולח הבקשה:</Text>
+                        <Text>{this.state.userChoreSelected.choreOfSender.User.fullname +'\nבתאריך: '+moment(this.state.userChoreSelected.choreOfSender.date).format('DD-MM-YYYY')+' \n'}</Text>
+                                <Text> {'מקבל הבקשה:\n'+this.state.userChoreSelected.choreOfReceiver.User.fullname+' \n'    +
+                                +' \n' + 'בתאריך:' +
                                 moment(this.state.userChoreSelected.choreOfReceiver.date).format('DD-MM-YYYY')+' \n'    
                                                         
                                 }</Text>
@@ -439,12 +477,12 @@ export default class ClosedReplacementRequests extends Component {
                                 onPress={() => {
                                     this.renewReplacementRequest();
                                 }}
-                            /><Button
+                            />{/*<Button
                                 label='סגור'
                                 onPress={() => {
                                     this.setState({ choreModalVisible: false});
                                 }}
-                            />
+                            />*/}
                                 </View>
                                 :
                                 <View></View>
@@ -483,7 +521,10 @@ export default class ClosedReplacementRequests extends Component {
                     </View>
                     
                 </Modal>
-                <Modal visible={this.state.alertModal}>
+                <Modal visible={this.state.alertModal}
+                onRequestClose={() => {
+                        this.setState({alertModal:false});
+                    }}>
                     <Text>{this.state.alertContent}</Text>
                     <Button
                                 label='סגור'

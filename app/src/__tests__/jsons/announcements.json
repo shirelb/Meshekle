@@ -1,0 +1,70 @@
+[
+  {
+  "announcementId": 1,
+  "serviceProviderId": "",
+  "userId": "549963652",
+  "categoryId": 1,
+  "creationTime": "2020-05-20",
+  "title": "firstExample",
+  "content": "announcement example",
+  "expirationTime": "2019-06-22",
+  "file": "",
+  "fileName": "",
+  "dateOfEvent": "2019-06-21",
+  "status":"Requested"
+  },
+  {
+    "announcementId": 2,
+    "serviceProviderId": "",
+    "userId": "549963652",
+    "categoryId": 1,
+    "creationTime": "2020-05-20",
+    "title": "secondExample",
+    "content": "announcement example 2",
+    "expirationTime": "2019-06-22",
+    "file": "",
+    "fileName": "",
+    "dateOfEvent": "2019-06-21",
+    "status":"Requested"
+  },
+  {
+    "announcementId": 3,
+    "serviceProviderId": "900261801",
+    "userId": "549963652",
+    "categoryId": 2,
+    "creationTime": "2020-05-20",
+    "title": "third example",
+    "content": "announcement example 3",
+    "expirationTime": "2019-06-22",
+    "file": "",
+    "fileName": "",
+    "dateOfEvent": "2020-06-21",
+    "status":"On air"
+  },{
+  "announcementId": 4,
+  "serviceProviderId": "900261801",
+  "userId": "549963652",
+  "categoryId": 1,
+  "creationTime": "2020-05-20",
+  "title": "fourth example",
+  "content": "announcement example 4",
+  "expirationTime": "2019-06-22",
+  "file": "",
+  "fileName": "",
+  "dateOfEvent": "2019-06-21",
+  "status":"On air"
+},{
+  "announcementId": 5,
+  "serviceProviderId": "900261801",
+  "userId": "900261801",
+  "categoryId": 2,
+  "creationTime": "2020-05-20",
+  "title": "fifth example",
+  "content": "announcement example 5",
+  "expirationTime": "2019-06-22",
+  "file": "",
+  "fileName": "",
+  "dateOfEvent": "2019-06-21",
+  "status":"On air"
+}
+]

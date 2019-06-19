@@ -1,0 +1,129 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserAppointmentRequests should match snapshot 1`] = `
+<ScrollViewMock
+  refreshControl={
+    <RefreshControlMock
+      onRefresh={[Function]}
+      refreshing={false}
+    />
+  }
+>
+  <Button
+    onPress={[Function]}
+    title="בקש תור חדש"
+  />
+  <Search
+    icon={Object {}}
+    lightTheme={true}
+    loadingIcon={Object {}}
+    noIcon={false}
+    onChangeText={[Function]}
+    placeholder="חפש..."
+    placeholderTextColor="#86939e"
+    round={false}
+    showLoadingIcon={false}
+  />
+  <ButtonGroup
+    buttons={
+      Array [
+        "ממתין לאישור",
+        "אושר",
+        "נדחה",
+      ]
+    }
+    onPress={[Function]}
+    selectedIndex={0}
+  />
+  <withTheme(List.Section)>
+    <View
+      key="907"
+      style={
+        Object {
+          "alignItems": "center",
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "flex-start",
+        }
+      }
+    >
+      <View
+        style={
+          Object {
+            "width": "100%",
+          }
+        }
+      >
+        <withTheme(List.Accordion)
+          description="Tara"
+          onPress={[Function]}
+          title="מספרה"
+        >
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            title="סטאטוס: נדחה"
+          />
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            description="לפרטים נוספים הקש כאן"
+            onPress={[Function]}
+            title="נושא: פן, תספורת, צבע, גוונים"
+          />
+        </withTheme(List.Accordion)>
+      </View>
+    </View>
+    <View
+      key="961"
+      style={
+        Object {
+          "alignItems": "center",
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "flex-start",
+        }
+      }
+    >
+      <View
+        style={
+          Object {
+            "width": "100%",
+          }
+        }
+      >
+        <withTheme(List.Accordion)
+          description="Gil"
+          onPress={[Function]}
+          title="מרפאת שיניים"
+        >
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            title="סטאטוס: אושר"
+          />
+          <withTheme(List.Item)
+            containerStyle={
+              Object {
+                "borderBottomWidth": 0,
+              }
+            }
+            description="לפרטים נוספים הקש כאן"
+            onPress={[Function]}
+            title="נושא: טיפול שורש, עקירה, שיננית, יישור שיניים"
+          />
+        </withTheme(List.Accordion)>
+      </View>
+    </View>
+  </withTheme(List.Section)>
+</ScrollViewMock>
+`;

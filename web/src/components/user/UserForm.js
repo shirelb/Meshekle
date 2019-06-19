@@ -1,7 +1,8 @@
 import React from 'react';
-import {Form, Label, Message, Image, Checkbox} from 'semantic-ui-react';
+import {Checkbox, Form, Image, Message} from 'semantic-ui-react';
 import moment from "moment";
 import Datetime from 'react-datetime';
+import mappers from "../../shared/mappers";
 
 class UserForm extends React.Component {
     constructor(props) {
@@ -11,12 +12,15 @@ class UserForm extends React.Component {
 
         this.state = {
             formError: false,
+            formErrorHeader: "",
+            formErrorContent: "",
             formComplete: false,
             isAlertModal: false,
+            subjectOptions: [],
         };
 
         if (user) {
-            this.state = {
+            Object.assign(this.state, {
                 user: {
                     userId: user.userId,
                     fullname: user.fullname,
@@ -30,9 +34,9 @@ class UserForm extends React.Component {
                     active: user.active,
                     image: user.image,
                 },
-            };
+            });
         } else {
-            this.state = {
+            Object.assign(this.state, {
                 user: {
                     userId: '',
                     fullname: '',
@@ -45,7 +49,7 @@ class UserForm extends React.Component {
                     active: true,
                     image: "",
                 },
-            };
+            });
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -77,7 +81,8 @@ class UserForm extends React.Component {
     handleFocus = () => {
         this.setState({
             formError: false,
-            formErrorMassage: "",
+            formErrorHeader: "",
+            formErrorContent: "",
             fieldUserIdError: false,
             fieldFullnameError: false,
             fieldEmailError: false,
@@ -88,13 +93,13 @@ class UserForm extends React.Component {
             fieldActiveError: false,
             // fieldImageError:false,
         })
-    }
+    };
 
     isFormValid = (user) => {
         if (user.userId === '' || !(/^\d*$/.test(user.userId))) {
             this.setState({
                 formError: true,
-                formErrorMassage: "ת.ז. צריך להכיל רק ספרות",
+                formErrorContent: "ת.ז. צריך להכיל רק ספרות",
                 fieldUserIdError: true
             });
             return false;
@@ -103,16 +108,16 @@ class UserForm extends React.Component {
         if (user.fullname === '' || !(/^([^0-9]*)$/.test(user.fullname))) {
             this.setState({
                 formError: true,
-                formErrorMassage: "שמך צריך להכיל רק אותיות",
+                formErrorContent: "שמך צריך להכיל רק אותיות",
                 fieldFullnameError: true
             });
             return false;
         }
 
-        if (user.email === '' || !(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(user.email))) {
+        if (user.email === '' || !(/^[^@]+@[^@]+\.[^@]+$/.test(user.email))) {
             this.setState({
                 formError: true,
-                formErrorMassage: "אימייל לא וואלידי",
+                formErrorContent: "אימייל לא וואלידי",
                 fieldEmailError: true
             });
             return false;
@@ -121,7 +126,7 @@ class UserForm extends React.Component {
         if (user.mailbox === 0 || !(/^\d*$/.test(user.mailbox))) {
             this.setState({
                 formError: true,
-                formErrorMassage: "תיבת דואר צריך להכיל רק ספרות",
+                formErrorContent: "תיבת דואר צריך להכיל רק ספרות",
                 fieldMailboxError: true
             });
             return false;
@@ -130,25 +135,33 @@ class UserForm extends React.Component {
         if (user.cellphone === '' || !(/^\d*$/.test(user.cellphone))) {
             this.setState({
                 formError: true,
-                formErrorMassage: "הפלאפון לא וואלידי",
+                formErrorContent: "הפלאפון לא וואלידי",
                 fieldCellphoneError: true
             });
             return false;
         }
 
-        if (!(/^\d*$/.test(user.phone))) {
-            this.setState({
-                formError: true,
-                formErrorMassage: "הטלפון לא וואלידי",
-                fieldPhoneError: true
-            });
-            return false;
-        }
+        if (user.phone)
+            if (!(/^\d*$/.test(user.cellphone))) {
+                this.setState({
+                    formError: true,
+                    formErrorContent: "הפלאפון לא וואלידי",
+                    fieldCellphoneError: true
+                });
+                return false;
+            }
 
         if (user.bornDate === null) {
             this.setState({
                 formError: true,
-                formErrorMassage: "תאריך לידה לא מולא",
+                formErrorContent: "תאריך לידה לא מולא",
+                fieldBornDateError: true
+            });
+            return false;
+        } else if (user.bornDate > moment()) {
+            this.setState({
+                formError: true,
+                formErrorContent: "תאריך לידה צריך להיות בעבר",
                 fieldBornDateError: true
             });
             return false;
@@ -157,7 +170,7 @@ class UserForm extends React.Component {
         if (user.active === null) {
             this.setState({
                 formError: true,
-                formErrorMassage: "האם המשתמש פעיל?",
+                formErrorContent: "האם המשתמש פעיל?",
                 fieldActiveError: true
             });
             return false;
@@ -176,23 +189,32 @@ class UserForm extends React.Component {
         if (this.isFormValid(user)) {
             this.setState({formComplete: true});
 
-            handleSubmit(user);
-            this.setState({
-                user: {
-                    userId: '',
-                    fullname: '',
-                    password: '',
-                    email: '',
-                    mailbox: 0,
-                    cellphone: '',
-                    phone: '',
-                    bornDate: null,
-                    active: true,
-                    image: "",
-                },
-            });
+            handleSubmit(user)
+                .then(res => {
+                    if (res.response) {
+                        if (res.response.status !== 200)
+                            this.setState({
+                                formError: true,
+                                formErrorHeader: 'קרתה שגיאה בעת הוספת המשתמש',
+                                formErrorContent: mappers.errorMapper(res.response)
+                            });
+                    } else
+                        this.setState({
+                            user: {
+                                userId: '',
+                                fullname: '',
+                                password: '',
+                                email: '',
+                                mailbox: 0,
+                                cellphone: '',
+                                phone: '',
+                                bornDate: null,
+                                active: true,
+                                image: "",
+                            },
+                        });
+                })
         }
-
     }
 
     handleChange(e, {name, value}) {
@@ -218,6 +240,8 @@ class UserForm extends React.Component {
                 image: "",
             },
             formError: false,
+            formErrorHeader: "",
+            formErrorContent: "",
             formComplete: false,
         });
     };
@@ -252,7 +276,7 @@ class UserForm extends React.Component {
     };
 
     render() {
-        const {formError, formComplete, user, user: {userId, fullname, password, email, mailbox, cellphone, phone, bornDate, active, image}} = this.state;
+        const {formError, formErrorHeader, formErrorContent, formComplete, user, user: {userId, fullname, password, email, mailbox, cellphone, phone, bornDate, active, image}} = this.state;
         const {handleCancel, submitText} = this.props;
 
         // console.log("USerForm user ", user);
@@ -269,6 +293,7 @@ class UserForm extends React.Component {
                         value={userId}
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
+                        disabled={userId !== ''}
                     />
                     <Form.Input
                         error={this.state.fieldFullnameError}
@@ -280,18 +305,6 @@ class UserForm extends React.Component {
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
                     />
-                    {/*{password !== '' ?
-                        <Form.Input
-                        error=this.state.field
-                            required
-                            label="סיסמא"
-                            type="password"
-                            name="password"
-                            value={password}
-                            onChange={this.handleChange}
-                                                    onFocus={this.handleFocus}
-                        /> : null
-                    }*/}
                 </Form.Group>
 
                 <Form.Group widths='equal'>
@@ -330,7 +343,6 @@ class UserForm extends React.Component {
                     />
                     <Form.Input
                         error={this.state.fieldPhoneError}
-                        required
                         label="טלפון"
                         type="tel"
                         name="phone"
@@ -392,8 +404,8 @@ class UserForm extends React.Component {
                 {formError ?
                     <Message
                         error
-                        header='פרטי משתמש חסרים'
-                        content={this.state.formErrorMassage === "" ? 'נא להשלים את השדות החסרים' : this.state.formErrorMassage}
+                        header={this.state.formErrorHeader === "" ? 'פרטי משתמש חסרים' : this.state.formErrorHeader}
+                        content={this.state.formErrorContent === "" ? 'נא להשלים את השדות החסרים' : this.state.formErrorContent}
                     />
                     : null
                 }

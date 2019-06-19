@@ -1,0 +1,59 @@
+[
+  {
+    "appointmentId": 428,
+    "startDateAndTime": "2019-09-04T06:35:13.000Z",
+    "endDateAndTime": "2019-09-04T05:13:23.000Z",
+    "remarks": "orci pede venenatis non sodales sed tincidunt",
+    "status": "set",
+    "createdAt": "2019-05-21T15:55:45.940Z",
+    "updatedAt": "2019-05-21T15:55:45.940Z",
+    "AppointmentDetail": {
+      "appointmentId": 428,
+      "clientId": "580624494",
+      "serviceProviderId": 549963652,
+      "role": "appointmentsHairDresser",
+      "subject": "[\"החלקה\", \"גוונים\", \"צבע\", \"תספורת\"]",
+      "createdAt": "2019-05-21T15:55:45.923Z",
+      "updatedAt": "2019-05-21T15:55:45.923Z",
+      "userId": null
+    }
+  },
+  {
+    "appointmentId": 935,
+    "startDateAndTime": "2018-09-17T05:46:31.000Z",
+    "endDateAndTime": "2018-09-17T11:50:42.000Z",
+    "remarks": "ut massa quis augue luctus tincidunt nulla mollis molestie",
+    "status": "set",
+    "createdAt": "2019-05-21T15:55:45.940Z",
+    "updatedAt": "2019-05-21T15:55:45.940Z",
+    "AppointmentDetail": {
+      "appointmentId": 935,
+      "clientId": "561933550",
+      "serviceProviderId": 549963652,
+      "role": "appointmentsHairDresser",
+      "subject": "[\"החלקה\", \"גוונים\", \"צבע\", \"תספורת\"]",
+      "createdAt": "2019-05-21T15:55:45.923Z",
+      "updatedAt": "2019-05-21T15:55:45.923Z",
+      "userId": null
+    }
+  },
+  {
+    "appointmentId": 985,
+    "startDateAndTime": "2019-06-24T03:57:33.000Z",
+    "endDateAndTime": "2019-06-24T08:41:36.000Z",
+    "remarks": "varius ut blandit non interdum in ante",
+    "status": "set",
+    "createdAt": "2019-05-21T15:55:45.940Z",
+    "updatedAt": "2019-05-21T15:55:45.940Z",
+    "AppointmentDetail": {
+      "appointmentId": 985,
+      "clientId": "616314141",
+      "serviceProviderId": 549963652,
+      "role": "appointmentsHairDresser",
+      "subject": "[\"החלקה\", \"גוונים\", \"צבע\", \"תספורת\"]",
+      "createdAt": "2019-05-21T15:55:45.923Z",
+      "updatedAt": "2019-05-21T15:55:45.923Z",
+      "userId": null
+    }
+  }
+]

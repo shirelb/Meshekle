@@ -1,5 +1,5 @@
 import React from 'react';
-import {Accordion, Button, Icon, Image, Modal} from 'semantic-ui-react';
+import {Accordion, Button, Container, Icon, Image, Message, Modal} from 'semantic-ui-react';
 import {Helmet} from 'react-helmet';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import store from "store";
@@ -14,8 +14,20 @@ class ServiceProviderInfo extends React.Component {
 
         console.log("UserInfo props ", this.props);
         this.props.location.state ?
-            this.state = {serviceProvider: this.props.location.state.serviceProvider, activeIndex: -1} :
-            this.state = {serviceProvider: {}, activeIndex: -1};
+            this.state = {
+                serviceProvider: this.props.location.state.serviceProvider,
+                activeIndex: -1,
+                infoError: false,
+                infoErrorHeader: '',
+                infoErrorContent: ''
+            } :
+            this.state = {
+                serviceProvider: {},
+                activeIndex: -1,
+                infoError: false,
+                infoErrorHeader: '',
+                infoErrorContent: ''
+            };
         // this.state = {serviceProvider: this.props.location.state.serviceProvider};
 
         this.handleDelete = this.handleDelete.bind(this);
@@ -31,15 +43,32 @@ class ServiceProviderInfo extends React.Component {
         else
             serviceProvidersStorage.getServiceProviderById(this.props.match.params.serviceProviderId)
                 .then(serviceProvider => {
-                    this.setState({serviceProvider: serviceProvider});
+                    if (serviceProvider.response) {
+                        if (serviceProvider.response.status !== 200)
+                            this.setState({
+                                infoError: true,
+                                infoErrorHeader: 'קרתה שגיאה בעת נותן השירות',
+                                infoErrorContent: mappers.errorMapper(serviceProvider.response)
+                            });
+                    } else
+                        this.setState({serviceProvider: serviceProvider});
                 })
     }
 
     handleDelete() {
         serviceProvidersStorage.deleteServiceProviderById(this.state.serviceProvider.serviceProviderId, this.state.serviceProvider.role, "shallowDelete")
             .then((response) => {
-                console.log('serviceProvider deleted response ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת מחיקת נותן השירות',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    console.log('serviceProvider deleted response ', response);
+                    this.props.history.goBack();
+                }
             });
     }
 
@@ -60,10 +89,19 @@ class ServiceProviderInfo extends React.Component {
     renewPassword = () => {
         serviceProvidersStorage.renewUserPassword(this.state.serviceProvider.userId, this.serviceProviderHeaders)
             .then((response) => {
-                console.log('user password renewed response ', response);
-                this.props.history.goBack();
+                if (response.response) {
+                    if (response.response.status !== 200)
+                        this.setState({
+                            infoError: true,
+                            infoErrorHeader: 'קרתה שגיאה בעת חידוש הסיסמא',
+                            infoErrorContent: mappers.errorMapper(response.response)
+                        });
+                } else {
+                    // console.log('user password renewed response ', response);
+                    this.props.history.goBack();
+                }
             });
-    }
+    };
 
     appointmentRoleDetailsVisible = () => {
         if (this.state.serviceProvider.role)
@@ -73,15 +111,15 @@ class ServiceProviderInfo extends React.Component {
     };
 
     render() {
-        const {serviceProvider, activeIndex} = this.state;
-        console.log('ServiceProviderInfo serviceProvider ', serviceProvider);
+        const {serviceProvider, activeIndex, infoError, infoErrorHeader, infoErrorContent} = this.state;
+        // console.log('ServiceProviderInfo serviceProvider ', serviceProvider);
 
         return (
             <div>
                 <Modal open dimmer="blurring" closeIcon onClose={() => this.props.history.goBack()}>
                     <Helmet>
-                        <title>Meshekle | ServiceProvider {serviceProvider.fullname}</title>
-                        {/*<title>Meshekle | ServiceProvider {serviceProvider.serviceProviderId}</title>*/}
+                        <title>Meshekle |
+                            ServiceProvider {serviceProvider.fullname ? serviceProvider.fullname : serviceProvider.serviceProviderId}</title>
                     </Helmet>
 
                     <Modal.Header>{serviceProvider.fullname}</Modal.Header>
@@ -90,53 +128,70 @@ class ServiceProviderInfo extends React.Component {
                         <Image wrapped size="small"
                                src={serviceProvider.image ? serviceProvider.image : 'https://user-images.githubusercontent.com/30195/34457818-8f7d8c76-ed82-11e7-8474-3825118a776d.png'}/>
                         <Modal.Description style={{marginRight: 20}}>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
-                            <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
-                            <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {strings.roles[serviceProvider.role]}</p>
-                            {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
-                            {this.appointmentRoleDetailsVisible() ?
-                                <div>
-                                    {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
-                                    {
-                                        JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
-                                            return <Accordion key={index}>
-                                                <Accordion.Title
-                                                    active={activeIndex === index}
-                                                    index={index}
-                                                    onClick={this.handleClick}>
-                                                    <Icon name='dropdown'/>
-                                                    {mappers.daysMapper(dayTime.day)}
-                                                </Accordion.Title>
-                                                {
-                                                    dayTime.hours.map((hour, j) => {
-                                                        return <Accordion.Content
-                                                            active={activeIndex === index}
-                                                            key={j}>
-                                                            {hour.startHour} - {hour.endHour}
-                                                        </Accordion.Content>
-                                                    })
-                                                }
-                                            </Accordion>
-                                        })
-                                    }
-                                </div>
-                                : null
-                            }
-                            <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
-                            {this.appointmentRoleDetailsVisible() ?
-                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
-                                : null
-                            }
-                            <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
+                            <Container text>
+                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ID_HEADER}: {serviceProvider.serviceProviderId}</p>
+                                <p>{strings.phoneBookPageStrings.FULLNAME_HEADER}: {serviceProvider.fullname}</p>
+                                <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_ROLE_HEADER}: {strings.roles[serviceProvider.role]}</p>
+                                {/*<p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_USER_ID_HEADER}: {serviceProvider.userId}</p>*/}
+                                {this.appointmentRoleDetailsVisible() ?
+                                    <div>
+                                        {strings.phoneBookPageStrings.SERVICE_PROVIDER_OPERATION_TIME_HEADER}:
+                                        {
+                                            JSON.parse(serviceProvider.operationTime).map((dayTime, index) => {
+                                                return <Accordion key={index}>
+                                                    <Accordion.Title
+                                                        active={activeIndex === index}
+                                                        index={index}
+                                                        onClick={this.handleClick}>
+                                                        <Icon name='dropdown'/>
+                                                        {mappers.daysMapper(dayTime.day)}
+                                                    </Accordion.Title>
+                                                    {
+                                                        dayTime.hours.map((hour, j) => {
+                                                            return <Accordion.Content
+                                                                active={activeIndex === index}
+                                                                key={j}>
+                                                                {hour.startHour} - {hour.endHour}
+                                                            </Accordion.Content>
+                                                        })
+                                                    }
+                                                </Accordion>
+                                            })
+                                        }
+                                    </div>
+                                    : null
+                                }
+                                <p>{strings.phoneBookPageStrings.PHONE_HEADER}: {serviceProvider.phoneNumber}</p>
+                                {this.appointmentRoleDetailsVisible() ?
+                                    <p>{strings.phoneBookPageStrings.SERVICE_PROVIDER_APPOINTMENT_WAY_TYPE_HEADER}: {strings.appointmentsWayType[serviceProvider.appointmentWayType]}</p>
+                                    : null
+                                }
+                                <p>{strings.phoneBookPageStrings.ACTIVE_HEADER}: {serviceProvider.active ? strings.phoneBookPageStrings.ACTIVE_ANSWER_YES : strings.phoneBookPageStrings.ACTIVE_ANSWER_NO}</p>
 
-                            <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                {this.props.hasPhoneBookPermissions ?
+                                    <Button onClick={this.renewPassword}>חדש סיסמא</Button>
+                                    : null
+                                }
+
+                                {infoError ?
+                                    <Message
+                                        error
+                                        header={infoErrorHeader}
+                                        content={infoErrorContent}
+                                    />
+                                    : null
+                                }
+                            </Container>
                         </Modal.Description>
                     </Modal.Content>
-                    <Modal.Actions className='alignLeft'>
-                        <Button positive onClick={this.handleEdit}>ערוך</Button>
-                        <Button negative onClick={this.handleDelete}>מחק</Button>
-                        <Button onClick={() => this.props.history.goBack()}>סגור</Button>
-                    </Modal.Actions>
+                    {this.props.hasPhoneBookPermissions ?
+                        <Modal.Actions className='alignLeft'>
+                            <Button positive onClick={this.handleEdit}>ערוך</Button>
+                            <Button negative onClick={this.handleDelete}>מחק</Button>
+                            <Button onClick={() => this.props.history.goBack()}>סגור</Button>
+                        </Modal.Actions>
+                        : null
+                    }
                 </Modal>
 
                 <div>

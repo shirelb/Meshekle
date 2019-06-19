@@ -1,4 +1,5 @@
 import {LocaleConfig} from 'react-native-calendars';
+import moment from "moment";
 
 LocaleConfig.locales['il'] = {
     monthNames: ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'],

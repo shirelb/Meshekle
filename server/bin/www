@@ -70,7 +70,7 @@ io.on("connection", socket => {
     };
 
     var pushToAllWebClient = function (socketEventName) {
-        serviceProviderClients.forEach(serviceProviderSocket=>{
+        serviceProviderClients.forEach(serviceProviderSocket => {
             try {
                 io.sockets.connected[serviceProviderSocket.socketId].emit(socketEventName);
             } catch (err) {
@@ -90,7 +90,7 @@ io.on("connection", socket => {
     };
 
     var pushToAllAppClient = function (socketEventName) {
-        userClients.forEach(userSocket=>{
+        userClients.forEach(userSocket => {
             try {
                 io.sockets.connected[userSocket.socketId].emit(socketEventName);
             } catch (err) {
@@ -100,26 +100,36 @@ io.on("connection", socket => {
     };
 
     socket.on('disconnectWebClient', (data) => {
-        let serviceProviderSocket = serviceProviderClients.filter(item => item.serviceProviderId === data.serviceProviderId || item.serviceProviderId === data.serviceProviderId.toString());
-        if (serviceProviderSocket.length === 1) {
-            io.sockets.connected[serviceProviderSocket[0].socketId].disconnect();
-            serviceProviderClients = serviceProviderClients.filter(item => item.serviceProviderId !== data.serviceProviderId || item.serviceProviderId !== data.serviceProviderId.toString());
-            console.log('socket disconnectWebClient data ', data);
+        try {
+            let serviceProviderSocket = serviceProviderClients.filter(item => item.serviceProviderId === data.serviceProviderId || item.serviceProviderId === data.serviceProviderId.toString());
+            if (serviceProviderSocket.length === 1) {
+                io.sockets.connected[serviceProviderSocket[0].socketId].disconnect();
+                serviceProviderClients = serviceProviderClients.filter(item => item.serviceProviderId !== data.serviceProviderId || item.serviceProviderId !== data.serviceProviderId.toString());
+                console.log('socket disconnectWebClient data ', data);
+            }
+        } catch (e) {
+            console.log("disconnectWebClient error ", e);
         }
     });
 
     socket.on('disconnectAppClient', (data) => {
-        let userSocket = userClients.filter(item => item.userId === data.userId);
-        if (userSocket.length === 1) {
-            io.sockets.connected[userSocket[0].socketId].disconnect();
-            userClients = userClients.filter(item => item.userId !== data.userId);
-            console.log('socket disconnectAppClient data ', data);
+        try {
+            let userSocket = userClients.filter(item => item.userId === data.userId);
+            if (userSocket.length === 1) {
+                io.sockets.connected[userSocket[0].socketId].disconnect();
+                userClients = userClients.filter(item => item.userId !== data.userId);
+                console.log('socket disconnectAppClient data ', data);
+            }
+        } catch (e) {
+            console.log("disconnectWebClient error ", e);
         }
     });
 
     require('../sockets/appointments')(socket, pushToWebClient, pushToAppClient);
     require('../sockets/serviceProviders')(socket, pushToWebClient, pushToAllAppClient);
     require('../sockets/users')(socket, pushToAllWebClient, pushToAllAppClient);
+    require('../sockets/chores')(socket, pushToWebClient, pushToAppClient, pushToAllAppClient, pushToAllWebClient);
+    require('../sockets/announcements')(socket, pushToAllWebClient, pushToAllAppClient);
 
     return io;
 });

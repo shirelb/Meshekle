@@ -6,20 +6,10 @@ import ChoresCalendar from "../../components/calendars/choresCalendar/ChoresCale
 export default class ChoresScreen extends Component {
     render() {
         return (
-            <View style={styles.container}>
-                <Text>
+            <View>
+              {/*  <Text>
                     התורנויות שלי
-                </Text>
-
-                {/*<Button
-                    title="בקש תור חדש"
-                    onPress={this.onAppointmentRequestPress.bind(this)}
-                />*/}
-
-                {/* <Button
-                    label='get events'
-                    onPress={this.getUserEvents.bind(this)}
-                />*/}
+                </Text>*/}
 
                 <ChoresCalendar userId="1"/>
             </View>

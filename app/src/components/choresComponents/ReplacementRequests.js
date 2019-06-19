@@ -11,8 +11,6 @@ import choresStorage from "../../storage/choresStorage";
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import axios from "axios";
 import {List} from 'react-native-paper';
-//import { Collapse, CollapseHeader, CollapseBody } from "accordion-collapse-react-native";
-//import {  Separator } from 'native-base';
 
 
 export default class ReplacementRequests extends Component {
@@ -67,53 +65,53 @@ export default class ReplacementRequests extends Component {
         console.log("userid: ", this.userId);
         choresStorage.getReplacementRequests(this.userId,this.userHeaders, this.props.choreTypeName, "requested")
             .then(response => {
-                let inRequests = [];
-                let outRequests = [];
-                //let requestsTypes = new Set([]);
-                let requestsTypes = [];
+                if(response && response.status!==200){
+                    alert("בעיה בטעינת נתונים, נסה לרענן את העמוד.")
+                }
+                else{
+                    let inRequests = [];
+                    let outRequests = [];
+                    let requestsTypes = [];
 
-                console.log("response= ", response);
-                response.data.requests.forEach(request => {
-                    if ((request.choreOfReceiver !== undefined) && (request.choreOfReceiver !== null) && (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfReceiver.userId === this.userId))
-                    {
-                        if(inRequests[request.choreOfReceiver.choreTypeName]===undefined){
-                            inRequests[request.choreOfReceiver.choreTypeName] = [];
+                    console.log("response= ", response);
+                    response.data.requests.forEach(request => {
+                        if ((request.choreOfReceiver !== undefined) && (request.choreOfReceiver !== null) && (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfReceiver.userId === this.userId))
+                        {
+                            if(inRequests[request.choreOfReceiver.choreTypeName]===undefined){
+                                inRequests[request.choreOfReceiver.choreTypeName] = [];
+                                inRequests[request.choreOfReceiver.choreTypeName].push(request);
+                                if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
+                                    requestsTypes.push(request.choreOfReceiver.choreTypeName);
+                                }
+                            }
+                            else{
                             inRequests[request.choreOfReceiver.choreTypeName].push(request);
-                            if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
-                                requestsTypes.push(request.choreOfReceiver.choreTypeName);
+                            //requestsTypes.add(request.choreOfReceiver.choreTypeName);
                             }
                         }
-                        else{
-                        inRequests[request.choreOfReceiver.choreTypeName].push(request);
-                        //requestsTypes.add(request.choreOfReceiver.choreTypeName);
-                        }
-                    }
-                    if ((request.choreOfSender !== undefined) && (request.choreOfSender !== null)&& (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfSender.userId === this.userId))
-                    {
-                        if(outRequests[request.choreOfReceiver.choreTypeName]===undefined){
-                            outRequests[request.choreOfReceiver.choreTypeName] = [];
+                        if ((request.choreOfSender !== undefined) && (request.choreOfSender !== null)&& (moment(request.choreOfReceiver.date).isAfter(Date.now())) && (moment(request.choreOfSender.date).isAfter(Date.now())) &&(request.choreOfSender.userId === this.userId))
+                        {
+                            if(outRequests[request.choreOfReceiver.choreTypeName]===undefined){
+                                outRequests[request.choreOfReceiver.choreTypeName] = [];
+                                outRequests[request.choreOfReceiver.choreTypeName].push(request);
+                                if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
+                                    requestsTypes.push(request.choreOfReceiver.choreTypeName);
+                                }
+                            }else{
                             outRequests[request.choreOfReceiver.choreTypeName].push(request);
-                            if(!requestsTypes.includes(request.choreOfReceiver.choreTypeName)){
-                                requestsTypes.push(request.choreOfReceiver.choreTypeName);
                             }
-                        }else{
-                        outRequests[request.choreOfReceiver.choreTypeName].push(request);
-                        //requestsTypes.add(request.choreOfReceiver.choreTypeName);
-                        
                         }
+                    });
 
-                    }
-                });
-
-                this.setState({
-                    inRequests: inRequests,
-                    //outRequests:outRequests,
-                    requestsTypes: requestsTypes,                    
-                    outRequests:outRequests,
-                });
+                    this.setState({
+                        inRequests: inRequests,
+                        requestsTypes: requestsTypes,                    
+                        outRequests:outRequests,
+                    });
+                }
             })
             .catch(err=>{
-
+                alert("אירעה בעיה, נסה שנית.");
             })
 
     }
@@ -168,14 +166,24 @@ export default class ReplacementRequests extends Component {
     deleteReplacementRequest(){
         choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "canceled")
         .then(res=>{
-            this.setState({alertModal:true, alertContent:"בקשת ההחלפה הוסרה בהצלחה"})
+            if(res && res.status!==200){
+                this.setState({alertModal:true, alertContent:"בקשת ההחלפה הוסרה בהצלחה"})
+            }
+            else{
+                alert("בעיה! נסה שנית.")
+            }
         })
     }
 
     denyReplacementRequest(){
         choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "deny")
         .then(res=>{
-            this.setState({alertModal:true, alertContent:"נשלחה הודעה ל"+this.state.userChoreSelected.choreOfSender.User.fullname+" על אי יכולתך להחליף עימו"})
+            if(res && res.status===200){
+                this.setState({alertModal:true, alertContent:"נשלחה הודעה ל"+this.state.userChoreSelected.choreOfSender.User.fullname+" על אי יכולתך להחליף עימו"})
+            }
+            else{
+                alert("בעיה! נסה שנית.")
+            }
         })
     }
 
@@ -332,34 +340,43 @@ export default class ReplacementRequests extends Component {
 
     replaceUserChores(){
         let reqs = [];
-         //this.cancelNotRelevantRequests()
-         //.then(resp=>{
+        
             choresStorage.getReplacementRequests(this.userId,this.userHeaders, this.props.choreTypeName, "requested")
             .then(response=>{
-                let req = 0;
-                let requests = []
-                let allReplacementRequests = response.data.requests;
-                for(req in allReplacementRequests){
-                    if(allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfSender||
-                        allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfSender){
-                        requests.push([choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, allReplacementRequests[req].choreIdOfSender, allReplacementRequests[req].choreIdOfReceiver, "canceled")])
-                    }
+                if(response && response.status!==200){
+                    alert("בעיה בטעינת נתונים, נסה לרענן את העמוד.")
                 }
-                axios.all(requests)
-                .then(res=>{
-                    reqss = requests;
-                    reqs = [];
-                    reqs.push([ choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "replaced"),choresStorage.replaceUserChores(this.userId, this.userHeaders,this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver),choresStorage.generalReplacementRequest(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender,false),choresStorage.generalReplacementRequest(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfReceiver,false)]);  
-                    axios.all(reqs)
-                    .then(res=>{   
-                        this.setState({ alertModal:true,alertContent:String('החלפת תורנויות בוצעה בהצלחה. כעת, התורנות שלך הועברה לתאריך:'+String(this.state.userChoreSelected.choreOfSender.date))})
-                        //this.props.loadUserChores();
+                else{
+                    let req = 0;
+                    let requests = []
+                    let allReplacementRequests = response.data.requests;
+                    for(req in allReplacementRequests){
+                        if(allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfReceiver===this.state.userChoreSelected.choreIdOfSender||
+                            allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfReceiver|| allReplacementRequests[req].choreIdOfSender===this.state.userChoreSelected.choreIdOfSender){
+                            requests.push([choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, allReplacementRequests[req].choreIdOfSender, allReplacementRequests[req].choreIdOfReceiver, "canceled")])
+                        }
+                    }
+                    axios.all(requests)
+                    .then(res=>{
+                            let reqss = requests;
+                            reqs = [];
+                            reqs.push([ choresStorage.changeReplacementRequestStatus(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver, "replaced"),choresStorage.replaceUserChores(this.userId, this.userHeaders,this.state.userChoreSelected.choreIdOfSender, this.state.userChoreSelected.choreIdOfReceiver),choresStorage.generalReplacementRequest(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfSender,false),choresStorage.generalReplacementRequest(this.userId, this.userHeaders, this.state.userChoreSelected.choreIdOfReceiver,false)]);  
+                            axios.all(reqs)
+                            .then(ress=>{ 
+                                //if(ress[0] && ress[0].status===200){
+                                    this.setState({ alertModal:true,alertContent:String('החלפת תורנויות בוצעה בהצלחה. כעת, התורנות שלך הועברה לתאריך:'+String(this.state.userChoreSelected.choreOfSender.date))})
+                                // }
+                                // else{
+                                //     alert("בעיהp! נסה שנית.")
+                                // }
 
+                            })
+                            .catch(err=>{
+                                this.setState({alertModal:true,alertContent:String('משהו השתבש,. ההחלפה לא בוצעה, והתורנות שלך נותרה בתאריך המקורי: '+String(this.state.userChoreSelected.choreOfReceiver.date))})
+                            })
+                        
                     })
-                    .catch(err=>{
-                        this.setState({alertModal:true,alertContent:String('משהו השתבש,. ההחלפה לא בוצעה, והתורנות שלך נותרה בתאריך המקורי: '+String(this.state.userChoreSelected.choreOfReceiver.date))})
-                    })
-                })
+                }
             })
          //})
     }
@@ -462,7 +479,7 @@ export default class ReplacementRequests extends Component {
                     transparent={false}
                     visible={this.state.choreModalVisible}
                     onRequestClose={() => {
-                        console.log('choreModal has been closed.');
+                        this.setState({choreModalVisible:false});
                     }}>
                     <View style={{marginTop: 22}}>
                         <View>
@@ -528,13 +545,13 @@ export default class ReplacementRequests extends Component {
                                 :
                                 <View></View>
                                 }
-                                <Button
+                                {/*<Button
                                 label='חזור'
                                 onPress={() => {
                                     console.log("\nclosepressed\n");
                                     this.setState({ choreModalVisible: false});
                                 }}
-                            />
+                            />*/}
                               { /* <Text>פרטי תורנות</Text>
                                 <Text>{this.state.userChoreSelected+' \n'                             
                                 }</Text>
@@ -570,7 +587,10 @@ export default class ReplacementRequests extends Component {
                     </View>
                     
                 </Modal>
-                <Modal visible={this.state.alertModal}>
+                <Modal visible={this.state.alertModal}
+                onRequestClose={() => {
+                        this.setState({alertModal:false});
+                    }}>
                     <Text>{this.state.alertContent}</Text>
                     <Button
                                 label='סגור'

@@ -1,8 +1,7 @@
 const Sequelize = require('sequelize');
 const UsersModel = require('./models/users');
 const ServiceProvidersModel = require('./models/serviceProviders');
-const PermissionsModel = require('./models/permissions');
-const RulesModulesModel = require('./models/rulesModules');
+const RolesModulesModel = require('./models/rolesModules');
 const CategoriesModel = require('./models/categories');
 const AnnouncementsModel = require('./models/announcements');
 const AnnouncementSubscriptionsModel = require('./models/announcementSubscriptions');
@@ -21,7 +20,6 @@ const ApartmentConstraintsModel = require('./models/apartmentConstraints')
 const ApartmentReservationsModel = require('./models/apartmentReservations');
 const UserYearUtilizationModel = require('./models/userYearUtilization');
 const EventsModel = require('./models/events');
-const LogsModel = require('./models/logs');
 
 const sequelize = new Sequelize('database', 'username', 'password', {
     host: 'localhost',
@@ -37,7 +35,11 @@ const sequelize = new Sequelize('database', 'username', 'password', {
     },
 
     // SQLite only
-    storage: process.dbMode === "dev"? './DBorm/sqliteTests.db':'./DBorm/sqlite.db'
+    storage: process.dbMode === "dev" ?
+        './DBorm/sqliteTests.db' :
+        process.argv[2] === "feDev" ?
+            './DBorm/sqliteFEtests.db' :
+            './DBorm/sqlite.db'
 });
 
 sequelize
@@ -52,8 +54,7 @@ sequelize
 
 const Users = UsersModel(sequelize, Sequelize);
 const ServiceProviders = ServiceProvidersModel(sequelize, Sequelize);
-const Permissions = PermissionsModel(sequelize, Sequelize);
-const RulesModules = RulesModulesModel(sequelize, Sequelize);
+const RolesModules = RolesModulesModel(sequelize, Sequelize);
 const Categories = CategoriesModel(sequelize, Sequelize);
 const Announcements = AnnouncementsModel(sequelize, Sequelize);
 const AnnouncementSubscriptions = AnnouncementSubscriptionsModel(sequelize, Sequelize);
@@ -72,16 +73,30 @@ const ApartmentConstraints = ApartmentConstraintsModel(sequelize, Sequelize);
 const ApartmentReservations = ApartmentReservationsModel(sequelize, Sequelize);
 const UserYearUtilization = UserYearUtilizationModel(sequelize, Sequelize);
 const Events = EventsModel(sequelize, Sequelize);
-const Logs = LogsModel(sequelize, Sequelize);
 
-Events.belongsTo(Users, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
+
+Events.belongsTo(ScheduledAppointments, {
+    foreignKey: 'eventId',
+    targetKey: 'appointmentId',
+    constraints: false
 });
 
-Users.hasMany(Events, {
-    foreignKey: 'userId',
-    targetKey: 'userId'
+Events.belongsTo(UsersChores, {
+    foreignKey: 'eventId',
+    targetKey: 'userChoreId',
+    constraints: false
+});
+
+Events.belongsTo(Announcements, {
+    foreignKey: 'eventId',
+    targetKey: 'announcementId',
+    constraints: false
+});
+
+Events.belongsTo(Incidents, {
+    foreignKey: 'eventId',
+    targetKey: 'incidentId',
+    constraints: false
 });
 
 Users.hasMany(AppointmentDetails, {
@@ -128,75 +143,50 @@ AppointmentRequests.belongsTo(ScheduledAppointments, {
     foreignKey: 'requestId',
     targetKey: 'appointmentId'
 });
-//
+
 Users.hasMany(UsersChoresTypes, {
-    foreignKey: 'userId', 
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 UsersChoresTypes.belongsTo(Users, {
-    foreignKey: 'userId', 
-    targetKey:'userId'
+    foreignKey: 'userId',
+    targetKey: 'userId'
 });
 
 Users.hasMany(UsersChores, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 UsersChores.belongsTo(Users, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 
 Users.hasMany(ServiceProviders, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 ServiceProviders.hasOne(Users, {
     foreignKey: 'userId',
-    targetKey:'userId'
+    targetKey: 'userId'
 });
 
 SwapRequests.belongsTo(UsersChores, {
     as: 'choreOfReceiver',
     foreignKey: 'choreIdOfReceiver',
-    targetKey:'userChoreId'
+    targetKey: 'userChoreId'
 });
 SwapRequests.belongsTo(UsersChores, {
-    as:'choreOfSender',
+    as: 'choreOfSender',
     foreignKey: 'choreIdOfSender',
-    targetKey:'userChoreId'
+    targetKey: 'userChoreId'
 });
+
 
 if (process.dbMode === "dev") {
     sequelize.sync({force: true})
         .then(() => {
-            Users.create({
-                userId: '1',
-                fullname: 'מנהל מערכת',
-                password: '4d0b24ccade22df6d154778cd66baf04288aae26df97a961f3ea3dd616fbe06dcebecc9bbe4ce93c8e12dca21e5935c08b0954534892c568b8c12b92f26a2448',
-                email: 'admin@gamil.com',
-                mailbox: 1,
-                cellphone: '0123456789',
-                phone: '0123456789',
-                bornDate: new Date('1992-11-25'),
-                active: true,
-            })
-                .then(user => {
-                    ServiceProviders.create({
-                        serviceProviderId: 1,
-                        userId: user.userId,
-                        role: 'Admin',
-                        operationTime: 'all time',
-                        phoneNumber: '0123456789',
-                        appointmentWayType: 'Admin',
-                        subjects:"[\"הכל\"]",
-                        active: true,
-                    })
-                })
-                .then(
-                    console.log(`Database & tables created!`)
-                )
-            RulesModules.bulkCreate([
+            RolesModules.bulkCreate([
                 {
                     role: "Admin",
                     module: "all",
@@ -226,7 +216,7 @@ if (process.dbMode === "dev") {
                     Users.create({
                         userId: '1',
                         fullname: 'מנהל מערכת',
-                        password: 'Admin123',
+                        password: '4d0b24ccade22df6d154778cd66baf04288aae26df97a961f3ea3dd616fbe06dcebecc9bbe4ce93c8e12dca21e5935c08b0954534892c568b8c12b92f26a2448',
                         email: 'admin@gamil.com',
                         mailbox: 1,
                         cellphone: '0123456789',
@@ -252,16 +242,107 @@ if (process.dbMode === "dev") {
                 })
 
         });
+} else if (process.argv[2] === "feDev") {
+    const fs = require('fs');
+    const csv = require("csvtojson");
+    let promises = [];
+
+    sequelize.sync({force: true})
+        .then(() => {
+            fs.readdir('./DBorm/fakeData', (err, files) => {
+                files.forEach(csvFile => {
+                    promises.push(csv().fromFile('./DBorm/fakeData/' + csvFile));
+                });
+                Promise.all(promises)
+                    .then((jsonArrayObjects) => {
+                        jsonArrayObjects.forEach((jsobObj, index) => {
+                            sequelize.models[files[index].split('.')[1]].bulkCreate(jsobObj)
+                                .then(response =>
+                                    console.log(response)
+                                )
+                                .catch(error =>
+                                    console.log(error)
+                                )
+                        })
+                    })
+            });
+        });
+} else if (process.argv[2] === "galedDB") {
+    const csv = require("csvtojson");
+
+    sequelize.sync({force: true})
+        .then(() => {
+            csv().fromFile('./DBorm/galedPopulationUTF8.csv')
+                .then((jsobObj) => {
+                    Users.bulkCreate(jsobObj)
+                        .then(response =>
+                            console.log(response)
+                        )
+                        .catch(error =>
+                            console.log(error)
+                        )
+                });
+
+            RolesModules.bulkCreate([
+                {
+                    role: "Admin",
+                    module: "all",
+                },
+                {
+                    role: "appointmentsHairDresser",
+                    module: "appointments"
+                },
+                {
+                    role: "appointmentsDentist",
+                    module: "appointments"
+                },
+                {
+                    role: "PhoneBookSecretary",
+                    module: "phoneBook"
+                },
+                {
+                    role: "ChoresSecretary",
+                    module: "chores"
+                },
+                {
+                    role: "AnnouncementsSecretary",
+                    module: "announcements"
+                },
+            ])
+                .then(response => {
+                    Users.create({
+                        userId: '1',
+                        fullname: 'מנהל מערכת',
+                        password: '4d0b24ccade22df6d154778cd66baf04288aae26df97a961f3ea3dd616fbe06dcebecc9bbe4ce93c8e12dca21e5935c08b0954534892c568b8c12b92f26a2448',
+                        email: 'admin@gamil.com',
+                        mailbox: 1,
+                        cellphone: '0123456789',
+                        phone: '0123456789',
+                        bornDate: new Date('1992-11-25'),
+                        active: true,
+                    })
+                        .then(user => {
+                            ServiceProviders.create({
+                                serviceProviderId: 1,
+                                userId: user.userId,
+                                role: 'Admin',
+                                operationTime: 'all time',
+                                phoneNumber: '0123456789',
+                                appointmentWayType: 'Admin',
+                                subjects: "[\"הכל\"]",
+                                active: true,
+                            })
+                        })
+                })
+        })
 }
 
 
-    
 module.exports = {
     sequelize,
     Users,
     ServiceProviders,
-    Permissions,
-    RulesModules,
+    RolesModules,
     Categories,
     Announcements,
     AnnouncementSubscriptions,
@@ -280,5 +361,4 @@ module.exports = {
     ApartmentReservations,
     UserYearUtilization,
     Events,
-    Logs
 };

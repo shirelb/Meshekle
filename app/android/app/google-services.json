@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "65174479233",
+    "firebase_url": "https://meshekle.firebaseio.com",
+    "project_id": "meshekle",
+    "storage_bucket": "meshekle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:65174479233:android:2506972d8b9c0e6f",
+        "android_client_info": {
+          "package_name": "com.meshekle.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "65174479233-go5gr9m7m4o8avj4lb2068tihjr55lv5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.meshekle.app",
+            "certificate_hash": "5ee302ffbb264da78b2690703202fe691db3bdf0"
+          }
+        },
+        {
+          "client_id": "65174479233-ili3oo8an4bnkuaf345fa222amqfcb2t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbrsw-smM5tl9CVYf0_BeYQWzpAcjc1jA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "65174479233-ili3oo8an4bnkuaf345fa222amqfcb2t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

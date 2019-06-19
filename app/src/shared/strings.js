@@ -18,6 +18,7 @@ const mainScreenStrings = {
 
 const drawerMenu = {
     LOGOUT: "התנתק",
+    REPORT: "דווח על תקלה",
     MAIN_SCREEN_NAME: "בית",
     APPOINTMENTS_SCREEN_NAME: "תורים",
     CHORES_SCREEN_NAME: "תורנויות",
@@ -31,4 +32,15 @@ const appointmentsServiceProviderRoles = [
     "appointmentsDentist",
 ];
 
-export default {loginScreenStrings, mainScreenStrings, drawerMenu, appointmentsServiceProviderRoles};
+const days = {
+    Sunday: "יום ראשון",
+    Monday: "יום שני",
+    Tuesday: "יום שלישי",
+    Wednesday: "יום רביעי",
+    Thursday: "יום חמישי",
+    Friday: "יום שישי",
+    Saturday: "יום שבת",
+    Undefined: "לא קיים",
+};
+
+export default {loginScreenStrings, mainScreenStrings, drawerMenu, appointmentsServiceProviderRoles, days};
