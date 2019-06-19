@@ -201,7 +201,8 @@ describe("ForgotPasswordScreen should", () => {
         expect(componentInstance.state.errorMsg).toEqual("ת.ז. חסר וצריך להכיל רק ספרות");
         expect(componentInstance.state.errorVisible).toEqual(true);
         expect(wrapper.find('FormValidationMessage')).toHaveLength(1);
-        expect(wrapper.find('FormValidationMessage').props().children).toEqual("ת.ז. חסר וצריך להכיל רק ספרות");
+        expect(wrapper.find('FormValidationMessage').props().children).toEqual("שגיאה בעת מילוי טופס:\n" +
+            "ת.ז. חסר וצריך להכיל רק ספרות");
     });
 
     it("submit forgot password form with right data", async () => {
