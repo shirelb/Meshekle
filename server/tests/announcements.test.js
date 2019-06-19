@@ -1327,15 +1327,14 @@ describe('announcements route', function () {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(announcementsRoute.ANNOUNCEMENT_ADDED_SUCC);
-                    //TODO: check for solution
-                        // Announcements.findAll({
-                        //     where: {
-                        //         announcementId: announcementTest1.announcementId
-                        //     }
-                        // }).then(announcements => {
-                        //     announcements.length.should.be.eql(1);
-                        // });
-                    done()
+                    Announcements.findAll({
+                        where: {
+                            announcementId: announcementTest1.announcementId
+                        }
+                    }).then(announcements => {
+                        announcements.length.should.be.eql(1);
+                    });
+                    done();
                 });
         });
 
