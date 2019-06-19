@@ -39,7 +39,7 @@ router.get('/usersChores/future/:future', function (req, res, next) {
                   [Op.lte]: Date.now()
                 }
               },
-              //include:[{all:true, nested:false}]
+              include:[{all:true, nested:false}]
         })
         .then(chores => {
             console.log(chores);
