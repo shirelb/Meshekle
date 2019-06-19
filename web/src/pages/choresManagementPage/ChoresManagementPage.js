@@ -315,7 +315,7 @@ class ChoresManagementPage extends React.Component {
                 let chore = 0;
                 let getUsersRequests = [];
                 for (chore in res) {
-                    if (res[chore] !== undefined && res[chore].response===undefined) {
+                    if ((res[chore] !== undefined && res[chore].response===undefined)|| (res[chore]!==undefined &&res[chore] && res[chore].length===usersChoosed.length)) {
                         index = usersChoosed.indexOf(res[chore].data.newUserChore.userId);
                         console.log("res.data[chore].newUserChore: ", res[chore].data);
                         console.log("index: ", index, usersChoosedNames[index]);
@@ -364,10 +364,15 @@ class ChoresManagementPage extends React.Component {
                         if (resultUsers === '') {
                             this.setState({userChores: updateUserchores, originalUserChores: updateOriginalUserchores});
                             this.forceUpdate();
-                        this.setState({createUserChoreResult: {name: 'portalNeedToDeleteUserChores', users: resultUsers}});
+                        this.setState({createUserChoreResult: {name: 'portalUserChoresFaild', users: ''}});
                     } else {
                         this.setState({createUserChoreResult: {name: 'portalUserChoresCreated', users: resultUsers, reqFaild:reqFaild}});
+
                     }
+                })
+                .catch(er=>{
+                    this.setState({createUserChoreResult: {name: 'portalUserChoresFaild', users: resultUsers, reqFaild:reqFaild}});
+
                     })
             });
     }
@@ -472,7 +477,7 @@ class ChoresManagementPage extends React.Component {
                         text: item.choreTypeName,
                         value: item.choreTypeName,
                     }));
-                    this.setState({choreTypesOptions: choreTypesOptions});
+                    this.setState({choreTypesOptions: choreTypesOptions, choreTypeSelected:""});
                 }
             })
     }

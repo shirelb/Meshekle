@@ -22,7 +22,7 @@ class ServiceProviderAdd extends React.Component {
     }
 
     handleSubmit(serviceProvider) {
-        serviceProvidersStorage.createServiceProvider(serviceProvider)
+       return serviceProvidersStorage.createServiceProvider(serviceProvider)
             .then(response => {
                 if (response.response) {
                     if (response.response.status !== 200)

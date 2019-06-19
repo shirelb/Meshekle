@@ -293,6 +293,7 @@ class UserForm extends React.Component {
                         value={userId}
                         onChange={this.handleChange}
                         onFocus={this.handleFocus}
+                        disabled={userId !== ''}
                     />
                     <Form.Input
                         error={this.state.fieldFullnameError}

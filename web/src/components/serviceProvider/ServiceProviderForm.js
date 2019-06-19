@@ -279,6 +279,19 @@ class ServiceProviderForm extends React.Component {
                     fieldOperationTimeError: true
                 });
                 return false;
+            } else {
+                for (let dateTime of serviceProvider.operationTime) {
+                    for (let times of dateTime['hours']) {
+                        if (!moment(times.startHour, 'h:mma').isBefore(moment(times.endHour, 'h:mma'))) {
+                            this.setState({
+                                formError: true,
+                                formErrorContent: "לא תקין. יש זמן התחלה אחרי זמן סוף",
+                                fieldOperationTimeError: true
+                            });
+                            return false;
+                        }
+                    }
+                }
             }
         }
 
@@ -492,6 +505,15 @@ class ServiceProviderForm extends React.Component {
 
         if (this.state.startTimeSelected[index] === undefined || this.state.endTimeSelected[index] === undefined)
             return;
+
+        if (!moment(this.state.startTimeSelected[index], 'h:mma').isBefore(moment(this.state.endTimeSelected[index], 'h:mma'))) {
+            this.setState({
+                formError: true,
+                formErrorContent: "לא תקין. יש זמן התחלה אחרי זמן סוף",
+                fieldOperationTimeError: true
+            });
+            return false;
+        }
 
         let updateOperationTime = this.state.serviceProvider.operationTime;
         let dayTime = updateOperationTime.filter(dayTime => dayTime.day === day)[0];
@@ -770,7 +792,7 @@ class ServiceProviderForm extends React.Component {
                                                                     operationTime.filter(dayTime => dayTime.day === item).length > 0 ?
                                                                         operationTime.filter(dayTime => dayTime.day === item)[0].hours.map((hour, index) => {
                                                                             return <List.Item key={index}>
-                                                                                {hour.startHour} - {hour.endHour}
+                                                                                {hour.endHour} - {hour.startHour}
                                                                                 <Icon link name='delete'
                                                                                       className={"subjectListIcon"}
                                                                                       onClick={() => this.removeHours(item, hour)}
