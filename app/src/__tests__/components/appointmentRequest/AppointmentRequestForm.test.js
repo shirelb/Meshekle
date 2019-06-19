@@ -21,10 +21,7 @@ jest.mock("react-native-simple-store");
 describe("AppointmentRequestForm should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const userTest = users[2];
     const serviceProviderTest = serviceProviders[0];
-    const userIdTest = "972350803";
-    const userFullnameTest = "Dion Revance";
     const props = {
         modalVisible: true,
         serviceProvider: serviceProviderTest,
@@ -54,10 +51,10 @@ describe("AppointmentRequestForm should", () => {
         jest.clearAllMocks();
     });
 
-    xit('match snapshot', async () => {
-        wrapper = shallow(<AppointmentRequestForm {...props} />);
-        expect(wrapper).toMatchSnapshot();
-    });
+    // xit('match snapshot', async () => {
+    //     wrapper = shallow(<AppointmentRequestForm {...props} />);
+    //     expect(wrapper).toMatchSnapshot();
+    // });
 
     it("render what the user see", async () => {
         wrapper = await shallow(<AppointmentRequestForm {...props} />);

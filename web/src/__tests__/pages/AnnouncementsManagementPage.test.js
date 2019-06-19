@@ -4,7 +4,6 @@ import {setupComponent} from "../testHelpers";
 import PageNotFound from "../../pages/pageNotFound404/PageNotFound";
 import AnnouncementsManagementPage from '../../pages/announcementsManagementPage/AnnouncementsManagementPage';
 import store from 'store';
-import moment from 'moment/moment';
 import {createMemoryHistory} from 'history';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import announcementsStorage from "../../storage/announcementsStorage";
@@ -76,24 +75,24 @@ describe("AnnouncementsManagementPage should", () => {
     afterEach(() => {
     });
 
-    test.skip('match snapshot', async () => {
-        const props = {
-            location: {
-                pathname: '/announcements'
-            },
-            match: {
-                isExact: true,
-                path: '/announcements',
-                url: '/announcements',
-            }
-        };
-
-        const arrResponse = setupComponent('shallow', AnnouncementsManagementPage, null, props, "/announcements");
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        expect(componentInstance).toMatchSnapshot();
-    });
+    // test.skip('match snapshot', async () => {
+    //     const props = {
+    //         location: {
+    //             pathname: '/announcements'
+    //         },
+    //         match: {
+    //             isExact: true,
+    //             path: '/announcements',
+    //             url: '/announcements',
+    //         }
+    //     };
+    //
+    //     const arrResponse = setupComponent('shallow', AnnouncementsManagementPage, null, props, "/announcements");
+    //     wrapper = arrResponse[0];
+    //     componentInstance = arrResponse[1];
+    //
+    //     expect(componentInstance).toMatchSnapshot();
+    // });
 
     test("renders AnnouncementsManagementPage for /announcements", async () => {
         const arrResponse = await setupComponent('shallow', AnnouncementsManagementPage, history, props, "/announcements");
@@ -230,6 +229,8 @@ describe("AnnouncementsManagementPage should", () => {
         expect(componentInstance.props.history.location.pathname).toEqual('/announcements/updateAnnouncement');
 
     });
+
+
     test("push /updateCategory on edit category click", async () => {
         const arrResponse = await setupComponent('mount', AnnouncementsManagementPage, history, props, "/announcements");
         wrapper = arrResponse[0];
@@ -239,6 +240,7 @@ describe("AnnouncementsManagementPage should", () => {
         expect(componentInstance.props.history.location.pathname).toEqual('/announcements/updateCategory');
 
     });
+
     test("push /addAnnouncement on edit announcement click", async () => {
         const arrResponse = await setupComponent('mount', AnnouncementsManagementPage, history, props, "/announcements");
         wrapper = arrResponse[0];

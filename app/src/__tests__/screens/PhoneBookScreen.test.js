@@ -16,12 +16,10 @@ jest.mock("react-native-simple-store");
 jest.mock("../../storage/usersStorage");
 jest.mock("../../storage/serviceProvidersStorage");
 
-const flushPromises = () => new Promise(setImmediate);
 
 describe("PhoneBookScreen should", () => {
     let wrapper = null;
     let componentInstance = null;
-    const props = {};
     const userTest = users[41];
     const mockStore = {
         userData: {

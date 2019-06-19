@@ -98,17 +98,33 @@ describe('service providers route', function () {
         phoneNumber: '0535311303',
         appointmentWayType: constants.appointmentWayTypes.DIALOG_WAY_TYPE
     };
+    let serviceProviderTest1 = {
+        serviceProviderId: '123123123',
+        role: 'PhoneBookSecretary',
+        userId: '222222222',
+        operationTime: "[\n" +
+            "    {\n" +
+            "      \"day\": \"Sunday\",\n" +
+            "      \"hours\": [\n" +
+            "        {\n" +
+            "          \"startHour\": \"10:30\",\n" +
+            "          \"endHour\": \"12:15\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "          \"startHour\": \"18:30\",\n" +
+            "          \"endHour\": \"21:00\"\n" +
+            "        }\n" +
+            "      ]\n" +
+            "    },\n" +
+            "  ]",
+        phoneNumber: '0535311303',
+        appointmentWayType: constants.appointmentWayTypes.DIALOG_WAY_TYPE
+    };
 
 
     let roleModuleTest = {
         role: constants.roles.PHONE_BOOK_SECRETARY_ROLE,
         module: 'Doctors'
-    };
-
-    let permissionTest = {
-        module: 'Doctors',
-        operationName: 'add users',
-        api: 'serviceProviders'
     };
 
 
@@ -538,6 +554,64 @@ describe('service providers route', function () {
         });
     });
 
+
+    //Delete role of a service provider
+    describe('/PUT delete role to a serviceProvider', () => {
+        before((done) => {
+            createUser(userTest1)
+                .then(
+                    createServiceProvider(serviceProviderTest1)
+                        .then(
+                            done()
+                        )
+                );
+        });
+        it('it should DELETE the given role to the given serviceProvider', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/removeFromServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId: '123123123', role: constants.roles.PHONE_BOOK_SECRETARY_ROLE})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC);
+                    res.body.result.should.be.eql(1);
+                    validiations.getServiceProvidersByServProIdPromise('123123123').then(serviceProviders => {
+                        serviceProviders.length.should.be.eql(0);
+                        done();
+                    });
+                });
+        });
+        it('it should send error that the role doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/removeFromServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId: '123456789', role: "invalid role"})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
+                    done();
+                });
+        });
+        it('it should send error that the service provider doesnt exists', (done) => {
+            chai.request(server)
+                .put('/api/serviceProviders/roles/removeFromServiceProvider')
+                .set('Authorization', tokenTest)
+                .send({serviceProviderId: '123456781', role: constants.roles.PHONE_BOOK_SECRETARY_ROLE})
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
+                    done();
+                });
+        });
+        after((done) => {
+            deleteUser(userTest1)
+                .then(
+                    done()
+                );
+        });
+    });
+
+
     //Add role to a service provider
     describe('/Put role to a serviceProvider ', () => {
         before((done) => {
@@ -593,7 +667,7 @@ describe('service providers route', function () {
             chai.request(server)
                 .put('/api/serviceProviders/roles/addToServiceProvider')
                 .set('Authorization', tokenTest)
-                .send({serviceProviderId: '123456789', role: constants.roles.PHONE_BOOK_SECRETARY_ROLE, operationTime: 'sunday'})
+                .send({serviceProviderId: '123456789', role: constants.roles.CHORES_SECRETARY_ROLE, operationTime: 'sunday'})
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ALREADY_EXISTS);
@@ -611,61 +685,6 @@ describe('service providers route', function () {
         });
     });
 
-    //Delete role of a service provider
-    describe('/PUT delete role to a serviceProvider', () => {
-        before((done) => {
-            createUser(userTest)
-                .then(
-                    createServiceProvider(serviceProviderTest)
-                        .then(
-                            done()
-                        )
-                );
-        });
-        it('it should DELETE the given role to the given serviceProvider', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/removeFromServiceProvider')
-                .set('Authorization', tokenTest)
-                .send({serviceProviderId: '123456789', role: constants.roles.PHONE_BOOK_SECRETARY_ROLE})
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_ROLE_DEL_SUCC);
-                    res.body.result.should.be.eql(1);
-                    validiations.getServiceProvidersByServProIdPromise('123456789').then(serviceProviders => {
-                        serviceProviders.length.should.be.eql(0);
-                        done();
-                    });
-                });
-        });
-        it('it should send error that the role doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/removeFromServiceProvider')
-                .set('Authorization', tokenTest)
-                .send({serviceProviderId: '123456789', role: "invalid role"})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.INVALID_ROLE_INPUT);
-                    done();
-                });
-        });
-        it('it should send error that the service provider doesnt exists', (done) => {
-            chai.request(server)
-                .put('/api/serviceProviders/roles/removeFromServiceProvider')
-                .set('Authorization', tokenTest)
-                .send({serviceProviderId: '123456781', role: constants.roles.PHONE_BOOK_SECRETARY_ROLE})
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.message.should.be.eql(serviceProvidersRoute.SERVICE_PROVIDER_NOT_FOUND);
-                    done();
-                });
-        });
-        after((done) => {
-            deleteUser(userTest)
-                .then(
-                    done()
-                );
-        });
-    });
 
 
 //delete a service provider with a given userID

@@ -21,8 +21,6 @@ describe("Chores screen should", () => {
         wrapper = shallow(<ChoresScreen/>);
         componentInstance = wrapper.instance();
 
-        expect(wrapper.find('Text')).toHaveLength(1);
-        expect(wrapper.find('Text').props().children).toEqual('התורנויות שלי');
         expect(wrapper.find('ChoresCalendar')).toHaveLength(1);
     });
 

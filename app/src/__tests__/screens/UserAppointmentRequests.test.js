@@ -1,6 +1,5 @@
 import React from 'react';
 
-import {FlatList} from 'react-native';
 import {List} from "react-native-paper";
 
 import {shallow} from "enzyme/build";

@@ -72,6 +72,9 @@
     ],
     "globals": {
       "window": true
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-native|tcomb-form-native)"
+    ]
   }
 }

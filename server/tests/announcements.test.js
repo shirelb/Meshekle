@@ -1327,15 +1327,14 @@ describe('announcements route', function () {
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.message.should.be.eql(announcementsRoute.ANNOUNCEMENT_ADDED_SUCC);
-                    //TODO: check for solution
-                        // Announcements.findAll({
-                        //     where: {
-                        //         announcementId: announcementTest1.announcementId
-                        //     }
-                        // }).then(announcements => {
-                        //     announcements.length.should.be.eql(1);
-                        // });
-                    done()
+                    Announcements.findAll({
+                        where: {
+                            announcementId: announcementTest1.announcementId
+                        }
+                    }).then(announcements => {
+                        announcements.length.should.be.eql(1);
+                    });
+                    done();
                 });
         });
 
@@ -1348,7 +1347,7 @@ describe('announcements route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(announcementsRoute.ILLEGAL_EXP_TIME_INPUT);
-                    announcementTest1.expirationTime= "2019-06-22"
+                    announcementTest1.expirationTime= "2019-06-22";
                     done();
                 });
         });
@@ -1361,7 +1360,7 @@ describe('announcements route', function () {
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.message.should.be.eql(announcementsRoute.INVALID_EXP_TIME_INPUT);
-                    announcementTest1.expirationTime= "2019-06-22"
+                    announcementTest1.expirationTime= "2019-06-22";
                     done();
                 });
         });
@@ -1954,8 +1953,7 @@ describe('announcements route', function () {
                 .send({userId: userTest.userId, announcementId: 1})
                 .end((err, res) => {
                     res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
+                    res.body.should.be.a('object');
                     done();
                 });
         });
