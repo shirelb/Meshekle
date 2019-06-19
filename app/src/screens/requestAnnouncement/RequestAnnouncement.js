@@ -110,8 +110,8 @@ export default class RequestAnnouncement extends Component {
     };
 
     saveChanges = () => {
-        let value = this.refs.form.getValue();
-        value = JSON.parse(JSON.stringify(this.state.value));
+          // value = this.refs.form.getValue();
+        let value = JSON.parse(JSON.stringify(this.state.value));
         let category = this.state.categoryNameFilter;
 
         if (value && category !== "---") {

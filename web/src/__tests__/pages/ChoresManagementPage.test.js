@@ -4,13 +4,10 @@ import {setupComponent} from "../testHelpers";
 import PageNotFound from "../../pages/pageNotFound404/PageNotFound";
 import ChoresManagementPage from '../../pages/choresManagementPage/ChoresManagementPage.js';
 import store from 'store';
-import moment from 'moment/moment';
 import {createMemoryHistory} from 'history';
 import serviceProvidersStorage from "../../storage/serviceProvidersStorage";
 import choresStorage from "../../storage/choresStorage";
-import users from "../jsons/users";
 import serviceProviders from "../jsons/serviceProviders";
-import chores from "../jsons/chores";
 
 
 jest.mock("../../shared/helpers");
@@ -80,12 +77,12 @@ describe("ChoresManagementPage should", () => {
     test.skip('match snapshot', async () => {
         const props = {
             location: {
-                pathname: '/announcements'
+                pathname: '/chores'
             },
             match: {
                 isExact: true,
-                path: '/announcements',
-                url: '/announcements',
+                path: '/chores',
+                url: '/chores',
             }
         };
 
@@ -111,6 +108,17 @@ describe("ChoresManagementPage should", () => {
         componentInstance = arrResponse[1];
         expect(componentInstance.state.choreTypesOptions.length).toEqual(1);
     });
+
+    test("push /newChore on new chore click", async () => {
+        const arrResponse = await setupComponent('mount', ChoresManagementPage, history, props, "/chores");
+        wrapper = arrResponse[0];
+        componentInstance = arrResponse[1];
+        const newChore = wrapper.find('ChoresManagementPage').find('Button').at(0);
+        await newChore.simulate('click', { button: 0 });
+        expect(componentInstance.props.history.location.pathname).toEqual('/chores/newChoreType');
+
+    });
+
 
     test("render with what the user see", async () => {
         const arrResponse = await setupComponent('mount', ChoresManagementPage, history, props, "/chores");
