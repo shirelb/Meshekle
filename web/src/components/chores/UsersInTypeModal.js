@@ -61,7 +61,6 @@ class UsersInTypeModal extends React.Component {
     }
 
 modalUsersBuild() {
-
     let usr = 0;
     let u = 0;
     let us = 0;
