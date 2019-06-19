@@ -548,9 +548,8 @@ router.post('/choreType/users/add/userId', function (req, res, next) {
            console.log("here111111111111111");
            res.status(400).send({"message": "choreType is not exist!",userChoreType});
          }    
-         }).catch(err => {
-           console.log("Something went wrong!"+err);
-           console.log("here2222222222222222");
+         })
+         .catch(err => {
            res.status(400).send({"message":"choreType is not exist!",err});
             });
 

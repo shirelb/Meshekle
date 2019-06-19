@@ -19,11 +19,19 @@ let server = require('../app');
 
 chai.use(chaiHttp);
 
+describe('chores route', function () {
+    this.timeout(20000);
+
+    before((done) => {
+        setTimeout(function () {
+            done();
+        }, 5000);
+    });
 
 var choreTypeTestSat = {
     choreTypeName: "satCoocking",
     serviceProviderId:"1",
-    days: "[saturday]",
+    days: "שבת",
     numberOfWorkers: 2,
     frequency: 12,
     startTime: "10:00",
@@ -39,7 +47,10 @@ var userTest = {
     mailbox: 444,
     cellphone: "1234567896",
     phone: "012365948",
-    bornDate: "1992-05-20"
+    bornDate: "1992-05-20",
+    //image:"",
+    //active:true,
+    //deviceRegistrationToken:"",
 }
 
 var userTest2 = {
@@ -50,13 +61,16 @@ var userTest2 = {
     mailbox: 444,
     cellphone: "1234567896",
     phone: "012365948",
-    bornDate: "1992-05-20"
+    bornDate: "1992-05-20",
+    image:"",
+    active:true,
+    deviceRegistrationToken:"",
 };
 
 var choreTypeTestFri = {
     choreTypeName: "friCoocking",
     serviceProviderId:"1",
-    days: "[friday]",
+    days: "שישי",
     numberOfWorkers: 2,
     frequency: 12,
     startTime: "10:00",
@@ -67,7 +81,7 @@ var choreTypeTestFri = {
 var choreTypeTestSun = {
     choreTypeName: "sunCoocking",
     serviceProviderId:"1",
-    days: "[friday]",
+    days: "ראשון",
     numberOfWorkers: 2,
     frequency: 12,
     startTime: "10:00",
@@ -78,7 +92,7 @@ var choreTypeTestSun = {
 var userChoreTestNow = {
     userId: "436547125",
     choreTypeName: "satCoocking",
-    date: moment().format('YYYY-MM-DD hh:mm'),//Date.now(),//"2018-12-25 10:00",
+    date: "2019-12-25",//moment().format('YYYY-MM-DD hh:mm'),//Date.now(),//"2018-12-25 10:00",
     isMark: false
 }
 var userChoreTestFuture = {
@@ -96,41 +110,49 @@ var userChoreTest1 = {
 };
 var choreId= 0;
 var choreIdPast = 0;
+var tokenTest = null;
 
+//describe('chores route', function () {
+     //this.timeout(20000);
 
-describe('chores route', function () {
-     this.timeout(20000);
-
-    beforeEach((done) => {
-        setTimeout(function () {
-            done();
-        }, 500);
-    });
+    
 
     //2 it's
     describe('/GET all userChores api1', () => {
         before((done) => {
-            ChoreTypes.create(choreTypeTestSat);
-            ChoreTypes.create(choreTypeTestFri);
-            Users.create(userTest);
-            UsersChoresTypes.create({
-                userId: userTest.userId,
-                choreTypeName: choreTypeTestFri.choreTypeName
-            });
-            UsersChoresTypes.create({
-                userId: userTest.userId,
-                choreTypeName: choreTypeTestSat.choreTypeName
-            });
-            UsersChores.create(userChoreTestNow);
-            UsersChores.create(userChoreTestFuture);
-
-            done();
-                    
+            setTimeout(function () {
+                Users.create(userTest)
+                    .then(
+                        tokenTest === null ?
+                            loginAuthenticateUser(userTest)
+                                .then(token => {
+                                    tokenTest = `Bearer ${token}`;
+                                    ChoreTypes.create(choreTypeTestSat)
+                                    .then(response=>{
+                        
+                                         ChoreTypes.create(choreTypeTestFri);
+                                         //Users.create(userTest);
+                                        UsersChoresTypes.create({
+                                            userId: userTest.userId,
+                                            choreTypeName: choreTypeTestFri.choreTypeName
+                                        });
+                                        UsersChoresTypes.create({
+                                            userId: userTest.userId,
+                                            choreTypeName: choreTypeTestSat.choreTypeName
+                                        });
+                                        UsersChores.create(userChoreTestFuture);     
+                                    })  
+                                    done()
+                                })
+                            :
+                            done()
+                    );
+            }, 5000);
         });
-
         it('it should GET all the users chores in future ', (done) => {
             chai.request(server)
                 .get('/api/chores/usersChores/future/true')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.be.a('array');
@@ -139,19 +161,7 @@ describe('chores route', function () {
                     done();
                 });
         });
-/*
-        it('it should GET all the users chores in past ', (done) => {
-            chai.request(server)
-                .get('/api/chores/usersChores/future/false')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(1);
-                    res.body[0].choreTypeName.should.be.eql(choreTypeTestSat.choreTypeName)
-                    done();
-                });
-        });
-*/
+
         after((done) => {
             UsersChores.destroy({
                 where:{
@@ -174,19 +184,35 @@ describe('chores route', function () {
 
 //1 it
     describe('/GET all choreTypes api26', () => {
-        before((done) => {
-            ChoreTypes.create(choreTypeTestSat);
-            done();
+        before((done) => {          
+            Users.create(userTest)
+            .then(res=>{
+            tokenTest === null ?
+                loginAuthenticateUser(userTest)
+                    .then(token => {
+                        tokenTest = `Bearer ${token}`;
+                        ChoreTypes.create(choreTypeTestFri)
+                        .then(res=>{
+                            done()
+                        })
+                    })
+                    :
+                    ChoreTypes.create(choreTypeTestFri)
+                    .then(re=>{
+                        done();
+                    })
+            })
         });
 
         it('it should GET all the choreTypes ', (done) => {
             chai.request(server)
             .get('/api/chores/choreTypes')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('array');
                 res.body.length.should.be.eql(1);
-                res.body[0].choreTypeName.should.be.eql(choreTypeTestSat.choreTypeName)
+                res.body[0].choreTypeName.should.be.eql(choreTypeTestFri.choreTypeName)
                     done();
                 });
             });
@@ -194,9 +220,14 @@ describe('chores route', function () {
         after((done) => {
             ChoreTypes.destroy({
                 where: {
-                choreTypeName: choreTypeTestSat.choreTypeName
+                choreTypeName: choreTypeTestFri.choreTypeName
                 }
             });
+            Users.destroy({
+                where: {
+                    userId: userTest.userId
+                    }
+            })
                 //done();
                 setTimeout(function () {
                              done();
@@ -206,13 +237,30 @@ describe('chores route', function () {
 
    //2 it 
     describe('/POST new choreType api19', () => {
-        before((done) => {
-            ChoreTypes.create(choreTypeTestSat);
-            done();
+        before((done) => {      
+            Users.create(userTest)
+            .then(res=>{
+            tokenTest === null ?
+                loginAuthenticateUser(userTest)
+                    .then(token => {
+                        tokenTest = `Bearer ${token}`;
+                        ChoreTypes.create(choreTypeTestSat)
+                        .then(res=>{               
+                            done()
+                        })
+                    })
+                    :
+                    ChoreTypes.create(choreTypeTestSat)
+                    .then(re=>{
+                        done();
+                    })
+            })
         });
+
            it('it should faild in  POST new Chore type that is allready exist yet', (done) => {
             chai.request(server)
                 .post('/api/chores/add/choreType')
+                .set('Authorization', tokenTest)
                 .send(choreTypeTestSat)
                 .end((err, res) => {
                     res.should.have.status(400);
@@ -231,9 +279,16 @@ describe('chores route', function () {
                     }
                 }
             });
+            Users.destroy({
+                where:{
+                    userId:userTest.userId
+                }
+            })
             done();
         });
     });
+
+    
     describe('/POST new choreType api19', () => {
         before((done) => {
             ChoreTypes.create(choreTypeTestSat);
@@ -243,6 +298,7 @@ describe('chores route', function () {
         it('it should POST new Chore type that is not exist yet', (done) => {
             chai.request(server)
                 .post('/api/chores/add/choreType')
+                .set('Authorization', tokenTest)
                 .send(choreTypeTestFri)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -261,6 +317,11 @@ describe('chores route', function () {
                     }
                 }
             });
+                Users.destroy({
+                    where:{
+                        userId:userTest.userId
+                    }
+                })
             done();
         });
     });
@@ -270,33 +331,50 @@ describe('chores route', function () {
     describe('/POST adding user to choreType .api23', () => {
         
         before((done) => {
-            setTimeout(function () {
-                Users.create(userTest);
-            }, 5000);
-            setTimeout(function () {
-                ChoreTypes.create(choreTypeTestSat);
-            }, 5000);
-            setTimeout(function () {
-                    done();
-                }, 5000);
+            //setTimeout(function () {
+                Users.create(userTest)
+            .then(res=>{
+            tokenTest === null ?
+                loginAuthenticateUser(userTest)
+                    .then(token => {
+                        tokenTest = `Bearer ${token}`;
+                        ChoreTypes.create(choreTypeTestSat)
+                        .then(res=>{               
+                            done()
+                        })
+                    })
+                    :
+                    ChoreTypes.create(choreTypeTestSat)
+                    .then(re=>{
+                        done();
+                    })
+            })
+            //}, 5000);
+            // setTimeout(function () {
+            //     ChoreTypes.create(choreTypeTestSat);
+            // }, 5000);
+            // setTimeout(function () {
+            //         done();
+            //     }, 5000);
         });
    
         it('it should POST user to Chore type ', (done) => {
             chai.request(server)
                 .post('/api/chores/choreType/users/add/userId')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: userTest.userId,
                     choreTypeName: choreTypeTestSat.choreTypeName
                 })
                 .end((err, res) => {
-                    setTimeout(function () {
+                    //setTimeout(function () {
                         
                         res.body.should.have.property('message').eql('userId successfully added to choreType!');
                         res.should.have.status(200);
-                    }, 5000);
+                        done();
+                    //}, 5000);
                     //done();
                     //setTimeout(function () {
-                             done();
                          //}, 5000);
                 });
         });
@@ -304,6 +382,7 @@ describe('chores route', function () {
         it('it should faild in  POST user that not exist to Chore type', (done) => {           
                 chai.request(server)
                     .post('/api/chores/choreType/users/add/userId')
+                    .set('Authorization', tokenTest)
                     .send({
                         userId: "111111111",
                         choreTypeName: choreTypeTestSat.choreTypeName
@@ -312,12 +391,12 @@ describe('chores route', function () {
                         setTimeout(function () {
                             res.should.have.status(400);
                             res.body.should.have.property('message').eql('userId doesn\'t exist!');
-                           // done();
+                           done();
                         }, 5000);
                         //done();
-                        setTimeout(function () {
-                            done();
-                        }, 5000);
+                        // setTimeout(function () {
+                        //     done();
+                        // }, 5000);
                     });
                    
         });
@@ -325,6 +404,7 @@ describe('chores route', function () {
         it('it should faild in POST user to Chore type that not exist', (done) => {
             chai.request(server)
                 .post('/api/chores/choreType/users/add/userId')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: userTest.userId,
                     choreTypeName: "no_such_chore"
@@ -334,8 +414,8 @@ describe('chores route', function () {
                         res.should.have.status(400);
                         res.body.should.have.property('message').eql('choreType is not exist!');
                         
-                    }, 5000);
-                    setTimeout(function () {
+                    //}, 5000);
+                    //setTimeout(function () {
                         done();
                     }, 5000);
                 });
@@ -383,6 +463,7 @@ describe('chores route', function () {
         it('it should GET the user Chore with id ', (done) => {
             chai.request(server)
             .get('/api/chores/userChores/userChoreId/'+choreId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(200);
                 setTimeout(function () {
@@ -397,6 +478,7 @@ describe('chores route', function () {
         it('it should not GET user Chore with id that does not exist ', (done) => {
             chai.request(server)
             .get('/api/chores/userChores/userChoreId/0')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(400);
                 //res.body.should.be.a('array');
@@ -446,19 +528,12 @@ describe('chores route', function () {
     describe('/GET all userChores by userId api3', () => {
         before((done) => {
             ChoreTypes.create(choreTypeTestSat);
-            ChoreTypes.create(choreTypeTestFri);
             Users.create(userTest);
-            Users.create(userTest2);
-            UsersChoresTypes.create({
-                userId: userTest.userId,
-                choreTypeName: choreTypeTestFri.choreTypeName
-            });
             UsersChoresTypes.create({
                 userId: userTest.userId,
                 choreTypeName: choreTypeTestSat.choreTypeName
             });
             UsersChores.create(userChoreTestNow);
-            UsersChores.create(userChoreTestFuture);
 
             done();
                     
@@ -467,23 +542,10 @@ describe('chores route', function () {
         it('it should GET all the user chores in future of the userId ', (done) => {
             chai.request(server)
                 .get('/api/chores/userChores/userId/'+userTest.userId+'/future/true')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('chores');
-                    res.body.chores.should.be.a('array');
-                    res.body.chores.length.should.be.eql(1);
-                    res.body.chores[0].choreTypeName.should.be.eql(choreTypeTestFri.choreTypeName);
-                    res.body.chores[0].userId.should.be.eql(userTest.userId);
-                    done();
-                });
-        });
-
-        /*it('it should GET all the user chores in past for that userId', (done) => {
-            chai.request(server)
-                .get('/api/chores/userChores/userId/'+userTest.userId+'/future/false')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property('chores')
                     res.body.chores.should.be.a('array');
                     res.body.chores.length.should.be.eql(1);
                     res.body.chores[0].choreTypeName.should.be.eql(choreTypeTestSat.choreTypeName);
@@ -491,33 +553,8 @@ describe('chores route', function () {
                     done();
                 });
         });
-*/
-/*        it('it should GET no user chores in past for userId is not exist', (done) => {
-            chai.request(server)
-                .get('/api/chores/userChores/userId/0/future/false')
-                .end((err, res) => {
-                    res.should.have.status(400);
-                    res.body.should.have.property('err');
-                    res.body.should.have.property('message');
-                    res.body.message.should.equal('user not exist');
-                    done();
-                });
-        });
-*/
-         /* it('it should GET no user chores in future for userId that have no one', (done) => {
-            chai.request(server)
-                .get('/api/chores/userChores/userId/'+userTest2.userId+'/future/true')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property('chores');
-                    res.body.chores.should.be.a('array');
-                    res.body.chores.length.should.be.eql(0);
-                    res.body.should.have.property('message');
-                    res.body.message.should.equal('no usersChores for this user');
-                    done();
-                });
-        });
-*/
+
+       
       after((done) => {
             UsersChores.destroy({
                 where: {
@@ -560,6 +597,7 @@ describe('chores route', function () {
         it('it should GET the users do the specific choretype ', (done) => {
             chai.request(server)
             .get('/api/chores/type/'+choreTypeTestSat.choreTypeName+'/users')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(200);
                 //res.body.message.should.be.eql('bla');
@@ -575,25 +613,11 @@ describe('chores route', function () {
                 }, 5000);
             });
         });
- /*
-       it('it should GET the no users for the specific choretype that has no users', (done) => {
-           chai.request(server)
-           //.get('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/users')
-           .get('/api/chores/type/friCoocking/users')
-           .end((err, res) => {
-               //res.should.have.status(200);
-               setTimeout(function () {
-                   //res.body.should.have.property('err');
-                   res.body.should.have.property('message');
-                   res.body.message.should.be.eql('no users for this choretype');
-                       done();
-               }, 5000);
-           });
-       });
-*/
+
        it('it should not GET the users do the specific choretype that not exist ', (done) => {
             chai.request(server)
             .get('/api/chores/type/'+'no_such_type'+'/users')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(400);
                 setTimeout(function () {
@@ -663,6 +687,7 @@ describe('chores route', function () {
         it('it should GET settings specific choretype ', (done) => {
             chai.request(server)
             .get('/api/chores/type/'+choreTypeTestSat.choreTypeName+'/settings')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(200);
                 setTimeout(function () {
@@ -679,6 +704,7 @@ describe('chores route', function () {
         it('it should not GET settings of not exist choretype ', (done) => {
             chai.request(server)
             .get('/api/chores/type/'+'no_such_type'+'/settings')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(400);
                setTimeout(function () {
@@ -762,6 +788,7 @@ describe('chores route', function () {
         it('it should GET all the user chores of choreType in future of the userId ', (done) => {
             chai.request(server)
                 .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/userId/'+userTest.userId+'/future/true')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('userChores');
@@ -772,24 +799,11 @@ describe('chores route', function () {
                     done();
                 });
         });
-/*
-        it('it should GET all the user chores of choreType in past for that userId', (done) => {
-            chai.request(server)
-            .get('/api/chores/usersChores/type/'+choreTypeTestSat.choreTypeName+'/userId/'+userTest.userId+'/future/false')
-            .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.have.property('userChores');
-                res.body.userChores.should.be.a('array');
-                res.body.userChores.length.should.be.eql(1);
-                res.body.userChores[0].choreTypeName.should.be.eql(choreTypeTestSat.choreTypeName);
-                res.body.userChores[0].userId.should.be.eql(userTest.userId);
-                done();
-                });
-        });
-*/
+
         it('it should not GET user chores in future for userId is not exist', (done) => {
             chai.request(server)
                 .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/userId/'+'111111111'+'/future/true')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.should.have.property('err');
@@ -798,26 +812,11 @@ describe('chores route', function () {
                     done();
                 });
         });
- /*cancelled
-        it('it should GET no user chores in future for userId that have no one', (done) => {
-            chai.request(server)
-            .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/userId/'+userTest2.userId+'/future/true')
-            .end((err, res) => {
-                    res.should.have.status(200);
-                    //res.body.should.have.property('userChores');
-                    //res.body.userChores.should.be.a('array');
-                    //res.body.userChores.length.should.be.eql(0);
-                    //res.should.have.status(400);
-                    res.body.should.have.property('err');
-                    //res.body.should.have.property('message');
-                    //res.body.message.should.equal('no usersChores for that user in this choretype');
-                    done();
-                });
-        });
-*/
+
         it('it should not GET user chores in future for userId in type that not exist', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/type/'+'no_such_type'+'/userId/'+userTest2.userId+'/future/true')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                     res.should.have.status(400);
                     //res.body.should.have.property('userChores');
@@ -876,7 +875,8 @@ describe('chores route', function () {
         it('it should GET all the user chores of choreType in month of the userId ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+choreTypeTestFri.choreTypeName+'/month/12/year/2019/userId/'+userTest.userId+'')
-                .end((err, res) => {
+            .set('Authorization', tokenTest)    
+            .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
                     res.body.message.should.be.eql('getting users chores for userId,type and month seccussfully done');
@@ -896,14 +896,12 @@ describe('chores route', function () {
         it('it should not GET user chores of choreType and user in illegal month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+choreTypeTestFri.choreTypeName+'/month/k/year/2019/userId/'+userTest.userId+'')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
-                //setTimeout(function () {
                 res.should.have.status(400);
-                //res.body.should.have.property('err');
                 res.body.should.have.property('message');
                 res.body.message.should.be.eql('year or month with illegal values');
                 done();
-                //}, 5000);
             });
         });
             
@@ -911,14 +909,12 @@ describe('chores route', function () {
         it('it should not GET user chores of choreType of not exist choretype ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+'no_such_type'+'/month/12/year/2019/userId/'+userTest.userId+'')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
-                //setTimeout(function () {
                 res.should.have.status(400);
-                //res.body.should.have.property('err');
                 res.body.should.have.property('message');
                 res.body.message.should.be.eql('choreType is not exist');
                     done();
-                //}, 7000);
             });
         });
         
@@ -926,30 +922,26 @@ describe('chores route', function () {
         it('it should GET no user chores in this month and type for userId that have no one', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+choreTypeTestSat.choreTypeName+'/month/12/year/2019/userId/'+userTest2.userId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
-                //setTimeout(function () {
-                    //res.should.have.status(200);
                     res.body.should.have.property('message');
                     res.body.message.should.equal('no users chores found for userId,type and month');
                     res.body.should.have.property('usersChores');
                     res.body.usersChores.should.be.a('array');
                     res.body.usersChores.length.should.be.eql(0);
                     done();
-                    //}, 8000);
                 });
         });
 
-        //throw exception but all the tests pass
         it('it should not GET user chores for userId is not exist', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/choreType/'+choreTypeTestFri.choreTypeName+'/month/12/year/2019/userId/'+'111111111')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
-                //setTimeout(function () {
                 res.should.have.status(400);
                 res.body.should.have.property('message');
                 res.body.message.should.equal("userId doesn't exist!");
                     done();
-                   //}, 7000);
             });
         });
       
@@ -978,19 +970,12 @@ describe('chores route', function () {
     describe('/GET userChores by month and choreTypeName api4', () => {
         before((done) => {
             setTimeout(function () {
-            //ChoreTypes.create(choreTypeTestSat);
             ChoreTypes.create(choreTypeTestFri);
             Users.create(userTest);
-            //Users.create(userTest2);
             UsersChoresTypes.create({
                 userId: userTest.userId,
                 choreTypeName: choreTypeTestFri.choreTypeName
             });
-            // UsersChoresTypes.create({
-            //     userId: userTest2.userId,
-            //     choreTypeName: choreTypeTestFri.choreTypeName
-            // });
-            //UsersChores.create(userChoreTestFuture);
             UsersChores.create(userChoreTestFuture);
             done();
         }, 3000);
@@ -1001,6 +986,7 @@ describe('chores route', function () {
         it('it should GET all the users chores of choreType in month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/month/12/year/2019')
+            .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
@@ -1020,10 +1006,9 @@ describe('chores route', function () {
         it('it should not GET user chores of choreType and user in illegal month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/month/t/year/2019')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
-                //setTimeout(function () {
                 res.should.have.status(400);
-                //res.body.should.have.property('err');
                 res.body.should.have.property('message');
                 res.body.message.should.be.eql('year or month with illegal values');
                 done();
@@ -1035,34 +1020,33 @@ describe('chores route', function () {
         it('it should GET user chores of choreType of not exist choretype ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/type/'+'no_such_type'+'/month/12/year/2019')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
-                //setTimeout(function () {
                 res.should.have.status(400);
-                //res.body.should.have.property('err');
                 res.body.should.have.property('message');
                 res.body.message.should.be.eql('choreType is not exist');
                     done();
-                //}, 7000);
             });
         });
         
-       
+  /*     
         it('it should GET no user chores in this month and type that have no one', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/type/'+choreTypeTestFri.choreTypeName+'/month/03/year/2019')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 //setTimeout(function () {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
-                    res.body.message.should.equal('no users chores found for choreType and month');
-                    // res.body.should.have.property('usersChores');
-                    // res.body.usersChores.should.be.a('array');
-                    // res.body.usersChores.length.should.be.eql(0);
+                    //res.body.message.should.equal('no users chores found for choreType and month');
+                     res.body.should.have.property('usersChores');
+                     res.body.usersChores.should.be.a('array');
+                     res.body.usersChores.length.should.be.eql(0);
                     done();
                     //}, 8000);
                 });
         });
-
+*/
         after((done) => {
             UsersChores.destroy({
                 where: {
@@ -1099,7 +1083,7 @@ describe('chores route', function () {
                 userId: userTest.userId,
                 choreTypeName: choreTypeTestSat.choreTypeName
             });
-            UsersChores.create(userChoreTestNow);
+            //UsersChores.create(userChoreTestNow);
             UsersChores.create(userChoreTestFuture);
             done();
         }, 3000);
@@ -1109,6 +1093,7 @@ describe('chores route', function () {
         it('it should GET all the user chores of in month of the userId ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+userTest.userId)
+            .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
@@ -1129,6 +1114,7 @@ describe('chores route', function () {
         it('it should not GET user chores of user in illegal month ', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/u/year/2019/userId/'+userTest.userId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 //setTimeout(function () {
                 res.should.have.status(400);
@@ -1144,6 +1130,7 @@ describe('chores route', function () {
         it('it should GET no user chores in this month for userId that have no one', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+userTest2.userId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 //setTimeout(function () {
                     //res.should.have.status(200);
@@ -1161,6 +1148,7 @@ describe('chores route', function () {
         it('it should not GET user chores for userId is not exist', (done) => {
             chai.request(server)
             .get('/api/chores/usersChores/month/12/year/2019/userId/'+'111111111')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 //setTimeout(function () {
                 res.should.have.status(400);
@@ -1191,7 +1179,7 @@ describe('chores route', function () {
             done();
         });
     });
- 
+
     //5 it
     describe('/DELETE user from choreTypeName api24', () => {
         before((done) => {
@@ -1218,6 +1206,7 @@ describe('chores route', function () {
         it('it should DELETE the user from choreType', (done) => {
             chai.request(server)
                 .delete('/api/chores/type/'+choreTypeTestSat.choreTypeName+'/users/userId/'+userTest.userId)
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
@@ -1232,6 +1221,7 @@ describe('chores route', function () {
         it('it should not DELETE user from choreType if he has a future userchores', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/users/userId/'+userTest.userId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(400);
                 res.body.should.have.property('message');
@@ -1243,6 +1233,7 @@ describe('chores route', function () {
         it('it should not DELETE user from choreType when userId is not exist', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/users/userId/'+'111111111')
+            .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(400);
                     res.body.should.have.property('err');
@@ -1255,6 +1246,7 @@ describe('chores route', function () {
         it('it should not DELETE user from type when userId are not belong to', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/users/userId/'+userTest2.userId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                     res.should.have.status(400);
                     res.body.should.have.property('message');
@@ -1266,6 +1258,7 @@ describe('chores route', function () {
         it('it should not DELTE user from choreType that not exist', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+'no such type'+'/users/userId/'+userTest2.userId)
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                     res.should.have.status(400);
                     //res.body.should.have.property('userChores');
@@ -1296,7 +1289,7 @@ describe('chores route', function () {
             done();
         });
     });
-
+ 
 
     //5 it
     describe('/POST new userChore api18', () => {
@@ -1323,6 +1316,7 @@ describe('chores route', function () {
         it('it should POST new user Chore for the user', (done) => {
             chai.request(server)
                 .post('/api/chores/add/userChore')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: userTest.userId,
                     choreTypeName: choreTypeTestFri.choreTypeName,
@@ -1341,6 +1335,7 @@ describe('chores route', function () {
         it('it should faild in  POST new user Chore when the user not exist', (done) => {
             chai.request(server)
                 .post('/api/chores/add/userChore')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: '111111111',
                     choreTypeName: choreTypeTestFri.choreTypeName,
@@ -1359,6 +1354,7 @@ describe('chores route', function () {
         it('it should faild in  POST new user Chore when the user not do the choreType', (done) => {
             chai.request(server)
                 .post('/api/chores/add/userChore')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: userTest.userId,
                     choreTypeName: choreTypeTestSat.choreTypeName,
@@ -1375,6 +1371,7 @@ describe('chores route', function () {
         it('it should faild in  POST new user Chore when the date in the past', (done) => {
             chai.request(server)
                 .post('/api/chores/add/userChore')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: userTest.userId,
                     choreTypeName: choreTypeTestFri.choreTypeName,
@@ -1391,6 +1388,7 @@ describe('chores route', function () {
         it('it should faild in  POST new user Chore when the type is not exist', (done) => {
             chai.request(server)
                 .post('/api/chores/add/userChore')
+                .set('Authorization', tokenTest)
                 .send({
                     userId: userTest.userId,
                     choreTypeName: 'no_such_type',
@@ -1465,6 +1463,7 @@ describe('chores route', function () {
         it('it should DELETE the choreType when no future userchore for it', (done) => {
             chai.request(server)
                 .delete('/api/chores/type/'+choreTypeTestSat.choreTypeName+'/delete')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.should.have.property('message');
@@ -1477,6 +1476,7 @@ describe('chores route', function () {
         it('it should DELETE choreType even if has a future userchores', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+choreTypeTestFri.choreTypeName+'/delete')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.have.property('message');
@@ -1489,6 +1489,7 @@ describe('chores route', function () {
         it('it should DELETE choreType when no user belong to', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+choreTypeTestSun.choreTypeName+'/delete')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.have.property('message');
@@ -1502,6 +1503,7 @@ describe('chores route', function () {
         it('it should not DELETE user from choreType that not exist', (done) => {
             chai.request(server)
             .delete('/api/chores/type/'+'no such type'+'/delete')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                     res.should.have.status(400);
                     //res.body.should.have.property('userChores');
@@ -1572,6 +1574,7 @@ describe('chores route', function () {
         it('it should DELETE the userChore in future', (done) => {
             chai.request(server)
                 .delete('/api/chores/userChoreId/'+choreId+'/delete')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     setTimeout(function () {
                     console.log("\n\n\n2. choreId: "+choreId+"\n\n\n");
@@ -1584,22 +1587,12 @@ describe('chores route', function () {
 
                 });
         });
-//it canceled
-       /* it('it should not DELETE userchore in past', (done) => {
-            chai.request(server)
-            .delete('/api/chores/userChoreId/'+choreIdPast+'/delete')
-            .end((err, res) => {
-                //res.should.have.status(400);
-                res.body.should.have.property('message');
-                res.body.message.should.be.eql('no such userChore in the future (cannot remove userchore that already executed)');
-                res.body.should.have.property('deleted').eql(0);
-                done();
-                });
-        });*/
+
         
         it('it should not  DELETE userChore not exist', (done) => {
             chai.request(server)
             .delete('/api/chores/userChoreId/'+"0"+'/delete')
+            .set('Authorization', tokenTest)
             .end((err, res) => {
                 res.should.have.status(400);
                 res.body.should.have.property('message');
@@ -1680,6 +1673,7 @@ describe('chores route', function () {
         it('it should GET all the replacement requests ', (done) => {
             chai.request(server)
                 .get('/api/chores/replacementRequests/status/requested')
+                .set('Authorization', tokenTest)
                 .end((err, res) => {
                     res.should.have.status(200);
                     res.body.requests.should.be.a('array');
@@ -1747,13 +1741,8 @@ describe('chores route', function () {
                 .then(receiver=>{
                     receiverOldDate = receiver.dataValues.date;
                     receiverChoreId = receiver.dataValues.userChoreId;
-                    /*SwapRequests.create({
-                        choreIdOfReceiver: receiverChoreId,
-                        choreIdOfSender:senderChoreId,
-                        status:"requested"*/
-                    //}).then(r=>{
+                    
                         done();
-                    //})
                 })
             })
         });
@@ -1761,6 +1750,7 @@ describe('chores route', function () {
         it('it should POST new replacement request successefuly', (done) => {
             chai.request(server)
                 .post('/api/chores/replacementRequests/specificRequest')
+                .set('Authorization', tokenTest)
                 .send({
                     choreIdOfReceiver: receiverChoreId,
                     choreIdOfSender:senderChoreId,
@@ -1779,6 +1769,7 @@ describe('chores route', function () {
         it('it should faild in  POST new replacement request when the userchore not exist', (done) => {
             chai.request(server)
                 .post('/api/chores/replacementRequests/specificRequest')
+                .set('Authorization', tokenTest)
                 .send({
                     choreIdOfReceiver: -3,
                     choreIdOfSender:senderChoreId,
@@ -1850,13 +1841,8 @@ describe('chores route', function () {
                 .then(receiver=>{
                     receiverOldDate = receiver.dataValues.date;
                     receiverChoreId = receiver.dataValues.userChoreId;
-                    /*SwapRequests.create({
-                        choreIdOfReceiver: receiverChoreId,
-                        choreIdOfSender:senderChoreId,
-                        status:"requested"*/
-                    //}).then(r=>{
+                    
                         done();
-                    //})
                 })
             })
         });
@@ -1864,6 +1850,7 @@ describe('chores route', function () {
         it('it should PUT general request successefuly', (done) => {
             chai.request(server)
                 .put('/api/chores/replacementRequests/generalRequest')
+                .set('Authorization', tokenTest)
                 .send({
                     userChoreId:senderChoreId ,
 	                isMark: true
@@ -1952,6 +1939,7 @@ describe('chores route', function () {
         it('it should put- change status replacement request successefuly', (done) => {
             chai.request(server)
                 .put('/api/chores/replacementRequests/changeStatus')
+                .set('Authorization', tokenTest)
                 .send({
                     choreIdOfReceiver: receiverChoreId,
                     choreIdOfSender:senderChoreId,
@@ -2042,6 +2030,7 @@ describe('chores route', function () {
         it('it should put- execute replacement chores successefuly done', (done) => {
             chai.request(server)
                 .put('/api/chores/replacementRequests/replace')
+                .set('Authorization', tokenTest)
                 .send({
                     "choreIdOfReceiver": receiverChoreId,
 	                "choreIdOfSender":senderChoreId
@@ -2080,4 +2069,27 @@ describe('chores route', function () {
         });
     });
 
-});
+//});
+
+function loginAuthenticateUser(userTest) {
+    return chai.request(server)
+        .post('/api/users/login/authenticate')
+        .send({
+            "userId": userTest.userId,
+            "password": userTest.password
+        })
+        .then((res) => {
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('success');
+            res.body.success.should.be.true;
+            res.body.should.have.property('message');
+            //res.body.message.should.equal(constants.general.SUCCESSFUL_TOKEN,);
+            res.body.should.have.property('token');
+            return res.body.token;
+        })
+        .catch((err) => {
+            throw err;
+        });
+}
+})
