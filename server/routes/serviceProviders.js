@@ -317,7 +317,7 @@ router.post('/add', function (req, res, next) {
                             validations.getUsersByUserIdPromise(newServiceProvider.userId)
                                 .then(users => {
                                     helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                                        "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + newServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                                        "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + serviceProviderRolesMapper(newServiceProvider.role) + "\n" + constants.mailMessages.MAIL_END);
                                 })
                                 .catch(err => {
                                     console.log(err);
@@ -375,7 +375,7 @@ router.put('/roles/addToServiceProvider', function (req, res, next) {
                 validations.getUsersByUserIdPromise(updateServiceProvider.userId)
                     .then(users => {
                         helpers.sendMail(users[0].email, constants.mailMessages.ADD_SERVICE_PROVIDER_SUBJECT,
-                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + updateServiceProvider.role + "\n" + constants.mailMessages.MAIL_END);
+                            "שלום " + users[0].fullname + ",\n" + constants.mailMessages.BEFORE_ROLE + "\n תחום אחריותך החדש: " + serviceProviderRolesMapper(updateServiceProvider.role) + "\n" + constants.mailMessages.MAIL_END);
                     })
                     .catch(err => {
                         console.log(err);

@@ -1,6 +1,6 @@
 import React from 'react';
 import {shallow} from "enzyme/build";
-import {setupComponent} from "../../testHelpers";
+import {flushPromises,setupComponent} from "../../testHelpers";
 import PageNotFound from "../../../pages/pageNotFound404/PageNotFound";
 import store from 'store';
 import moment from 'moment';
@@ -25,7 +25,7 @@ describe("AppointmentAdd should", () => {
     let wrapper = null;
     let componentInstance = null;
     let appointmentRequestTest = appointmentRequestsOf549963652[1];
-    appointmentRequestTest.optionalTimes=JSON.parse(appointmentRequestTest.optionalTimes);
+    appointmentRequestTest.optionalTimes = JSON.parse(appointmentRequestTest.optionalTimes);
     const history = createMemoryHistory({
         initialEntries: ['/', '/home', '/appointments', '/appointments/set'],
         initialIndex: 3,
@@ -57,7 +57,10 @@ describe("AppointmentAdd should", () => {
             path: '/appointments/set',
             url: '/appointments/set',
         },
-        serviceProviderRoles:["appointmentsHairDresser"],
+        serviceProviderRoles: ["appointmentsHairDresser"],
+        getUsersForAppointmentForm: jest.fn(),
+        getServiceProviderRoles: jest.fn(),
+        userOptions: [],
     };
     const propsWithRequest = {
         history: history,
@@ -72,7 +75,10 @@ describe("AppointmentAdd should", () => {
             path: '/appointments/set',
             url: '/appointments/set',
         },
-        serviceProviderRoles:["appointmentsHairDresser"],
+        serviceProviderRoles: ["appointmentsHairDresser"],
+        getUsersForAppointmentForm: jest.fn(),
+        getServiceProviderRoles: jest.fn(),
+        userOptions: [],
     };
     const mockStore = {
         serviceProviderId: "549963652",
@@ -90,16 +96,15 @@ describe("AppointmentAdd should", () => {
     appointmentsStorage.getServiceProviderAppointments.mockResolvedValue({data: appointmentsOf549963652});
     appointmentsStorage.getServiceProviderAppointmentRequests.mockImplementation(() => Promise.resolve({data: JSON.parse(JSON.stringify(appointmentRequestsOf549963652))}));
 
-    beforeAll((done) => {
-        done();
+    beforeAll(() => {
     });
 
     afterAll(() => {
     });
 
-    beforeEach((done) => {
+    beforeEach(async () => {
         jest.clearAllMocks();
-        done();
+        await flushPromises();
     });
 
     afterEach(() => {
@@ -118,7 +123,10 @@ describe("AppointmentAdd should", () => {
                 path: '/appointments/set',
                 url: '/appointments/set',
             },
-            serviceProviderRoles:["appointmentsHairDresser"],
+            serviceProviderRoles: ["appointmentsHairDresser"],
+            getUsersForAppointmentForm: jest.fn(),
+            getServiceProviderRoles: jest.fn(),
+            userOptions: [],
         };
 
         const arrResponse = setupComponent('shallow', AppointmentAdd, null, props, "/appointments/set");
@@ -141,7 +149,10 @@ describe("AppointmentAdd should", () => {
                 path: '/appointments/set',
                 url: '/appointments/set',
             },
-            serviceProviderRoles:["appointmentsHairDresser"],
+            serviceProviderRoles: ["appointmentsHairDresser"],
+            getUsersForAppointmentForm: jest.fn(),
+            getServiceProviderRoles: jest.fn(),
+            userOptions: [],
         };
 
         const arrResponse = setupComponent('shallow', AppointmentAdd, null, props, "/appointments/set");
@@ -194,7 +205,7 @@ describe("AppointmentAdd should", () => {
     });
 
     test("handleCancel", async () => {
-        const arrResponse = await setupComponent('shallow', AppointmentAdd, history, propsWithRequest, "/appointments/set");
+        const arrResponse = await setupComponent('mount', AppointmentAdd, history, propsWithRequest, "/appointments/set");
         wrapper = arrResponse[0];
         componentInstance = arrResponse[1];
 
@@ -203,16 +214,6 @@ describe("AppointmentAdd should", () => {
             }
         });
 
-        wrapper.update();
-        expect(componentInstance.props.history.location.pathname).toEqual('/appointments');
-    });
-
-    test("handleSubmit", async () => {
-        const arrResponse = await setupComponent('mount', AppointmentAdd, history, propsWithSlotInfo, "/appointments/set");
-        wrapper = arrResponse[0];
-        componentInstance = arrResponse[1];
-
-        await componentInstance.handleSubmit(appointmentsOf549963652[1]);
         expect(componentInstance.props.history.location.pathname).toEqual('/appointments');
     });
 
@@ -228,5 +229,14 @@ describe("AppointmentAdd should", () => {
         expect(shallowWrapper.find('Header')).toHaveLength(1);
         expect(shallowWrapper.find('Header').props().children).toEqual('תור חדש');
         expect(shallowWrapper.find('AppointmentForm')).toHaveLength(1);
+    });
+
+    test("handleSubmit", async () => {
+        const arrResponse = await setupComponent('mount', AppointmentAdd, history, propsWithSlotInfo, "/appointments/set");
+        wrapper = arrResponse[0];
+        componentInstance = arrResponse[1];
+
+        await componentInstance.handleSubmit(appointmentsOf549963652[1]);
+        expect(componentInstance.props.history.location.pathname).toEqual('/home');
     });
 });
