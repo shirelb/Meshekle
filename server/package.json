@@ -7,14 +7,14 @@
     "test": "mocha tests/chores.test.js"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.20.1",
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.8",
     "debug": "~2.6.9",
-    "express": "~4.16.0",
+    "express": "~4.18.2",
     "firebase-admin": "^8.1.0",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
